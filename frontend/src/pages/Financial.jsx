@@ -95,7 +95,7 @@ const Financial = () => {
   };
 
   const calculateNetProfit = (propertyData) => {
-    if (!propertyData) return 0;
+    if (!propertyData || !propertyData.property) return 0;
     
     const monthlyRent = propertyData.property?.rent_amount || 0;
     const monthlyExpenses = propertyData.summary?.total_monthly_expenses || 0;
@@ -252,7 +252,7 @@ const Financial = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {financialData?.map((data, index) => {
+              {financialData?.filter(data => data && data.property)?.map((data, index) => {
                 const netMonthlyProfit = calculateNetProfit(data);
                 const annualNetProfit = calculateAnnualNetProfit(data);
                 const roi = data.summary?.annual_roi || 0;
@@ -269,8 +269,12 @@ const Financial = () => {
                                 src={`http://localhost:5000/uploads/${data.property.image_url}`}
                                 alt={data.property.title}
                                 onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'block';
+                                  if (e.target) {
+                                    e.target.style.display = 'none';
+                                  }
+                                  if (e.target && e.target.nextSibling) {
+                                    e.target.nextSibling.style.display = 'block';
+                                  }
                                 }}
                               />
                             ) : null}
@@ -392,11 +396,11 @@ const Financial = () => {
                               <div className="bg-white p-4 rounded-lg border">
                                 <h4 className="text-sm font-medium text-gray-900 mb-2">Recent Transactions</h4>
                                 <div className="space-y-1 text-sm">
-                                  {data.transactions?.slice(0, 3).map((transaction, idx) => (
+                                  {data.transactions?.filter(transaction => transaction)?.slice(0, 3).map((transaction, idx) => (
                                     <div key={idx} className="flex justify-between">
-                                      <span className="text-gray-500 truncate">{transaction.description}</span>
+                                      <span className="text-gray-500 truncate">{transaction.description || 'Unknown'}</span>
                                       <span className={`font-medium ${transaction.transaction_type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                                        {transaction.transaction_type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                                        {transaction.transaction_type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount || 0)}
                                       </span>
                                     </div>
                                   ))}
@@ -440,7 +444,10 @@ const Financial = () => {
             <p className="text-xl font-bold text-blue-600">
               {financialData && financialData.length > 0 
                 ? formatPercentage(
-                    financialData.reduce((sum, data) => sum + (data.summary?.annual_roi || 0), 0) / financialData.length
+                    financialData
+                      .filter(data => data && data.summary)
+                      .reduce((sum, data) => sum + (data.summary?.annual_roi || 0), 0) / 
+                    financialData.filter(data => data && data.summary).length
                   )
                 : '0.00%'
               }
