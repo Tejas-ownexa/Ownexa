@@ -3,15 +3,17 @@ import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench } from 'lucide-react';
+import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench, Clock, TrendingUp } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import DashboardWidget from '../components/DashboardWidget';
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('properties');
   const [maintenanceList, setMaintenanceList] = useState([]);
   const [maintenanceLoading, setMaintenanceLoading] = useState(true);
 
+  // Only fetch data relevant to the user's role
   const { data: userProperties, isLoading: propertiesLoading } = useQuery(
     ['user-properties'],
     async () => {
@@ -23,7 +25,7 @@ const Dashboard = () => {
       });
       return response.data;
     },
-    { enabled: !!user?.id }
+    { enabled: !!user?.id && (user?.role === 'OWNER' || user?.role === 'AGENT') }
   );
 
   const { data: favorites, isLoading: favoritesLoading } = useQuery(
@@ -35,7 +37,7 @@ const Dashboard = () => {
       const response = await api.get('/api/properties/user/favorites');
       return response.data;
     },
-    { enabled: !!user?.id }
+    { enabled: !!user?.id && (user?.role === 'OWNER' || user?.role === 'AGENT') }
   );
 
   // Create a set of favorited property IDs for quick lookup
@@ -57,7 +59,7 @@ const Dashboard = () => {
       const response = await api.get('/api/tenants/statistics/summary');
       return response.data;
     },
-    { enabled: !!user?.id }
+    { enabled: !!user?.id && (user?.role === 'OWNER' || user?.role === 'AGENT') }
   );
 
   const { data: tenants, isLoading: tenantsLoading } = useQuery(
@@ -69,34 +71,22 @@ const Dashboard = () => {
       const response = await api.get('/api/tenants/');
       return response.data;
     },
-    { enabled: !!user?.id }
+    { enabled: !!user?.id && (user?.role === 'OWNER' || user?.role === 'AGENT') }
   );
 
-  useQuery(
+  // Fetch maintenance requests for all users
+  const { data: maintenanceRequests } = useQuery(
     ['maintenance-requests'],
     async () => {
-      if (!user?.id) {
-        throw new Error('User ID not available');
-      }
-      try {
-        setMaintenanceLoading(true);
-        const response = await api.get('/api/maintenance/requests');
-        console.log('Maintenance response:', response.data);
-        if (response.data && Array.isArray(response.data.items)) {
-          setMaintenanceList(response.data.items);
-        } else {
-          setMaintenanceList([]);
-        }
-      } catch (error) {
-        console.error('Error fetching maintenance requests:', error);
-        setMaintenanceList([]);
-      } finally {
-        setMaintenanceLoading(false);
-      }
+      const response = await api.get('/api/maintenance/requests');
+      return response.data;
     },
-    { 
-      enabled: !!user?.id,
-      refetchOnWindowFocus: false,
+    {
+      onSuccess: (data) => {
+        setMaintenanceList(data || []);
+        setMaintenanceLoading(false);
+      },
+      onError: () => setMaintenanceLoading(false),
       onSettled: () => setMaintenanceLoading(false)
     }
   );
@@ -116,8 +106,28 @@ const Dashboard = () => {
         outstandingBalances: balanceResponse.data
       };
     },
-    { enabled: !!user?.id }
+    { enabled: !!user?.id && (user?.role === 'OWNER' || user?.role === 'AGENT') }
   );
+
+  // Vendor-specific maintenance statistics
+  const getVendorMaintenanceStats = () => {
+    if (!maintenanceRequests) return {};
+    
+    const assignedRequests = maintenanceRequests.filter(req => req.assigned_vendor);
+    const completedRequests = assignedRequests.filter(req => req.status === 'completed');
+    const inProgressRequests = assignedRequests.filter(req => req.status === 'in_progress');
+    const pendingRequests = assignedRequests.filter(req => req.status === 'assigned');
+    
+    return {
+      total: assignedRequests.length,
+      completed: completedRequests.length,
+      inProgress: inProgressRequests.length,
+      pending: pendingRequests.length,
+      completionRate: assignedRequests.length > 0 ? Math.round((completedRequests.length / assignedRequests.length) * 100) : 0
+    };
+  };
+
+  const vendorStats = getVendorMaintenanceStats();
 
   const tabs = [
     { id: 'properties', label: 'My Properties', icon: Home },
@@ -150,59 +160,150 @@ const Dashboard = () => {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user?.full_name || 'User'}!</p>
+  // Vendor Dashboard - Show only maintenance-related information
+  if (user.role === 'VENDOR') {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Vendor Dashboard</h1>
+              <p className="text-gray-600 mt-1">Manage your assigned maintenance requests and track work progress</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">Welcome back, {user.full_name}</span>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+        </div>
+
+        {/* Vendor Maintenance Statistics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <DashboardWidget
+            title="Total Assigned"
+            value={vendorStats.total}
+            description="Requests assigned to you"
+            icon={Wrench}
+            color="blue"
+            link="/maintenance"
+          />
+          <DashboardWidget
+            title="Completed"
+            value={vendorStats.completed}
+            description="Successfully completed"
+            icon={CheckCircle}
+            color="green"
+            link="/maintenance"
+          />
+          <DashboardWidget
+            title="In Progress"
+            value={vendorStats.inProgress}
+            description="Currently working on"
+            icon={Clock}
+            color="orange"
+            link="/maintenance"
+          />
+          <DashboardWidget
+            title="Completion Rate"
+            value={`${vendorStats.completionRate}%`}
+            description="Your success rate"
+            icon={TrendingUp}
+            color="yellow"
+            link="/maintenance"
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
-              to="/tenants"
-              className="btn-secondary flex items-center justify-center space-x-2"
+              to="/maintenance"
+              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <User className="h-4 w-4" />
-              <span>Manage Tenants</span>
+              <Wrench className="h-8 w-8 text-blue-600 mr-4" />
+              <div>
+                <h3 className="font-medium text-gray-900">View Maintenance Requests</h3>
+                <p className="text-sm text-gray-600">Check your assigned requests and update status</p>
+              </div>
             </Link>
             <Link
-              to="/add-property"
-              className="btn-primary flex items-center justify-center space-x-2"
+              to="/vendor-profile"
+              className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <Plus className="h-4 w-4" />
-              <span>Add Property</span>
+              <User className="h-8 w-8 text-green-600 mr-4" />
+              <div>
+                <h3 className="font-medium text-gray-900">Update Profile</h3>
+                <p className="text-sm text-gray-600">Manage your vendor information and services</p>
+              </div>
             </Link>
           </div>
         </div>
-        
-        {/* Quick Actions */}
-        {userProperties && userProperties.length === 0 && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Home className="h-5 w-5 text-blue-600" />
+
+        {/* Recent Maintenance Requests */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">Recent Maintenance Requests</h2>
+            <Link
+              to="/maintenance"
+              className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+            >
+              View All →
+            </Link>
+          </div>
+          {maintenanceList.length === 0 ? (
+            <div className="text-center py-8">
+              <Wrench className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600">No maintenance requests assigned yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {maintenanceList.slice(0, 5).map((request) => (
+                <div key={request.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">{request.request_title}</h3>
+                    <p className="text-sm text-gray-600">{request.property?.title}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      request.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      request.status === 'in_progress' ? 'bg-orange-100 text-orange-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {request.status.replace('_', ' ').toUpperCase()}
+                    </span>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-blue-800">
-                    Get Started with Property Management
-                  </h3>
-                  <p className="text-sm text-blue-700">
-                    Add your first property to start managing tenants and tracking rent payments.
-                  </p>
-                </div>
-              </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Regular Dashboard for OWNER and AGENT roles
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 mt-1">Welcome back, {user.full_name}</p>
+          </div>
+          {(user?.role === 'OWNER' || user?.role === 'AGENT') && (
+            <div className="flex items-center space-x-4">
               <Link
                 to="/add-property"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
+                <Plus className="h-4 w-4 mr-2" />
                 Add Property
               </Link>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Dashboard Widgets */}

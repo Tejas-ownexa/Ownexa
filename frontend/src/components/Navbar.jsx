@@ -19,6 +19,7 @@ const Navbar = () => {
     
     if (user.role === 'VENDOR') {
       return [
+        { name: 'Maintenance', href: '/maintenance', icon: Wrench },
         { name: 'Profile', href: '/vendor-profile', icon: User },
       ];
     }
