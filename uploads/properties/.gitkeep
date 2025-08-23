@@ -1,0 +1,4 @@
+# This file ensures the uploads/properties directory is tracked by git
+# while the actual uploaded files are ignored
+
+
