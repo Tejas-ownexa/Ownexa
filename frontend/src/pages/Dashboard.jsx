@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import DashboardWidget from '../components/DashboardWidget';
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('properties');
@@ -126,6 +127,8 @@ const Dashboard = () => {
     { id: 'favorites', label: 'Favorites', icon: Heart },
     { id: 'profile', label: 'Profile', icon: User },
   ];
+
+
 
   if (!user) {
     return (
@@ -505,6 +508,8 @@ const Dashboard = () => {
               )}
             </div>
           )}
+
+
 
           {/* Maintenance Tab */}
           {activeTab === 'maintenance' && (

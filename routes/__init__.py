@@ -9,6 +9,7 @@ from routes.association_routes import association_bp
 from routes.financial_routes import financial_bp
 from routes.vendor_routes import vendor_bp
 from routes.chatbot_routes import chatbot_bp
+from routes.admin_bot_routes import admin_bot_bp
 
 def init_routes(app):
     print("Initializing routes...")
@@ -67,6 +68,10 @@ def init_routes(app):
     # Chatbot routes
     app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
     print("Chatbot routes registered")
+    
+    # Admin Bot routes
+    app.register_blueprint(admin_bot_bp, url_prefix='/api/admin-bot')
+    print("Admin Bot routes registered")
     
     print("All routes registered successfully")
     

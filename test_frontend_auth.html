@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Bot Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        input { padding: 8px; margin: 5px; width: 300px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Bot Frontend Test</h1>
+        
+        <div class="test-section">
+            <h3>1. Check Current Token</h3>
+            <button onclick="checkToken()">Check Token</button>
+            <div id="tokenResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>2. Test Admin Bot API</h3>
+            <input type="text" id="queryInput" placeholder="Enter your query (e.g., 'property report')" value="property report">
+            <button onclick="testAdminBot()">Test Admin Bot</button>
+            <div id="adminBotResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>3. Manual Token Test</h3>
+            <input type="text" id="manualToken" placeholder="Paste token here">
+            <button onclick="testWithManualToken()">Test with Manual Token</button>
+            <div id="manualTokenResult"></div>
+        </div>
+    </div>
+
+    <script>
+        function checkToken() {
+            const token = localStorage.getItem('token');
+            const resultDiv = document.getElementById('tokenResult');
+            
+            if (token) {
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>✅ Token found!</strong><br>
+                        <small>Token: ${token.substring(0, 50)}...</small>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ No token found!</strong><br>
+                        You need to log in to the main application first.
+                    </div>
+                `;
+            }
+        }
+
+        async function testAdminBot() {
+            const query = document.getElementById('queryInput').value;
+            const token = localStorage.getItem('token');
+            const resultDiv = document.getElementById('adminBotResult');
+            
+            if (!token) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ No token available!</strong><br>
+                        Please log in to the main application first.
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<div>🔄 Testing...</div>';
+                
+                const response = await fetch('http://localhost:5002/api/admin-bot/admin-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Success!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Error: ${response.status}</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong><br>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        async function testWithManualToken() {
+            const token = document.getElementById('manualToken').value;
+            const query = document.getElementById('queryInput').value;
+            const resultDiv = document.getElementById('manualTokenResult');
+            
+            if (!token) {
+                resultDiv.innerHTML = '<div class="error">❌ Please enter a token</div>';
+                return;
+            }
+
+            try {
+                resultDiv.innerHTML = '<div>🔄 Testing with manual token...</div>';
+                
+                const response = await fetch('http://localhost:5002/api/admin-bot/admin-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Success with manual token!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Error: ${response.status}</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong><br>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        // Auto-check token on page load
+        window.onload = function() {
+            checkToken();
+        };
+    </script>
+</body>
+</html>

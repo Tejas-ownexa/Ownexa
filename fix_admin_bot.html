@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Bot Fix</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .step { margin: 20px 0; padding: 15px; border-left: 4px solid #007bff; background: #f8f9fa; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #0056b3; }
+        button.success { background: #28a745; }
+        button.success:hover { background: #1e7e34; }
+        button.warning { background: #ffc107; color: #212529; }
+        button.warning:hover { background: #e0a800; }
+        input { padding: 8px; margin: 5px; width: 100%; border: 1px solid #ddd; border-radius: 3px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; font-size: 12px; }
+        .result { margin-top: 10px; }
+        .copy-btn { background: #6c757d; font-size: 12px; padding: 5px 10px; }
+        .copy-btn:hover { background: #545b62; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Bot Authentication Fix</h1>
+        <p>This page will help you fix the "Failed to get response from admin bot" error.</p>
+
+        <div class="step">
+            <h3>Step 1: Check Current Status</h3>
+            <button onclick="checkStatus()">Check Current Status</button>
+            <div id="statusResult" class="result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Test with Working Token</h3>
+            <p>Use this working token to test the admin bot:</p>
+            <input type="text" id="workingToken" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE3NTYxMzI3NDl9.E1AMEHsIabsRs0HaSGnHWMIqynv6aEIq_CNEFVrjUvA" readonly>
+            <button class="copy-btn" onclick="copyToken()">Copy Token</button>
+            <br><br>
+            <input type="text" id="testQuery" placeholder="Enter your query (e.g., 'property report')" value="property report">
+            <button onclick="testWithWorkingToken()">Test Admin Bot</button>
+            <div id="testResult" class="result"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Fix Frontend Authentication</h3>
+            <p>If the test above works, the issue is with your frontend authentication. Here's how to fix it:</p>
+            <ol>
+                <li><strong>Go to the main application:</strong> <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></li>
+                <li><strong>Log out</strong> completely (if you're logged in)</li>
+                <li><strong>Log in again</strong> with your credentials</li>
+                <li><strong>Navigate to the Admin Bot</strong> section</li>
+                <li><strong>Try your query again</strong></li>
+            </ol>
+            <button class="success" onclick="openMainApp()">Open Main Application</button>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Alternative - Use This Token in Main App</h3>
+            <p>If you can't log in, you can manually set this token in your browser:</p>
+            <ol>
+                <li>Open browser developer tools (F12)</li>
+                <li>Go to Console tab</li>
+                <li>Run this command:</li>
+            </ol>
+            <pre id="tokenCommand">localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE3NTYxMzI3NDl9.E1AMEHsIabsRs0HaSGnHWMIqynv6aEIq_CNEFVrjUvA')</pre>
+            <button class="copy-btn" onclick="copyCommand()">Copy Command</button>
+            <button class="warning" onclick="setTokenInConsole()">Set Token (Opens Console)</button>
+        </div>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const resultDiv = document.getElementById('statusResult');
+            const token = localStorage.getItem('token');
+            
+            if (token) {
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>✅ Token found in localStorage</strong><br>
+                        <small>Token: ${token.substring(0, 50)}...</small>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ No token found in localStorage</strong><br>
+                        This is likely the cause of the error. You need to log in again.
+                    </div>
+                `;
+            }
+        }
+
+        async function testWithWorkingToken() {
+            const token = document.getElementById('workingToken').value;
+            const query = document.getElementById('testQuery').value;
+            const resultDiv = document.getElementById('testResult');
+            
+            try {
+                resultDiv.innerHTML = '<div>🔄 Testing admin bot...</div>';
+                
+                const response = await fetch('http://localhost:5002/api/admin-bot/admin-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Admin Bot is working!</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Admin Bot Error: ${response.status}</strong><br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong><br>
+                        <pre>${error.message}</pre>
+                    </div>
+                `;
+            }
+        }
+
+        function copyToken() {
+            const token = document.getElementById('workingToken').value;
+            navigator.clipboard.writeText(token);
+            alert('Token copied to clipboard!');
+        }
+
+        function copyCommand() {
+            const command = document.getElementById('tokenCommand').textContent;
+            navigator.clipboard.writeText(command);
+            alert('Command copied to clipboard!');
+        }
+
+        function openMainApp() {
+            window.open('http://localhost:3000', '_blank');
+        }
+
+        function setTokenInConsole() {
+            const command = document.getElementById('tokenCommand').textContent;
+            alert('Opening browser console...\n\nPaste this command in the console:\n\n' + command);
+            // Try to open console (this might not work in all browsers)
+            if (window.console && window.console.log) {
+                console.log('Run this command in the console:');
+                console.log(command);
+            }
+        }
+
+        // Auto-check status on page load
+        window.onload = function() {
+            checkStatus();
+        };
+    </script>
+</body>
+</html>
