@@ -153,6 +153,7 @@ CREATE TABLE maintenance_requests (
     tenant_notes TEXT,
     vendor_notes TEXT,
     owner_notes TEXT,
+    vendor_type_needed VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
