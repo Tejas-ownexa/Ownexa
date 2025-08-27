@@ -170,6 +170,12 @@ def main():
         "single family or duplex.pdf"
     ]
     
+    # Also check in Ownexa-JP subdirectory
+    if os.path.exists("Ownexa-JP"):
+        for pdf in pdf_files:
+            if os.path.exists(f"Ownexa-JP/{pdf}"):
+                pdf_files.append(f"Ownexa-JP/{pdf}")
+    
     found_pdfs = []
     for pdf_file in pdf_files:
         if os.path.exists(pdf_file):

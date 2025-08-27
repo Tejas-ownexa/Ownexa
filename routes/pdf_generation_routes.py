@@ -1,8 +1,4 @@
 from flask import Blueprint, request, jsonify, send_file, current_app
-from models.tenant import Tenant
-from models.property import Property
-from models.user import User
-from config import db
 import os
 import logging
 from datetime import datetime
@@ -220,66 +216,48 @@ def get_template_name(form_type):
 
 
 def generate_simple_pdf(customer_data, form_type, signature_data):
-    """Generate PDF using the Ownexa overlay system"""
+    """Generate a simple PDF (fallback implementation)"""
     try:
-        # Import the overlay system
-        import sys
-        import os
-        sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+        # Try to use reportlab if available
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter
+        import io
         
-        from pdf_overlay_filler import OwenxaPDFOverlay
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer, pagesize=letter)
         
-        # Create overlay instance
-        overlay = OwenxaPDFOverlay()
+        # Add title
+        p.setFont("Helvetica-Bold", 16)
+        title = f"Rental Application - {form_type.replace('_', ' ').title()}"
+        p.drawString(100, 750, title)
         
-        # Fill the PDF template
-        pdf_bytes, detected_form_type = overlay.fill_pdf_template(customer_data, signature_data)
+        # Add customer data
+        p.setFont("Helvetica", 12)
+        y_position = 700
+        for field, value in customer_data.items():
+            if value:
+                label = field.replace('_', ' ').title()
+                p.drawString(100, y_position, f"{label}: {value}")
+                y_position -= 20
         
-        return pdf_bytes
+        # Add signature placeholder
+        if signature_data:
+            p.drawString(100, y_position - 40, "Signature: [Electronically Signed]")
         
-    except Exception as e:
-        logger.error(f"Overlay PDF generation failed: {e}")
-        # Fallback to simple PDF generation
-        try:
-            from reportlab.pdfgen import canvas
-            from reportlab.lib.pagesizes import letter
-            import io
-            
-            buffer = io.BytesIO()
-            p = canvas.Canvas(buffer, pagesize=letter)
-            
-            # Add title
-            p.setFont("Helvetica-Bold", 16)
-            title = f"Rental Application - {form_type.replace('_', ' ').title()}"
-            p.drawString(100, 750, title)
-            
-            # Add customer data
-            p.setFont("Helvetica", 12)
-            y_position = 700
-            for field, value in customer_data.items():
-                if value:
-                    label = field.replace('_', ' ').title()
-                    p.drawString(100, y_position, f"{label}: {value}")
-                    y_position -= 20
-            
-            # Add signature placeholder
-            if signature_data:
-                p.drawString(100, y_position - 40, "Signature: [Electronically Signed]")
-            
-            # Add date
-            p.drawString(100, y_position - 60, f"Date: {datetime.now().strftime('%Y-%m-%d')}")
-            
-            p.showPage()
-            p.save()
-            
-            pdf_content = buffer.getvalue()
-            buffer.close()
-            
-            return pdf_content
-            
-        except ImportError:
-            # Final fallback - text file
-            content = f"""
+        # Add date
+        p.drawString(100, y_position - 60, f"Date: {datetime.now().strftime('%Y-%m-%d')}")
+        
+        p.showPage()
+        p.save()
+        
+        pdf_content = buffer.getvalue()
+        buffer.close()
+        
+        return pdf_content
+        
+    except ImportError:
+        # If reportlab not available, create a simple text file
+        content = f"""
 RENTAL APPLICATION - {form_type.upper()}
 =====================================
 
@@ -287,14 +265,14 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 Customer Information:
 """
-            for field, value in customer_data.items():
-                if value:
-                    content += f"{field.replace('_', ' ').title()}: {value}\n"
-            
-            if signature_data:
-                content += "\nSignature: [Electronically Signed]\n"
-            
-            return content.encode('utf-8')
+        for field, value in customer_data.items():
+            if value:
+                content += f"{field.replace('_', ' ').title()}: {value}\n"
+        
+        if signature_data:
+            content += "\nSignature: [Electronically Signed]\n"
+        
+        return content.encode('utf-8')
 
 
 def save_pdf_file(pdf_content, customer_name, form_type):

@@ -144,7 +144,7 @@ def detect_form_type(customer_data):
 def save_pdf_file(pdf_content, customer_name, form_type):
     """Save PDF to uploads folder"""
     # Create uploads directory
-    uploads_dir = 'uploads/generated_pdfs'
+    uploads_dir = 'Ownexa-JP/uploads/generated_pdfs'
     os.makedirs(uploads_dir, exist_ok=True)
     
     # Create filename

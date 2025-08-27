@@ -271,7 +271,12 @@ class EnhancedPDFFormFiller:
             # Check if template exists
             template_path = template_name
             if not os.path.exists(template_path):
-                raise FileNotFoundError(f"Template not found: {template_name}")
+                # Try in Ownexa-JP subdirectory
+                alt_path = f"Ownexa-JP/{template_name}"
+                if os.path.exists(alt_path):
+                    template_path = alt_path
+                else:
+                    raise FileNotFoundError(f"Template not found: {template_name}")
             
             logger.info(f"Using template: {template_path}")
             
@@ -289,6 +294,10 @@ class EnhancedPDFFormFiller:
         try:
             # Create uploads directory
             uploads_dir = 'uploads/generated_pdfs'
+            if not os.path.exists(uploads_dir):
+                # Try Ownexa-JP subdirectory
+                uploads_dir = 'Ownexa-JP/uploads/generated_pdfs'
+            
             os.makedirs(uploads_dir, exist_ok=True)
             
             # Create filename
