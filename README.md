@@ -1,273 +1,212 @@
 # Real Estate Management System
 
-A comprehensive full-stack real estate property management system built with Flask (Backend) and React (Frontend). This application provides complete property management capabilities including tenant management, maintenance requests, financial tracking, and vendor management.
+A comprehensive real estate management system built with Flask (backend) and React (frontend).
 
-## 🏗️ Project Structure
+## Features
 
-```
-Test_Flask/
-├── app.py                 # Main Flask application entry point
-├── config.py             # Database and application configuration
-├── requirements.txt      # Python dependencies
-├── docker-compose.yml    # Docker setup for PostgreSQL and pgAdmin
-├── database_tables.sql   # Complete database schema
-├── create_db.py         # Database creation script
-├── models/              # Database models
-│   ├── user.py          # User authentication model
-│   ├── property.py      # Property management model
-│   ├── tenant.py        # Tenant management model
-│   ├── maintenance.py   # Maintenance requests model
-│   ├── vendor.py        # Vendor management model
-│   ├── financial.py     # Financial tracking model
-│   ├── association.py   # Association management model
-│   └── listing.py       # Property listings model
-├── routes/              # API routes
-│   ├── auth_routes.py   # Authentication endpoints
-│   ├── property_routes.py # Property management endpoints
-│   ├── tenant_routes.py # Tenant management endpoints
-│   ├── maintenance_routes.py # Maintenance endpoints
-│   ├── vendor_routes.py # Vendor management endpoints
-│   ├── financial_routes.py # Financial endpoints
-│   └── association_routes.py # Association endpoints
-├── migrations/          # Database migrations (Alembic)
-├── utils/              # Utility functions
-├── uploads/            # File uploads (property images)
-└── frontend/           # React frontend application
-    ├── src/            # React source code
-    ├── public/         # Static files
-    ├── package.json    # Node.js dependencies
-    └── README.md       # Frontend documentation
-```
+- Property management
+- Tenant management
+- Maintenance requests
+- Financial tracking
+- User authentication
+- File uploads
+- Dashboard analytics
+- Vendor management
+- Association management
+- Property listings and applications
 
-## 🚀 Features
+## Local Development Setup
 
-### Backend (Flask)
-- **User Authentication**: Secure login/register with JWT tokens
-- **Property Management**: CRUD operations for properties with image uploads
-- **Tenant Management**: Complete tenant lifecycle management
-- **Maintenance Requests**: Track and manage maintenance requests
-- **Vendor Management**: Vendor profiles and service tracking
-- **Financial Tracking**: Comprehensive financial management
-- **Association Management**: HOA and association features
-- **Database Migrations**: Alembic for database version control
-
-### Frontend (React)
-- **Modern UI**: Built with React 18 and Tailwind CSS
-- **Responsive Design**: Mobile-friendly interface
-- **Real-time Updates**: React Query for data fetching
-- **Form Management**: React Hook Form for form handling
-- **Authentication**: Secure login/logout functionality
-- **Dashboard**: Comprehensive property management dashboard
-
-## 🛠️ Tech Stack
-
-### Backend
-- **Flask**: Python web framework
-- **SQLAlchemy**: ORM for database operations
-- **PostgreSQL**: Primary database
-- **Alembic**: Database migrations
-- **JWT**: Authentication tokens
-- **Flask-CORS**: Cross-origin resource sharing
-
-### Frontend
-- **React 18**: Frontend framework
-- **Tailwind CSS**: Styling framework
-- **React Router**: Client-side routing
-- **Axios**: HTTP client
-- **React Query**: Data fetching and caching
-- **React Hook Form**: Form management
-- **Lucide React**: Icon library
-
-## 📋 Prerequisites
+### Prerequisites
 
 - Python 3.8+
 - Node.js 14+
-- PostgreSQL 12+
-- Docker (optional, for database setup)
+- npm or yarn
 
-## 🚀 Installation
+### Backend Setup
 
-### 1. Clone the Repository
-```bash
-git clone <your-repository-url>
-cd Test_Flask
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd Test_Flask
+   ```
 
-### 2. Backend Setup
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   # On Windows
+   venv\Scripts\activate
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
 
-#### Option A: Using Docker (Recommended)
-```bash
-# Start PostgreSQL and pgAdmin
-docker-compose up -d
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Install Python dependencies
-pip install -r requirements.txt
+4. **Database Setup Options**
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your database credentials
-```
+   **Option A: Quick Setup (Recommended)**
+   ```bash
+   python setup_local.py
+   ```
 
-#### Option B: Manual PostgreSQL Setup
-```bash
-# Install PostgreSQL and create database
-# Run the database_tables.sql file in your PostgreSQL instance
+   **Option B: Manual Database Creation**
+   ```bash
+   # For SQLite (local development)
+   python create_database.py
+   
+   # For PostgreSQL (Neon)
+   python create_postgresql_database.py
+   ```
 
-# Install Python dependencies
-pip install -r requirements.txt
+   **Option C: Database Migration (if updating existing database)**
+   ```bash
+   python migrate_database.py
+   ```
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your database credentials
-```
+5. **Run migrations (optional)**
+   ```bash
+   flask db upgrade
+   ```
 
-### 3. Database Setup
-```bash
-# Create database tables
-python create_db.py
+6. **Start the backend server**
+   ```bash
+   python app.py
+   ```
 
-# Run migrations (if using Alembic)
-flask db upgrade
-```
+The backend will be available at `http://localhost:5001`
 
-### 4. Frontend Setup
-```bash
-cd frontend
-npm install
-```
+### Frontend Setup
 
-## 🏃‍♂️ Running the Application
+1. **Navigate to frontend directory**
+   ```bash
+   cd frontend
+   ```
 
-### Backend
-```bash
-# From the root directory
-python app.py
-# or
-flask run
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-The backend will be available at `http://localhost:5000`
-
-### Frontend
-```bash
-# From the frontend directory
-cd frontend
-npm start
-```
+3. **Start the development server**
+   ```bash
+   npm start
+   ```
 
 The frontend will be available at `http://localhost:3000`
 
-## 📊 Database Schema
+## Database
 
-The application includes 20+ tables covering:
+The application supports both SQLite (for local development) and PostgreSQL (for production via Neon). The database schema includes:
 
-- **User Management**: Authentication and user profiles
-- **Property Management**: Property listings and details
-- **Tenant Management**: Tenant information and leases
-- **Maintenance**: Request tracking and vendor assignments
-- **Financial**: Transactions, payments, and financial records
-- **Associations**: HOA management and violations
-- **Listings**: Property listings and applications
+### Core Tables
+- **Users** - User accounts for owners, tenants, and vendors
+- **Properties** - Property listings with details and status
+- **Tenants** - Tenant information and lease details
+- **Vendors** - Vendor profiles and contact information
+- **Maintenance Requests** - Maintenance requests and their status
 
-See `database_tables.sql` for complete schema details.
+### Financial Tables
+- **Property Financials** - Financial details for each property
+- **Loan Payments** - Mortgage loan payment records
+- **Financial Transactions** - All financial transactions for properties
+- **Rent Roll** - Rent payment records and history
+- **Outstanding Balances** - Outstanding balances owed by tenants
 
-## 🔧 Configuration
+### Association Tables
+- **Associations** - Homeowner associations
+- **Association Memberships** - Association membership records
+- **Association Balances** - Association fee balances
+- **Violations** - Association rule violations
 
-### Environment Variables
-Create a `.env` file in the root directory:
+### Additional Tables
+- **Draft Leases** - Draft lease agreements
+- **Lease Renewals** - Lease renewal requests and history
+- **Property Favorites** - User favorite properties
+- **Listings** - Property listings for rent
+- **Applicants** - Applicants for property listings
 
-```env
-DATABASE_URL=postgresql://admin:admin123@localhost:5432/flask_db
+### Database Views
+- **active_tenants** - Shows currently active tenants
+- **pending_maintenance_requests** - Shows pending maintenance requests
+- **property_financial_summary** - Financial summary for properties
+
+## Database Scripts
+
+- `updated_database.sql` - Complete database schema (PostgreSQL)
+- `create_database.py` - Creates SQLite database from schema
+- `create_postgresql_database.py` - Creates PostgreSQL database from schema
+- `migrate_database.py` - Migrates existing database to new schema
+- `setup_local.py` - Complete local development setup
+
+## API Endpoints
+
+The backend provides RESTful API endpoints for:
+
+- Authentication (`/api/auth/*`)
+- Properties (`/api/properties/*`)
+- Tenants (`/api/tenants/*`)
+- Maintenance (`/api/maintenance/*`)
+- Financial (`/api/financial/*`)
+- Users (`/api/users/*`)
+- Vendors (`/api/vendors/*`)
+- Associations (`/api/associations/*`)
+- Listings (`/api/listings/*`)
+
+## File Structure
+
+```
+├── app.py                        # Main Flask application
+├── config.py                     # Configuration settings
+├── requirements.txt              # Python dependencies
+├── updated_database.sql          # Complete database schema
+├── create_database.py            # SQLite database creation script
+├── create_postgresql_database.py # PostgreSQL database creation script
+├── migrate_database.py           # Database migration script
+├── setup_local.py                # Complete local setup script
+├── models/                       # Database models
+├── routes/                       # API routes
+├── uploads/                      # File uploads directory
+├── frontend/                     # React frontend
+│   ├── src/
+│   ├── package.json
+│   └── ...
+└── migrations/                   # Database migrations
+```
+
+## Environment Variables
+
+Create a `.env` file in the root directory with:
+
+```
 SECRET_KEY=your-secret-key-here
 FLASK_ENV=development
 ```
 
-### Database Configuration
-The application is configured to use PostgreSQL by default. You can modify the database connection in `config.py`.
+## Database Migration
 
-## 📁 API Endpoints
+If you're updating from an older version of the database schema:
 
-### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
+1. **Backup your existing data** (if needed)
+2. **Run the migration script**:
+   ```bash
+   python migrate_database.py
+   ```
+3. **The script will detect your database type** and migrate accordingly
+4. **Existing data will be preserved** (unless you choose to recreate tables)
 
-### Properties
-- `GET /api/properties` - List all properties
-- `POST /api/properties` - Create new property
-- `GET /api/properties/<id>` - Get property details
-- `PUT /api/properties/<id>` - Update property
-- `DELETE /api/properties/<id>` - Delete property
-
-### Tenants
-- `GET /api/tenants` - List all tenants
-- `POST /api/tenants` - Create new tenant
-- `GET /api/tenants/<id>` - Get tenant details
-- `PUT /api/tenants/<id>` - Update tenant
-- `DELETE /api/tenants/<id>` - Delete tenant
-
-### Maintenance
-- `GET /api/maintenance` - List maintenance requests
-- `POST /api/maintenance` - Create maintenance request
-- `PUT /api/maintenance/<id>` - Update maintenance request
-
-### Financial
-- `GET /api/financial` - Get financial data
-- `POST /api/financial/transactions` - Create transaction
-
-## 🐳 Docker Support
-
-The project includes Docker Compose configuration for easy database setup:
-
-```bash
-# Start services
-docker-compose up -d
-
-# Stop services
-docker-compose down
-
-# View logs
-docker-compose logs
-```
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
-## 📝 License
+## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-For support and questions:
-- Create an issue in the GitHub repository
-- Check the documentation in the `docs/` folder
-- Review the API documentation
-
-## 🔄 Updates
-
-To update the application:
-
-```bash
-# Backend
-git pull origin main
-pip install -r requirements.txt
-flask db upgrade
-
-# Frontend
-cd frontend
-git pull origin main
-npm install
-npm run build
-```
-
----
-
-**Note**: This is a comprehensive real estate management system suitable for property managers, landlords, and real estate professionals. The system handles all aspects of property management from tenant onboarding to financial tracking.
+This project is licensed under the MIT License.
 
 

@@ -1,5 +1,6 @@
--- Real Estate Management System Database Tables
+-- Updated Real Estate Management System Database Tables
 -- This file contains all the table definitions for the property management system
+-- Based on the migration pipeline and current models
 -- Run this SQL file in your PostgreSQL database to create all tables
 
 -- Enable UUID extension if needed
@@ -83,6 +84,7 @@ CREATE TABLE outstanding_balances (
     property_id INTEGER REFERENCES properties(id),
     due_amount NUMERIC(10, 2),
     due_date DATE,
+    balance_type VARCHAR(50) DEFAULT 'rent',
     is_resolved BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -312,30 +314,90 @@ CREATE TABLE applicants (
 -- Create indexes for better performance
 CREATE INDEX idx_properties_owner_id ON properties(owner_id);
 CREATE INDEX idx_tenants_property_id ON tenants(property_id);
+CREATE INDEX idx_tenants_email ON tenants(email);
 CREATE INDEX idx_maintenance_requests_property_id ON maintenance_requests(property_id);
 CREATE INDEX idx_maintenance_requests_tenant_id ON maintenance_requests(tenant_id);
 CREATE INDEX idx_maintenance_requests_vendor_id ON maintenance_requests(assigned_vendor_id);
+CREATE INDEX idx_maintenance_requests_status ON maintenance_requests(status);
+CREATE INDEX idx_maintenance_requests_priority ON maintenance_requests(priority);
 CREATE INDEX idx_financial_transactions_property_id ON financial_transactions(property_id);
+CREATE INDEX idx_financial_transactions_date ON financial_transactions(transaction_date);
+CREATE INDEX idx_financial_transactions_type ON financial_transactions(transaction_type);
 CREATE INDEX idx_property_financials_property_id ON property_financials(property_id);
 CREATE INDEX idx_loan_payments_property_financial_id ON loan_payments(property_financial_id);
+CREATE INDEX idx_loan_payments_due_date ON loan_payments(due_date);
 CREATE INDEX idx_rent_roll_tenant_id ON rent_roll(tenant_id);
 CREATE INDEX idx_rent_roll_property_id ON rent_roll(property_id);
+CREATE INDEX idx_rent_roll_payment_date ON rent_roll(payment_date);
 CREATE INDEX idx_outstanding_balances_tenant_id ON outstanding_balances(tenant_id);
+CREATE INDEX idx_outstanding_balances_property_id ON outstanding_balances(property_id);
+CREATE INDEX idx_outstanding_balances_due_date ON outstanding_balances(due_date);
 CREATE INDEX idx_vendors_user_id ON vendors(user_id);
+CREATE INDEX idx_vendors_type ON vendors(vendor_type);
+CREATE INDEX idx_vendors_active ON vendors(is_active);
 CREATE INDEX idx_listings_property_id ON listings(property_id);
+CREATE INDEX idx_listings_status ON listings(status);
 CREATE INDEX idx_applicants_listing_id ON applicants(listing_id);
+CREATE INDEX idx_draft_leases_tenant_id ON draft_leases(tenant_id);
+CREATE INDEX idx_draft_leases_property_id ON draft_leases(property_id);
+CREATE INDEX idx_lease_renewals_tenant_id ON lease_renewals(tenant_id);
+CREATE INDEX idx_lease_renewals_property_id ON lease_renewals(property_id);
+CREATE INDEX idx_association_memberships_association_id ON association_memberships(association_id);
+CREATE INDEX idx_association_memberships_owner_id ON association_memberships(owner_id);
+CREATE INDEX idx_association_memberships_tenant_id ON association_memberships(tenant_id);
+CREATE INDEX idx_association_balances_membership_id ON association_balances(membership_id);
+CREATE INDEX idx_violations_membership_id ON violations(membership_id);
 
 -- Add comments to tables
 COMMENT ON TABLE "user" IS 'User accounts for property owners, tenants, and vendors';
 COMMENT ON TABLE properties IS 'Property listings with details and status';
 COMMENT ON TABLE tenants IS 'Tenant information and lease details';
-COMMENT ON TABLE maintenance_requests IS 'Maintenance requests and their status';
+COMMENT ON TABLE rent_roll IS 'Rent payment records and history';
+COMMENT ON TABLE outstanding_balances IS 'Outstanding balances owed by tenants';
+COMMENT ON TABLE draft_leases IS 'Draft lease agreements';
+COMMENT ON TABLE lease_renewals IS 'Lease renewal requests and history';
 COMMENT ON TABLE vendors IS 'Vendor profiles and contact information';
+COMMENT ON TABLE maintenance_requests IS 'Maintenance requests and their status';
 COMMENT ON TABLE property_financials IS 'Financial details for each property';
+COMMENT ON TABLE loan_payments IS 'Mortgage loan payment records';
 COMMENT ON TABLE financial_transactions IS 'All financial transactions for properties';
 COMMENT ON TABLE associations IS 'Homeowner associations';
+COMMENT ON TABLE property_favorites IS 'User favorite properties';
+COMMENT ON TABLE ownership_accounts IS 'Property ownership accounts';
+COMMENT ON TABLE association_memberships IS 'Association membership records';
+COMMENT ON TABLE association_balances IS 'Association fee balances';
+COMMENT ON TABLE violations IS 'Association rule violations';
 COMMENT ON TABLE listings IS 'Property listings for rent';
 COMMENT ON TABLE applicants IS 'Applicants for property listings';
 
+-- Create views for common queries
+CREATE VIEW active_tenants AS
+SELECT t.*, p.title as property_title, p.city as property_city
+FROM tenants t
+JOIN properties p ON t.property_id = p.id
+WHERE t.lease_end IS NULL OR t.lease_end >= CURRENT_DATE;
+
+CREATE VIEW pending_maintenance_requests AS
+SELECT mr.*, t.full_name as tenant_name, p.title as property_title, v.business_name as vendor_name
+FROM maintenance_requests mr
+JOIN tenants t ON mr.tenant_id = t.id
+JOIN properties p ON mr.property_id = p.id
+LEFT JOIN vendors v ON mr.assigned_vendor_id = v.id
+WHERE mr.status IN ('pending', 'assigned', 'in_progress');
+
+CREATE VIEW property_financial_summary AS
+SELECT 
+    p.id,
+    p.title,
+    p.rent_amount,
+    pf.total_value,
+    pf.mortgage_amount,
+    pf.monthly_loan_payment,
+    pf.property_tax_annual,
+    pf.insurance_annual,
+    pf.hoa_fees_monthly
+FROM properties p
+LEFT JOIN property_financials pf ON p.id = pf.property_id;
+
 -- Success message
-SELECT 'All tables created successfully!' as status;
+SELECT 'All tables, indexes, and views created successfully!' as status;
