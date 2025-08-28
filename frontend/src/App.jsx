@@ -13,11 +13,14 @@ import Properties from './pages/Properties';
 import PropertyDetail from './pages/PropertyDetail';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
+import Rentals from './pages/Rentals';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import MaintenanceDashboard from './pages/MaintenanceDashboard';
 import MaintenanceRequest from './pages/MaintenanceRequest';
 import VendorProfile from './pages/VendorProfile';
-import Financial from './pages/Financial';
+
+import Accountability from './pages/Accountability';
+import Reporting from './pages/Reporting';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -80,6 +83,11 @@ const App = () => {
                       <Tenants />
                     </PrivateRoute>
                   } />
+                  <Route path="/rentals" element={
+                    <PrivateRoute>
+                      <Rentals />
+                    </PrivateRoute>
+                  } />
                   <Route path="/maintenance" element={
                     <PrivateRoute>
                       <MaintenanceDashboard />
@@ -95,9 +103,15 @@ const App = () => {
                       <VendorProfile />
                     </PrivateRoute>
                   } />
-                  <Route path="/financial" element={
+
+                  <Route path="/accountability" element={
                     <PrivateRoute>
-                      <Financial />
+                      <Accountability />
+                    </PrivateRoute>
+                  } />
+                  <Route path="/reports" element={
+                    <PrivateRoute>
+                      <Reporting />
                     </PrivateRoute>
                   } />
                   <Route path="/" element={

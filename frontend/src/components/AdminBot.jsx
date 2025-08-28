@@ -59,9 +59,12 @@ Just ask me anything about your property management in natural language! 🤖`,
     },
     {
       onSuccess: (data) => {
+        // Ensure we have a valid response
+        const responseMessage = data.response || 'No response received from the assistant.';
+        
         setMessages(prev => [...prev, {
           role: 'assistant',
-          message: data.response,
+          message: responseMessage,
           timestamp: new Date().toISOString(),
           type: data.type || 'success',
           data: data.data,
@@ -79,11 +82,24 @@ Just ask me anything about your property management in natural language! 🤖`,
         setIsLoading(false);
       },
       onError: (error) => {
-        const errorMessage = error.response?.data?.error || 'Failed to get response from admin bot';
+        console.error('Detailed error:', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
+        
+        let errorMessage = 'Failed to get response from admin bot';
+        
+        if (error.code === 'ECONNABORTED') {
+          errorMessage = 'Request timed out. Please try again.';
+        } else if (error.response?.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast.error(errorMessage);
         setMessages(prev => [...prev, {
           role: 'assistant',
-          message: `❌ **Error**: ${errorMessage}`,
+          message: `❌ **Error**: ${errorMessage}\n\nPlease try again or contact support if the issue persists.`,
           timestamp: new Date().toISOString(),
           type: 'error'
         }]);
@@ -113,6 +129,11 @@ Just ask me anything about your property management in natural language! 🤖`,
   };
 
   const formatMessage = (message) => {
+    // Handle null or undefined messages
+    if (!message || typeof message !== 'string') {
+      return <div className="text-gray-500 italic">No message content available</div>;
+    }
+    
     // Convert markdown-style formatting to JSX
     return message
       .split('\n')
@@ -264,7 +285,7 @@ Just ask me anything about your property management in natural language! 🤖`,
               
               <div className={`${message.role === 'user' ? 'text-white' : 'text-gray-800'}`}>
                 {message.role === 'user' ? (
-                  <div className="text-sm">{message.message}</div>
+                  <div className="text-sm">{message.message || 'No message content'}</div>
                 ) : (
                   <div className="prose prose-sm max-w-none text-sm">
                     {formatMessage(message.message)}

@@ -78,6 +78,7 @@ def create_property(current_user):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
+@property_bp.route('', methods=['GET'])
 @property_bp.route('/', methods=['GET'])
 def get_properties():
     try:

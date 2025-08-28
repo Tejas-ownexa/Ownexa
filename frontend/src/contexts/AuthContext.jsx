@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }) => {
           is_agent: userData.role === 'AGENT',
           is_owner: userData.role === 'OWNER',
           is_tenant: userData.role === 'TENANT',
-          is_admin: userData.role === 'ADMIN',
+          is_admin: userData.role === 'OWNER' || userData.role === 'AGENT',
           street_address_1: userData.street_address_1,
           street_address_2: userData.street_address_2,
           apt_number: userData.apt_number,
@@ -182,10 +182,10 @@ export const AuthProvider = ({ children }) => {
     logout,
     fetchUser,
     // Role helper functions
-    is_owner: user?.role === 'owner',
-    is_agent: user?.role === 'agent',
-    is_tenant: user?.role === 'tenant',
-    is_admin: user?.role === 'admin',
+    is_owner: user?.role === 'OWNER',
+    is_agent: user?.role === 'AGENT',
+    is_tenant: user?.role === 'TENANT',
+    is_admin: user?.role === 'OWNER' || user?.role === 'AGENT',
   };
 
   return (

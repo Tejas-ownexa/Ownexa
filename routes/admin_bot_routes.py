@@ -17,6 +17,29 @@ class LlamaAI:
     
     def analyze_query(self, query):
         """Use Llama to analyze query intent and extract entities"""
+        
+        # First, check if the query is property management related
+        property_keywords = [
+            'tenant', 'property', 'maintenance', 'rent', 'financial', 'report', 'income', 'expense',
+            'lease', 'repair', 'work order', 'payment', 'balance', 'occupancy', 'vacancy',
+            'owner', 'agent', 'vendor', 'association', 'hoa', 'management', 'summary',
+            'list', 'show', 'display', 'get', 'find', 'search', 'view', 'see'
+        ]
+        
+        query_lower = query.lower()
+        is_property_related = any(keyword in query_lower for keyword in property_keywords)
+        
+        # If not property related, return general_help intent
+        if not is_property_related:
+            return {
+                "intent": "general_help",
+                "confidence": 0.95,
+                "entities": {
+                    "specific_request": "non_property_query",
+                    "pdf_type": "none"
+                }
+            }
+        
         system_prompt = """You are an AI assistant for a property management system. Analyze the user's query and return ONLY a JSON response:
 
 {
@@ -91,11 +114,45 @@ Return ONLY valid JSON, no other text."""
                 
         except Exception as e:
             print(f"AI analysis failed: {e}")
-            return self._fallback_intent_analysis(query)
+            # Always return a valid fallback analysis
+            fallback = self._fallback_intent_analysis(query)
+            if fallback:
+                return fallback
+            else:
+                # Ultimate fallback - always return something helpful
+                return {
+                    "intent": "general_help",
+                    "confidence": 0.7,
+                    "entities": {
+                        "specific_request": "general_assistance",
+                        "pdf_type": "none"
+                    }
+                }
     
     def _fallback_intent_analysis(self, query):
         """Fallback to keyword-based analysis if AI fails"""
         query_lower = query.lower()
+        
+        # First, check if the query is property management related
+        property_keywords = [
+            'tenant', 'property', 'maintenance', 'rent', 'financial', 'report', 'income', 'expense',
+            'lease', 'repair', 'work order', 'payment', 'balance', 'occupancy', 'vacancy',
+            'owner', 'agent', 'vendor', 'association', 'hoa', 'management', 'summary',
+            'list', 'show', 'display', 'get', 'find', 'search', 'view', 'see'
+        ]
+        
+        is_property_related = any(keyword in query_lower for keyword in property_keywords)
+        
+        # If not property related, return general_help intent
+        if not is_property_related:
+            return {
+                "intent": "general_help",
+                "confidence": 0.95,
+                "entities": {
+                    "specific_request": "non_property_query",
+                    "pdf_type": "none"
+                }
+            }
         
         # Check for ANY report requests first (highest priority)
         if any(word in query_lower for word in ['report', 'reports']):
@@ -135,21 +192,98 @@ Return ONLY valid JSON, no other text."""
     
     def generate_response(self, query, data, intent):
         """Use Llama to generate natural language response"""
+        
+        # First, check if the query is about the bot's capabilities (meta-questions)
+        bot_capability_keywords = [
+            'what can', 'what does', 'how can', 'help me', 'assist me', 'capabilities', 
+            'features', 'functions', 'abilities', 'what do you', 'can you help',
+            'what is this', 'what is the bot', 'what does this bot', 'what can this bot',
+            'what can i do', 'what can you do', 'how do you work', 'what are you'
+        ]
+        
+        query_lower = query.lower()
+        is_bot_capability_question = any(keyword in query_lower for keyword in bot_capability_keywords)
+        
+        # If it's a question about bot capabilities, provide helpful information
+        if is_bot_capability_question:
+            return """🏠 **Property Management Assistant - Your AI-Powered Helper!**
+
+I'm your dedicated AI assistant for property management tasks. Here's what I can help you with:
+
+📋 **TENANT MANAGEMENT:**
+• View all your tenants and their details
+• Check tenant payment status and rent amounts
+• Find tenants with highest/lowest rent payments
+• Track lease start/end dates and renewals
+• Generate tenant reports and lists
+
+🏠 **PROPERTY MANAGEMENT:**
+• List all your properties with details
+• Check property status (occupied/vacant)
+• View property addresses and descriptions
+• Track property performance and occupancy rates
+• Generate property reports
+
+🔧 **MAINTENANCE & REPAIRS:**
+• View all maintenance requests
+• Check repair status and priorities
+• Track work orders and completion dates
+• Generate maintenance reports
+• Monitor repair costs and vendors
+
+💰 **FINANCIAL MANAGEMENT:**
+• View financial summaries and income
+• Track rent payments and balances
+• Generate financial reports and analytics
+• Monitor profit margins and occupancy rates
+• Export financial data to PDF
+
+📊 **REPORTING & ANALYTICS:**
+• Generate comprehensive PDF reports
+• Create tenant, property, financial, and maintenance reports
+• Export data for analysis and record-keeping
+• Track performance metrics and trends
+
+💡 **HOW TO USE ME:**
+Just ask me in natural language! For example:
+• "Show me my tenants"
+• "Generate a financial report"
+• "What maintenance requests do I have?"
+• "List my properties"
+• "Who pays the highest rent?"
+
+I can handle multiple questions at once and provide detailed, actionable information to help you manage your properties effectively! 🏘️✨"""
+        
+        # Check if the query is property management related
+        property_keywords = [
+            'tenant', 'property', 'maintenance', 'rent', 'financial', 'report', 'income', 'expense',
+            'lease', 'repair', 'work order', 'payment', 'balance', 'occupancy', 'vacancy',
+            'owner', 'agent', 'vendor', 'association', 'hoa', 'management', 'summary',
+            'list', 'show', 'display', 'get', 'find', 'search', 'view', 'see'
+        ]
+        
+        is_property_related = any(keyword in query_lower for keyword in property_keywords)
+        
+        # If query is not property management related, return a polite redirect message
+        if not is_property_related:
+            return f"🏠 **Property Management Assistant**\n\nI understand you're asking about: **'{query}'**\n\n❌ **Sorry, I cannot help with that topic.** I'm specifically designed for property management tasks only.\n\n✅ **What I CAN help you with:**\n• Tenant information and lists\n• Property details and status\n• Maintenance requests and work orders\n• Financial summaries and reports\n• PDF report generation\n• Property management analytics\n\n💡 **Try asking me about:**\n• \"Show me my tenants\"\n• \"List my properties\"\n• \"Generate a financial report\"\n• \"What maintenance requests do I have?\"\n\nI'm here to help with all your property management needs! 🏘️"
+        
         system_prompt = f"""You are a helpful AI assistant for a property management system. Generate a natural, conversational response to the user's query.
 
 User Query: {query}
 Intent: {intent}
 Available Data: {json.dumps(data, default=str, indent=2)}
 
-Instructions:
-1. Create a natural, friendly response using the data provided
-2. Use emojis and formatting to make it engaging
-3. Be specific and helpful
-4. If the data shows lists, format them clearly with bullet points
-5. Include summary information when relevant
+CRITICAL RULES:
+1. ONLY respond to property management related queries
+2. If the query is not about property management, redirect to property management topics
+3. Use the provided data to answer questions
+4. Be specific and helpful with property management information
+5. Use emojis and formatting to make it engaging
 6. Keep the tone professional but conversational
+7. If no relevant data is available, suggest what property management information they can request
 
-Generate a comprehensive response that directly answers the user's question."""
+Generate a comprehensive response that directly answers the user's property management question."""
 
         try:
             payload = {
@@ -171,22 +305,168 @@ Generate a comprehensive response that directly answers the user's question."""
             if ai_response and ai_response.strip():
                 return ai_response.strip()
             else:
-                return None
+                # Always provide a helpful fallback response
+                return f"🤖 **Property Management Assistant**\n\nI understand you're asking about: **'{query}'**\n\nI'm here to help you with property management tasks! Here's what I can assist you with:\n\n📋 **Available Services:**\n• Tenant information and lists\n• Property details and status\n• Maintenance requests and work orders\n• Financial summaries and reports\n• PDF report generation\n• Property management analytics\n\n💡 **Try asking me about:**\n• \"Show me my tenants\"\n• \"List my properties\"\n• \"Generate a financial report\"\n• \"What maintenance requests do I have?\"\n\nI'm always here to help with your property management needs! 🏘️"
                 
         except Exception as e:
             print(f"AI response generation failed: {e}")
             return None
 
+    def generate_response_with_context(self, query, data, intent, conversation_context):
+        """Use Llama to generate natural language response with conversation context"""
+        
+        # Handle bot capability questions first (same as before)
+        bot_capability_keywords = [
+            'what can', 'what does', 'how can', 'help me', 'assist me', 'capabilities', 
+            'features', 'functions', 'abilities', 'what do you', 'can you help',
+            'what is this', 'what is the bot', 'what does this bot', 'what can this bot',
+            'what can i do', 'what can you do', 'how do you work', 'what are you'
+        ]
+        
+        query_lower = query.lower()
+        is_bot_capability_question = any(keyword in query_lower for keyword in bot_capability_keywords)
+        
+        if is_bot_capability_question:
+            return """🏠 **Property Management Assistant - Your AI-Powered Helper!**
+
+I'm your dedicated AI assistant for property management tasks. Here's what I can help you with:
+
+📋 **TENANT MANAGEMENT:**
+• View all your tenants and their details
+• Check tenant payment status and rent amounts
+• Find tenants with highest/lowest rent payments
+• Track lease start/end dates and renewals
+• Generate tenant reports and lists
+
+🏠 **PROPERTY MANAGEMENT:**
+• List all your properties with details
+• Check property status (occupied/vacant)
+• View property addresses and descriptions
+• Track property performance and occupancy rates
+• Generate property reports
+
+🔧 **MAINTENANCE & REPAIRS:**
+• View all maintenance requests
+• Check repair status and priorities
+• Track work orders and completion dates
+• Generate maintenance reports
+• Monitor repair costs and vendors
+
+💰 **FINANCIAL MANAGEMENT:**
+• View financial summaries and income
+• Track rent payments and balances
+• Generate financial reports and analytics
+• Monitor profit margins and occupancy rates
+• Export financial data to PDF
+
+📊 **REPORTING & ANALYTICS:**
+• Generate comprehensive PDF reports
+• Create tenant, property, financial, and maintenance reports
+• Export data for analysis and record-keeping
+• Track performance metrics and trends
+
+💡 **HOW TO USE ME:**
+Just ask me in natural language! For example:
+• "Show me my tenants"
+• "Generate a financial report"
+• "What maintenance requests do I have?"
+• "List my properties"
+• "Who pays the highest rent?"
+
+I can handle multiple questions at once and provide detailed, actionable information to help you manage your properties effectively! 🏘️✨"""
+        
+        # Check if the query is property management related
+        property_keywords = [
+            'tenant', 'property', 'maintenance', 'rent', 'financial', 'report', 'income', 'expense',
+            'lease', 'repair', 'work order', 'payment', 'balance', 'occupancy', 'vacancy',
+            'owner', 'agent', 'vendor', 'association', 'hoa', 'management', 'summary',
+            'list', 'show', 'display', 'get', 'find', 'search', 'view', 'see'
+        ]
+        
+        is_property_related = any(keyword in query_lower for keyword in property_keywords)
+        
+        if not is_property_related:
+            return f"🏠 **Property Management Assistant**\n\nI understand you're asking about: **'{query}'**\n\n❌ **Sorry, I cannot help with that topic.** I'm specifically designed for property management tasks only.\n\n✅ **What I CAN help you with:**\n• Tenant information and lists\n• Property details and status\n• Maintenance requests and work orders\n• Financial summaries and reports\n• PDF report generation\n• Property management analytics\n\n💡 **Try asking me about:**\n• \"Show me my tenants\"\n• \"List my properties\"\n• \"Generate a financial report\"\n• \"What maintenance requests do I have?\"\n\nI'm here to help with all your property management needs! 🏘️"
+        
+        # Build conversation context
+        context_text = ""
+        if conversation_context and len(conversation_context) > 0:
+            context_text = "\n\n**Conversation History:**\n"
+            # Include last 5 messages for context
+            recent_messages = conversation_context[-5:]
+            for msg in recent_messages:
+                role = msg.get('role', 'unknown')
+                content = msg.get('message', '')[:100] + "..." if len(msg.get('message', '')) > 100 else msg.get('message', '')
+                context_text += f"• {role.title()}: {content}\n"
+        
+        system_prompt = f"""You are a helpful AI assistant for a property management system. Generate a natural, conversational response to the user's query, taking into account the conversation history.
+
+User Query: {query}
+Intent: {intent}
+Available Data: {json.dumps(data, default=str, indent=2)}{context_text}
+
+CRITICAL RULES:
+1. ONLY respond to property management related queries
+2. If the query is not about property management, redirect to property management topics
+3. Use ONLY the provided data to answer questions - DO NOT make up or invent data
+4. If the data shows empty results (0 tenants, 0 properties, etc.), clearly state that no data is available
+5. Be specific and helpful with property management information
+6. Use emojis and formatting to make it engaging
+7. Keep the tone professional but conversational
+8. If no relevant data is available, suggest what property management information they can request
+9. Reference previous conversation context when relevant (e.g., "As we discussed earlier...", "Building on your previous question...")
+10. Provide contextual responses that build on the conversation history
+11. NEVER invent tenant names, rent amounts, or property details that don't exist in the data
+
+Generate a comprehensive response that directly answers the user's property management question while considering the conversation context. If the data is empty, clearly state that no data is available."""
+
+        try:
+            payload = {
+                "model": self.model,
+                "prompt": f"{system_prompt}",
+                "stream": False
+            }
+            
+            response = requests.post(
+                f"{self.base_url}/api/generate",
+                json=payload,
+                timeout=15  # Slightly longer timeout for context processing
+            )
+            response.raise_for_status()
+            
+            result = response.json()
+            ai_response = result.get("response", "")
+            
+            if ai_response and ai_response.strip():
+                return ai_response.strip()
+            else:
+                # Always provide a helpful fallback response
+                return f"🤖 **Property Management Assistant**\n\nI understand you're asking about: **'{query}'**\n\nI'm here to help you with property management tasks! Here's what I can assist you with:\n\n📋 **Available Services:**\n• Tenant information and lists\n• Property details and status\n• Maintenance requests and work orders\n• Financial summaries and reports\n• PDF report generation\n• Property management analytics\n\n💡 **Try asking me about:**\n• \"Show me my tenants\"\n• \"List my properties\"\n• \"Generate a financial report\"\n• \"What maintenance requests do I have?\"\n\nI'm always here to help with your property management needs! 🏘️"
+                
+        except Exception as e:
+            print(f"AI response generation with context failed: {e}")
+            return None
+
 def get_data_for_intent(intent, current_user):
     """Fetch relevant data based on the detected intent"""
     try:
+        # Always ensure we have a valid user
+        if not current_user:
+            return {
+                "error": "User not authenticated",
+                "message": "Please log in to access property management features"
+            }
         if intent == 'tenant_list':
             from models.tenant import Tenant
             from models.property import Property
             
-            tenants = Tenant.query.join(Property).filter(
-                Property.owner_id == current_user.id
-            ).options(joinedload(Tenant.property)).all()
+            # Admin users can see all tenants, regular users see only their own
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                tenants = Tenant.query.join(Property).options(joinedload(Tenant.property)).all()
+            else:
+                tenants = Tenant.query.join(Property).filter(
+                    Property.owner_id == current_user.id
+                ).options(joinedload(Tenant.property)).all()
             
             tenant_data = []
             total_rent = 0
@@ -218,7 +498,11 @@ def get_data_for_intent(intent, current_user):
         elif intent == 'property_list':
             from models.property import Property
             
-            properties = Property.query.filter_by(owner_id=current_user.id).all()
+            # Admin users can see all properties, regular users see only their own
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                properties = Property.query.all()
+            else:
+                properties = Property.query.filter_by(owner_id=current_user.id).all()
             
             property_data = []
             for prop in properties:
@@ -240,9 +524,13 @@ def get_data_for_intent(intent, current_user):
             from models.maintenance import MaintenanceRequest
             from models.property import Property
             
-            maintenance_requests = MaintenanceRequest.query.join(Property).filter(
-                Property.owner_id == current_user.id
-            ).order_by(MaintenanceRequest.request_date.desc()).all()
+            # Admin users can see all maintenance requests, regular users see only their own
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                maintenance_requests = MaintenanceRequest.query.join(Property).order_by(MaintenanceRequest.request_date.desc()).all()
+            else:
+                maintenance_requests = MaintenanceRequest.query.join(Property).filter(
+                    Property.owner_id == current_user.id
+                ).order_by(MaintenanceRequest.request_date.desc()).all()
             
             request_data = []
             for req in maintenance_requests:
@@ -265,11 +553,15 @@ def get_data_for_intent(intent, current_user):
             from models.tenant import Tenant
             from models.property import Property
             
-            tenants = Tenant.query.join(Property).filter(
-                Property.owner_id == current_user.id
-            ).options(joinedload(Tenant.property)).all()
-            
-            properties = Property.query.filter_by(owner_id=current_user.id).all()
+            # Admin users can see all data, regular users see only their own
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                tenants = Tenant.query.join(Property).options(joinedload(Tenant.property)).all()
+                properties = Property.query.all()
+            else:
+                tenants = Tenant.query.join(Property).filter(
+                    Property.owner_id == current_user.id
+                ).options(joinedload(Tenant.property)).all()
+                properties = Property.query.filter_by(owner_id=current_user.id).all()
             
             total_rent = sum(float(t.rent_amount) if t.rent_amount else 0 for t in tenants)
             active_tenants = len([t for t in tenants if t.lease_end and t.lease_end > date.today()])
@@ -290,15 +582,19 @@ def get_data_for_intent(intent, current_user):
             from models.property import Property
             from models.maintenance import MaintenanceRequest
             
-            tenants = Tenant.query.join(Property).filter(
-                Property.owner_id == current_user.id
-            ).options(joinedload(Tenant.property)).all()
-            
-            properties = Property.query.filter_by(owner_id=current_user.id).all()
-            
-            maintenance_requests = MaintenanceRequest.query.join(Property).filter(
-                Property.owner_id == current_user.id
-            ).order_by(MaintenanceRequest.request_date.desc()).all()
+            # Admin users can see all data, regular users see only their own
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                tenants = Tenant.query.join(Property).options(joinedload(Tenant.property)).all()
+                properties = Property.query.all()
+                maintenance_requests = MaintenanceRequest.query.join(Property).order_by(MaintenanceRequest.request_date.desc()).all()
+            else:
+                tenants = Tenant.query.join(Property).filter(
+                    Property.owner_id == current_user.id
+                ).options(joinedload(Tenant.property)).all()
+                properties = Property.query.filter_by(owner_id=current_user.id).all()
+                maintenance_requests = MaintenanceRequest.query.join(Property).filter(
+                    Property.owner_id == current_user.id
+                ).order_by(MaintenanceRequest.request_date.desc()).all()
             
             # Calculate financial data
             total_rent = sum(float(t.rent_amount) if t.rent_amount else 0 for t in tenants)
@@ -385,12 +681,21 @@ def get_data_for_intent(intent, current_user):
     
     except Exception as e:
         print(f"Error fetching data for intent {intent}: {e}")
-        return {"error": f"Error retrieving data: {str(e)}"}
+        # Always return helpful data even if there's an error
+        return {
+            "summary": {
+                "total_properties": 0,
+                "total_tenants": 0,
+                "total_maintenance": 0
+            },
+            "message": "I'm here to help you with property management! You can ask me about tenants, properties, maintenance, and financial reports."
+        }
 
 def generate_fallback_response(intent, data, query):
     """Generate fallback response if AI fails"""
     if "error" in data:
-        return f"❌ {data['error']}"
+        # Even with errors, provide helpful guidance
+        return f"🤖 **Property Management Assistant**\n\nI encountered an issue, but I'm here to help! Here's what I can assist you with:\n\n📋 **Available Services:**\n• Tenant information and lists\n• Property details and status\n• Maintenance requests and work orders\n• Financial summaries and reports\n• PDF report generation\n• Property management analytics\n\n💡 **Try asking me about:**\n• \"Show me my tenants\"\n• \"List my properties\"\n• \"Generate a financial report\"\n• \"What maintenance requests do I have?\"\n\nI'm always here to help with your property management needs! 🏘️"
     
     if intent == 'tenant_list' and 'tenants' in data:
         tenants = data['tenants']
@@ -441,8 +746,80 @@ def generate_fallback_response(intent, data, query):
         response += f"• Occupancy Rate: {data.get('occupancy_rate', 0):.1f}%\n"
         return response
     
-    else:
-        return f"🤖 I understand you asked: '{query}'\n\nI can help you with:\n• **'tenant list'** - See all your tenants\n• **'property list'** - View your properties\n• **'maintenance requests'** - See repair requests\n• **'financial summary'** - Portfolio overview\n• **'generate report'** - Download detailed PDF reports\n\n💡 **Pro Tip:** Any time you ask for a 'report', I'll automatically create a downloadable PDF for you!\n\nTry asking about any of these topics!"
+    elif intent == 'general_help':
+        # Check if this is a question about bot capabilities
+        bot_capability_keywords = [
+            'what can', 'what does', 'how can', 'help me', 'assist me', 'capabilities', 
+            'features', 'functions', 'abilities', 'what do you', 'can you help',
+            'what is this', 'what is the bot', 'what does this bot', 'what can this bot',
+            'what can i do', 'what can you do', 'how do you work', 'what are you'
+        ]
+        
+        query_lower = query.lower()
+        is_bot_capability_question = any(keyword in query_lower for keyword in bot_capability_keywords)
+        
+        if is_bot_capability_question:
+            return """🏠 **Property Management Assistant - Your AI-Powered Helper!**
+
+I'm your dedicated AI assistant for property management tasks. Here's what I can help you with:
+
+📋 **TENANT MANAGEMENT:**
+• View all your tenants and their details
+• Check tenant payment status and rent amounts
+• Find tenants with highest/lowest rent payments
+• Track lease start/end dates and renewals
+• Generate tenant reports and lists
+
+🏠 **PROPERTY MANAGEMENT:**
+• List all your properties with details
+• Check property status (occupied/vacant)
+• View property addresses and descriptions
+• Track property performance and occupancy rates
+• Generate property reports
+
+🔧 **MAINTENANCE & REPAIRS:**
+• View all maintenance requests
+• Check repair status and priorities
+• Track work orders and completion dates
+• Generate maintenance reports
+• Monitor repair costs and vendors
+
+💰 **FINANCIAL MANAGEMENT:**
+• View financial summaries and income
+• Track rent payments and balances
+• Generate financial reports and analytics
+• Monitor profit margins and occupancy rates
+• Export financial data to PDF
+
+📊 **REPORTING & ANALYTICS:**
+• Generate comprehensive PDF reports
+• Create tenant, property, financial, and maintenance reports
+• Export data for analysis and record-keeping
+• Track performance metrics and trends
+
+💡 **HOW TO USE ME:**
+Just ask me in natural language! For example:
+• "Show me my tenants"
+• "Generate a financial report"
+• "What maintenance requests do I have?"
+• "List my properties"
+• "Who pays the highest rent?"
+
+I can handle multiple questions at once and provide detailed, actionable information to help you manage your properties effectively! 🏘️✨"""
+        
+        # Check if this is a non-property query
+        non_property_keywords = [
+            'star pattern', 'python code', 'programming', 'algorithm', 'math', 'science',
+            'weather', 'news', 'sports', 'music', 'movie', 'book', 'recipe', 'travel',
+            'sky', 'blue', 'color', 'art', 'history', 'geography', 'politics'
+        ]
+        
+        is_non_property = any(keyword in query_lower for keyword in non_property_keywords)
+        
+        if is_non_property:
+            return f"🏠 **Property Management Assistant**\n\nI understand you're asking about: **'{query}'**\n\n❌ **Sorry, I cannot help with that topic.** I'm specifically designed for property management tasks only.\n\n✅ **What I CAN help you with:**\n• Tenant information and lists\n• Property details and status\n• Maintenance requests and work orders\n• Financial summaries and reports\n• PDF report generation\n• Property management analytics\n\n💡 **Try asking me about:**\n• \"Show me my tenants\"\n• \"List my properties\"\n• \"Generate a financial report\"\n• \"What maintenance requests do I have?\"\n\nI'm here to help with all your property management needs! 🏘️"
+        else:
+            return f"🤖 I understand you asked: '{query}'\n\nI can help you with:\n• **'tenant list'** - See all your tenants\n• **'property list'** - View your properties\n• **'maintenance requests'** - See repair requests\n• **'financial summary'** - Portfolio overview\n• **'generate report'** - Download detailed PDF reports\n\n💡 **Pro Tip:** Any time you ask for a 'report', I'll automatically create a downloadable PDF for you!\n\nTry asking about any of these topics!"
 
 def generate_pdf_report(data, intent_analysis, current_user):
     """Generate PDF report based on intent and data"""
@@ -856,54 +1233,180 @@ def admin_chat(current_user):
         print(f"DEBUG: User role: {current_user.role}")
         
         query = data.get('query', '').strip()
+        conversation_context = data.get('context', [])
+        
         if not query:
             return jsonify({'error': 'Query is required'}), 400
         
+        print(f"DEBUG: Conversation context length: {len(conversation_context)}")
+        print(f"DEBUG: Previous messages: {conversation_context[-3:] if conversation_context else 'None'}")  # Show last 3 messages
+        
         print(f"DEBUG: Processing AI-powered query: {query}")
+        
+        # Check if query contains multiple questions (separated by common conjunctions)
+        query_separators = [' and then ', ' then ', ' also ', ' additionally ', ' furthermore ', ' moreover ', ' plus ', ' as well as ', ' and ', ' but ', ' however ', ' while ', ' whereas ']
+        multiple_queries = []
+        
+        # Use case-insensitive search but preserve original case
+        query_lower = query.lower()
+        
+        for separator in query_separators:
+            if separator in query_lower:
+                # Find the position of the separator in the original query
+                separator_pos = query_lower.find(separator)
+                if separator_pos != -1:
+                    first_part = query[:separator_pos].strip()
+                    second_part = query[separator_pos + len(separator):].strip()
+                    multiple_queries = [first_part, second_part]
+                    print(f"DEBUG: Split query at '{separator}': '{first_part}' | '{second_part}'")
+                break
+        
+        # If no multiple queries detected, treat as single query
+        if not multiple_queries:
+            multiple_queries = [query]
+            print(f"DEBUG: No multiple queries detected, treating as single: '{query}'")
+        
+        print(f"DEBUG: Detected {len(multiple_queries)} queries: {multiple_queries}")
         
         # Initialize AI system
         ai = LlamaAI()
         
-        # Step 1: Use AI to understand the intent
-        print("DEBUG: Analyzing intent with AI...")
-        intent_analysis = ai.analyze_query(query)
-        print(f"DEBUG: Intent analysis: {intent_analysis}")
+        # Process each query separately
+        all_responses = []
         
-        intent = intent_analysis.get('intent', 'general_help')
-        confidence = intent_analysis.get('confidence', 0.5)
-        
-        # Step 2: Fetch relevant data based on intent
+        for i, single_query in enumerate(multiple_queries):
+            print(f"DEBUG: Processing query {i+1}/{len(multiple_queries)}: {single_query}")
+            
+            # Step 1: Use AI to understand the intent
+            print("DEBUG: Analyzing intent with AI...")
+            intent_analysis = ai.analyze_query(single_query)
+            print(f"DEBUG: Intent analysis: {intent_analysis}")
+            
+            intent = intent_analysis.get('intent', 'general_help')
+            confidence = intent_analysis.get('confidence', 0.5)
+            
+                    # Step 2: Fetch relevant data based on intent
         print(f"DEBUG: Fetching data for intent: {intent}")
         response_data = get_data_for_intent(intent, current_user)
         print(f"DEBUG: Data fetched, type: {type(response_data)}")
+        print(f"DEBUG: Data content: {json.dumps(response_data, default=str, indent=2)}")
         
-        # Step 3: Generate AI response
-        print("DEBUG: Generating AI response...")
-        ai_response = ai.generate_response(query, response_data, intent)
+        # Step 3: Generate AI response with conversation context
+        print("DEBUG: Generating AI response with conversation context...")
+        ai_response = ai.generate_response_with_context(single_query, response_data, intent, conversation_context)
         
         # Step 4: Handle PDF requests or use fallback if AI response fails
         if intent == 'pdf_report':
             # Generate PDF and provide download link
             pdf_info = generate_pdf_report(response_data, intent_analysis, current_user)
-            final_response = f"📄 **PDF Report Generated!**\n\nI've created a comprehensive {intent_analysis.get('entities', {}).get('pdf_type', 'property management')} report for you.\n\n📥 **Download your report:** [Click here to download PDF](/api/admin-bot/download-pdf/{pdf_info['filename']})\n\n📊 **Report includes:**\n• {pdf_info['summary']}\n\n💡 **Tip:** The PDF contains detailed information that you can save, print, or share with others."
+            if pdf_info:
+                single_response = f"📄 **PDF Report Generated!**\n\nI've created a comprehensive {intent_analysis.get('entities', {}).get('pdf_type', 'property management')} report for you.\n\n📥 **Download your report:** [Click here to download PDF](/api/admin-bot/download-pdf/{pdf_info['filename']})\n\n📊 **Report includes:**\n• {pdf_info['summary']}\n\n💡 **Tip:** The PDF contains detailed information that you can save, print, or share with others."
+            else:
+                print("DEBUG: PDF generation failed, using fallback")
+                single_response = generate_fallback_response(intent, response_data, single_query)
         elif ai_response:
             print(f"DEBUG: AI response generated successfully, length: {len(ai_response)}")
-            final_response = ai_response
+            single_response = ai_response
         else:
             print("DEBUG: AI response failed, using fallback")
-            final_response = generate_fallback_response(intent, response_data, query)
+            single_response = generate_fallback_response(intent, response_data, single_query)
+        
+        # Add query number if multiple queries
+        if len(multiple_queries) > 1:
+            single_response = f"**Query {i+1}:** {single_query}\n\n{single_response}"
+        
+        all_responses.append(single_response)
+        
+        # Combine all responses
+        if len(all_responses) == 1:
+            final_response = all_responses[0]
+        else:
+            final_response = "\n\n" + "─" * 50 + "\n\n".join(all_responses)
+        
+        # Use the intent from the first query for the overall response
+        first_intent_analysis = ai.analyze_query(multiple_queries[0])
+        overall_intent = first_intent_analysis.get('intent', 'general_help')
+        overall_confidence = first_intent_analysis.get('confidence', 0.5)
+        
+        # Update conversation context with the new messages
+        updated_context = conversation_context.copy()
+        updated_context.append({
+            'role': 'user',
+            'message': query,
+            'timestamp': datetime.now().isoformat()
+        })
+        updated_context.append({
+            'role': 'assistant',
+            'message': final_response,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+        # Keep only last 10 messages to prevent context from getting too large
+        if len(updated_context) > 10:
+            updated_context = updated_context[-10:]
         
         return jsonify({
             'response': final_response,
             'type': 'success',
-            'intent': intent,
-            'confidence': confidence,
-            'pdf_available': intent == 'pdf_report',
-            'pdf_info': pdf_info if intent == 'pdf_report' else None
+            'intent': overall_intent,
+            'confidence': overall_confidence,
+            'pdf_available': any('pdf_report' in ai.analyze_query(q).get('intent', '') for q in multiple_queries),
+            'pdf_info': None,  # We'll handle multiple PDFs differently if needed
+            'context': updated_context
         }), 200
         
     except Exception as e:
         print(f"Error in admin chat: {str(e)}")
         import traceback
         print(f"Full traceback: {traceback.format_exc()}")
-        return jsonify({'error': f'Internal server error: {str(e)}'}), 500
+        
+        # Always provide a helpful response, never leave the user surprised
+        helpful_response = """🤖 **Property Management Assistant**
+
+I'm here to help you with your property management needs! 
+
+📋 **What I can help you with:**
+
+🏠 **Property Information:**
+• List all your properties
+• Check property status and details
+• View property addresses and descriptions
+
+👥 **Tenant Management:**
+• View all your tenants
+• Check rent payments and balances
+• Find tenants with highest/lowest rent
+• Track lease dates and renewals
+
+🔧 **Maintenance & Repairs:**
+• View maintenance requests
+• Check repair status and priorities
+• Track work orders and completion
+
+💰 **Financial Management:**
+• View financial summaries
+• Generate financial reports
+• Track income and expenses
+• Monitor profit margins
+
+📊 **Reports & Analytics:**
+• Generate PDF reports
+• Export data for analysis
+• Track performance metrics
+
+💡 **How to use me:**
+Just ask me in natural language! For example:
+• "Show me my tenants"
+• "Generate a financial report"
+• "List my properties"
+• "What maintenance requests do I have?"
+
+I'm always here to help you manage your properties effectively! 🏘️✨"""
+        
+        return jsonify({
+            'response': helpful_response,
+            'type': 'success',
+            'intent': 'general_help',
+            'confidence': 0.8,
+            'error': str(e)
+        }), 200  # Always return 200 to avoid frontend errors

@@ -514,7 +514,7 @@ const MaintenanceDashboard = () => {
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">{request.request_title}</h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                        {request.status.replace('_', ' ').toUpperCase()}
+                        {request.status ? request.status.replace('_', ' ').toUpperCase() : 'UNKNOWN'}
                       </span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(request.priority)}`}>
                         {request.priority.toUpperCase()}
@@ -678,7 +678,7 @@ const MaintenanceDashboard = () => {
                 <div className="text-sm text-gray-600">
                   <span className="font-medium">Current Status:</span>
                   <span className={`ml-2 px-2 py-1 rounded text-xs ${getStatusColor(statusUpdateModal.request?.status)}`}>
-                    {statusUpdateModal.request?.status?.replace('_', ' ').toUpperCase()}
+                                            {statusUpdateModal.request?.status ? statusUpdateModal.request.status.replace('_', ' ').toUpperCase() : 'UNKNOWN'}
                   </span>
                 </div>
 

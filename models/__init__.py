@@ -15,13 +15,27 @@ class BaseModel(db.Model):
     def delete(self):
         db.session.delete(self)
         db.session.commit()
+    
+    def to_dict(self):
+        """Convert model instance to dictionary"""
+        result = {}
+        for column in self.__table__.columns:
+            value = getattr(self, column.name)
+            if isinstance(value, datetime):
+                result[column.name] = value.isoformat()
+            elif hasattr(value, 'isoformat'):  # For date objects
+                result[column.name] = value.isoformat()
+            else:
+                result[column.name] = value
+        return result
 
 # Import all models here
 from models.user import User
 from models.property import Property
-from models.tenant import Tenant, DraftLease
+from models.tenant import Tenant, RentRoll, OutstandingBalance, DraftLease, LeaseRenewal
 from models.maintenance import MaintenanceRequest
 from models.listing import Listing
-from models.association import Association
+from models.association import Association, AssociationMembership
 from models.financial import PropertyFinancial, LoanPayment, FinancialTransaction
 from models.vendor import Vendor
+from models.accountability import AccountabilityFinancial, GeneralLedger, Banking, BankingTransaction

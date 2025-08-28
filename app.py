@@ -8,6 +8,9 @@ import os
 # Enable CORS
 CORS(app)
 
+# Disable automatic trailing slash redirects to prevent CORS issues
+app.url_map.strict_slashes = False
+
 # Serve uploaded files
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):

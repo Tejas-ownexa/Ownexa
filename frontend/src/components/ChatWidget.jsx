@@ -4,12 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import AdminBot from './AdminBot';
 
 const ChatWidget = () => {
-  const { user } = useAuth();
+  const { user, is_admin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
-  // Don't render if user is not authenticated
-  if (!user) {
+  // Don't render if user is not authenticated or not an admin user
+  if (!user || !is_admin) {
     return null;
   }
 

@@ -21,3 +21,8 @@ class User(db.Model):
     email_verification_expires = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # Accountability relationships
+    accountability_financials = db.relationship('AccountabilityFinancial', back_populates='user', cascade='all, delete-orphan')
+    general_ledger_entries = db.relationship('GeneralLedger', back_populates='user', cascade='all, delete-orphan')
+    banking_accounts = db.relationship('Banking', back_populates='user', cascade='all, delete-orphan')

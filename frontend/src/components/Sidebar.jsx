@@ -15,7 +15,11 @@ import {
   Wrench, 
   DollarSign,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Calendar,
+  FileText,
+  BookOpen,
+  CreditCard
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -45,8 +49,10 @@ const Sidebar = () => {
       { name: 'Dashboard', href: '/dashboard', icon: Home },
       { name: 'Properties', href: '/properties', icon: Building },
       { name: 'Tenants', href: '/tenants', icon: Users },
+      { name: 'Rentals', href: '/rentals', icon: Calendar },
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
-      { name: 'Financial', href: '/financial', icon: DollarSign },
+      { name: 'Accountability', href: '/accountability', icon: BookOpen },
+      { name: 'Reports', href: '/reports', icon: FileText },
     ];
   };
 
