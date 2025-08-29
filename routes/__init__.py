@@ -8,6 +8,8 @@ from routes.listing_routes import listing_bp
 from routes.association_routes import association_bp
 from routes.financial_routes import financial_bp
 from routes.vendor_routes import vendor_bp
+from routes.client_inquiry_routes import client_inquiry_bp
+from routes.pdf_generation_routes import pdf_gen_bp
 
 def init_routes(app):
     print("Initializing routes...")
@@ -23,7 +25,8 @@ def init_routes(app):
                 'tenants': '/api/tenants',
                 'maintenance': '/api/maintenance',
                 'listings': '/api/listings',
-                'associations': '/api/associations'
+                'associations': '/api/associations',
+                'pdf_generation': '/api/pdf-generation'
             }
         })
     
@@ -61,6 +64,14 @@ def init_routes(app):
     # Vendor routes
     app.register_blueprint(vendor_bp, url_prefix='/api/vendors')
     print("Vendor routes registered")
+    
+    # Client inquiry routes
+    app.register_blueprint(client_inquiry_bp, url_prefix='/api')
+    print("Client inquiry routes registered")
+    
+    # PDF generation routes
+    app.register_blueprint(pdf_gen_bp, url_prefix='/api/pdf-generation')
+    print("PDF generation routes registered")
     
     print("All routes registered successfully")
     
