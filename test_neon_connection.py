@@ -1,76 +1,45 @@
-#!/usr/bin/env python3
-"""
-Test Neon PostgreSQL Database Connection
-This script tests the connection to your Neon database.
-"""
-
+import os
+from dotenv import load_dotenv
 import psycopg2
-import sys
+from sqlalchemy import create_engine
+from sqlalchemy.exc import SQLAlchemyError
 
-# Neon Database Connection Details
-NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_GrOEbhSsxK89@ep-green-smoke-ae7q078i-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-
-def test_connection():
+def test_neon_connection():
     """Test connection to Neon database"""
     try:
-        print("🔌 Testing connection to Neon database...")
-        print(f"Host: ep-green-smoke-ae7q078i-pooler.c-2.us-east-2.aws.neon.tech")
-        print(f"Database: neondb")
-        print(f"User: neondb_owner")
+        # Load environment variables
+        load_dotenv()
         
-        conn = psycopg2.connect(NEON_CONNECTION_STRING)
-        cursor = conn.cursor()
+        # Get database URL
+        database_url = os.getenv('NEON_DATABASE_URL')
+        if not database_url:
+            raise ValueError("NEON_DATABASE_URL environment variable is not set")
         
-        # Test basic connection
-        cursor.execute("SELECT version();")
-        version = cursor.fetchone()
-        print(f"✅ Connection successful!")
+        print("Testing direct PostgreSQL connection...")
+        # Test direct PostgreSQL connection
+        conn = psycopg2.connect(database_url)
+        cur = conn.cursor()
+        cur.execute('SELECT version();')
+        version = cur.fetchone()
         print(f"PostgreSQL version: {version[0]}")
-        
-        # Test if tables exist
-        cursor.execute("""
-            SELECT table_name 
-            FROM information_schema.tables 
-            WHERE table_schema = 'public'
-            ORDER BY table_name;
-        """)
-        
-        tables = cursor.fetchall()
-        
-        if tables:
-            print(f"\n📋 Found {len(tables)} tables in the database:")
-            for table in tables:
-                print(f"   - {table[0]}")
-        else:
-            print("\n⚠️  No tables found in the database.")
-            print("   Run upload_to_neon.py to create the tables.")
-        
-        cursor.close()
+        cur.close()
         conn.close()
+        print("PostgreSQL connection successful!")
+        
+        print("\nTesting SQLAlchemy connection...")
+        # Test SQLAlchemy connection
+        engine = create_engine(database_url)
+        with engine.connect() as connection:
+            result = connection.execute("SELECT version();")
+            version = result.fetchone()
+            print(f"SQLAlchemy connection successful!")
+            print(f"Database version: {version[0]}")
         
         return True
         
-    except Exception as e:
-        print(f"❌ Connection failed: {e}")
+    except (Exception, SQLAlchemyError) as error:
+        print(f"\nError connecting to Neon database: {error}")
         return False
 
-def main():
-    """Main function"""
-    print("🚀 Testing Neon PostgreSQL Database Connection")
-    print("=" * 50)
-    
-    success = test_connection()
-    
-    if success:
-        print("\n✅ Connection test completed successfully!")
-        print("\n📝 Your Neon database is ready to use!")
-    else:
-        print("\n❌ Connection test failed!")
-        print("\n🔧 Troubleshooting:")
-        print("1. Check your internet connection")
-        print("2. Verify the connection string is correct")
-        print("3. Ensure your Neon database is active")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    test_neon_connection()
