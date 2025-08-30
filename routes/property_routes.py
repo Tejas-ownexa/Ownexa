@@ -226,6 +226,34 @@ def import_properties(current_user):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
+@property_bp.route('/<int:property_id>', methods=['DELETE'])
+@token_required
+def delete_property(current_user, property_id):
+    try:
+        print(f"Delete property attempt - Property ID: {property_id}, User: {current_user.username}")
+        
+        # Find the property
+        property = Property.query.get(property_id)
+        
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        # Check if the property belongs to the current user
+        if property.owner_id != current_user.id:
+            return jsonify({'error': 'Unauthorized to delete this property'}), 403
+        
+        # Delete the property
+        db.session.delete(property)
+        db.session.commit()
+        
+        print(f"Property {property_id} deleted successfully by user {current_user.username}")
+        return jsonify({'message': 'Property deleted successfully'}), 200
+        
+    except Exception as e:
+        print(f"Error deleting property: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
 @property_bp.route('/<int:property_id>', methods=['GET'])
 def get_property(property_id):
     try:

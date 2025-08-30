@@ -13,7 +13,8 @@ import {
   Search,
   MapPin,
   DollarSign,
-  Upload
+  Upload,
+  Trash2
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -23,6 +24,21 @@ const Rentals = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('rentroll');
   const queryClient = useQueryClient();
+
+  // Delete property handler
+  const handleDeleteProperty = async (propertyId) => {
+    if (window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+      try {
+        await api.delete(`/api/properties/${propertyId}`);
+        toast.success('Property deleted successfully!');
+        // Refresh the properties list
+        queryClient.invalidateQueries(['properties']);
+      } catch (error) {
+        console.error('Delete error:', error);
+        toast.error('Failed to delete property. Please try again.');
+      }
+    }
+  };
 
   // Add CSS for toggle switch
   React.useEffect(() => {
@@ -664,9 +680,18 @@ const Rentals = () => {
                           </Link>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-gray-400 hover:text-gray-600">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center space-x-2">
+                            <button 
+                              onClick={() => handleDeleteProperty(property.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                              title="Delete Property"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                            <button className="text-gray-400 hover:text-gray-600">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
