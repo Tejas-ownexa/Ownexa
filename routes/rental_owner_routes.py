@@ -205,6 +205,11 @@ def delete_rental_owner(current_user, rental_owner_id):
         if property_count > 0:
             return jsonify({'error': f'Cannot delete rental owner with {property_count} properties. Please reassign or delete properties first.'}), 400
         
+        # Manually delete related records to avoid cascade issues
+        # Delete rental owner managers first
+        RentalOwnerManager.query.filter_by(rental_owner_id=rental_owner_id).delete()
+        
+        # Then delete the rental owner
         db.session.delete(rental_owner)
         db.session.commit()
         
