@@ -62,38 +62,74 @@ def get_rental_data(current_user):
 def get_rent_roll(current_user):
     """Get rent roll (lease data) for the current user"""
     try:
-        # Get lease roll data from the new table
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
+        from datetime import date, datetime
         
-        conn = psycopg2.connect(
-            host="localhost",
-            port="5432",
-            database="flask_db",
-            user="admin",
-            password="admin123"
-        )
+        # Get all properties managed by the current user through rental owners
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        property_ids = [p.id for p in properties]
         
-        cursor.execute("SELECT * FROM lease_roll ORDER BY id")
-        lease_data = cursor.fetchall()
+        # Get tenants with property information
+        tenants = db.session.query(
+            Tenant,
+            Property.title.label('property_title'),
+            Property.street_address_1,
+            Property.city,
+            Property.state
+        ).join(
+            Property, Tenant.property_id == Property.id
+        ).filter(
+            Tenant.property_id.in_(property_ids)
+        ).all()
         
         rent_roll_data = []
-        for entry in lease_data:
-            rent_roll_data.append({
-                'id': entry['id'],
-                'lease': entry['lease'],
-                'leaseId': entry['lease_id'],
-                'status': entry['status'],
-                'type': entry['type'],
-                'leaseDates': entry['lease_dates'],
-                'daysLeft': entry['days_left'],
-                'rent': entry['rent']
-            })
+        today = date.today()
         
-        cursor.close()
-        conn.close()
+        for tenant, property_title, street_address, city, state in tenants:
+            # Determine lease status
+            if tenant.lease_start and tenant.lease_end:
+                if tenant.lease_start <= today <= tenant.lease_end:
+                    status = 'Active'
+                elif tenant.lease_start > today:
+                    status = 'Future'
+                else:
+                    status = 'Expired'
+            else:
+                status = 'No Lease'
+            
+            # Calculate days left
+            days_left = 0
+            if tenant.lease_end and tenant.lease_end > today:
+                days_left = (tenant.lease_end - today).days
+            
+            # Format lease dates
+            lease_dates = f"{tenant.lease_start.strftime('%m/%d/%Y') if tenant.lease_start else 'N/A'} - {tenant.lease_end.strftime('%m/%d/%Y') if tenant.lease_end else 'N/A'}"
+            
+            # Format address
+            address = f"{street_address}, {city}, {state}" if street_address and city and state else "Address not available"
+            
+            rent_roll_data.append({
+                'id': tenant.id,
+                'lease': f"{tenant.full_name} - {property_title}",
+                'leaseId': f"LEASE-{tenant.id:04d}",
+                'status': status,
+                'type': 'Residential',
+                'leaseDates': lease_dates,
+                'daysLeft': days_left,
+                'rent': float(tenant.rent_amount) if tenant.rent_amount else 0,
+                'tenant_name': tenant.full_name,
+                'property_title': property_title,
+                'address': address,
+                'email': tenant.email,
+                'phone': tenant.phone_number
+            })
         
         return jsonify(rent_roll_data), 200
     except Exception as e:
