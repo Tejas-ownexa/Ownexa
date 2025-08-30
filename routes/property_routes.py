@@ -150,7 +150,6 @@ def import_properties(current_user):
         
         for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
             try:
-                
                 # Extract data from CSV row
                 title = row.get('PROPERTY', '').strip() if row.get('PROPERTY') else ''
                 location = row.get('LOCATION', '').strip() if row.get('LOCATION') else ''
