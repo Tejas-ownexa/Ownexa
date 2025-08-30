@@ -39,16 +39,6 @@ const Rentals = () => {
     }
   }, [searchParams]);
 
-  // Fetch properties for the current owner
-  const { data: properties, isLoading: propertiesLoading } = useQuery(
-    ['properties'],
-    async () => {
-      const response = await api.get('/api/properties/');
-      return response.data;
-    },
-    { enabled: !!user?.id }
-  );
-
   // Fetch tenants for the current owner's properties
   const { data: tenants, isLoading: tenantsLoading } = useQuery(
     ['tenants'],
@@ -73,19 +63,17 @@ const Rentals = () => {
   const leaseEntries = React.useMemo(() => {
     // Handle different API response structures
     const tenantsArray = tenants?.items || tenants || [];
-    const propertiesArray = properties?.items || properties || [];
     const rentRollArray = rentRoll || [];
     
     console.log('Debug - tenants:', tenants);
     console.log('Debug - tenantsArray:', tenantsArray);
-    console.log('Debug - properties:', properties);
-    console.log('Debug - propertiesArray:', propertiesArray);
     console.log('Debug - rentRoll:', rentRoll);
     
-    if (!tenantsArray.length || !propertiesArray.length) return [];
+    if (!tenantsArray.length) return [];
 
     return tenantsArray.map(tenant => {
-      const property = propertiesArray.find(p => p.id === tenant.propertyId);
+      // Use property data that's already included in tenant response
+      const property = tenant.property;
       const payments = rentRollArray.filter(p => p.tenant_id === tenant.id);
       
              // Calculate lease type and dates
@@ -112,7 +100,7 @@ const Rentals = () => {
              return {
          id: tenant.id,
          uniqueId,
-         lease: `${property?.name || 'Unknown Property'} - ${property?.unit_number || 'N/A'} | ${tenant.name}`,
+         lease: `${property?.name || 'Unknown Property'} - ${property?.apt || 'N/A'} | ${tenant.name}`,
          status: tenant.status || 'Active',
          type: leaseType,
          typeDisplay,
@@ -240,7 +228,7 @@ const Rentals = () => {
     }).format(amount || 0);
   };
 
-  if (propertiesLoading || tenantsLoading || rentRollLoading) {
+  if (tenantsLoading || rentRollLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
