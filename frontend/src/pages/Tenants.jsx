@@ -207,16 +207,38 @@ const Tenants = () => {
           </button>
           
           <button 
-            onClick={() => {
-              // Download CSV template
-              const csvTemplate = [
-                ['FIRST_NAME', 'LAST_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'STATUS', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT'],
-                ['John', 'Doe', 'john.doe@email.com', '+1-555-0123', '1', 'active', '2024-01-01', '2024-12-31', '2500.00'],
-                ['Jane', 'Smith', 'jane.smith@email.com', '+1-555-0124', '2', 'active', '2024-02-01', '2025-01-31', '2800.00'],
-                ['Mike', 'Johnson', 'mike.johnson@email.com', '+1-555-0125', '3', 'future', '2024-03-01', '2025-02-28', '2200.00']
-              ].map(row => row.join(',')).join('\n');
+                         onClick={() => {
+               // Download CSV template with available properties
+               const availableProperties = userProperties.filter(p => p.status === 'available');
+               let csvTemplate = [
+                 ['FIRST_NAME', 'LAST_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'STATUS', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT']
+               ];
+               
+               // Add sample rows with available property IDs
+               if (availableProperties.length > 0) {
+                 csvTemplate.push([
+                   'John', 'Doe', 'john.doe@email.com', '+1-555-0123', 
+                   availableProperties[0].id.toString(), 'active', '2024-01-01', '2024-12-31', 
+                   availableProperties[0].rent_amount?.toString() || '2500.00'
+                 ]);
+                 
+                 if (availableProperties.length > 1) {
+                   csvTemplate.push([
+                     'Jane', 'Smith', 'jane.smith@email.com', '+1-555-0124', 
+                     availableProperties[1].id.toString(), 'active', '2024-02-01', '2025-01-31', 
+                     availableProperties[1].rent_amount?.toString() || '2800.00'
+                   ]);
+                 }
+               } else {
+                 // If no available properties, show generic template
+                 csvTemplate.push([
+                   'John', 'Doe', 'john.doe@email.com', '+1-555-0123', '1', 'active', '2024-01-01', '2024-12-31', '2500.00'
+                 ]);
+               }
+               
+               const csvContent = csvTemplate.map(row => row.join(',')).join('\n');
 
-              const blob = new Blob([csvTemplate], { type: 'text/csv' });
+                             const blob = new Blob([csvContent], { type: 'text/csv' });
               const link = document.createElement('a');
               const url = URL.createObjectURL(blob);
               link.setAttribute('href', url);
