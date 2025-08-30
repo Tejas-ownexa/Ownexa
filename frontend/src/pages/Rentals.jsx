@@ -21,11 +21,29 @@ const Rentals = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('rentroll');
+
+  // Add CSS for toggle switch
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .toggle-checkbox:checked {
+        right: 0;
+        border-color: #10b981;
+      }
+      .toggle-checkbox:checked + .toggle-label {
+        background-color: #10b981;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
   const [sortField, setSortField] = useState('lease');
   const [sortDirection, setSortDirection] = useState('asc');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [propertySearchTerm, setPropertySearchTerm] = useState('');
+  const [propertyFilterStatus, setPropertyFilterStatus] = useState('all');
 
   // Handle URL parameters to set initial tab
   useEffect(() => {
@@ -189,6 +207,64 @@ const Rentals = () => {
     return filtered;
   }, [leaseEntries, searchTerm, filterStatus, filterType, sortField, sortDirection]);
 
+  // Filter and sort properties
+  const filteredProperties = React.useMemo(() => {
+    let filtered = properties || [];
+
+    // Apply search filter
+    if (propertySearchTerm) {
+      filtered = filtered.filter(property => 
+        property.title.toLowerCase().includes(propertySearchTerm.toLowerCase()) ||
+        `${property.address?.city || ''} ${property.address?.state || ''}`.toLowerCase().includes(propertySearchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (propertyFilterStatus !== 'all') {
+      filtered = filtered.filter(property => property.status === propertyFilterStatus);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortField) {
+        case 'property':
+          aValue = a.title;
+          bValue = b.title;
+          break;
+        case 'location':
+          aValue = `${a.address?.city || ''} ${a.address?.state || ''}`;
+          bValue = `${b.address?.city || ''} ${b.address?.state || ''}`;
+          break;
+        case 'owner':
+          aValue = a.owner?.full_name || '';
+          bValue = b.owner?.full_name || '';
+          break;
+        case 'type':
+          aValue = a.apt_number ? 'Condo/Townhome' : 'Single-Family';
+          bValue = b.apt_number ? 'Condo/Townhome' : 'Single-Family';
+          break;
+        default:
+          aValue = a.title;
+          bValue = b.title;
+      }
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? -1 : 1;
+      }
+    });
+
+    return filtered;
+  }, [properties, propertySearchTerm, propertyFilterStatus, sortField, sortDirection]);
+
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -313,134 +389,229 @@ const Rentals = () => {
         <div className="space-y-6">
           {/* Properties Header */}
           <div className="flex justify-between items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Properties</h2>
-              <p className="text-gray-600">Manage and browse your property portfolio</p>
+            <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
+            <div className="flex space-x-3">
+              <Link
+                to="/add-property"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add property</span>
+              </Link>
+              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                <span>Management fees</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                Manage bank accounts
+              </button>
+              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
             </div>
-            <Link
-              to="/add-property"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <Plus className="-ml-1 mr-2 h-5 w-5" />
-              Add Property
-            </Link>
           </div>
 
-          {/* Properties Search and Filters */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Search */}
+          {/* Filters and Search Bar */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search properties..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={propertySearchTerm}
+                  onChange={(e) => setPropertySearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-
-              {/* Rent Range */}
-              <div className="flex space-x-2">
-                <input
-                  type="number"
-                  placeholder="Min Rent"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <input
-                  type="number"
-                  placeholder="Max Rent"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              {/* Status */}
-              <div>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option value="">Any Status</option>
-                  <option value="available">Available</option>
-                  <option value="rented">Rented</option>
-                  <option value="maintenance">Maintenance</option>
-                  <option value="unavailable">Unavailable</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Location Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <input
-                type="text"
-                placeholder="City"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Properties Results */}
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold">
-              {properties?.length || 0} Properties Found
-            </h3>
-          </div>
-
-          {/* Properties Grid */}
-          {properties && properties.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
-                <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="text-lg font-semibold text-gray-900">{property.title}</h4>
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        property.status === 'available' ? 'text-green-600 bg-green-100' : 
-                        property.status === 'rented' ? 'text-blue-600 bg-blue-100' : 
-                        'text-gray-600 bg-gray-100'
-                      }`}>
-                        {property.status}
-                      </span>
-                    </div>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex items-center">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        <span>{property.address?.street_1}, {property.address?.city}, {property.address?.state}</span>
-                      </div>
-                      <div className="flex items-center">
-                        <DollarSign className="h-4 w-4 mr-2" />
-                        <span>{formatCurrency(property.rent_amount)}/month</span>
-                      </div>
-                    </div>
-                    <div className="mt-4 flex space-x-2">
-                      <Link
-                        to={`/properties/${property.id}`}
-                        className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors text-center"
-                      >
-                        View Details
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Search className="h-16 w-16 mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
-              <p className="text-gray-600 mb-6">Get started by adding your first property to your portfolio</p>
-              <Link
-                to="/add-property"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              <select 
+                value={propertyFilterStatus} 
+                onChange={(e) => setPropertyFilterStatus(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
               >
-                <Plus className="-ml-1 mr-2 h-5 w-5" />
-                Add Your First Property
-              </Link>
+                <option value="all">All rentals</option>
+                <option value="available">Available</option>
+                <option value="rented">Rented</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
+                <Filter className="h-4 w-4" />
+                <span>Add filter option</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Show bank accounts</span>
+                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                  <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                  <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+              </div>
             </div>
-          )}
+            <button 
+              onClick={() => {
+                // Export properties functionality
+                const csvContent = [
+                  ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'OPERATING ACCOUNT', 'DEPOSIT TRUST ACCOUNT'],
+                  ...(properties || []).map(property => [
+                    property.title,
+                    `${property.address?.city || ''}, ${property.address?.state || ''}`,
+                    property.owner?.full_name || 'N/A',
+                    'N/A',
+                    'Residential',
+                    'EFT ATK ASSOCIATE...',
+                    'Setup'
+                  ])
+                ].map(row => row.join(',')).join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `properties_${new Date().toISOString().split('T')[0]}.csv`);
+                if (link && link.style) {
+                  link.style.visibility = 'hidden';
+                }
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                toast.success('Properties exported successfully!');
+              }}
+              className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </button>
+          </div>
+
+          {/* Results Count */}
+          <div className="text-sm text-gray-600">
+            {filteredProperties.length} matches
+          </div>
+
+          {/* Properties Table */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('property')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>PROPERTY</span>
+                        {getSortIcon('property')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('location')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>LOCATION</span>
+                        {getSortIcon('location')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('owner')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>RENTAL OWNERS</span>
+                        {getSortIcon('owner')}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      MANAGER
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('type')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>TYPE</span>
+                        {getSortIcon('type')}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      OPERATING ACCOUNT
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      DEPOSIT TRUST ACCOUNT
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ACTIONS
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredProperties.length > 0 ? (
+                    filteredProperties.map((property) => (
+                      <tr key={property.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Link
+                            to={`/properties/${property.id}`}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                          >
+                            {property.title}
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {property.address?.city || 'N/A'}, {property.address?.state || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {property.owner?.full_name || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          -
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          Residential, {property.apt_number ? 'Condo/Townhome' : 'Single-Family'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">EFT</span>
+                            <span className="text-xs bg-green-500 w-2 h-2 rounded-full"></span>
+                            <span className="text-sm text-gray-900">ATK ASSOCIATE...</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <Link
+                            to="#"
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            Setup
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="px-6 py-12 text-center">
+                        <div className="text-gray-400 mb-4">
+                          <Search className="h-16 w-16 mx-auto" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
+                        <p className="text-gray-600 mb-6">Get started by adding your first property to your portfolio</p>
+                        <Link
+                          to="/add-property"
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          <Plus className="-ml-1 mr-2 h-5 w-5" />
+                          Add Your First Property
+                        </Link>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 
