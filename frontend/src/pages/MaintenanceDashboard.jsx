@@ -29,6 +29,15 @@ const MaintenanceDashboard = () => {
   const [selectedPriority, setSelectedPriority] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all'); // all, assigned, recent, completed
+  
+  // Status update modal state
+  const [statusUpdateModal, setStatusUpdateModal] = useState({
+    isOpen: false,
+    request: null,
+    status: '',
+    notes: '',
+    actualCost: ''
+  });
 
   // Fetch maintenance requests
   const { data: maintenanceRequests, isLoading } = useQuery(
@@ -144,6 +153,11 @@ const MaintenanceDashboard = () => {
       request.request_description.toLowerCase().includes(searchTerm.toLowerCase());
     
     return tabMatch && matchesStatus && matchesPriority && matchesSearch;
+  }).sort((a, b) => {
+    // Sort by request_date in descending order (latest first)
+    const dateA = new Date(a.request_date);
+    const dateB = new Date(b.request_date);
+    return dateB - dateA;
   }) || [];
 
   // Get statistics for vendor dashboard
@@ -226,6 +240,72 @@ const MaintenanceDashboard = () => {
     }).format(amount);
   };
 
+  // Open status update modal
+  const openStatusUpdateModal = (request) => {
+    setStatusUpdateModal({
+      isOpen: true,
+      request: request,
+      status: request.status,
+      notes: '',
+      actualCost: request.actual_cost || ''
+    });
+  };
+
+  // Close status update modal
+  const closeStatusUpdateModal = () => {
+    setStatusUpdateModal({
+      isOpen: false,
+      request: null,
+      status: '',
+      notes: '',
+      actualCost: ''
+    });
+  };
+
+  // Handle status update submission
+  const handleStatusUpdate = () => {
+    if (!statusUpdateModal.status) {
+      toast.error('Please select a status');
+      return;
+    }
+
+    updateStatusMutation.mutate({
+      requestId: statusUpdateModal.request.id,
+      status: statusUpdateModal.status,
+      notes: statusUpdateModal.notes,
+      actualCost: statusUpdateModal.actualCost ? parseFloat(statusUpdateModal.actualCost) : null
+    });
+
+    closeStatusUpdateModal();
+  };
+
+  // Get available status options based on user role and current status
+  const getAvailableStatusOptions = (currentStatus) => {
+    const allStatuses = [
+      { value: 'pending', label: 'Pending' },
+      { value: 'assigned', label: 'Assigned' },
+      { value: 'in_progress', label: 'In Progress' },
+      { value: 'completed', label: 'Completed' },
+      { value: 'cancelled', label: 'Cancelled' }
+    ];
+
+    if (user?.role === 'VENDOR') {
+      // Vendors can move from assigned -> in_progress -> completed
+      if (currentStatus === 'assigned') {
+        return allStatuses.filter(s => ['assigned', 'in_progress'].includes(s.value));
+      } else if (currentStatus === 'in_progress') {
+        return allStatuses.filter(s => ['in_progress', 'completed'].includes(s.value));
+      } else if (currentStatus === 'completed') {
+        return allStatuses.filter(s => s.value === 'completed');
+      }
+      return allStatuses.filter(s => ['assigned', 'in_progress', 'completed'].includes(s.value));
+    } else if (user?.role === 'OWNER' || user?.role === 'AGENT') {
+      // Property owners can change to any status
+      return allStatuses;
+    }
+    
+    return allStatuses;
+  };
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -438,7 +518,7 @@ const MaintenanceDashboard = () => {
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">{request.request_title}</h3>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(request.status)}`}>
-                        {request.status.replace('_', ' ').toUpperCase()}
+                        {request.status ? request.status.replace('_', ' ').toUpperCase() : 'UNKNOWN'}
                       </span>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(request.priority)}`}>
                         {request.priority.toUpperCase()}
@@ -573,12 +653,11 @@ const MaintenanceDashboard = () => {
                     </button>
                   )}
                   
-                  {(user?.role === 'VENDOR' || user?.role === 'OWNER' || user?.role === 'AGENT') && (
+                  {/* Show Update Status button based on role and assignment */}
+                  {((user?.role === 'VENDOR' && request.assigned_vendor && request.assigned_vendor.email === user.email) ||
+                    (user?.role === 'OWNER' || user?.role === 'AGENT')) && (
                     <button
-                      onClick={() => {
-                        // Open status update modal
-                        console.log('Update status for request:', request.id);
-                      }}
+                      onClick={() => openStatusUpdateModal(request)}
                       className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
                     >
                       Update Status
@@ -589,6 +668,111 @@ const MaintenanceDashboard = () => {
             ))
           )}
         </div>
+
+        {/* Status Update Modal */}
+        {statusUpdateModal.isOpen && (
+
+        {/* Status Update Modal */}
+        {statusUpdateModal.isOpen && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Update Status: {statusUpdateModal.request?.request_title}
+              </h3>
+              
+              <div className="space-y-4">
+                {/* Current Status Display */}
+                <div className="text-sm text-gray-600">
+                  <span className="font-medium">Current Status:</span>
+                  <span className={`ml-2 px-2 py-1 rounded text-xs ${getStatusColor(statusUpdateModal.request?.status)}`}>
+                                            {statusUpdateModal.request?.status ? statusUpdateModal.request.status.replace('_', ' ').toUpperCase() : 'UNKNOWN'}
+                  </span>
+                </div>
+
+                {/* New Status Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    New Status
+                  </label>
+                  <select
+                    value={statusUpdateModal.status}
+                    onChange={(e) => setStatusUpdateModal({
+                      ...statusUpdateModal,
+                      status: e.target.value
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {getAvailableStatusOptions(statusUpdateModal.request?.status).map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Actual Cost (for completed requests) */}
+                {statusUpdateModal.status === 'completed' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Actual Cost ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={statusUpdateModal.actualCost}
+                      onChange={(e) => setStatusUpdateModal({
+                        ...statusUpdateModal,
+                        actualCost: e.target.value
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Enter actual cost"
+                    />
+                  </div>
+                )}
+
+                {/* Notes */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {user?.role === 'VENDOR' ? 'Vendor Notes' : 
+                     user?.role === 'OWNER' || user?.role === 'AGENT' ? 'Owner Notes' : 
+                     'Notes'}
+                  </label>
+                  <textarea
+                    value={statusUpdateModal.notes}
+                    onChange={(e) => setStatusUpdateModal({
+                      ...statusUpdateModal,
+                      notes: e.target.value
+                    })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    rows="3"
+                    placeholder="Add notes about this status update..."
+                  />
+                </div>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  onClick={closeStatusUpdateModal}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleStatusUpdate}
+                  disabled={updateStatusMutation.isLoading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {updateStatusMutation.isLoading ? 'Updating...' : 'Update Status'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
       </div>
     </div>
   );

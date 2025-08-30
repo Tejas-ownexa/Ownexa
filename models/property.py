@@ -35,4 +35,6 @@ class Property(BaseModel):
     listings = db.relationship('Listing', back_populates='property')
     financial_details = db.relationship('PropertyFinancial', back_populates='property', uselist=False, cascade='all, delete-orphan')
     financial_transactions = db.relationship('FinancialTransaction', back_populates='property', cascade='all, delete-orphan')
-
+    accountability_financials = db.relationship('AccountabilityFinancial', back_populates='property', cascade='all, delete-orphan')
+    general_ledger_entries = db.relationship('GeneralLedger', back_populates='property', cascade='all, delete-orphan')
+    banking_accounts = db.relationship('Banking', back_populates='property', cascade='all, delete-orphan')

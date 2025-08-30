@@ -87,7 +87,6 @@ const Dashboard = () => {
         setMaintenanceLoading(false);
       },
       onError: () => setMaintenanceLoading(false),
-      onSettled: () => setMaintenanceLoading(false)
     }
   );
 
@@ -128,7 +127,6 @@ const Dashboard = () => {
   };
 
   const vendorStats = getVendorMaintenanceStats();
-
   const tabs = [
     { id: 'properties', label: 'My Properties', icon: Home },
     { id: 'tenants', label: 'Tenants', icon: User },
@@ -136,7 +134,6 @@ const Dashboard = () => {
     { id: 'favorites', label: 'Favorites', icon: Heart },
     { id: 'profile', label: 'Profile', icon: User },
   ];
-
   if (!user) {
     return (
       <div className="text-center py-12">
@@ -284,30 +281,62 @@ const Dashboard = () => {
 
   // Regular Dashboard for OWNER and AGENT roles
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Welcome back, {user.full_name}</p>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600">Welcome back, {user?.full_name || 'User'}!</p>
           </div>
-          {(user?.role === 'OWNER' || user?.role === 'AGENT') && (
-            <div className="flex items-center space-x-4">
+          <div className="flex space-x-3">
+            <Link
+              to="/tenants"
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <User className="h-4 w-4" />
+              <span>Manage Tenants</span>
+            </Link>
+            <Link
+              to="/add-property"
+              className="btn-primary flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Property</span>
+            </Link>
+          </div>
+        </div>
+        
+        {/* Quick Actions */}
+        {userProperties && userProperties.length === 0 && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <Home className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">
+                    Get Started with Property Management
+                  </h3>
+                  <p className="text-sm text-blue-700">
+                    Add your first property to start managing tenants and tracking rent payments.
+                  </p>
+                </div>
+              </div>
               <Link
                 to="/add-property"
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
-                <Plus className="h-4 w-4 mr-2" />
                 Add Property
               </Link>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Dashboard Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <DashboardWidget
           title="Total Properties"
           value={userProperties?.length || 0}
@@ -606,6 +635,7 @@ const Dashboard = () => {
               )}
             </div>
           )}
+
 
           {/* Maintenance Tab */}
           {activeTab === 'maintenance' && (

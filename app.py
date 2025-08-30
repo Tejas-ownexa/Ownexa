@@ -8,6 +8,9 @@ import os
 # Enable CORS
 CORS(app)
 
+# Disable automatic trailing slash redirects to prevent CORS issues
+app.url_map.strict_slashes = False
+
 # Serve uploaded files
 @app.route('/uploads/<path:filename>')
 def uploaded_file(filename):
@@ -17,4 +20,6 @@ def uploaded_file(filename):
 init_routes(app)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    # Use environment variable for port or default to 5001
+    port = int(os.getenv('FLASK_PORT', 5001))
+    app.run(debug=True, port=port)

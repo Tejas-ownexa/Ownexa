@@ -6,7 +6,8 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    full_name = db.Column(db.String(120), nullable=False)
+    first_name = db.Column(db.String(60), nullable=False)
+    last_name = db.Column(db.String(60), nullable=False)
     phone_number = db.Column(db.String(20))
     role = db.Column(db.String(20), default='OWNER')
     street_address_1 = db.Column(db.String(255), nullable=False)
@@ -21,3 +22,13 @@ class User(db.Model):
     email_verification_expires = db.Column(db.DateTime)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    # Accountability relationships
+    accountability_financials = db.relationship('AccountabilityFinancial', back_populates='user', cascade='all, delete-orphan')
+    general_ledger_entries = db.relationship('GeneralLedger', back_populates='user', cascade='all, delete-orphan')
+    banking_accounts = db.relationship('Banking', back_populates='user', cascade='all, delete-orphan')
+    
+    @property
+    def full_name(self):
+        """Get user's full name"""
+        return f"{self.first_name} {self.last_name}"

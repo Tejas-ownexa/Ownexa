@@ -18,7 +18,7 @@ def create_tenant(current_user):
 
         # Map frontend field names to backend field names
         tenant_data = {
-            'full_name': data.get('name'),
+            'full_name': data.get('name'),  # Keep for tenant table which still uses full_name
             'email': data.get('email'),
             'phone_number': data.get('phone'),
             'property_id': data.get('propertyId'),
@@ -29,7 +29,7 @@ def create_tenant(current_user):
         print("Mapped tenant data:", tenant_data)
 
         # Validate required fields
-        required_fields = ['full_name', 'email', 'phone_number', 'property_id', 
+        required_fields = ['full_name', 'email', 'phone_number', 'property_id',  # full_name for tenant table
                          'lease_start', 'lease_end', 'rent_amount']
         for field in required_fields:
             if not tenant_data.get(field):

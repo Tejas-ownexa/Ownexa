@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Home, Search, User, LogOut, Plus, Heart, Menu, X, Building, Users, Wrench, DollarSign } from 'lucide-react';
+import { Home, Search, User, LogOut, Plus, Heart, Menu, X, Building, Users, Wrench, DollarSign, FileText } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -19,7 +19,6 @@ const Navbar = () => {
     
     if (user.role === 'VENDOR') {
       return [
-        { name: 'Maintenance', href: '/maintenance', icon: Wrench },
         { name: 'Profile', href: '/vendor-profile', icon: User },
       ];
     }
@@ -30,6 +29,7 @@ const Navbar = () => {
       { name: 'Tenants', href: '/tenants', icon: Users },
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       { name: 'Financial', href: '/financial', icon: DollarSign },
+      { name: 'Reports', href: '/reports', icon: FileText },
     ];
   };
 

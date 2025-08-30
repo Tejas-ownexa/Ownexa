@@ -3,12 +3,14 @@ import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from 'react-query';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios';
-import { Wrench, AlertTriangle, Clock, Calendar, FileText, ArrowLeft } from 'lucide-react';
+import { Wrench, AlertTriangle, Clock, Calendar, FileText, ArrowLeft, MessageCircle, Bot } from 'lucide-react';
 import toast from 'react-hot-toast';
+import MaintenanceChatbot from '../components/MaintenanceChatbot';
 
 const MaintenanceRequest = () => {
   const navigate = useNavigate();
   const [selectedVendorType, setSelectedVendorType] = useState('');
+  const [showChatbot, setShowChatbot] = useState(false);
 
   const {
     register,
@@ -18,12 +20,36 @@ const MaintenanceRequest = () => {
     setValue
   } = useForm();
 
-  // Get user's properties (for tenants)
+  // Get user's properties (for tenants, get their assigned property)
   const { data: userProperties } = useQuery(
     ['user-properties'],
     async () => {
-      const response = await api.get('/api/properties');
-      return response.data;
+      try {
+        // For tenants, get their assigned property from tenant unit data
+        const response = await api.get('/api/tenants/my-unit');
+        if (response.data.property) {
+          // Normalize the property structure to match the properties API format
+          const property = response.data.property;
+          return [{
+            id: property.id,
+            title: property.title,
+            address: {
+              street_1: property.street_address_1,
+              street_2: property.street_address_2,
+              apt: property.apt_number,
+              city: property.city,
+              state: property.state,
+              zip: property.zip_code
+            }
+          }];
+        }
+        return [];
+      } catch (error) {
+        // Fallback to general properties endpoint for non-tenants
+        console.log('Tenant unit not found, falling back to general properties');
+        const response = await api.get('/api/properties');
+        return response.data;
+      }
     },
     {
       onError: (error) => {
@@ -108,12 +134,49 @@ const MaintenanceRequest = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </button>
-          <div className="flex items-center">
-            <Wrench className="h-8 w-8 text-blue-600 mr-3" />
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Submit Maintenance Request</h1>
-              <p className="text-gray-600 mt-1">Report maintenance issues for your property</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Wrench className="h-8 w-8 text-blue-600 mr-3" />
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900">Submit Maintenance Request</h1>
+                <p className="text-gray-600 mt-1">Report maintenance issues for your property</p>
+              </div>
             </div>
+            
+            {/* AI Chatbot Button */}
+            <button
+              onClick={() => setShowChatbot(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-lg"
+            >
+              <Bot className="h-5 w-5" />
+              <span className="font-medium">Try AI Assistant</span>
+            </button>
+          </div>
+        </div>
+
+        {/* AI Assistant Info Banner */}
+        <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <Bot className="h-6 w-6 text-blue-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-blue-900">
+                🚀 New! AI-Powered Maintenance Assistant
+              </h3>
+              <p className="text-sm text-blue-700 mt-1">
+                Don't want to fill out forms? Chat with our AI assistant instead! 
+                Just describe your issue in natural language, and it will automatically create the maintenance request for you.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowChatbot(true)}
+              className="flex-shrink-0 px-3 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Try Now
+            </button>
+          </div>
+        </div>
           </div>
         </div>
 
@@ -325,6 +388,13 @@ const MaintenanceRequest = () => {
           </div>
         </div>
       </div>
+      
+      {/* AI Chatbot Modal */}
+      <MaintenanceChatbot
+        isOpen={showChatbot}
+        onClose={() => setShowChatbot(false)}
+        userProperties={userProperties || []}
+      />
     </div>
   );
 };

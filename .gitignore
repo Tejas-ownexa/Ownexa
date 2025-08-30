@@ -2,7 +2,11 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -16,14 +20,18 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
 # Virtual Environment
-venv/
+.env
+.venv
 env/
+venv/
 ENV/
 env.bak/
 venv.bak/
@@ -31,22 +39,49 @@ venv.bak/
 # Flask
 instance/
 .webassets-cache
-.env
 .flaskenv
 
 # Database
 *.db
 *.sqlite
 *.sqlite3
+db.sqlite3-journal
 
-# IDE
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.spyderproject
+.spyproject
+.ropeproject
 
-# OS
+# Testing and Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation
+docs/_build/
+/site
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -55,15 +90,8 @@ instance/
 ehthumbs.db
 Thumbs.db
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
 # Node.js (Frontend)
+node_modules/
 frontend/node_modules/
 frontend/.pnp
 frontend/.pnp.js
@@ -73,9 +101,14 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# Uploads
-uploads/
+# Uploads (keep structure but ignore actual files)
+uploads/properties/*
+!uploads/properties/.gitkeep
 *.jpg
 *.jpeg
 *.png
@@ -83,7 +116,7 @@ uploads/
 *.pdf
 !uploads/.gitkeep
 
-# Secrets
+# Configuration and Secrets
 config.py
 .env
 .env.local
@@ -96,14 +129,8 @@ config.py
 *.temp
 .cache/
 
-# Coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
+# Logs
+logs/
+*.log
+pip-log.txt
+pip-delete-this-directory.txt

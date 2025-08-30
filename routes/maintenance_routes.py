@@ -7,6 +7,8 @@ from config import db
 from routes.auth_routes import token_required
 from datetime import datetime
 from sqlalchemy.orm import joinedload
+from sqlalchemy import or_
+from utils.tenant_utils import get_comprehensive_tenant_info
 
 maintenance_bp = Blueprint('maintenance_bp', __name__)
 
@@ -71,31 +73,40 @@ def get_maintenance_requests(current_user):
                 Property.owner_id == current_user.id
             ).options(
                 joinedload(MaintenanceRequest.property),
-                joinedload(MaintenanceRequest.tenant),
+                joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property),
                 joinedload(MaintenanceRequest.assigned_vendor)
             ).all()
         elif current_user.role == 'VENDOR':
-            # Vendors see their assigned requests AND all pending requests
-            vendor = Vendor.query.filter_by(user_id=current_user.id).first()
-            if not vendor:
+            # Vendors see their assigned requests AND pending requests matching their vendor types
+            vendors = Vendor.query.filter_by(user_id=current_user.id).all()
+            if not vendors:
                 return jsonify({'error': 'Vendor profile not found'}), 404
             
-            # Get assigned requests
-            assigned_requests = MaintenanceRequest.query.filter_by(
-                assigned_vendor_id=vendor.id
+            # Get all vendor IDs and types for this user
+            vendor_ids = [v.id for v in vendors]
+            vendor_types = [v.vendor_type for v in vendors]
+            
+            # Get assigned requests for any of this user's vendor profiles
+            assigned_requests = MaintenanceRequest.query.filter(
+                MaintenanceRequest.assigned_vendor_id.in_(vendor_ids)
             ).options(
                 joinedload(MaintenanceRequest.property),
-                joinedload(MaintenanceRequest.tenant)
+                joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property)
             ).all()
             
-            # Get all pending requests (not yet assigned to any vendor)
+            # Get pending requests that match any of this user's vendor types or are general
+            vendor_type_conditions = [MaintenanceRequest.vendor_type_needed == vtype for vtype in vendor_types]
+            vendor_type_conditions.append(MaintenanceRequest.vendor_type_needed == 'general')
+            # Removed legacy condition - all requests should now have vendor_type_needed set
             pending_requests = MaintenanceRequest.query.filter_by(
                 status=MaintenanceRequest.STATUS_PENDING
             ).filter(
                 MaintenanceRequest.assigned_vendor_id.is_(None)
+            ).filter(
+                or_(*vendor_type_conditions)
             ).options(
                 joinedload(MaintenanceRequest.property),
-                joinedload(MaintenanceRequest.tenant)
+                joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property)
             ).all()
             
             # Combine both lists
@@ -136,12 +147,7 @@ def get_maintenance_requests(current_user):
                     'title': req.property.title,
                     'address': f"{req.property.street_address_1}, {req.property.city}"
                 } if req.property else None,
-                'tenant': {
-                    'id': req.tenant.id,
-                    'full_name': req.tenant.full_name,
-                    'email': req.tenant.email,
-                    'phone_number': req.tenant.phone_number
-                } if req.tenant else None,
+                'tenant': get_comprehensive_tenant_info(req.tenant),
                 'assigned_vendor': {
                     'id': req.assigned_vendor.id,
                     'business_name': req.assigned_vendor.business_name,
@@ -343,7 +349,7 @@ def get_available_vendors(current_user):
             'is_verified': vendor.is_verified,
             'user': {
                 'id': vendor.user.id,
-                'full_name': vendor.user.full_name
+                'full_name': f"{vendor.user.first_name} {vendor.user.last_name}"
             } if vendor.user else None
         } for vendor in vendors]), 200
         

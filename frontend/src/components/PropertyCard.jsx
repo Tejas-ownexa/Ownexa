@@ -67,6 +67,7 @@ const PropertyCard = ({ property, isFavorite = false }) => {
   };
 
   const formatPrice = (price) => {
+    if (!price && price !== 0) return '$0';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -91,10 +92,12 @@ const PropertyCard = ({ property, isFavorite = false }) => {
   };
 
   const getStatusText = (status) => {
+    if (!status) return 'Unknown';
     return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   const formatAddress = (property) => {
+    if (!property) return 'Address not available';
     // Handle both old and new property data structures
     let street1, street2, apt, city, state, zip;
     
@@ -116,6 +119,10 @@ const PropertyCard = ({ property, isFavorite = false }) => {
       zip = property.zip_code;
     }
     
+    // Check if we have the minimum required address components
+    if (!street1 || !city || !state || !zip) {
+      return 'Address not available';
+    }
     let address = street1;
     if (street2) {
       address += `, ${street2}`;
@@ -193,7 +200,7 @@ const PropertyCard = ({ property, isFavorite = false }) => {
       <div className="p-4">
         <div className="mb-2">
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            {property.title}
+            {property.title || 'Untitled Property'}
           </h3>
           <div className="flex items-center text-gray-600 text-sm">
             <MapPin className="h-4 w-4 mr-1" />
@@ -212,7 +219,7 @@ const PropertyCard = ({ property, isFavorite = false }) => {
         {/* Property Description */}
         <div className="mb-4">
           <p className="text-sm text-gray-600 line-clamp-2">
-            {property.description}
+            {property.description || 'No description available'}
           </p>
         </div>
 

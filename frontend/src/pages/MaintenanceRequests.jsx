@@ -90,6 +90,7 @@ const MaintenanceRequests = () => {
   };
 
   const handleStatusUpdate = async (requestId, newStatus) => {
+    console.log(`Updating status for request ID: ${requestId} to ${newStatus}`);
     try {
       const updateData = {
         status: newStatus
@@ -99,7 +100,8 @@ const MaintenanceRequests = () => {
         updateData.resolution_date = new Date().toISOString().split('T')[0];
       }
       
-      await api.put(`/api/maintenance/requests/${requestId}`, updateData);
+      const response = await api.put(`/api/maintenance/requests/${requestId}/update-status`, updateData);
+      console.log('Status update response:', response.data);
       fetchRequests();
     } catch (error) {
       console.error('Error updating maintenance request:', error);
@@ -368,7 +370,7 @@ const MaintenanceRequests = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(request.status)}`}>
-                        {request.status.replace('_', ' ')}
+                        {request.status ? request.status.replace('_', ' ') : 'Unknown'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

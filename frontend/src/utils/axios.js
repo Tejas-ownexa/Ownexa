@@ -4,7 +4,7 @@ import config from '../config';
 // Set the base URL for all API calls
 const api = axios.create({
   baseURL: config.API_BASE_URL,
-  timeout: 10000, // 10 second timeout
+  timeout: 30000, // 30 second timeout for PDF generation
 });
 
 // Add a request interceptor to include the auth token

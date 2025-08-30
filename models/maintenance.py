@@ -34,6 +34,7 @@ class MaintenanceRequest(BaseModel):
     tenant_notes = db.Column(db.Text)
     vendor_notes = db.Column(db.Text)
     owner_notes = db.Column(db.Text)
+    vendor_type_needed = db.Column(db.String(50), nullable=True)  # AI-detected vendor type needed
 
     # Relationships
     tenant = db.relationship('Tenant', back_populates='maintenance_requests')
