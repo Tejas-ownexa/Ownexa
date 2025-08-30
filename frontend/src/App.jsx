@@ -10,7 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import DashboardRouter from './pages/DashboardRouter';
-import Properties from './pages/Properties';
+
 import PropertyDetail from './pages/PropertyDetail';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
@@ -65,11 +65,7 @@ const App = () => {
                         <DashboardRouter />
                       </PrivateRoute>
                     } />
-                    <Route path="/properties" element={
-                      <PrivateRoute>
-                        <Properties />
-                      </PrivateRoute>
-                    } />
+
                     <Route path="/properties/:id" element={
                       <PrivateRoute>
                         <PropertyDetail />

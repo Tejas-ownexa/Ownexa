@@ -10,8 +10,11 @@ import {
   ChevronUp,
   MoreHorizontal,
   Filter,
-  Search
+  Search,
+  MapPin,
+  DollarSign
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const Rentals = () => {
@@ -29,6 +32,7 @@ const Rentals = () => {
     const tab = searchParams.get('tab');
     if (tab) {
       const tabMapping = {
+        'properties': 'properties',
         'payments': 'rentroll',
         'leases': 'rentroll',
         'balances': 'liability'
@@ -44,6 +48,16 @@ const Rentals = () => {
     ['tenants'],
     async () => {
       const response = await api.get('/api/tenants/');
+      return response.data;
+    },
+    { enabled: !!user?.id }
+  );
+
+  // Fetch properties for the current owner
+  const { data: properties, isLoading: propertiesLoading } = useQuery(
+    ['properties'],
+    async () => {
+      const response = await api.get('/api/properties/');
       return response.data;
     },
     { enabled: !!user?.id }
@@ -228,7 +242,7 @@ const Rentals = () => {
     }).format(amount || 0);
   };
 
-  if (tenantsLoading || rentRollLoading) {
+  if (tenantsLoading || rentRollLoading || propertiesLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -262,6 +276,16 @@ const Rentals = () => {
       <div className="border-b border-gray-200">
         <nav className="flex space-x-8">
           <button
+            onClick={() => setActiveTab('properties')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'properties'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Properties
+          </button>
+          <button
             onClick={() => setActiveTab('rentroll')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'rentroll'
@@ -284,46 +308,184 @@ const Rentals = () => {
         </nav>
       </div>
 
-      {/* Filters and Search */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <select 
-            value={filterStatus} 
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
-          >
-            <option value="all">All rentals</option>
-            <option value="active">Active</option>
-            <option value="future">Future</option>
-            <option value="expired">Expired</option>
-          </select>
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">
-              ({filteredLeases.filter(l => l.status === 'Active').length} Active, {filteredLeases.filter(l => l.status === 'Future').length} Future)
-            </span>
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+      {/* Tab Content */}
+      {activeTab === 'properties' && (
+        <div className="space-y-6">
+          {/* Properties Header */}
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Properties</h2>
+              <p className="text-gray-600">Manage and browse your property portfolio</p>
+            </div>
+            <Link
+              to="/add-property"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Plus className="-ml-1 mr-2 h-5 w-5" />
+              Add Property
+            </Link>
           </div>
-          <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
-            <Filter className="h-4 w-4" />
-            <span>Add filter option</span>
-            <ChevronDown className="h-4 w-4" />
-          </button>
+
+          {/* Properties Search and Filters */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search properties..."
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Rent Range */}
+              <div className="flex space-x-2">
+                <input
+                  type="number"
+                  placeholder="Min Rent"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="number"
+                  placeholder="Max Rent"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Status */}
+              <div>
+                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">Any Status</option>
+                  <option value="available">Available</option>
+                  <option value="rented">Rented</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Location Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <input
+                type="text"
+                placeholder="City"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <input
+                type="text"
+                placeholder="State"
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {/* Properties Results */}
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-semibold">
+              {properties?.length || 0} Properties Found
+            </h3>
+          </div>
+
+          {/* Properties Grid */}
+          {properties && properties.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <div key={property.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-lg font-semibold text-gray-900">{property.title}</h4>
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        property.status === 'available' ? 'text-green-600 bg-green-100' : 
+                        property.status === 'rented' ? 'text-blue-600 bg-blue-100' : 
+                        'text-gray-600 bg-gray-100'
+                      }`}>
+                        {property.status}
+                      </span>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        <span>{property.address?.street_1}, {property.address?.city}, {property.address?.state}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <DollarSign className="h-4 w-4 mr-2" />
+                        <span>{formatCurrency(property.rent_amount)}/month</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex space-x-2">
+                      <Link
+                        to={`/properties/${property.id}`}
+                        className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors text-center"
+                      >
+                        View Details
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Search className="h-16 w-16 mx-auto" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
+              <p className="text-gray-600 mb-6">Get started by adding your first property to your portfolio</p>
+              <Link
+                to="/add-property"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <Plus className="-ml-1 mr-2 h-5 w-5" />
+                Add Your First Property
+              </Link>
+            </div>
+          )}
         </div>
-        <button 
-          onClick={handleExport}
-          className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
-        >
-          <Download className="h-4 w-4" />
-          <span>Export</span>
-        </button>
-      </div>
+      )}
 
-      {/* Results Count */}
-      <div className="text-sm text-gray-600">
-        {filteredLeases.length} matches
-      </div>
+      {activeTab === 'rentroll' && (
+        <>
+          {/* Filters and Search */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <select 
+                value={filterStatus} 
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="all">All rentals</option>
+                <option value="active">Active</option>
+                <option value="future">Future</option>
+                <option value="expired">Expired</option>
+              </select>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">
+                  ({filteredLeases.filter(l => l.status === 'Active').length} Active, {filteredLeases.filter(l => l.status === 'Future').length} Future)
+                </span>
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              </div>
+              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
+                <Filter className="h-4 w-4" />
+                <span>Add filter option</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
+            <button 
+              onClick={handleExport}
+              className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </button>
+          </div>
 
-      {/* Rent Roll Table */}
+          {/* Results Count */}
+          <div className="text-sm text-gray-600">
+            {filteredLeases.length} matches
+          </div>
+
+          {/* Rent Roll Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -425,17 +587,28 @@ const Rentals = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search leases..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-      </div>
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search leases..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </>
+      )}
+
+      {activeTab === 'liability' && (
+        <div className="space-y-6">
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Liability Management</h3>
+            <p className="text-gray-600">This section is under development.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
