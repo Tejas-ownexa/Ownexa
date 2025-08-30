@@ -1,38 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from 'react-query';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useQuery, useQueryClient } from 'react-query';
+import { useSearchParams } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { 
-  Calendar, 
-  DollarSign, 
-  Users, 
-  Building, 
-  Clock, 
-  CheckCircle, 
-  AlertTriangle, 
   Plus,
-  Eye,
-  Edit,
-  FileText,
-  TrendingUp,
-  TrendingDown
+  Download,
+  ChevronDown,
+  ChevronUp,
+  MoreHorizontal,
+  Filter,
+  Search,
+  MapPin,
+  DollarSign,
+  Upload,
+  Trash2
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Rentals = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [activeTab, setActiveTab] = useState('rentroll');
+  const queryClient = useQueryClient();
+
+  // Delete property handler
+  const handleDeleteProperty = async (propertyId) => {
+    if (window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+      try {
+        await api.delete(`/api/properties/${propertyId}`);
+        toast.success('Property deleted successfully!');
+        // Refresh the properties list
+        queryClient.invalidateQueries(['properties']);
+      } catch (error) {
+        console.error('Delete error:', error);
+        toast.error('Failed to delete property. Please try again.');
+      }
+    }
+  };
+
+  // Add CSS for toggle switch
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .toggle-checkbox:checked {
+        right: 0;
+        border-color: #10b981;
+      }
+      .toggle-checkbox:checked + .toggle-label {
+        background-color: #10b981;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
+  const [sortField, setSortField] = useState('lease');
+  const [sortDirection, setSortDirection] = useState('asc');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('all');
+  const [propertySearchTerm, setPropertySearchTerm] = useState('');
+  const [propertyFilterStatus, setPropertyFilterStatus] = useState('all');
 
   // Handle URL parameters to set initial tab
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab) {
       const tabMapping = {
-        'payments': 'payments',
-        'leases': 'leases',
-        'balances': 'balances'
+        'properties': 'properties',
+        'payments': 'rentroll',
+        'leases': 'rentroll',
+        'balances': 'liability'
       };
       if (tabMapping[tab]) {
         setActiveTab(tabMapping[tab]);
@@ -40,27 +79,7 @@ const Rentals = () => {
     }
   }, [searchParams]);
 
-  // Fetch rental data
-  const { data: rentalData, isLoading: rentalLoading } = useQuery(
-    ['rental-data'],
-    async () => {
-      const response = await api.get('/api/rentals/');
-      return response.data;
-    },
-    { enabled: !!user?.id }
-  );
-
-  // Fetch properties for filtering
-  const { data: properties, isLoading: propertiesLoading } = useQuery(
-    ['properties'],
-    async () => {
-      const response = await api.get('/api/properties/');
-      return response.data;
-    },
-    { enabled: !!user?.id }
-  );
-
-  // Fetch tenants
+  // Fetch tenants for the current owner's properties
   const { data: tenants, isLoading: tenantsLoading } = useQuery(
     ['tenants'],
     async () => {
@@ -70,7 +89,17 @@ const Rentals = () => {
     { enabled: !!user?.id }
   );
 
-  // Fetch rent roll (payment history)
+  // Fetch properties for the current owner
+  const { data: properties, isLoading: propertiesLoading } = useQuery(
+    ['properties'],
+    async () => {
+      const response = await api.get('/api/properties/');
+      return response.data;
+    },
+    { enabled: !!user?.id }
+  );
+
+  // Fetch rent roll data
   const { data: rentRoll, isLoading: rentRollLoading } = useQuery(
     ['rent-roll'],
     async () => {
@@ -80,50 +109,225 @@ const Rentals = () => {
     { enabled: !!user?.id }
   );
 
-  // Fetch outstanding balances
-  const { data: outstandingBalances, isLoading: balancesLoading } = useQuery(
-    ['outstanding-balances'],
-    async () => {
-      const response = await api.get('/api/rentals/outstanding-balances');
-      return response.data;
-    },
-    { enabled: !!user?.id }
-  );
+  // Combine data to create lease entries
+  const leaseEntries = React.useMemo(() => {
+    // Handle different API response structures
+    const tenantsArray = tenants?.items || tenants || [];
+    const rentRollArray = rentRoll || [];
+    
+    console.log('Debug - tenants:', tenants);
+    console.log('Debug - tenantsArray:', tenantsArray);
+    console.log('Debug - rentRoll:', rentRoll);
+    
+    if (!tenantsArray.length) return [];
 
-  // Calculate summary statistics
-  const calculateStats = () => {
-    // Ensure all data is available and is an array
-    if (!rentalData || !Array.isArray(tenants) || !Array.isArray(rentRoll)) {
-      return {
-        totalRent: 0,
-        totalCollected: 0,
-        totalOutstanding: 0,
-        occupancyRate: 0,
-        activeTenants: 0,
-        totalProperties: 0
-      };
+    return tenantsArray.map(tenant => {
+      // Use property data that's already included in tenant response
+      const property = tenant.property;
+      const payments = rentRollArray.filter(p => p.tenant_id === tenant.id);
+      
+             // Calculate lease type and dates
+       const leaseStart = new Date(tenant.leaseStartDate);
+       const leaseEnd = new Date(tenant.leaseEndDate);
+       const now = new Date();
+       
+       // Determine lease type
+       let leaseType = 'Fixed w/rollover';
+       let typeDisplay = `${leaseStart.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })} - ${leaseEnd.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}`;
+       
+       if (tenant.lease_type === 'at_will') {
+         leaseType = 'At will';
+         typeDisplay = leaseEnd.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+       }
+      
+      // Calculate days left
+      const daysLeft = Math.ceil((leaseEnd - now) / (1000 * 60 * 60 * 24));
+      const daysLeftDisplay = daysLeft > 0 ? daysLeft : '';
+      
+      // Generate unique ID (simulating the format from the image)
+      const uniqueId = `000${Math.floor(Math.random() * 90000) + 10000}`;
+      
+             return {
+         id: tenant.id,
+         uniqueId,
+         lease: `${property?.name || 'Unknown Property'} - ${property?.apt || 'N/A'} | ${tenant.name}`,
+         status: tenant.status || 'Active',
+         type: leaseType,
+         typeDisplay,
+         daysLeft: daysLeftDisplay,
+         rent: parseFloat(tenant.rentAmount || 0),
+         property: property,
+         tenant: tenant,
+         payments: payments
+       };
+    });
+  }, [tenants, rentRoll]);
+
+  // Filter and sort lease entries
+  const filteredLeases = React.useMemo(() => {
+    let filtered = leaseEntries;
+
+         // Apply search filter
+     if (searchTerm) {
+       filtered = filtered.filter(lease => 
+         lease.lease.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         lease.tenant.name.toLowerCase().includes(searchTerm.toLowerCase())
+       );
+     }
+
+    // Apply status filter
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(lease => lease.status.toLowerCase() === filterStatus.toLowerCase());
     }
 
-    const totalRent = tenants.reduce((sum, tenant) => sum + parseFloat(tenant.rent_amount || 0), 0);
-    const totalCollected = rentRoll.reduce((sum, payment) => sum + parseFloat(payment.amount_paid || 0), 0);
-    const totalOutstanding = Array.isArray(outstandingBalances) 
-      ? outstandingBalances.reduce((sum, balance) => sum + parseFloat(balance.due_amount || 0), 0)
-      : 0;
-    const occupancyRate = Array.isArray(properties) && properties.length > 0 
-      ? (tenants.length / properties.length) * 100 
-      : 0;
+    // Apply type filter
+    if (filterType !== 'all') {
+      filtered = filtered.filter(lease => lease.type.toLowerCase() === filterType.toLowerCase());
+    }
 
-    return {
-      totalRent,
-      totalCollected,
-      totalOutstanding,
-      occupancyRate,
-      activeTenants: tenants.length,
-      totalProperties: Array.isArray(properties) ? properties.length : 0
-    };
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortField) {
+        case 'lease':
+          aValue = a.lease.toLowerCase();
+          bValue = b.lease.toLowerCase();
+          break;
+        case 'status':
+          aValue = a.status.toLowerCase();
+          bValue = b.status.toLowerCase();
+          break;
+        case 'type':
+          aValue = a.type.toLowerCase();
+          bValue = b.type.toLowerCase();
+          break;
+        case 'daysLeft':
+          aValue = a.daysLeft || 0;
+          bValue = b.daysLeft || 0;
+          break;
+        case 'rent':
+          aValue = a.rent;
+          bValue = b.rent;
+          break;
+        default:
+          aValue = a.lease.toLowerCase();
+          bValue = b.lease.toLowerCase();
+      }
+
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    return filtered;
+  }, [leaseEntries, searchTerm, filterStatus, filterType, sortField, sortDirection]);
+
+  // Filter and sort properties
+  const filteredProperties = React.useMemo(() => {
+    let filtered = properties || [];
+
+    // Apply search filter
+    if (propertySearchTerm) {
+      filtered = filtered.filter(property => 
+        property.title.toLowerCase().includes(propertySearchTerm.toLowerCase()) ||
+        `${property.address?.city || ''} ${property.address?.state || ''}`.toLowerCase().includes(propertySearchTerm.toLowerCase())
+      );
+    }
+
+    // Apply status filter
+    if (propertyFilterStatus !== 'all') {
+      filtered = filtered.filter(property => property.status === propertyFilterStatus);
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortField) {
+        case 'property':
+          aValue = a.title;
+          bValue = b.title;
+          break;
+        case 'location':
+          aValue = `${a.address?.city || ''} ${a.address?.state || ''}`;
+          bValue = `${b.address?.city || ''} ${b.address?.state || ''}`;
+          break;
+        case 'owner':
+          aValue = a.owner?.full_name || '';
+          bValue = b.owner?.full_name || '';
+          break;
+        case 'type':
+          aValue = a.apt_number ? 'Condo/Townhome' : 'Single-Family';
+          bValue = b.apt_number ? 'Condo/Townhome' : 'Single-Family';
+          break;
+        default:
+          aValue = a.title;
+          bValue = b.title;
+      }
+
+      if (typeof aValue === 'string') {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? -1 : 1;
+      }
+    });
+
+    return filtered;
+  }, [properties, propertySearchTerm, propertyFilterStatus, sortField, sortDirection]);
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   };
 
-  const stats = calculateStats();
+  const getSortIcon = (field) => {
+    if (sortField !== field) return null;
+    return sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />;
+  };
+
+  const handleExport = () => {
+    try {
+      const csvContent = [
+        ['LEASE', 'STATUS', 'TYPE', 'DAYS LEFT', 'RENT'],
+        ...filteredLeases.map(lease => [
+          lease.lease,
+          lease.status,
+          lease.typeDisplay,
+          lease.daysLeft || '',
+          `$${lease.rent.toFixed(2)}`
+        ])
+      ].map(row => row.join(',')).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `rent_roll_${new Date().toISOString().split('T')[0]}.csv`);
+      if (link && link.style) {
+        link.style.visibility = 'hidden';
+      }
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Rent roll exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      toast.error('Failed to export rent roll');
+    }
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -132,31 +336,7 @@ const Rentals = () => {
     }).format(amount || 0);
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case 'active':
-      case 'paid':
-      case 'completed':
-        return 'text-green-600 bg-green-100';
-      case 'pending':
-      case 'overdue':
-        return 'text-red-600 bg-red-100';
-      case 'partial':
-        return 'text-yellow-600 bg-yellow-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  if (rentalLoading || propertiesLoading || tenantsLoading || rentRollLoading || balancesLoading) {
+  if (tenantsLoading || rentRollLoading || propertiesLoading) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -168,493 +348,543 @@ const Rentals = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rentals</h1>
-          <p className="text-gray-600 mt-1">Manage your rental properties and tenant information</p>
-        </div>
+        <h1 className="text-3xl font-bold text-gray-900">Rent roll</h1>
         <div className="flex space-x-3">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-            <Plus className="h-4 w-4" />
-            <span>Add Tenant</span>
-          </button>
           <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2">
-            <FileText className="h-4 w-4" />
-            <span>Generate Report</span>
+            <Plus className="h-4 w-4" />
+            <span>Add lease</span>
+          </button>
+          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+            Renew lease
+          </button>
+          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+            Receive payment
+          </button>
+          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+            <MoreHorizontal className="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Monthly Rent</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalRent)}</p>
-            </div>
-            <DollarSign className="h-8 w-8 text-blue-600" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Collected</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalCollected)}</p>
-            </div>
-            <TrendingUp className="h-8 w-8 text-green-600" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Outstanding</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.totalOutstanding)}</p>
-            </div>
-            <TrendingDown className="h-8 w-8 text-red-600" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Occupancy Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.occupancyRate.toFixed(1)}%</p>
-            </div>
-            <Building className="h-8 w-8 text-purple-600" />
-          </div>
-        </div>
+      {/* Navigation Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab('properties')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'properties'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Properties
+          </button>
+          <button
+            onClick={() => setActiveTab('rentroll')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'rentroll'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Rent roll
+          </button>
+          <button
+            onClick={() => setActiveTab('liability')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'liability'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Liability management
+          </button>
+        </nav>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
-            {[
-              { id: 'overview', name: 'Overview', icon: Eye },
-              { id: 'tenants', name: 'Tenants', icon: Users },
-              { id: 'payments', name: 'Payments', icon: DollarSign },
-              { id: 'leases', name: 'Leases', icon: FileText },
-              { id: 'balances', name: 'Outstanding Balances', icon: AlertTriangle }
-            ].map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{tab.name}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+      {/* Tab Content */}
+      {activeTab === 'properties' && (
+        <div className="space-y-6">
+          {/* Properties Header */}
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
+            <div className="flex space-x-3">
+              <Link
+                to="/add-property"
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Add property</span>
+              </Link>
+              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2">
+                <span>Management fees</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                Manage bank accounts
+              </button>
+              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
-        <div className="p-6">
-          {/* Overview Tab */}
-          {activeTab === 'overview' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Payments */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Payments</h3>
-                  <div className="space-y-3">
-                                         {Array.isArray(rentRoll) && rentRoll.slice(0, 5).map((payment) => (
-                      <div key={payment.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                                                     <p className="font-medium text-gray-900">
-                             {Array.isArray(tenants) && tenants.find(t => t.id === payment.tenant_id)?.full_name || 'Unknown Tenant'}
-                           </p>
-                          <p className="text-sm text-gray-600">{formatDate(payment.payment_date)}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium text-gray-900">{formatCurrency(payment.amount_paid)}</p>
-                          <span className={`text-xs px-2 py-1 rounded-full ${getStatusColor(payment.status)}`}>
-                            {payment.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Lease Expirations */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Lease Expirations</h3>
-                  <div className="space-y-3">
-                                         {Array.isArray(tenants) && tenants.filter(tenant => {
-                       const leaseEnd = new Date(tenant.lease_end);
-                       const now = new Date();
-                       const diffTime = leaseEnd - now;
-                       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                       return diffDays <= 90 && diffDays > 0;
-                     }).slice(0, 5).map((tenant) => {
-                      const leaseEnd = new Date(tenant.lease_end);
-                      const now = new Date();
-                      const diffTime = leaseEnd - now;
-                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                      
-                      return (
-                        <div key={tenant.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div>
-                            <p className="font-medium text-gray-900">{tenant.full_name}</p>
-                            <p className="text-sm text-gray-600">
-                              {Array.isArray(properties) && properties.find(p => p.id === tenant.property_id)?.title || 'Unknown Property'}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-600">{formatDate(tenant.lease_end)}</p>
-                            <span className={`text-xs px-2 py-1 rounded-full ${
-                              diffDays <= 30 ? 'text-red-600 bg-red-100' : 'text-yellow-600 bg-yellow-100'
-                            }`}>
-                              {diffDays} days left
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+          {/* Filters and Search Bar */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search properties..."
+                  value={propertySearchTerm}
+                  onChange={(e) => setPropertySearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <select 
+                value={propertyFilterStatus} 
+                onChange={(e) => setPropertyFilterStatus(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="all">All rentals</option>
+                <option value="available">Available</option>
+                <option value="rented">Rented</option>
+                <option value="maintenance">Maintenance</option>
+              </select>
+              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
+                <Filter className="h-4 w-4" />
+                <span>Add filter option</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Show bank accounts</span>
+                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                  <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                  <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                 </div>
               </div>
             </div>
-          )}
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => {
+                  // Export properties functionality
+                  const csvContent = [
+                    ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'OPERATING ACCOUNT', 'DEPOSIT TRUST ACCOUNT'],
+                    ...(properties || []).map(property => [
+                      property.title,
+                      `${property.address?.city || ''}, ${property.address?.state || ''}`,
+                      property.owner?.full_name || 'N/A',
+                      'N/A',
+                      'Residential',
+                      'EFT ATK ASSOCIATE...',
+                      'Setup'
+                    ])
+                  ].map(row => row.join(',')).join('\n');
 
-          {/* Tenants Tab */}
-          {activeTab === 'tenants' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">All Tenants</h3>
-                <Link
-                  to="/tenants"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  View All Tenants
-                </Link>
-              </div>
+                  const blob = new Blob([csvContent], { type: 'text/csv' });
+                  const link = document.createElement('a');
+                  const url = URL.createObjectURL(blob);
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', `properties_${new Date().toISOString().split('T')[0]}.csv`);
+                  if (link && link.style) {
+                    link.style.visibility = 'hidden';
+                  }
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success('Properties exported successfully!');
+                }}
+                className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Export</span>
+              </button>
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tenant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Property
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Monthly Rent
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Lease End
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(tenants) && tenants.map((tenant) => (
-                      <tr key={tenant.id} className="hover:bg-gray-50">
+              <button 
+                onClick={() => {
+                  // Download CSV template
+                  const csvTemplate = [
+                    ['PROPERTY', 'LOCATION', 'STREET_ADDRESS', 'STREET_ADDRESS_2', 'APT_NUMBER', 'DESCRIPTION', 'RENT_AMOUNT', 'STATUS', 'ZIP_CODE'],
+                    ['Sample Property 1', 'New York, NY', '123 Main St', 'Apt 1B', 'Beautiful apartment in downtown', '2500.00', 'available', '10001'],
+                    ['Sample Property 2', 'Los Angeles, CA', '456 Oak Ave', '', 'Modern house with garden', '3500.00', 'available', '90210'],
+                    ['Sample Property 3', 'Chicago, IL', '789 Pine St', 'Unit 5', 'Cozy studio apartment', '1800.00', 'rented', '60601']
+                  ].map(row => row.join(',')).join('\n');
+
+                  const blob = new Blob([csvTemplate], { type: 'text/csv' });
+                  const link = document.createElement('a');
+                  const url = URL.createObjectURL(blob);
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', 'properties_import_template.csv');
+                  if (link && link.style) {
+                    link.style.visibility = 'hidden';
+                  }
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success('CSV template downloaded!');
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Template</span>
+              </button>
+              
+              <button 
+                onClick={() => {
+                  // Create a file input for CSV import
+                  const fileInput = document.createElement('input');
+                  fileInput.type = 'file';
+                  fileInput.accept = '.csv';
+                  fileInput.style.display = 'none';
+                  
+                  fileInput.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    try {
+                      const formData = new FormData();
+                      formData.append('csv_file', file);
+                      
+                      const response = await api.post('/api/properties/import', formData, {
+                        headers: {
+                          'Content-Type': 'multipart/form-data',
+                        },
+                      });
+                      
+                      if (response.data.success) {
+                        toast.success(`Successfully imported ${response.data.imported_count} properties!`);
+                        // Refresh the properties list using React Query
+                        queryClient.invalidateQueries(['properties']);
+                      } else {
+                        toast.error('Import failed: ' + response.data.error);
+                      }
+                    } catch (error) {
+                      console.error('Import error:', error);
+                      toast.error('Failed to import properties. Please check your CSV format.');
+                    }
+                    
+                    // Clean up
+                    document.body.removeChild(fileInput);
+                  };
+                  
+                  document.body.appendChild(fileInput);
+                  fileInput.click();
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Upload className="h-4 w-4" />
+                <span>Import</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Results Count */}
+          <div className="text-sm text-gray-600">
+            {filteredProperties.length} matches
+          </div>
+
+          {/* Properties Table */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('property')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>PROPERTY</span>
+                        {getSortIcon('property')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('location')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>LOCATION</span>
+                        {getSortIcon('location')}
+                      </div>
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('owner')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>RENTAL OWNERS</span>
+                        {getSortIcon('owner')}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      MANAGER
+                    </th>
+                    <th 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('type')}
+                    >
+                      <div className="flex items-center space-x-1">
+                        <span>TYPE</span>
+                        {getSortIcon('type')}
+                      </div>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      OPERATING ACCOUNT
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      DEPOSIT TRUST ACCOUNT
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ACTIONS
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredProperties.length > 0 ? (
+                    filteredProperties.map((property) => (
+                      <tr key={property.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">{tenant.full_name}</div>
-                            <div className="text-sm text-gray-500">{tenant.email}</div>
+                          <Link
+                            to={`/properties/${property.id}`}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                          >
+                            {property.title}
+                          </Link>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {property.address?.city || 'N/A'}, {property.address?.state || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {property.owner?.full_name || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          -
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          Residential, {property.apt_number ? 'Condo/Townhome' : 'Single-Family'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">EFT</span>
+                            <span className="text-xs bg-green-500 w-2 h-2 rounded-full"></span>
+                            <span className="text-sm text-gray-900">ATK ASSOCIATE...</span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {Array.isArray(properties) && properties.find(p => p.id === tenant.property_id)?.title || 'Unknown Property'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {formatCurrency(tenant.rent_amount)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{formatDate(tenant.lease_end)}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(tenant.payment_status)}`}>
-                            {tenant.payment_status}
-                          </span>
+                          <Link
+                            to="#"
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            Setup
+                          </Link>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button className="text-blue-600 hover:text-blue-900">
-                              <Eye className="h-4 w-4" />
+                          <div className="flex items-center space-x-2">
+                            <button 
+                              onClick={() => handleDeleteProperty(property.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                              title="Delete Property"
+                            >
+                              <Trash2 className="h-4 w-4" />
                             </button>
-                            <button className="text-green-600 hover:text-green-900">
-                              <Edit className="h-4 w-4" />
+                            <button className="text-gray-400 hover:text-gray-600">
+                              <MoreHorizontal className="h-4 w-4" />
                             </button>
                           </div>
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* Payments Tab */}
-          {activeTab === 'payments' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Payment History</h3>
-                <div className="flex space-x-2">
-                  <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                    <option>All Properties</option>
-                    {Array.isArray(properties) && properties.map(property => (
-                      <option key={property.id} value={property.id}>{property.title}</option>
-                    ))}
-                  </select>
-                  <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-                    <option>All Status</option>
-                    <option>Paid</option>
-                    <option>Pending</option>
-                    <option>Overdue</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                    ))
+                  ) : (
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tenant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Property
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Payment Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Method
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
+                      <td colSpan="8" className="px-6 py-12 text-center">
+                        <div className="text-gray-400 mb-4">
+                          <Search className="h-16 w-16 mx-auto" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
+                        <p className="text-gray-600 mb-6">Get started by adding your first property to your portfolio</p>
+                        <Link
+                          to="/add-property"
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                          <Plus className="-ml-1 mr-2 h-5 w-5" />
+                          Add Your First Property
+                        </Link>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(rentRoll) && rentRoll.map((payment) => (
-                      <tr key={payment.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {Array.isArray(tenants) && tenants.find(t => t.id === payment.tenant_id)?.full_name || 'Unknown Tenant'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {Array.isArray(properties) && properties.find(p => p.id === payment.property_id)?.title || 'Unknown Property'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{formatDate(payment.payment_date)}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {formatCurrency(payment.amount_paid)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{payment.payment_method}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(payment.status)}`}>
-                            {payment.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  )}
+                </tbody>
+              </table>
             </div>
-          )}
+          </div>
+        </div>
+      )}
 
-          {/* Leases Tab */}
-          {activeTab === 'leases' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Lease Management</h3>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                  Create New Lease
-                </button>
+      {activeTab === 'rentroll' && (
+        <>
+          {/* Filters and Search */}
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <select 
+                value={filterStatus} 
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="all">All rentals</option>
+                <option value="active">Active</option>
+                <option value="future">Future</option>
+                <option value="expired">Expired</option>
+              </select>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">
+                  ({filteredLeases.filter(l => l.status === 'Active').length} Active, {filteredLeases.filter(l => l.status === 'Future').length} Future)
+                </span>
+                <ChevronDown className="h-4 w-4 text-gray-400" />
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.isArray(tenants) && tenants.map((tenant) => {
-                  const leaseEnd = new Date(tenant.lease_end);
-                  const now = new Date();
-                  const diffTime = leaseEnd - now;
-                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                  const isExpiringSoon = diffDays <= 90 && diffDays > 0;
-                  const isExpired = diffDays < 0;
-                  
-                  return (
-                    <div key={tenant.id} className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-3">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{tenant.full_name}</h4>
-                          <p className="text-sm text-gray-600">
-                            {Array.isArray(properties) && properties.find(p => p.id === tenant.property_id)?.title || 'Unknown Property'}
-                          </p>
-                        </div>
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          isExpired ? 'text-red-600 bg-red-100' :
-                          isExpiringSoon ? 'text-yellow-600 bg-yellow-100' :
-                          'text-green-600 bg-green-100'
-                        }`}>
-                          {isExpired ? 'Expired' : isExpiringSoon ? `${diffDays} days left` : 'Active'}
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Monthly Rent:</span>
-                          <span className="font-medium">{formatCurrency(tenant.rent_amount)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Lease Start:</span>
-                          <span>{formatDate(tenant.lease_start)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Lease End:</span>
-                          <span>{formatDate(tenant.lease_end)}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-4 flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900 text-sm font-medium">
-                          View Details
-                        </button>
-                        <button className="text-green-600 hover:text-green-900 text-sm font-medium">
-                          Renew Lease
-                        </button>
-                      </div>
+              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
+                <Filter className="h-4 w-4" />
+                <span>Add filter option</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
+            <button 
+              onClick={handleExport}
+              className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export</span>
+            </button>
+          </div>
+
+          {/* Results Count */}
+          <div className="text-sm text-gray-600">
+            {filteredLeases.length} matches
+          </div>
+
+          {/* Rent Roll Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('lease')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>LEASE</span>
+                    {getSortIcon('lease')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('status')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>STATUS</span>
+                    {getSortIcon('status')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('type')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>TYPE</span>
+                    {getSortIcon('type')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('daysLeft')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>DAYS LEFT</span>
+                    {getSortIcon('daysLeft')}
+                  </div>
+                </th>
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  onClick={() => handleSort('rent')}
+                >
+                  <div className="flex items-center space-x-1">
+                    <span>RENT</span>
+                    {getSortIcon('rent')}
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredLeases.map((lease) => (
+                <tr key={lease.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">{lease.lease}</div>
+                      <div className="text-sm text-gray-500">ID: {lease.uniqueId}</div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Outstanding Balances Tab */}
-          {activeTab === 'balances' && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Outstanding Balances</h3>
-                <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-                  Send Reminders
-                </button>
-              </div>
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Tenant
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Property
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Due Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Due Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Days Overdue
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(outstandingBalances) && outstandingBalances.map((balance) => {
-                      const dueDate = new Date(balance.due_date);
-                      const now = new Date();
-                      const diffTime = now - dueDate;
-                      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                      
-                      return (
-                        <tr key={balance.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">
-                              {Array.isArray(tenants) && tenants.find(t => t.id === balance.tenant_id)?.full_name || 'Unknown Tenant'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                                                      <div className="text-sm text-gray-900">
-                            {Array.isArray(properties) && properties.find(p => p.id === balance.property_id)?.title || 'Unknown Property'}
-                          </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-red-600">
-                              {formatCurrency(balance.due_amount)}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{formatDate(balance.due_date)}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className={`text-sm font-medium ${
-                              diffDays > 0 ? 'text-red-600' : 'text-gray-900'
-                            }`}>
-                              {diffDays > 0 ? `${diffDays} days` : 'Not due yet'}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              balance.is_resolved ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100'
-                            }`}>
-                              {balance.is_resolved ? 'Resolved' : 'Outstanding'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <button className="text-blue-600 hover:text-blue-900">
-                                <Eye className="h-4 w-4" />
-                              </button>
-                              <button className="text-green-600 hover:text-green-900">
-                                <CheckCircle className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      lease.status === 'Active' ? 'text-green-600 bg-green-100' : 
+                      lease.status === 'Future' ? 'text-blue-600 bg-blue-100' : 
+                      'text-gray-600 bg-gray-100'
+                    }`}>
+                      {lease.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {lease.typeDisplay}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {lease.daysLeft}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900">
+                        {formatCurrency(lease.rent)}
+                      </span>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search leases..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+        </>
+      )}
+
+      {activeTab === 'liability' && (
+        <div className="space-y-6">
+          <div className="text-center py-12">
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Liability Management</h3>
+            <p className="text-gray-600">This section is under development.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

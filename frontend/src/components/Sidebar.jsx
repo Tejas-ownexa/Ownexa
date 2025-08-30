@@ -53,7 +53,6 @@ const Sidebar = () => {
     // For OWNER and AGENT roles
     return [
       { name: 'Dashboard', href: '/dashboard', icon: Home },
-      { name: 'Properties', href: '/properties', icon: Building },
       {
         name: 'Rentals',
         icon: Calendar,
@@ -61,6 +60,7 @@ const Sidebar = () => {
         isExpanded: rentalsExpanded,
         toggle: () => setRentalsExpanded(!rentalsExpanded),
         subItems: [
+          { name: 'Properties', href: '/rentals?tab=properties', icon: Building },
           { name: 'Rentroll', href: '/rentals?tab=payments', icon: Receipt },
           { name: 'Rental Owners', href: '/rentals?tab=leases', icon: UserCheck },
           { name: 'Tenants', href: '/tenants', icon: Users },

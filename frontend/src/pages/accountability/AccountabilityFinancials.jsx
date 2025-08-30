@@ -436,8 +436,12 @@ const AccountabilityFinancials = () => {
                                 src={`http://localhost:5002/uploads/${data.property.image_url}`}
                                 alt={data.property.title}
                                 onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.nextSibling.style.display = 'block';
+                                  if (e.target && e.target.style) {
+                                    e.target.style.display = 'none';
+                                  }
+                                  if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
+                                    e.target.nextSibling.style.display = 'block';
+                                  }
                                 }}
                               />
                             ) : null}
