@@ -27,11 +27,14 @@ const RentalOwners = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showAddOwner, setShowAddOwner] = useState(false);
   const [newOwnerData, setNewOwnerData] = useState({
-    full_name: '',
-    email: '',
-    phone_number: ''
+    company_name: '',
+    contact_email: '',
+    contact_phone: '',
+    business_type: '',
+    city: '',
+    state: ''
   });
-  const [sortField, setSortField] = useState('full_name');
+  const [sortField, setSortField] = useState('company_name');
   const [sortDirection, setSortDirection] = useState('asc');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRentals, setFilterRentals] = useState('all');
@@ -40,8 +43,8 @@ const RentalOwners = () => {
   // Fetch rental owners
   const fetchOwners = useCallback(async () => {
     try {
-      const response = await api.get('/api/users/owners');
-      setOwners(response.data.owners || []);
+      const response = await api.get('/api/rental-owners/rental-owners');
+      setOwners(response.data.rental_owners || []);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching owners:', error);
@@ -59,12 +62,12 @@ const RentalOwners = () => {
     e.preventDefault();
     
     try {
-      const response = await api.post('/api/users/add-owner', newOwnerData);
+      const response = await api.post('/api/rental-owners/rental-owners', newOwnerData);
       
-      if (response.data.success) {
+      if (response.status === 201) {
         toast.success('Rental owner added successfully!');
         setShowAddOwner(false);
-        setNewOwnerData({ full_name: '', email: '', phone_number: '' });
+        setNewOwnerData({ company_name: '', contact_email: '', contact_phone: '', business_type: '', city: '', state: '' });
         queryClient.invalidateQueries(['owners']);
         fetchOwners();
       } else {
@@ -80,7 +83,7 @@ const RentalOwners = () => {
   const handleDeleteOwner = async (ownerId) => {
     if (window.confirm('Are you sure you want to delete this rental owner? This action cannot be undone.')) {
       try {
-        await api.delete(`/api/users/${ownerId}`);
+        await api.delete(`/api/rental-owners/rental-owners/${ownerId}`);
         toast.success('Rental owner deleted successfully!');
         queryClient.invalidateQueries(['owners']);
         fetchOwners();
@@ -94,14 +97,14 @@ const RentalOwners = () => {
   // Export owners to CSV
   const handleExport = () => {
     const csvContent = [
-      ['FIRST NAME', 'LAST NAME', 'AGREEMENT ENDS ON', 'ADDRESS', 'PHONE', 'EMAIL'],
+      ['COMPANY NAME', 'BUSINESS TYPE', 'LOCATION', 'PHONE', 'EMAIL', 'PROPERTY COUNT'],
       ...owners.map(owner => [
-        owner.full_name || '',
-        '', // Last name column is empty as per image
-        '', // Agreement ends on is empty
-        '', // Address is empty
-        owner.phone_number || '-',
-        owner.email || '-'
+        owner.company_name || '',
+        owner.business_type || '',
+        owner.city && owner.state ? `${owner.city}, ${owner.state}` : '',
+        owner.contact_phone || '',
+        owner.contact_email || '',
+        owner.property_count || 0
       ])
     ].map(row => row.join(',')).join('\n');
 
@@ -128,7 +131,7 @@ const RentalOwners = () => {
     formData.append('csv_file', selectedFile);
 
     try {
-      const response = await api.post('/api/users/import-owners', formData, {
+      const response = await api.post('/api/rental-owners/rental-owners/import', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -151,9 +154,9 @@ const RentalOwners = () => {
   // Download CSV template
   const handleDownloadTemplate = () => {
     const csvTemplate = [
-      ['FULL_NAME', 'EMAIL', 'PHONE_NUMBER', 'STREET_ADDRESS_1', 'CITY', 'STATE', 'ZIP_CODE'],
-      ['John Doe', 'john.doe@example.com', '+1-555-0123', '123 Main St', 'New York', 'NY', '10001'],
-      ['Jane Smith', 'jane.smith@example.com', '+1-555-0124', '456 Oak Ave', 'Los Angeles', 'CA', '90210']
+      ['COMPANY_NAME', 'BUSINESS_TYPE', 'CONTACT_EMAIL', 'CONTACT_PHONE', 'CITY', 'STATE', 'ZIP_CODE'],
+      ['Sunshine Properties LLC', 'Real Estate Investment', 'john@sunshineproperties.com', '+1-555-0123', 'Miami', 'FL', '33101'],
+      ['Golden State Real Estate Corp', 'Property Management', 'sarah@goldenstate.com', '+1-555-0124', 'Los Angeles', 'CA', '90210']
     ].map(row => row.join(',')).join('\n');
 
     const blob = new Blob([csvTemplate], { type: 'text/csv' });
@@ -175,9 +178,11 @@ const RentalOwners = () => {
     // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(owner => 
-        owner.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        owner.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        owner.phone_number?.toLowerCase().includes(searchTerm.toLowerCase())
+        owner.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        owner.business_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        owner.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        owner.contact_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        owner.contact_phone?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -186,21 +191,29 @@ const RentalOwners = () => {
       let aValue, bValue;
 
       switch (sortField) {
-        case 'full_name':
-          aValue = a.full_name || '';
-          bValue = b.full_name || '';
+        case 'company_name':
+          aValue = a.company_name || '';
+          bValue = b.company_name || '';
           break;
-        case 'email':
-          aValue = a.email || '';
-          bValue = b.email || '';
+        case 'business_type':
+          aValue = a.business_type || '';
+          bValue = b.business_type || '';
           break;
-        case 'phone':
-          aValue = a.phone_number || '';
-          bValue = b.phone_number || '';
+        case 'city':
+          aValue = a.city || '';
+          bValue = b.city || '';
+          break;
+        case 'contact_email':
+          aValue = a.contact_email || '';
+          bValue = b.contact_email || '';
+          break;
+        case 'contact_phone':
+          aValue = a.contact_phone || '';
+          bValue = b.contact_phone || '';
           break;
         default:
-          aValue = a.full_name || '';
-          bValue = b.full_name || '';
+          aValue = a.company_name || '';
+          bValue = b.company_name || '';
       }
 
       if (typeof aValue === 'string') {
@@ -378,44 +391,47 @@ const RentalOwners = () => {
             <tr>
               <th 
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('full_name')}
+                onClick={() => handleSort('company_name')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>FIRST NAME</span>
-                  {getSortIcon('full_name')}
+                  <span>COMPANY NAME</span>
+                  {getSortIcon('company_name')}
                 </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                LAST NAME
               </th>
               <th 
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('agreement_ends')}
+                onClick={() => handleSort('business_type')}
               >
                 <div className="flex items-center space-x-1">
-                  <span>AGREEMENT ENDS ON</span>
-                  {getSortIcon('agreement_ends')}
+                  <span>BUSINESS TYPE</span>
+                  {getSortIcon('business_type')}
                 </div>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                ADDRESS
               </th>
               <th 
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('phone')}
+                onClick={() => handleSort('city')}
+              >
+                <div className="flex items-center space-x-1">
+                  <span>LOCATION</span>
+                  {getSortIcon('city')}
+                </div>
+              </th>
+              <th 
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                onClick={() => handleSort('contact_phone')}
               >
                 <div className="flex items-center space-x-1">
                   <span>PHONE</span>
-                  {getSortIcon('phone')}
+                  {getSortIcon('contact_phone')}
                 </div>
               </th>
               <th 
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort('email')}
+                onClick={() => handleSort('contact_email')}
               >
                 <div className="flex items-center space-x-1">
                   <span>EMAIL</span>
-                  {getSortIcon('email')}
+                  {getSortIcon('contact_email')}
                 </div>
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -429,23 +445,20 @@ const RentalOwners = () => {
                 <tr key={owner.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer">
-                      {owner.full_name || 'N/A'}
+                      {owner.company_name || 'N/A'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {/* Last name column is empty as per image */}
+                    {owner.business_type || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {/* Agreement ends on is empty as per image */}
+                    {owner.city && owner.state ? `${owner.city}, ${owner.state}` : '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {/* Address is empty as per image */}
+                    {owner.contact_phone || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {owner.phone_number || '-'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {owner.email || '-'}
+                    {owner.contact_email || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
