@@ -102,10 +102,10 @@ const Tenants = () => {
             `"${tenant.email || 'N/A'}"`,
             `"${tenant.phone || 'N/A'}"`,
             `"${tenant.property?.name || 'N/A'}"`,
-            `"${tenant.lease_start || 'N/A'}"`,
-            `"${tenant.lease_end || 'N/A'}"`,
-            `"${tenant.rent_amount || 'N/A'}"`,
-            `"${tenant.payment_status || 'N/A'}"`
+            `"${tenant.leaseStartDate || 'N/A'}"`,
+            `"${tenant.leaseEndDate || 'N/A'}"`,
+            `"${tenant.rentAmount || 'N/A'}"`,
+            `"${tenant.status || 'N/A'}"`
           ].join(',');
         })
       ].join('\n');
@@ -408,25 +408,25 @@ const Tenants = () => {
                          {tenant.property ? tenant.property.name || 'N/A' : 'N/A'}
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                         {tenant.lease_start && tenant.lease_end ? (
+                         {tenant.leaseStartDate && tenant.leaseEndDate ? (
                            <div>
-                             <div className="text-sm">{new Date(tenant.lease_start).toLocaleDateString()}</div>
-                             <div className="text-xs text-gray-500">to {new Date(tenant.lease_end).toLocaleDateString()}</div>
+                             <div className="text-sm">{new Date(tenant.leaseStartDate).toLocaleDateString()}</div>
+                             <div className="text-xs text-gray-500">to {new Date(tenant.leaseEndDate).toLocaleDateString()}</div>
                            </div>
                          ) : (
                            <span className="text-gray-400">--</span>
                          )}
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                         {tenant.rent_amount ? `$${parseFloat(tenant.rent_amount).toLocaleString()}` : 'N/A'}
+                         {tenant.rentAmount ? `$${parseFloat(tenant.rentAmount).toLocaleString()}` : 'N/A'}
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap">
                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                           tenant.payment_status === 'active' ? 'bg-green-100 text-green-800' :
-                           tenant.payment_status === 'past_due' ? 'bg-red-100 text-red-800' :
+                           tenant.status === 'active' ? 'bg-green-100 text-green-800' :
+                           tenant.status === 'past_due' ? 'bg-red-100 text-red-800' :
                            'bg-gray-100 text-gray-800'
                          }`}>
-                           {tenant.payment_status || 'N/A'}
+                           {tenant.status || 'N/A'}
                          </span>
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
