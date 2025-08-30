@@ -111,7 +111,7 @@ const Rentals = () => {
          payments: payments
        };
     });
-  }, [tenants, properties, rentRoll]);
+  }, [tenants, rentRoll]);
 
   // Filter and sort lease entries
   const filteredLeases = React.useMemo(() => {
