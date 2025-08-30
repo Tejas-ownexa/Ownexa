@@ -80,16 +80,15 @@ def create_property(current_user):
 
 @property_bp.route('', methods=['GET'])
 @property_bp.route('/', methods=['GET'])
-def get_properties():
+@token_required
+def get_properties(current_user):
     try:
-        print("Fetching properties")
-        owner_id = request.args.get('owner_id')
+        print("Fetching properties for user:", current_user.id)
         status = request.args.get('status')  # Add status filter
-        print(f"Owner ID filter: {owner_id}, Status filter: {status}")
+        print(f"Status filter: {status}")
         
-        query = Property.query
-        if owner_id:
-            query = query.filter_by(owner_id=owner_id)
+        # Always filter by current user's properties
+        query = Property.query.filter_by(owner_id=current_user.id)
         if status:
             query = query.filter_by(status=status)
             
