@@ -71,25 +71,36 @@ const Rentals = () => {
 
   // Combine data to create lease entries
   const leaseEntries = React.useMemo(() => {
-    if (!tenants || !properties || !rentRoll) return [];
+    // Handle different API response structures
+    const tenantsArray = tenants?.items || tenants || [];
+    const propertiesArray = properties?.items || properties || [];
+    const rentRollArray = rentRoll || [];
+    
+    console.log('Debug - tenants:', tenants);
+    console.log('Debug - tenantsArray:', tenantsArray);
+    console.log('Debug - properties:', properties);
+    console.log('Debug - propertiesArray:', propertiesArray);
+    console.log('Debug - rentRoll:', rentRoll);
+    
+    if (!tenantsArray.length || !propertiesArray.length) return [];
 
-    return tenants.map(tenant => {
-      const property = properties.find(p => p.id === tenant.property_id);
-      const payments = rentRoll.filter(p => p.tenant_id === tenant.id);
+    return tenantsArray.map(tenant => {
+      const property = propertiesArray.find(p => p.id === tenant.propertyId);
+      const payments = rentRollArray.filter(p => p.tenant_id === tenant.id);
       
-      // Calculate lease type and dates
-      const leaseStart = new Date(tenant.lease_start);
-      const leaseEnd = new Date(tenant.lease_end);
-      const now = new Date();
-      
-      // Determine lease type
-      let leaseType = 'Fixed w/rollover';
-      let typeDisplay = `${leaseStart.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })} - ${leaseEnd.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}`;
-      
-      if (tenant.lease_type === 'at_will') {
-        leaseType = 'At will';
-        typeDisplay = leaseEnd.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
-      }
+             // Calculate lease type and dates
+       const leaseStart = new Date(tenant.leaseStartDate);
+       const leaseEnd = new Date(tenant.leaseEndDate);
+       const now = new Date();
+       
+       // Determine lease type
+       let leaseType = 'Fixed w/rollover';
+       let typeDisplay = `${leaseStart.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })} - ${leaseEnd.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}`;
+       
+       if (tenant.lease_type === 'at_will') {
+         leaseType = 'At will';
+         typeDisplay = leaseEnd.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+       }
       
       // Calculate days left
       const daysLeft = Math.ceil((leaseEnd - now) / (1000 * 60 * 60 * 24));
@@ -98,19 +109,19 @@ const Rentals = () => {
       // Generate unique ID (simulating the format from the image)
       const uniqueId = `000${Math.floor(Math.random() * 90000) + 10000}`;
       
-      return {
-        id: tenant.id,
-        uniqueId,
-        lease: `${property?.title || 'Unknown Property'} - ${property?.unit_number || 'N/A'} | ${tenant.full_name}`,
-        status: tenant.status || 'Active',
-        type: leaseType,
-        typeDisplay,
-        daysLeft: daysLeftDisplay,
-        rent: parseFloat(tenant.rent_amount || 0),
-        property: property,
-        tenant: tenant,
-        payments: payments
-      };
+             return {
+         id: tenant.id,
+         uniqueId,
+         lease: `${property?.name || 'Unknown Property'} - ${property?.unit_number || 'N/A'} | ${tenant.name}`,
+         status: tenant.status || 'Active',
+         type: leaseType,
+         typeDisplay,
+         daysLeft: daysLeftDisplay,
+         rent: parseFloat(tenant.rentAmount || 0),
+         property: property,
+         tenant: tenant,
+         payments: payments
+       };
     });
   }, [tenants, properties, rentRoll]);
 
@@ -118,13 +129,13 @@ const Rentals = () => {
   const filteredLeases = React.useMemo(() => {
     let filtered = leaseEntries;
 
-    // Apply search filter
-    if (searchTerm) {
-      filtered = filtered.filter(lease => 
-        lease.lease.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lease.tenant.full_name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+         // Apply search filter
+     if (searchTerm) {
+       filtered = filtered.filter(lease => 
+         lease.lease.toLowerCase().includes(searchTerm.toLowerCase()) ||
+         lease.tenant.name.toLowerCase().includes(searchTerm.toLowerCase())
+       );
+     }
 
     // Apply status filter
     if (filterStatus !== 'all') {
