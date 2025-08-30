@@ -153,6 +153,11 @@ const MaintenanceDashboard = () => {
       request.request_description.toLowerCase().includes(searchTerm.toLowerCase());
     
     return tabMatch && matchesStatus && matchesPriority && matchesSearch;
+  }).sort((a, b) => {
+    // Sort by request_date in descending order (latest first)
+    const dateA = new Date(a.request_date);
+    const dateB = new Date(b.request_date);
+    return dateB - dateA;
   }) || [];
 
   // Get statistics for vendor dashboard

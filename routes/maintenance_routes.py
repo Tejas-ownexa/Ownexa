@@ -350,7 +350,7 @@ def get_available_vendors(current_user):
             'is_verified': vendor.is_verified,
             'user': {
                 'id': vendor.user.id,
-                'full_name': vendor.user.full_name
+                'full_name': f"{vendor.user.first_name} {vendor.user.last_name}"
             } if vendor.user else None
         } for vendor in vendors]), 200
         

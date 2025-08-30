@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -21,8 +21,24 @@ import {
 
 const Rentals = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedProperty, setSelectedProperty] = useState(null);
+
+  // Handle URL parameters to set initial tab
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      const tabMapping = {
+        'payments': 'payments',
+        'leases': 'leases',
+        'balances': 'balances'
+      };
+      if (tabMapping[tab]) {
+        setActiveTab(tabMapping[tab]);
+      }
+    }
+  }, [searchParams]);
 
   // Fetch rental data
   const { data: rentalData, isLoading: rentalLoading } = useQuery(

@@ -1,25 +1,30 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Home, 
-  Search, 
-  User, 
-  LogOut, 
-  Plus, 
-  Heart, 
-  Menu, 
-  X, 
-  Building, 
-  Users, 
-  Wrench, 
+import {
+  Home,
+  Search,
+  User,
+  LogOut,
+  Plus,
+  Heart,
+  Menu,
+  X,
+  Building,
+  Users,
+  Wrench,
   DollarSign,
   ChevronLeft,
   ChevronRight,
   Calendar,
   FileText,
   BookOpen,
-  CreditCard
+  CreditCard,
+  ChevronDown,
+  ChevronUp,
+  Receipt,
+  UserCheck,
+  AlertTriangle
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -28,28 +33,40 @@ const Sidebar = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [rentalsExpanded, setRentalsExpanded] = useState(false);
 
   const getNavItems = () => {
     if (!user) return [];
-    
+
     if (user.role === 'TENANT') {
       return [
         { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       ];
     }
-    
+
     if (user.role === 'VENDOR') {
       return [
         { name: 'Profile', href: '/vendor-profile', icon: User },
       ];
     }
-    
+
     // For OWNER and AGENT roles
     return [
       { name: 'Dashboard', href: '/dashboard', icon: Home },
       { name: 'Properties', href: '/properties', icon: Building },
-      { name: 'Tenants', href: '/tenants', icon: Users },
-      { name: 'Rentals', href: '/rentals', icon: Calendar },
+      {
+        name: 'Rentals',
+        icon: Calendar,
+        isExpandable: true,
+        isExpanded: rentalsExpanded,
+        toggle: () => setRentalsExpanded(!rentalsExpanded),
+        subItems: [
+          { name: 'Rentroll', href: '/rentals?tab=payments', icon: Receipt },
+          { name: 'Rental Owners', href: '/rentals?tab=leases', icon: UserCheck },
+          { name: 'Tenants', href: '/tenants', icon: Users },
+          { name: 'Outstanding Balance', href: '/rentals?tab=balances', icon: AlertTriangle }
+        ]
+      },
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
@@ -100,25 +117,88 @@ const Sidebar = () => {
         <nav className="mt-4">
           <div className="px-2 space-y-1">
             {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                      : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
-                  }`}
-                  title={isCollapsed ? item.name : ''}
-                >
-                  <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
-                  {!isCollapsed && (
-                    <span className="ml-3">{item.name}</span>
-                  )}
-                </Link>
-              );
+              if (item.isExpandable) {
+                // Expandable item with sub-items
+                const Icon = item.icon;
+                const isActive = location.pathname === '/rentals' ||
+                  item.subItems.some(subItem =>
+                    location.pathname === subItem.href.split('?')[0] ||
+                    location.pathname + location.search === subItem.href
+                  );
+
+                return (
+                  <div key={item.name}>
+                    <button
+                      onClick={item.toggle}
+                      className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                      }`}
+                      title={isCollapsed ? item.name : ''}
+                    >
+                      <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                      {!isCollapsed && (
+                        <span className="ml-3 flex-1 text-left">{item.name}</span>
+                      )}
+                      {!isCollapsed && (
+                        item.isExpanded ? (
+                          <ChevronUp className="h-4 w-4 ml-2" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        )
+                      )}
+                    </button>
+
+                    {/* Sub-items */}
+                    {item.isExpanded && !isCollapsed && (
+                      <div className="ml-6 mt-1 space-y-1">
+                        {item.subItems.map((subItem) => {
+                          const SubIcon = subItem.icon;
+                          const isSubActive = location.pathname === subItem.href.split('?')[0] &&
+                            (subItem.href.includes('tab=') ? location.search.includes(subItem.href.split('tab=')[1]) : true);
+
+                          return (
+                            <Link
+                              key={subItem.name}
+                              to={subItem.href}
+                              className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                isSubActive
+                                  ? 'bg-blue-50 text-blue-600'
+                                  : 'text-gray-600 hover:bg-gray-50 hover:text-blue-500'
+                              }`}
+                            >
+                              <SubIcon className="h-4 w-4" />
+                              <span className="ml-3">{subItem.name}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              } else {
+                // Regular navigation item
+                const Icon = item.icon;
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                      isActive
+                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                    }`}
+                    title={isCollapsed ? item.name : ''}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                    {!isCollapsed && (
+                      <span className="ml-3">{item.name}</span>
+                    )}
+                  </Link>
+                );
+              }
             })}
           </div>
         </nav>
@@ -188,23 +268,82 @@ const Sidebar = () => {
           <nav className="mt-4">
             <div className="px-2 space-y-1">
               {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.href;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
-                      isActive
-                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
-                    }`}
-                    onClick={() => setIsMobileOpen(false)}
-                  >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
-                    <span className="ml-3">{item.name}</span>
-                  </Link>
-                );
+                if (item.isExpandable) {
+                  // Expandable item with sub-items for mobile
+                  const Icon = item.icon;
+                  const isActive = location.pathname === '/rentals' ||
+                    item.subItems.some(subItem =>
+                      location.pathname === subItem.href.split('?')[0] ||
+                      location.pathname + location.search === subItem.href
+                    );
+
+                  return (
+                    <div key={item.name}>
+                      <button
+                        onClick={item.toggle}
+                        className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                          isActive
+                            ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
+                            : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                        }`}
+                      >
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                        <span className="ml-3 flex-1 text-left">{item.name}</span>
+                        {item.isExpanded ? (
+                          <ChevronUp className="h-4 w-4 ml-2" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 ml-2" />
+                        )}
+                      </button>
+
+                      {/* Mobile Sub-items */}
+                      {item.isExpanded && (
+                        <div className="ml-6 mt-1 space-y-1">
+                          {item.subItems.map((subItem) => {
+                            const SubIcon = subItem.icon;
+                            const isSubActive = location.pathname === subItem.href.split('?')[0] &&
+                              (subItem.href.includes('tab=') ? location.search.includes(subItem.href.split('tab=')[1]) : true);
+
+                            return (
+                              <Link
+                                key={subItem.name}
+                                to={subItem.href}
+                                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                                  isSubActive
+                                    ? 'bg-blue-50 text-blue-600'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-blue-500'
+                                }`}
+                                onClick={() => setIsMobileOpen(false)}
+                              >
+                                <SubIcon className="h-4 w-4" />
+                                <span className="ml-3">{subItem.name}</span>
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                } else {
+                  // Regular navigation item for mobile
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                      }`}
+                      onClick={() => setIsMobileOpen(false)}
+                    >
+                      <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                      <span className="ml-3">{item.name}</span>
+                    </Link>
+                  );
+                }
               })}
             </div>
           </nav>

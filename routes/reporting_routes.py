@@ -206,7 +206,7 @@ def generate_property_summary_report(user, start_date, end_date):
     
     return {
         'report_type': 'Property Summary Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -261,7 +261,7 @@ def generate_tenant_report(user, start_date, end_date):
     
     return {
         'report_type': 'Tenant Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -283,8 +283,8 @@ def generate_maintenance_report(user, start_date, end_date):
                 MaintenanceRequest.property_id.in_(
                     Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
                 ),
-                MaintenanceRequest.created_at >= start_date,
-                MaintenanceRequest.created_at <= end_date
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
             )
         ).all()
     elif user.role == 'AGENT':
@@ -293,16 +293,16 @@ def generate_maintenance_report(user, start_date, end_date):
                 MaintenanceRequest.property_id.in_(
                     Property.query.filter_by(agent_id=user.id).with_entities(Property.id)
                 ),
-                MaintenanceRequest.created_at >= start_date,
-                MaintenanceRequest.created_at <= end_date
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
             )
         ).all()
     elif user.role == 'VENDOR':
         requests = MaintenanceRequest.query.filter(
             and_(
-                MaintenanceRequest.vendor_id == user.id,
-                MaintenanceRequest.created_at >= start_date,
-                MaintenanceRequest.created_at <= end_date
+                MaintenanceRequest.assigned_vendor_id == user.id,
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
             )
         ).all()
     else:
@@ -317,30 +317,30 @@ def generate_maintenance_report(user, start_date, end_date):
     for req in requests:
         request_data.append({
             'id': req.id,
-            'title': req.title,
-            'description': req.description,
+            'title': req.request_title,
+            'description': req.request_description,
             'priority': req.priority,
             'status': req.status,
-            'created_at': req.created_at.strftime('%Y-%m-%d'),
-            'completed_at': req.completed_at.strftime('%Y-%m-%d') if req.completed_at else 'N/A',
+            'created_at': req.request_date.strftime('%Y-%m-%d'),
+            'completed_at': req.completion_date.strftime('%Y-%m-%d') if req.completion_date else 'N/A',
             'property_title': req.property.title if req.property else 'N/A',
             'tenant_name': req.tenant.full_name if req.tenant else 'N/A',
-            'vendor_name': req.vendor.full_name if req.vendor else 'N/A',
-            'cost': req.cost or 0
+            'vendor_name': req.assigned_vendor.business_name if req.assigned_vendor else 'N/A',
+            'cost': req.actual_cost or 0
         })
         
-        if req.status == 'COMPLETED':
+        if req.status == 'completed':
             completed_requests += 1
-        elif req.status in ['PENDING', 'IN_PROGRESS']:
+        elif req.status in ['pending', 'in_progress']:
             pending_requests += 1
         
-        total_cost += req.cost or 0
+        total_cost += req.actual_cost or 0
     
     completion_rate = (completed_requests / total_requests * 100) if total_requests > 0 else 0
     
     return {
         'report_type': 'Maintenance Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -405,7 +405,7 @@ def generate_financial_report(user, start_date, end_date):
     
     return {
         'report_type': 'Financial Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -466,7 +466,7 @@ def generate_rental_report(user, start_date, end_date):
     
     return {
         'report_type': 'Rental Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -491,8 +491,8 @@ def generate_vendor_report(user, start_date, end_date):
                 MaintenanceRequest.property_id.in_(
                     Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
                 ),
-                MaintenanceRequest.created_at >= start_date,
-                MaintenanceRequest.created_at <= end_date
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
             )
         ).all()
     elif user.role == 'AGENT':
@@ -502,8 +502,8 @@ def generate_vendor_report(user, start_date, end_date):
                 MaintenanceRequest.property_id.in_(
                     Property.query.filter_by(agent_id=user.id).with_entities(Property.id)
                 ),
-                MaintenanceRequest.created_at >= start_date,
-                MaintenanceRequest.created_at <= end_date
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
             )
         ).all()
     else:
@@ -513,15 +513,15 @@ def generate_vendor_report(user, start_date, end_date):
     vendor_data = []
     
     for vendor in vendors:
-        vendor_requests = [req for req in requests if req.vendor_id == vendor.id]
-        completed_requests = [req for req in vendor_requests if req.status == 'COMPLETED']
-        total_cost = sum(req.cost or 0 for req in vendor_requests)
+        vendor_requests = [req for req in requests if req.assigned_vendor_id == vendor.id]
+        completed_requests = [req for req in vendor_requests if req.status == 'completed']
+        total_cost = sum(req.actual_cost or 0 for req in vendor_requests)
         
         vendor_data.append({
             'id': vendor.id,
-            'name': vendor.full_name,
+            'name': vendor.business_name,
             'email': vendor.email,
-            'phone': vendor.phone,
+            'phone': vendor.phone_number,
             'vendor_type': vendor.vendor_type,
             'total_requests': len(vendor_requests),
             'completed_requests': len(completed_requests),
@@ -533,7 +533,7 @@ def generate_vendor_report(user, start_date, end_date):
     
     return {
         'report_type': 'Vendor Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -541,7 +541,7 @@ def generate_vendor_report(user, start_date, end_date):
         'summary': {
             'total_vendors': len(vendors),
             'total_requests': len(requests),
-            'total_cost': sum(req.cost or 0 for req in requests),
+            'total_cost': sum(req.actual_cost or 0 for req in requests),
             'average_completion_rate': round(sum(v['completion_rate'] for v in vendor_data) / len(vendor_data), 2) if vendor_data else 0
         },
         'vendors': vendor_data
@@ -574,7 +574,7 @@ def generate_association_report(user, start_date, end_date):
     
     return {
         'report_type': 'Association Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -601,7 +601,7 @@ def generate_comprehensive_report(user, start_date, end_date):
     
     return {
         'report_type': 'Comprehensive Property Management Report',
-        'generated_by': user.full_name,
+        'generated_by': f"{user.first_name} {user.last_name}",
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -687,13 +687,13 @@ def generate_generic_pdf(report_data, report_type):
 # Helper functions
 def get_last_maintenance_date(property_id):
     """Get the date of the last maintenance request for a property"""
-    last_request = MaintenanceRequest.query.filter_by(property_id=property_id).order_by(desc(MaintenanceRequest.created_at)).first()
-    return last_request.created_at.strftime('%Y-%m-%d') if last_request else 'N/A'
+    last_request = MaintenanceRequest.query.filter_by(property_id=property_id).order_by(desc(MaintenanceRequest.request_date)).first()
+    return last_request.request_date.strftime('%Y-%m-%d') if last_request else 'N/A'
 
 def get_last_service_date(vendor_id):
     """Get the date of the last service provided by a vendor"""
-    last_request = MaintenanceRequest.query.filter_by(vendor_id=vendor_id).order_by(desc(MaintenanceRequest.completed_at)).first()
-    return last_request.completed_at.strftime('%Y-%m-%d') if last_request and last_request.completed_at else 'N/A'
+    last_request = MaintenanceRequest.query.filter_by(assigned_vendor_id=vendor_id).order_by(desc(MaintenanceRequest.completion_date)).first()
+    return last_request.completion_date.strftime('%Y-%m-%d') if last_request and last_request.completion_date else 'N/A'
 
 def calculate_vacant_days(property_id, start_date, end_date):
     """Calculate vacant days for a property in the given date range"""

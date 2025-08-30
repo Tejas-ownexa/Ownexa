@@ -650,7 +650,7 @@ def create_general_ledger_entry(current_user):
             reference_number=data.get('reference_number', ''),
             description=data['description'],
             notes=data.get('notes', ''),
-            posted_by=current_user.full_name
+            posted_by=f"{current_user.first_name} {current_user.last_name}"
         )
         
         db.session.add(ledger_entry)

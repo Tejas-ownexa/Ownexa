@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
           id: userData.id,
           username: userData.username,
           email: userData.email,
-          full_name: userData.full_name,
+          full_name: userData.first_name && userData.last_name ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
           phone: userData.phone_number,
           role: userData.role,
           is_agent: userData.role === 'AGENT',

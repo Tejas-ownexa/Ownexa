@@ -35,7 +35,7 @@ from models.property import Property
 from models.tenant import Tenant, RentRoll, OutstandingBalance, DraftLease, LeaseRenewal
 from models.maintenance import MaintenanceRequest
 from models.listing import Listing
-from models.association import Association, AssociationMembership
+from models.association import Association, AssociationMembership, AssociationBalance, Violation
 from models.financial import PropertyFinancial, LoanPayment, FinancialTransaction
 from models.vendor import Vendor
 from models.accountability import AccountabilityFinancial, GeneralLedger, Banking, BankingTransaction

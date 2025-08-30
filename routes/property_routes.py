@@ -113,7 +113,7 @@ def get_properties():
             'owner': {
                 'id': prop.owner.id,
                 'username': prop.owner.username,
-                'full_name': prop.owner.full_name,
+                'full_name': f"{prop.owner.first_name} {prop.owner.last_name}",
                 'email': prop.owner.email
             } if prop.owner else None
         } for prop in properties]), 200
@@ -150,7 +150,7 @@ def get_property(property_id):
             'owner': {
                 'id': property.owner.id,
                 'username': property.owner.username,
-                'full_name': property.owner.full_name,
+                'full_name': f"{property.owner.first_name} {property.owner.last_name}",
                 'email': property.owner.email
             } if property.owner else None,
             'listing': {
@@ -197,7 +197,7 @@ def get_user_favorites(current_user):
                         'owner': {
                             'id': prop.owner.id,
                             'username': prop.owner.username,
-                            'full_name': prop.owner.full_name,
+                            'full_name': f"{prop.owner.first_name} {prop.owner.last_name}",
                             'email': prop.owner.email
                         } if prop.owner else None
                     }
