@@ -221,13 +221,13 @@ const PropertyDetail = () => {
               <div className="flex items-center">
                 <User className="h-5 w-5 text-gray-600 mr-3" />
                 <div>
-                  <div className="font-medium">{property.owner?.full_name || 'Owner Name'}</div>
-                  <div className="text-sm text-gray-600">{property.owner?.email || 'owner@email.com'}</div>
+                  <div className="font-medium">{property.rental_owner?.company_name || property.created_by_user?.full_name || 'Owner Name'}</div>
+                  <div className="text-sm text-gray-600">{property.rental_owner?.contact_email || property.created_by_user?.email || 'owner@email.com'}</div>
                 </div>
               </div>
-              {property.owner?.phone && (
+              {property.rental_owner?.contact_phone && (
                 <div className="text-sm text-gray-600">
-                  Phone: {property.owner.phone}
+                  Phone: {property.rental_owner.contact_phone}
                 </div>
               )}
             </div>

@@ -350,12 +350,18 @@ def get_property(property_id):
             'image_url': property.image_url,
             'created_at': property.created_at.isoformat() if property.created_at else None,
             'updated_at': property.updated_at.isoformat() if property.updated_at else None,
-            'owner': {
-                'id': property.owner.id,
-                'username': property.owner.username,
-                'full_name': property.owner.full_name,
-                'email': property.owner.email
-            } if property.owner else None,
+            'rental_owner': {
+                'id': property.rental_owner.id,
+                'company_name': property.rental_owner.company_name,
+                'contact_email': property.rental_owner.contact_email,
+                'contact_phone': property.rental_owner.contact_phone
+            } if property.rental_owner else None,
+            'created_by_user': {
+                'id': property.created_by_user.id,
+                'username': property.created_by_user.username,
+                'full_name': property.created_by_user.full_name,
+                'email': property.created_by_user.email
+            } if property.created_by_user else None,
             'listing': {
                 'id': listing.id,
                 'listing_date': listing.listing_date.isoformat() if listing and listing.listing_date else None,
@@ -397,12 +403,18 @@ def get_user_favorites(current_user):
                         'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
                         'status': prop.status,
                         'image_url': prop.image_url,
-                        'owner': {
-                            'id': prop.owner.id,
-                            'username': prop.owner.username,
-                            'full_name': prop.owner.full_name,
-                            'email': prop.owner.email
-                        } if prop.owner else None
+                        'rental_owner': {
+                            'id': prop.rental_owner.id,
+                            'company_name': prop.rental_owner.company_name,
+                            'contact_email': prop.rental_owner.contact_email,
+                            'contact_phone': prop.rental_owner.contact_phone
+                        } if prop.rental_owner else None,
+                        'created_by_user': {
+                            'id': prop.created_by_user.id,
+                            'username': prop.created_by_user.username,
+                            'full_name': prop.created_by_user.full_name,
+                            'email': prop.created_by_user.email
+                        } if prop.created_by_user else None
                     }
                 })
         
