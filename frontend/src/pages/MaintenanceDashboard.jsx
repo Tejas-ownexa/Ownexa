@@ -671,9 +671,6 @@ const MaintenanceDashboard = () => {
 
         {/* Status Update Modal */}
         {statusUpdateModal.isOpen && (
-
-        {/* Status Update Modal */}
-        {statusUpdateModal.isOpen && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -769,10 +766,6 @@ const MaintenanceDashboard = () => {
             </div>
           </div>
         )}
-      </div>
-    </div>
-  );
-};
       </div>
     </div>
   );

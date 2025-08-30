@@ -28,14 +28,8 @@ def create_tenant(current_user):
         }
         print("Mapped tenant data:", tenant_data)
 
-<<<<<<< HEAD
-        # Validate required fields
-        required_fields = ['full_name', 'email', 'phone_number', 'property_id',  # full_name for tenant table
-                         'lease_start', 'lease_end', 'rent_amount']
-=======
         # Validate required fields (property_id is optional for future tenants)
         required_fields = ['full_name', 'email', 'phone_number']
->>>>>>> 3b4e62808a1c36c84adfcd0835660e0ae1323bab
         for field in required_fields:
             if not tenant_data.get(field):
                 return jsonify({'error': f'Missing required field: {field}'}), 400

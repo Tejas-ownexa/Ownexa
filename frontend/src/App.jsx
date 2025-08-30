@@ -22,6 +22,7 @@ import VendorProfile from './pages/VendorProfile';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
+// import DataImport from './pages/DataImport';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -112,6 +113,11 @@ const App = () => {
                         <Reporting />
                       </PrivateRoute>
                     } />
+                    {/* <Route path="/import" element={
+                      <PrivateRoute>
+                        <DataImport />
+                      </PrivateRoute>
+                    } /> */}
                     <Route path="/" element={
                       <PrivateRoute>
                         <RootRedirect />

@@ -24,7 +24,8 @@ import {
   ChevronUp,
   Receipt,
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  Upload
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -70,6 +71,7 @@ const Sidebar = () => {
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
+      // { name: 'Data Import', href: '/import', icon: Upload },
     ];
   };
 

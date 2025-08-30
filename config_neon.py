@@ -7,7 +7,7 @@ from flask_migrate import Migrate
 app = Flask(__name__)
 
 # Neon PostgreSQL Database Configuration
-NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_GrOEbhSsxK89@ep-green-smoke-ae7q078i-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+NEON_CONNECTION_STRING = "postgresql://neondb_owner:npg_V8OySJF5njdT@ep-summer-sky-adwixnct-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 
 # Database configuration - Using Neon PostgreSQL
 app.config['SQLALCHEMY_DATABASE_URI'] = NEON_CONNECTION_STRING

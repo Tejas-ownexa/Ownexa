@@ -177,8 +177,6 @@ const MaintenanceRequest = () => {
             </button>
           </div>
         </div>
-          </div>
-        </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -13,6 +13,7 @@ from routes.admin_bot_routes import admin_bot_bp
 from routes.rental_routes import rental_bp
 from routes.reporting_routes import reporting_bp
 from routes.accountability_routes import accountability_bp
+from routes.pipeline_routes import pipeline_bp
 
 def init_routes(app):
     print("Initializing routes...")
@@ -33,7 +34,8 @@ def init_routes(app):
                 'accountability': '/api/accountability',
                 'chatbot': '/api/chatbot',
                 'admin-bot': '/api/admin-bot',
-                'reports': '/api/reports'
+                'reports': '/api/reports',
+                'pipeline': '/api/pipeline'
             }
         })
     
@@ -91,6 +93,10 @@ def init_routes(app):
     # Accountability routes
     app.register_blueprint(accountability_bp, url_prefix='/api/accountability')
     print("Accountability routes registered")
+    
+    # Pipeline routes
+    app.register_blueprint(pipeline_bp, url_prefix='/api/pipeline')
+    print("Pipeline routes registered")
     
     print("All routes registered successfully")
     
