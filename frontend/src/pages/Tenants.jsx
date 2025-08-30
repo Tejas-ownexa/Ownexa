@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useQueryClient } from 'react-query';
 import { 
   Plus, 
   Download, 
@@ -11,7 +12,9 @@ import {
   ChevronUp,
   ChevronDown,
   Filter,
-  Search
+  Search,
+  Upload,
+  Trash2
 } from 'lucide-react';
 import AddTenantModal from '../components/AddTenantModal';
 import toast from 'react-hot-toast';
@@ -27,6 +30,23 @@ const Tenants = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  // Delete tenant handler
+  const handleDeleteTenant = async (tenantId) => {
+    if (window.confirm('Are you sure you want to delete this tenant? This action cannot be undone.')) {
+      try {
+        await api.delete(`/api/tenants/${tenantId}`);
+        toast.success('Tenant deleted successfully!');
+        // Refresh the tenants list
+        queryClient.invalidateQueries(['tenants']);
+        fetchTenants();
+      } catch (error) {
+        console.error('Delete error:', error);
+        toast.error('Failed to delete tenant. Please try again.');
+      }
+    }
+  };
 
   const fetchUserProperties = useCallback(async () => {
     if (!user?.id) return;
@@ -177,13 +197,92 @@ const Tenants = () => {
             </button>
           </div>
         </div>
-        <button 
-          onClick={handleExport}
-          className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
-        >
-          <Download className="h-4 w-4" />
-          <span>Export</span>
-        </button>
+        <div className="flex space-x-2">
+          <button 
+            onClick={handleExport}
+            className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+          >
+            <Download className="h-4 w-4" />
+            <span>Export</span>
+          </button>
+          
+          <button 
+            onClick={() => {
+              // Download CSV template
+              const csvTemplate = [
+                ['FIRST_NAME', 'LAST_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'STATUS', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT'],
+                ['John', 'Doe', 'john.doe@email.com', '+1-555-0123', '1', 'active', '2024-01-01', '2024-12-31', '2500.00'],
+                ['Jane', 'Smith', 'jane.smith@email.com', '+1-555-0124', '2', 'active', '2024-02-01', '2025-01-31', '2800.00'],
+                ['Mike', 'Johnson', 'mike.johnson@email.com', '+1-555-0125', '3', 'future', '2024-03-01', '2025-02-28', '2200.00']
+              ].map(row => row.join(',')).join('\n');
+
+              const blob = new Blob([csvTemplate], { type: 'text/csv' });
+              const link = document.createElement('a');
+              const url = URL.createObjectURL(blob);
+              link.setAttribute('href', url);
+              link.setAttribute('download', 'tenants_import_template.csv');
+              if (link && link.style) {
+                link.style.visibility = 'hidden';
+              }
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              toast.success('CSV template downloaded!');
+            }}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+          >
+            <Download className="h-4 w-4" />
+            <span>Template</span>
+          </button>
+          
+          <button 
+            onClick={() => {
+              // Create a file input for CSV import
+              const fileInput = document.createElement('input');
+              fileInput.type = 'file';
+              fileInput.accept = '.csv';
+              fileInput.style.display = 'none';
+              
+              fileInput.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                try {
+                  const formData = new FormData();
+                  formData.append('csv_file', file);
+                  
+                  const response = await api.post('/api/tenants/import', formData, {
+                    headers: {
+                      'Content-Type': 'multipart/form-data',
+                    },
+                  });
+                  
+                  if (response.data.success) {
+                    toast.success(`Successfully imported ${response.data.imported_count} tenants!`);
+                    // Refresh the tenants list using React Query
+                    queryClient.invalidateQueries(['tenants']);
+                    fetchTenants();
+                  } else {
+                    toast.error('Import failed: ' + response.data.error);
+                  }
+                } catch (error) {
+                  console.error('Import error:', error);
+                  toast.error('Failed to import tenants. Please check your CSV format.');
+                }
+                
+                // Clean up
+                document.body.removeChild(fileInput);
+              };
+              
+              document.body.appendChild(fileInput);
+              fileInput.click();
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
+            <Upload className="h-4 w-4" />
+            <span>Import</span>
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -228,12 +327,15 @@ const Tenants = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   RESIDENT CENTER STATUS
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ACTIONS
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center">
+                  <td colSpan="7" className="px-6 py-12 text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading tenants...</p>
                   </td>
@@ -289,8 +391,19 @@ const Tenants = () => {
                        <td className="px-6 py-4 whitespace-nowrap">
                          <div className="flex items-center justify-between">
                            <span className="text-sm text-gray-900">Not invited</span>
-                           <button className="p-1 rounded-full hover:bg-gray-100">
-                             <MoreHorizontal className="h-4 w-4 text-gray-400" />
+                         </div>
+                       </td>
+                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                         <div className="flex items-center space-x-2">
+                           <button 
+                             onClick={() => handleDeleteTenant(tenant.id)}
+                             className="text-red-600 hover:text-red-900 transition-colors"
+                             title="Delete Tenant"
+                           >
+                             <Trash2 className="h-4 w-4" />
+                           </button>
+                           <button className="text-gray-400 hover:text-gray-600">
+                             <MoreHorizontal className="h-4 w-4" />
                            </button>
                          </div>
                        </td>
@@ -299,7 +412,7 @@ const Tenants = () => {
                  })
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center">
+                  <td colSpan="7" className="px-6 py-12 text-center">
                     <p className="text-gray-600">No tenants found. Add your first tenant to get started!</p>
                   </td>
                 </tr>

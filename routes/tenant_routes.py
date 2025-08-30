@@ -366,3 +366,155 @@ def get_available_tenants(current_user):
     except Exception as e:
         print(f"Error fetching available tenants: {str(e)}")
         return jsonify({'error': 'Failed to fetch available tenants'}), 500
+
+@tenant_bp.route('/import', methods=['POST'])
+@token_required
+def import_tenants(current_user):
+    try:
+        print("Tenant import attempt received")
+        print("Current user:", current_user.username)
+        
+        if 'csv_file' not in request.files:
+            return jsonify({'error': 'No CSV file provided'}), 400
+        
+        csv_file = request.files['csv_file']
+        if csv_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not csv_file.filename.endswith('.csv'):
+            return jsonify({'error': 'File must be a CSV'}), 400
+        
+        # Read and parse CSV
+        import csv
+        import io
+        
+        # Read the CSV content
+        csv_content = csv_file.read().decode('utf-8')
+        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        
+        imported_count = 0
+        errors = []
+        
+        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
+            try:
+                # Extract data from CSV row
+                first_name = row.get('FIRST_NAME', '').strip() if row.get('FIRST_NAME') else ''
+                last_name = row.get('LAST_NAME', '').strip() if row.get('LAST_NAME') else ''
+                email = row.get('EMAIL', '').strip() if row.get('EMAIL') else ''
+                phone = row.get('PHONE', '').strip() if row.get('PHONE') else ''
+                property_id = row.get('PROPERTY_ID', '').strip() if row.get('PROPERTY_ID') else ''
+                status = row.get('STATUS', 'active').strip() if row.get('STATUS') else 'active'
+                lease_start = row.get('LEASE_START_DATE', '').strip() if row.get('LEASE_START_DATE') else ''
+                lease_end = row.get('LEASE_END_DATE', '').strip() if row.get('LEASE_END_DATE') else ''
+                rent_amount = row.get('RENT_AMOUNT', '0').strip() if row.get('RENT_AMOUNT') else '0'
+                
+                # Validate required fields
+                if not first_name:
+                    errors.append(f"Row {row_num}: First name is required")
+                    continue
+                
+                if not last_name:
+                    errors.append(f"Row {row_num}: Last name is required")
+                    continue
+                
+                if not email:
+                    errors.append(f"Row {row_num}: Email is required")
+                    continue
+                
+                if not property_id:
+                    errors.append(f"Row {row_num}: Property ID is required")
+                    continue
+                
+                # Check if property exists and belongs to current user
+                property = Property.query.get(property_id)
+                if not property:
+                    errors.append(f"Row {row_num}: Property with ID {property_id} not found")
+                    continue
+                
+                if property.owner_id != current_user.id:
+                    errors.append(f"Row {row_num}: Property {property_id} does not belong to you")
+                    continue
+                
+                # Check if property is available
+                if property.status != 'available':
+                    errors.append(f"Row {row_num}: Property {property_id} is not available")
+                    continue
+                
+                # Convert rent_amount to float
+                try:
+                    rent_amount_float = float(rent_amount) if rent_amount else 0.0
+                except ValueError:
+                    rent_amount_float = 0.0
+                
+                # Create full name
+                full_name = f"{first_name} {last_name}".strip()
+                
+                # Create tenant
+                tenant = Tenant(
+                    full_name=full_name,
+                    email=email,
+                    phone_number=phone,
+                    property_id=int(property_id),
+                    lease_start=datetime.strptime(lease_start, '%Y-%m-%d').date() if lease_start else None,
+                    lease_end=datetime.strptime(lease_end, '%Y-%m-%d').date() if lease_end else None,
+                    rent_amount=rent_amount_float,
+                    payment_status=status
+                )
+                
+                # Update property status to occupied
+                property.status = 'occupied'
+                
+                db.session.add(tenant)
+                imported_count += 1
+                
+            except Exception as e:
+                errors.append(f"Row {row_num}: {str(e)}")
+                continue
+        
+        # Commit all tenants
+        if imported_count > 0:
+            db.session.commit()
+            print(f"Successfully imported {imported_count} tenants")
+        
+        return jsonify({
+            'success': True,
+            'imported_count': imported_count,
+            'errors': errors
+        }), 200
+        
+    except Exception as e:
+        print("Error importing tenants:", str(e))
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@tenant_bp.route('/<int:tenant_id>', methods=['DELETE'])
+@token_required
+def delete_tenant(current_user, tenant_id):
+    try:
+        print(f"Delete tenant attempt - Tenant ID: {tenant_id}, User: {current_user.username}")
+        
+        # Find the tenant
+        tenant = Tenant.query.get(tenant_id)
+        
+        if not tenant:
+            return jsonify({'error': 'Tenant not found'}), 404
+        
+        # Check if the tenant's property belongs to the current user
+        property = Property.query.get(tenant.property_id)
+        if not property or property.owner_id != current_user.id:
+            return jsonify({'error': 'Unauthorized to delete this tenant'}), 403
+        
+        # Update property status back to available
+        property.status = 'available'
+        
+        # Delete the tenant
+        db.session.delete(tenant)
+        db.session.commit()
+        
+        print(f"Tenant {tenant_id} deleted successfully by user {current_user.username}")
+        return jsonify({'message': 'Tenant deleted successfully'}), 200
+        
+    except Exception as e:
+        print(f"Error deleting tenant: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
