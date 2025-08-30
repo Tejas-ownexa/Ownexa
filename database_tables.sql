@@ -11,8 +11,7 @@ CREATE TABLE "user" (
     username VARCHAR(80) UNIQUE NOT NULL,
     email VARCHAR(120) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    first_name VARCHAR(60) NOT NULL,
-    last_name VARCHAR(60) NOT NULL,
+    full_name VARCHAR(120) NOT NULL,
     phone_number VARCHAR(20),
     role VARCHAR(20) DEFAULT 'OWNER',
     street_address_1 VARCHAR(255) NOT NULL,
@@ -42,7 +41,8 @@ CREATE TABLE properties (
     description TEXT NOT NULL,
     rent_amount NUMERIC(10, 2) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'available',
-    owner_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    rental_owner_id INTEGER NOT NULL REFERENCES rental_owners(id) ON DELETE CASCADE,
+    created_by_user_id INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
     image_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -308,8 +308,145 @@ CREATE TABLE applicants (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 21. LEASE ROLL TABLE (for Rent Roll page)
+CREATE TABLE lease_roll (
+    id SERIAL PRIMARY KEY,
+    lease VARCHAR(255) NOT NULL,
+    lease_id VARCHAR(50) NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'Active',
+    type VARCHAR(100) NOT NULL DEFAULT 'Fixed w/rollover',
+    lease_dates VARCHAR(100) NOT NULL,
+    days_left VARCHAR(50),
+    rent VARCHAR(50),
+    property_id INTEGER REFERENCES properties(id) ON DELETE CASCADE,
+    tenant_id INTEGER REFERENCES tenants(id) ON DELETE CASCADE,
+    owner_id INTEGER REFERENCES "user"(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 22. RENTAL OWNERS TABLE (for companies/organizations that own properties)
+CREATE TABLE rental_owners (
+    id SERIAL PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL,
+    business_type VARCHAR(100),
+    tax_id VARCHAR(50),
+    business_address TEXT,
+    city VARCHAR(100),
+    state VARCHAR(50),
+    zip_code VARCHAR(20),
+    phone_number VARCHAR(20),
+    email VARCHAR(120),
+    website VARCHAR(255),
+    contact_person VARCHAR(100),
+    contact_phone VARCHAR(20),
+    contact_email VARCHAR(120),
+    bank_account_info TEXT,
+    insurance_info TEXT,
+    management_fee_percentage NUMERIC(5, 2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT TRUE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 23. RENTAL OWNER MANAGERS TABLE (users who manage rental owners)
+CREATE TABLE rental_owner_managers (
+    id SERIAL PRIMARY KEY,
+    rental_owner_id INTEGER NOT NULL REFERENCES rental_owners(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    role VARCHAR(50) DEFAULT 'MANAGER', -- MANAGER, ADMIN, VIEWER
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(rental_owner_id, user_id)
+);
+
+-- 24. RENTAL OWNER PROFILES TABLE (for Rental Owners page - legacy, can be removed later)
+CREATE TABLE rental_owner_profiles (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    business_name VARCHAR(255),
+    business_type VARCHAR(100),
+    tax_id VARCHAR(50),
+    business_address TEXT,
+    emergency_contact_name VARCHAR(100),
+    emergency_contact_phone VARCHAR(20),
+    emergency_contact_email VARCHAR(120),
+    bank_account_info TEXT,
+    insurance_info TEXT,
+    agreement_start_date DATE,
+    agreement_end_date DATE,
+    management_fee_percentage NUMERIC(5, 2) DEFAULT 0.00,
+    is_active BOOLEAN DEFAULT TRUE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 23. LEASE AGREEMENTS TABLE (for detailed lease management)
+CREATE TABLE lease_agreements (
+    id SERIAL PRIMARY KEY,
+    lease_roll_id INTEGER REFERENCES lease_roll(id) ON DELETE CASCADE,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+    owner_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    lease_number VARCHAR(50) UNIQUE NOT NULL,
+    lease_type VARCHAR(50) NOT NULL DEFAULT 'Fixed',
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    rent_amount NUMERIC(10, 2) NOT NULL,
+    security_deposit NUMERIC(10, 2) DEFAULT 0.00,
+    late_fee_amount NUMERIC(8, 2) DEFAULT 0.00,
+    late_fee_days INTEGER DEFAULT 5,
+    utilities_included BOOLEAN DEFAULT FALSE,
+    pet_policy TEXT,
+    parking_spaces INTEGER DEFAULT 0,
+    status VARCHAR(50) NOT NULL DEFAULT 'Active',
+    renewal_terms TEXT,
+    special_conditions TEXT,
+    signed_date DATE,
+    signed_by_tenant BOOLEAN DEFAULT FALSE,
+    signed_by_owner BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 24. LEASE PAYMENTS TABLE (for tracking lease payments)
+CREATE TABLE lease_payments (
+    id SERIAL PRIMARY KEY,
+    lease_agreement_id INTEGER REFERENCES lease_agreements(id) ON DELETE CASCADE,
+    payment_date DATE NOT NULL,
+    due_date DATE NOT NULL,
+    amount_due NUMERIC(10, 2) NOT NULL,
+    amount_paid NUMERIC(10, 2) NOT NULL,
+    payment_method VARCHAR(50),
+    payment_status VARCHAR(50) NOT NULL DEFAULT 'Paid',
+    late_fees NUMERIC(8, 2) DEFAULT 0.00,
+    notes TEXT,
+    receipt_number VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 25. LEASE RENEWALS TABLE (for tracking lease renewals)
+CREATE TABLE lease_renewals (
+    id SERIAL PRIMARY KEY,
+    original_lease_id INTEGER REFERENCES lease_agreements(id) ON DELETE CASCADE,
+    new_lease_id INTEGER REFERENCES lease_agreements(id) ON DELETE CASCADE,
+    renewal_date DATE NOT NULL,
+    rent_change_amount NUMERIC(10, 2) DEFAULT 0.00,
+    rent_change_percentage NUMERIC(5, 2) DEFAULT 0.00,
+    renewal_terms TEXT,
+    status VARCHAR(50) NOT NULL DEFAULT 'Pending',
+    approved_by_tenant BOOLEAN DEFAULT FALSE,
+    approved_by_owner BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better performance
-CREATE INDEX idx_properties_owner_id ON properties(owner_id);
+
 CREATE INDEX idx_tenants_property_id ON tenants(property_id);
 CREATE INDEX idx_maintenance_requests_property_id ON maintenance_requests(property_id);
 CREATE INDEX idx_maintenance_requests_tenant_id ON maintenance_requests(tenant_id);
@@ -323,6 +460,20 @@ CREATE INDEX idx_outstanding_balances_tenant_id ON outstanding_balances(tenant_i
 CREATE INDEX idx_vendors_user_id ON vendors(user_id);
 CREATE INDEX idx_listings_property_id ON listings(property_id);
 CREATE INDEX idx_applicants_listing_id ON applicants(listing_id);
+CREATE INDEX idx_lease_roll_property_id ON lease_roll(property_id);
+CREATE INDEX idx_lease_roll_tenant_id ON lease_roll(tenant_id);
+CREATE INDEX idx_lease_roll_owner_id ON lease_roll(owner_id);
+CREATE INDEX idx_rental_owners_company_name ON rental_owners(company_name);
+CREATE INDEX idx_rental_owner_managers_rental_owner_id ON rental_owner_managers(rental_owner_id);
+CREATE INDEX idx_rental_owner_managers_user_id ON rental_owner_managers(user_id);
+CREATE INDEX idx_properties_rental_owner_id ON properties(rental_owner_id);
+CREATE INDEX idx_rental_owner_profiles_user_id ON rental_owner_profiles(user_id);
+CREATE INDEX idx_lease_agreements_property_id ON lease_agreements(property_id);
+CREATE INDEX idx_lease_agreements_tenant_id ON lease_agreements(tenant_id);
+CREATE INDEX idx_lease_agreements_owner_id ON lease_agreements(owner_id);
+CREATE INDEX idx_lease_payments_lease_agreement_id ON lease_payments(lease_agreement_id);
+CREATE INDEX idx_lease_renewals_original_lease_id ON lease_renewals(original_lease_id);
+CREATE INDEX idx_lease_renewals_new_lease_id ON lease_renewals(new_lease_id);
 
 -- Add comments to tables
 COMMENT ON TABLE "user" IS 'User accounts for property owners, tenants, and vendors';
@@ -335,6 +486,13 @@ COMMENT ON TABLE financial_transactions IS 'All financial transactions for prope
 COMMENT ON TABLE associations IS 'Homeowner associations';
 COMMENT ON TABLE listings IS 'Property listings for rent';
 COMMENT ON TABLE applicants IS 'Applicants for property listings';
+COMMENT ON TABLE lease_roll IS 'Lease roll data for rent roll management';
+COMMENT ON TABLE rental_owners IS 'Companies/organizations that own properties';
+COMMENT ON TABLE rental_owner_managers IS 'Users who manage rental owner companies';
+COMMENT ON TABLE rental_owner_profiles IS 'Detailed profiles for rental owners';
+COMMENT ON TABLE lease_agreements IS 'Detailed lease agreements and terms';
+COMMENT ON TABLE lease_payments IS 'Payment tracking for lease agreements';
+COMMENT ON TABLE lease_renewals IS 'Lease renewal tracking and history';
 
 -- Success message
 SELECT 'All tables created successfully!' as status;

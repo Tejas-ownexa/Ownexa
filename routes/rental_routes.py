@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.tenant import Tenant, RentRoll, OutstandingBalance, DraftLease, LeaseRenewal
 from models.property import Property
+from models.rental_owner import RentalOwner, RentalOwnerManager
 from models.financial import FinancialTransaction
 from config import db
 from datetime import datetime, date
@@ -14,8 +15,12 @@ rental_bp = Blueprint('rental_bp', __name__)
 def get_rental_data(current_user):
     """Get comprehensive rental data for the dashboard"""
     try:
-        # Get all properties owned by the current user
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get all properties managed by the current user through rental owners
+        properties = Property.query.join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == current_user.id
+        ).all()
         property_ids = [p.id for p in properties]
         
         # Get all tenants for these properties
@@ -55,49 +60,64 @@ def get_rental_data(current_user):
 @rental_bp.route('/rent-roll', methods=['GET'])
 @token_required
 def get_rent_roll(current_user):
-    """Get rent roll (payment history) for all properties"""
+    """Get rent roll (lease data) for the current user"""
     try:
-        # Get all properties owned by the current user
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
-        property_ids = [p.id for p in properties]
+        # Get lease roll data from the new table
+        import psycopg2
+        from psycopg2.extras import RealDictCursor
         
-        # Get rent roll data with tenant and property information
-        rent_roll = db.session.query(
-            RentRoll,
-            Tenant.full_name.label('tenant_name'),
-            Property.title.label('property_title')
-        ).join(
-            Tenant, RentRoll.tenant_id == Tenant.id
-        ).join(
-            Property, RentRoll.property_id == Property.id
-        ).filter(
-            RentRoll.property_id.in_(property_ids)
-        ).order_by(RentRoll.payment_date.desc()).all()
+        conn = psycopg2.connect(
+            host="localhost",
+            port="5432",
+            database="flask_db",
+            user="admin",
+            password="admin123"
+        )
         
-        result = []
-        for payment, tenant_name, property_title in rent_roll:
-            payment_dict = payment.to_dict()
-            payment_dict['tenant_name'] = tenant_name
-            payment_dict['property_title'] = property_title
-            result.append(payment_dict)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         
-        return jsonify(result), 200
+        cursor.execute("SELECT * FROM lease_roll ORDER BY id")
+        lease_data = cursor.fetchall()
+        
+        rent_roll_data = []
+        for entry in lease_data:
+            rent_roll_data.append({
+                'id': entry['id'],
+                'lease': entry['lease'],
+                'leaseId': entry['lease_id'],
+                'status': entry['status'],
+                'type': entry['type'],
+                'leaseDates': entry['lease_dates'],
+                'daysLeft': entry['days_left'],
+                'rent': entry['rent']
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify(rent_roll_data), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Error fetching rent roll: {str(e)}")
+        return jsonify({'error': str(e)}), 400
 
 @rental_bp.route('/outstanding-balances', methods=['GET'])
 @token_required
 def get_outstanding_balances(current_user):
     """Get outstanding balances for all properties"""
     try:
-        # Get all properties owned by the current user
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get all properties managed by the current user through rental owners
+        properties = Property.query.join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == current_user.id
+        ).all()
         property_ids = [p.id for p in properties]
         
         # Get outstanding balances with tenant and property information
         balances = db.session.query(
             OutstandingBalance,
             Tenant.full_name.label('tenant_name'),
+            Tenant.email.label('tenant_email'),
             Property.title.label('property_title')
         ).join(
             Tenant, OutstandingBalance.tenant_id == Tenant.id
@@ -108,10 +128,21 @@ def get_outstanding_balances(current_user):
         ).order_by(OutstandingBalance.due_date.asc()).all()
         
         result = []
-        for balance, tenant_name, property_title in balances:
+        for balance, tenant_name, tenant_email, property_title in balances:
             balance_dict = balance.to_dict()
             balance_dict['tenant_name'] = tenant_name
+            balance_dict['tenant_email'] = tenant_email
             balance_dict['property_title'] = property_title
+            
+            # Calculate days overdue
+            if balance.due_date:
+                from datetime import date
+                today = date.today()
+                days_overdue = (today - balance.due_date).days
+                balance_dict['days_overdue'] = days_overdue if days_overdue > 0 else 0
+            else:
+                balance_dict['days_overdue'] = 0
+                
             result.append(balance_dict)
         
         return jsonify(result), 200
@@ -123,8 +154,12 @@ def get_outstanding_balances(current_user):
 def get_rental_statistics(current_user):
     """Get rental statistics and analytics"""
     try:
-        # Get all properties owned by the current user
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get all properties managed by the current user through rental owners
+        properties = Property.query.join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == current_user.id
+        ).all()
         property_ids = [p.id for p in properties]
         
         # Get current month and year

@@ -1,3 +1,3 @@
 FULL_NAME,EMAIL,PHONE,PROPERTY_ID,LEASE_START_DATE,LEASE_END_DATE,RENT_AMOUNT,PAYMENT_STATUS
-"Sample Future Tenant","sample.future@email.com","+1-555-0001","","2024-06-01","2025-05-31","2500.00","future"
-"Sample Assigned Tenant","sample.assigned@email.com","+1-555-0002","3","2024-07-01","2025-06-30","2800.00","active"
+"Sample Future Tenant","sample.future.unique@email.com","+1-555-0001","","2024-06-01","2025-05-31","2500.00","future"
+"Sample Assigned Tenant","sample.assigned.unique@email.com","+1-555-0002","3","2024-07-01","2025-06-30","2800.00","active"

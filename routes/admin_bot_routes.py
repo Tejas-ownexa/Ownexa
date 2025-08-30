@@ -831,7 +831,7 @@ def generate_pdf_report(data, intent_analysis, current_user):
         from reportlab.lib import colors
         from reportlab.lib.enums import TA_CENTER, TA_LEFT
         
-        owner_name = f"{current_user.first_name} {current_user.last_name}" or current_user.username or "Property Owner"
+        owner_name = current_user.full_name or current_user.username or "Property Owner"
         pdf_type = intent_analysis.get('entities', {}).get('pdf_type', 'all')
         
         # Create uploads directory if it doesn't exist

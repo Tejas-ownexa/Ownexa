@@ -61,10 +61,10 @@ const Sidebar = () => {
         toggle: () => setRentalsExpanded(!rentalsExpanded),
         subItems: [
           { name: 'Properties', href: '/rentals?tab=properties', icon: Building },
-          { name: 'Rentroll', href: '/rentals?tab=payments', icon: Receipt },
-          { name: 'Rental Owners', href: '/rentals?tab=leases', icon: UserCheck },
+          { name: 'Rentroll', href: '/rent-roll', icon: Receipt },
+          { name: 'Rental Owners', href: '/rental-owners', icon: UserCheck },
           { name: 'Tenants', href: '/tenants', icon: Users },
-          { name: 'Outstanding Balance', href: '/rentals?tab=balances', icon: AlertTriangle }
+          { name: 'Outstanding Balance', href: '/outstanding-balances', icon: AlertTriangle }
         ]
       },
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },

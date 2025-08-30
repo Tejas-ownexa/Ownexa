@@ -206,7 +206,7 @@ def generate_property_summary_report(user, start_date, end_date):
     
     return {
         'report_type': 'Property Summary Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -261,7 +261,7 @@ def generate_tenant_report(user, start_date, end_date):
     
     return {
         'report_type': 'Tenant Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -340,7 +340,7 @@ def generate_maintenance_report(user, start_date, end_date):
     
     return {
         'report_type': 'Maintenance Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -405,7 +405,7 @@ def generate_financial_report(user, start_date, end_date):
     
     return {
         'report_type': 'Financial Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -466,7 +466,7 @@ def generate_rental_report(user, start_date, end_date):
     
     return {
         'report_type': 'Rental Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -533,7 +533,7 @@ def generate_vendor_report(user, start_date, end_date):
     
     return {
         'report_type': 'Vendor Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -574,7 +574,7 @@ def generate_association_report(user, start_date, end_date):
     
     return {
         'report_type': 'Association Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')
@@ -601,7 +601,7 @@ def generate_comprehensive_report(user, start_date, end_date):
     
     return {
         'report_type': 'Comprehensive Property Management Report',
-        'generated_by': f"{user.first_name} {user.last_name}",
+        'generated_by': user.full_name,
         'date_range': {
             'start_date': start_date.strftime('%Y-%m-%d'),
             'end_date': end_date.strftime('%Y-%m-%d')

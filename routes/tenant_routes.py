@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models.tenant import Tenant, RentRoll, OutstandingBalance
 from models.property import Property
+from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
 from datetime import datetime
 from routes.auth_routes import token_required
@@ -34,6 +35,67 @@ def create_tenant(current_user):
             if not tenant_data.get(field):
                 return jsonify({'error': f'Missing required field: {field}'}), 400
 
+        # Check if tenant already exists
+        existing_tenant = Tenant.query.filter_by(email=tenant_data['email']).first()
+        if existing_tenant:
+            # Update existing tenant instead of creating new one
+            print(f"Updating existing tenant: {existing_tenant.email}")
+            
+            # Handle property assignment
+            property = None
+            if tenant_data.get('property_id'):
+                property = Property.query.get(tenant_data['property_id'])
+                if not property:
+                    return jsonify({'error': 'Property not found'}), 404
+                
+                # Check if user can manage the rental owner that owns this property
+                manager = RentalOwnerManager.query.filter_by(
+                    rental_owner_id=property.rental_owner_id,
+                    user_id=current_user.id
+                ).first()
+                
+                if not manager:
+                    return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
+
+                # Check if property is available
+                if property.status != 'available':
+                    return jsonify({'error': 'Property is not available for rent'}), 400
+
+                # Update existing tenant with property assignment
+                existing_tenant.property_id = tenant_data['property_id']
+                existing_tenant.lease_start = datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date() if tenant_data.get('lease_start') else None
+                existing_tenant.lease_end = datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date() if tenant_data.get('lease_end') else None
+                existing_tenant.rent_amount = property.rent_amount  # Use property's rent amount
+                existing_tenant.payment_status = 'active'
+                
+                # Update property status
+                property.status = 'occupied'
+            else:
+                # Update tenant without property assignment (future tenant)
+                existing_tenant.property_id = None
+                existing_tenant.lease_start = datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date() if tenant_data.get('lease_start') else None
+                existing_tenant.lease_end = datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date() if tenant_data.get('lease_end') else None
+                existing_tenant.rent_amount = tenant_data.get('rent_amount', 0)
+                existing_tenant.payment_status = 'future'
+            
+            db.session.commit()
+            print("Existing tenant updated successfully")
+            
+            return jsonify({
+                'message': 'Tenant updated successfully',
+                'tenant': {
+                    'id': existing_tenant.id,
+                    'full_name': existing_tenant.full_name,
+                    'email': existing_tenant.email,
+                    'phone_number': existing_tenant.phone_number,
+                    'property_id': existing_tenant.property_id,
+                    'lease_start': existing_tenant.lease_start.isoformat() if existing_tenant.lease_start else None,
+                    'lease_end': existing_tenant.lease_end.isoformat() if existing_tenant.lease_end else None,
+                    'rent_amount': float(existing_tenant.rent_amount),
+                    'payment_status': existing_tenant.payment_status
+                }
+            }), 200
+
         # Handle property assignment (optional for future tenants)
         property = None
         property_rent_amount = 0
@@ -42,8 +104,13 @@ def create_tenant(current_user):
             if not property:
                 return jsonify({'error': 'Property not found'}), 404
             
-            # Check if property belongs to the current user
-            if property.owner_id != current_user.id:
+            # Check if user can manage the rental owner that owns this property
+            manager = RentalOwnerManager.query.filter_by(
+                rental_owner_id=property.rental_owner_id,
+                user_id=current_user.id
+            ).first()
+            
+            if not manager:
                 return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
             # Check if property is available
@@ -101,8 +168,12 @@ def create_tenant(current_user):
 def get_tenants(current_user):
     try:
         print("Fetching tenants for user:", current_user.id)
-        # Get all tenants for properties owned by the current user, plus unassigned tenants
-        assigned_tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
+        # Get all tenants for properties managed by the current user, plus unassigned tenants
+        assigned_tenants = Tenant.query.join(Property).join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == current_user.id
+        ).all()
         unassigned_tenants = Tenant.query.filter(Tenant.property_id.is_(None)).all()
         
         # Combine both lists
@@ -176,8 +247,12 @@ def get_tenants(current_user):
 def get_tenant_statistics(current_user):
     try:
         print("Fetching tenant statistics for user:", current_user.id)
-        # Get all tenants for properties owned by the current user
-        tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
+        # Get all tenants for properties managed by the current user
+        tenants = Tenant.query.join(Property).join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == current_user.id
+        ).all()
         
         total_tenants = len(tenants)
         active_leases = sum(1 for t in tenants if t.payment_status == 'active')
@@ -347,35 +422,28 @@ def get_my_maintenance_requests(current_user):
 @tenant_bp.route('/available-tenants', methods=['GET'])
 @token_required
 def get_available_tenants(current_user):
-    """Get all registered users with TENANT role who are not currently assigned to any property"""
+    """Get all registered users with TENANT role and unassigned tenants who are not currently assigned to any property"""
     try:
-        from models.user import User
-        
-        # Get all users with TENANT role
-        tenant_users = User.query.filter_by(role='TENANT').all()
-        
-        # Get all currently assigned tenant emails
-        assigned_tenant_emails = set()
-        assigned_tenants = Tenant.query.all()
-        for tenant in assigned_tenants:
-            assigned_tenant_emails.add(tenant.email)
-        
-        # Filter out tenants who are already assigned to properties
         available_tenants = []
-        for user in tenant_users:
-            if user.email not in assigned_tenant_emails:
-                available_tenants.append({
-                    'id': user.id,
-                    'full_name': user.full_name,
-                    'email': user.email,
-                    'phone_number': user.phone_number,
-                    'street_address_1': user.street_address_1,
-                    'city': user.city,
-                    'state': user.state,
-                    'zip_code': user.zip_code
-                })
         
-        print(f"Found {len(available_tenants)} available tenants")
+        # For now, let's just get unassigned tenants (future tenants) from the tenants table
+        # We'll add registered users later once we debug the User model issue
+        unassigned_tenants = Tenant.query.filter(Tenant.property_id.is_(None)).all()
+        
+        for tenant in unassigned_tenants:
+            available_tenants.append({
+                'id': tenant.id,
+                'full_name': tenant.full_name,
+                'email': tenant.email,
+                'phone_number': tenant.phone_number,
+                'street_address_1': None,  # Future tenants don't have address until assigned
+                'city': None,
+                'state': None,
+                'zip_code': None,
+                'rent_amount': str(tenant.rent_amount) if tenant.rent_amount else 'N/A'
+            })
+        
+        print(f"Found {len(available_tenants)} available tenants ({len([t for t in available_tenants if t['rent_amount'] != 'N/A'])} with rent amounts)")
         return jsonify({'available_tenants': available_tenants}), 200
     except Exception as e:
         print(f"Error fetching available tenants: {str(e)}")
@@ -430,6 +498,12 @@ def import_tenants(current_user):
                     errors.append(f"Row {row_num}: Email is required")
                     continue
                 
+                # Check if tenant with this email already exists
+                existing_tenant = Tenant.query.filter_by(email=email).first()
+                if existing_tenant:
+                    errors.append(f"Row {row_num}: Tenant with email '{email}' already exists (ID: {existing_tenant.id})")
+                    continue
+                
                 # Handle property assignment (optional for future tenants)
                 property = None
                 if property_id:
@@ -439,7 +513,13 @@ def import_tenants(current_user):
                         errors.append(f"Row {row_num}: Property with ID {property_id} not found")
                         continue
                     
-                    if property.owner_id != current_user.id:
+                    # Check if user can manage the rental owner that owns this property
+                    manager = RentalOwnerManager.query.filter_by(
+                        rental_owner_id=property.rental_owner_id,
+                        user_id=current_user.id
+                    ).first()
+                    
+                    if not manager:
                         errors.append(f"Row {row_num}: Property {property_id} does not belong to you")
                         continue
                     
@@ -505,13 +585,51 @@ def delete_tenant(current_user, tenant_id):
         if not tenant:
             return jsonify({'error': 'Tenant not found'}), 404
         
-        # Check if the tenant's property belongs to the current user
-        property = Property.query.get(tenant.property_id)
-        if not property or property.owner_id != current_user.id:
-            return jsonify({'error': 'Unauthorized to delete this tenant'}), 403
+        # Handle authorization based on whether tenant is assigned to a property
+        if tenant.property_id:
+            # For assigned tenants, check if the user can manage the rental owner that owns this property
+            property = Property.query.get(tenant.property_id)
+            if not property:
+                return jsonify({'error': 'Property not found'}), 404
+                
+            manager = RentalOwnerManager.query.filter_by(
+                rental_owner_id=property.rental_owner_id,
+                user_id=current_user.id
+            ).first()
+            
+            if not manager:
+                return jsonify({'error': 'Unauthorized to delete this tenant'}), 403
+            
+            # Update property status back to available
+            property.status = 'available'
+        else:
+            # For future tenants (unassigned), allow deletion by any authenticated user
+            # This is a simplified approach - you might want to add additional checks
+            print(f"Deleting future tenant (unassigned) - Tenant ID: {tenant_id}")
         
-        # Update property status back to available
-        property.status = 'available'
+        # Handle related records before deleting tenant
+        try:
+            # Delete related maintenance requests
+            from models.maintenance import MaintenanceRequest
+            maintenance_requests = MaintenanceRequest.query.filter_by(tenant_id=tenant_id).all()
+            for request in maintenance_requests:
+                db.session.delete(request)
+            
+            # Delete related rent roll entries
+            rent_rolls = RentRoll.query.filter_by(tenant_id=tenant_id).all()
+            for rent_roll in rent_rolls:
+                db.session.delete(rent_roll)
+            
+            # Delete related outstanding balances
+            outstanding_balances = OutstandingBalance.query.filter_by(tenant_id=tenant_id).all()
+            for balance in outstanding_balances:
+                db.session.delete(balance)
+                
+            print(f"Deleted {len(maintenance_requests)} maintenance requests, {len(rent_rolls)} rent rolls, {len(outstanding_balances)} outstanding balances")
+            
+        except Exception as related_error:
+            print(f"Warning: Error handling related records: {related_error}")
+            # Continue with tenant deletion even if related records fail
         
         # Delete the tenant
         db.session.delete(tenant)

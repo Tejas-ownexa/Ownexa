@@ -53,7 +53,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
         name: selectedTenant.full_name,
         email: selectedTenant.email,
         phone: selectedTenant.phone_number,
-        rentAmount: selectedProperty.rent_amount,
+        rentAmount: selectedProperty.rent_amount, // Always use property's rent amount when assigning
         propertyId: parseInt(data.propertyId),
         leaseStartDate: data.leaseStartDate,
         leaseEndDate: data.leaseEndDate
@@ -236,11 +236,24 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 </label>
                 <input
                   type="text"
-                  value={selectedProperty ? `$${selectedProperty.rent_amount}/month` : 'Select a property first'}
+                  value={
+                    selectedProperty 
+                      ? `$${selectedProperty.rent_amount}/month` 
+                      : selectedTenant && selectedTenant.rent_amount && selectedTenant.rent_amount !== 'N/A'
+                        ? `$${selectedTenant.rent_amount}/month`
+                        : 'N/A'
+                  }
                   className="input-field w-full bg-gray-100"
                   disabled
                 />
-                <p className="text-sm text-gray-500 mt-1">Rent amount is set by the property's listing</p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {selectedProperty 
+                    ? 'Rent amount is set by the property\'s listing'
+                    : selectedTenant && selectedTenant.rent_amount && selectedTenant.rent_amount !== 'N/A'
+                      ? 'Rent amount from tenant record'
+                      : 'No rent amount set for this tenant'
+                  }
+                </p>
               </div>
             </div>
           </div>
