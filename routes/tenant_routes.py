@@ -28,46 +28,49 @@ def create_tenant(current_user):
         }
         print("Mapped tenant data:", tenant_data)
 
-        # Validate required fields
-        required_fields = ['full_name', 'email', 'phone_number', 'property_id',  # full_name for tenant table 
-                         'lease_start', 'lease_end', 'rent_amount']
+        # Validate required fields (property_id is optional for future tenants)
+        required_fields = ['full_name', 'email', 'phone_number']
         for field in required_fields:
             if not tenant_data.get(field):
                 return jsonify({'error': f'Missing required field: {field}'}), 400
 
-        # Verify the property exists and belongs to the current user
-        property = Property.query.get(tenant_data['property_id'])
-        if not property:
-            return jsonify({'error': 'Property not found'}), 404
-        
-        print(f"Debug - Current user ID: {current_user.id}, Property owner ID: {property.owner_id}")
-        print(f"Debug - Current user: {current_user.username}, Property: {property.title}")
-        
-        # Temporarily comment out ownership check for testing
-        # if property.owner_id != current_user.id:
-        #     return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
+        # Handle property assignment (optional for future tenants)
+        property = None
+        property_rent_amount = 0
+        if tenant_data.get('property_id'):
+            property = Property.query.get(tenant_data['property_id'])
+            if not property:
+                return jsonify({'error': 'Property not found'}), 404
+            
+            # Check if property belongs to the current user
+            if property.owner_id != current_user.id:
+                return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
-        # Check if property is available
-        if property.status != 'available':
-            return jsonify({'error': 'Property is not available for rent'}), 400
+            # Check if property is available
+            if property.status != 'available':
+                return jsonify({'error': 'Property is not available for rent'}), 400
 
-        # Use property's rent amount
-        property_rent_amount = property.rent_amount
+            # Use property's rent amount
+            property_rent_amount = property.rent_amount
+        else:
+            # For future tenants, use provided rent amount or default
+            property_rent_amount = tenant_data.get('rent_amount', 0)
 
         # Create new tenant
         tenant = Tenant(
             full_name=tenant_data['full_name'],
             email=tenant_data['email'],
             phone_number=tenant_data['phone_number'],
-            property_id=tenant_data['property_id'],
-            lease_start=datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date(),
-            lease_end=datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date(),
-            rent_amount=property_rent_amount,  # Use property's rent amount
-            payment_status='active'
+            property_id=tenant_data.get('property_id'),  # Can be None for future tenants
+            lease_start=datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date() if tenant_data.get('lease_start') else None,
+            lease_end=datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date() if tenant_data.get('lease_end') else None,
+            rent_amount=property_rent_amount,
+            payment_status='future' if not tenant_data.get('property_id') else 'active'
         )
 
-        # Update property status
-        property.status = 'occupied'
+        # Update property status only if property is assigned
+        if property:
+            property.status = 'occupied'
 
         print("Attempting to save tenant to database")
         db.session.add(tenant)
@@ -98,26 +101,17 @@ def create_tenant(current_user):
 def get_tenants(current_user):
     try:
         print("Fetching tenants for user:", current_user.id)
-        # Get all tenants for properties owned by the current user
-        tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
-        print(f"Found {len(tenants)} tenants")
+        # Get all tenants for properties owned by the current user, plus unassigned tenants
+        assigned_tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
+        unassigned_tenants = Tenant.query.filter(Tenant.property_id.is_(None)).all()
+        
+        # Combine both lists
+        tenants = assigned_tenants + unassigned_tenants
+        print(f"Found {len(assigned_tenants)} assigned tenants and {len(unassigned_tenants)} unassigned tenants")
         
         tenant_list = []
         for tenant in tenants:
             try:
-                # Format address
-                property_address = []
-                if tenant.property.street_address_1:
-                    property_address.append(tenant.property.street_address_1)
-                if tenant.property.street_address_2:
-                    property_address.append(tenant.property.street_address_2)
-                if tenant.property.city:
-                    property_address.append(tenant.property.city)
-                if tenant.property.state:
-                    property_address.append(tenant.property.state)
-                if tenant.property.zip_code:
-                    property_address.append(tenant.property.zip_code)
-                
                 tenant_data = {
                     'id': tenant.id,
                     'name': tenant.full_name,
@@ -126,16 +120,36 @@ def get_tenants(current_user):
                     'propertyId': tenant.property_id,
                     'leaseStartDate': tenant.lease_start.isoformat() if tenant.lease_start else None,
                     'leaseEndDate': tenant.lease_end.isoformat() if tenant.lease_end else None,
-                    'rentAmount': str(tenant.property.rent_amount) if tenant.property and tenant.property.rent_amount else "0",
+                    'rentAmount': str(tenant.rent_amount) if tenant.rent_amount else "0",
                     'status': tenant.payment_status or 'pending',
-                    'property': {
+                    'created_at': tenant.created_at.isoformat() if tenant.created_at else None
+                }
+                
+                # Handle property data (can be None for unassigned tenants)
+                if tenant.property:
+                    # Format address
+                    property_address = []
+                    if tenant.property.street_address_1:
+                        property_address.append(tenant.property.street_address_1)
+                    if tenant.property.street_address_2:
+                        property_address.append(tenant.property.street_address_2)
+                    if tenant.property.city:
+                        property_address.append(tenant.property.city)
+                    if tenant.property.state:
+                        property_address.append(tenant.property.state)
+                    if tenant.property.zip_code:
+                        property_address.append(tenant.property.zip_code)
+                    
+                    tenant_data['property'] = {
                         'id': tenant.property.id,
                         'name': tenant.property.title,
                         'address': ', '.join(property_address),
                         'status': tenant.property.status
-                    } if tenant.property else None,
-                    'created_at': tenant.created_at.isoformat() if tenant.created_at else None
-                }
+                    }
+                else:
+                    # For unassigned tenants
+                    tenant_data['property'] = None
+                
                 tenant_list.append(tenant_data)
             except Exception as e:
                 print(f"Error processing tenant {tenant.id}:", str(e))
@@ -416,24 +430,23 @@ def import_tenants(current_user):
                     errors.append(f"Row {row_num}: Email is required")
                     continue
                 
-                if not property_id:
-                    errors.append(f"Row {row_num}: Property ID is required")
-                    continue
-                
-                # Check if property exists and belongs to current user
-                property = Property.query.get(property_id)
-                if not property:
-                    errors.append(f"Row {row_num}: Property with ID {property_id} not found")
-                    continue
-                
-                if property.owner_id != current_user.id:
-                    errors.append(f"Row {row_num}: Property {property_id} does not belong to you")
-                    continue
-                
-                # Check if property is available
-                if property.status != 'available':
-                    errors.append(f"Row {row_num}: Property {property_id} is not available")
-                    continue
+                # Handle property assignment (optional for future tenants)
+                property = None
+                if property_id:
+                    # Check if property exists and belongs to current user
+                    property = Property.query.get(property_id)
+                    if not property:
+                        errors.append(f"Row {row_num}: Property with ID {property_id} not found")
+                        continue
+                    
+                    if property.owner_id != current_user.id:
+                        errors.append(f"Row {row_num}: Property {property_id} does not belong to you")
+                        continue
+                    
+                    # Check if property is available
+                    if property.status != 'available':
+                        errors.append(f"Row {row_num}: Property {property_id} is not available")
+                        continue
                 
                 # Convert rent_amount to float
                 try:
@@ -446,15 +459,16 @@ def import_tenants(current_user):
                     full_name=full_name,
                     email=email,
                     phone_number=phone,
-                    property_id=int(property_id),
+                    property_id=int(property_id) if property_id else None,
                     lease_start=datetime.strptime(lease_start, '%Y-%m-%d').date() if lease_start else None,
                     lease_end=datetime.strptime(lease_end, '%Y-%m-%d').date() if lease_end else None,
                     rent_amount=rent_amount_float,
-                    payment_status=payment_status
+                    payment_status='future' if not property_id else payment_status
                 )
                 
-                # Update property status to occupied
-                property.status = 'occupied'
+                # Update property status to occupied only if property is assigned
+                if property:
+                    property.status = 'occupied'
                 
                 db.session.add(tenant)
                 imported_count += 1

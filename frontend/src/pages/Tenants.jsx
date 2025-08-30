@@ -214,25 +214,27 @@ const Tenants = () => {
                  ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT', 'PAYMENT_STATUS']
                ];
                
-               // Add sample rows with available property IDs
+               // Add sample rows - one assigned, one future tenant
                if (availableProperties.length > 0) {
+                 // Assigned tenant example
                  csvTemplate.push([
                    'John Doe', 'john.doe@email.com', '+1-555-0123', 
                    availableProperties[0].id.toString(), '2024-01-01', '2024-12-31', 
                    availableProperties[0].rent_amount?.toString() || '2500.00', 'active'
                  ]);
                  
-                 if (availableProperties.length > 1) {
-                   csvTemplate.push([
-                     'Jane Smith', 'jane.smith@email.com', '+1-555-0124', 
-                     availableProperties[1].id.toString(), '2024-02-01', '2025-01-31', 
-                     availableProperties[1].rent_amount?.toString() || '2800.00', 'active'
-                   ]);
-                 }
-               } else {
-                 // If no available properties, show generic template
+                 // Future tenant example (no property assignment)
                  csvTemplate.push([
-                   'John Doe', 'john.doe@email.com', '+1-555-0123', '1', '2024-01-01', '2024-12-31', '2500.00', 'active'
+                   'Jane Smith', 'jane.smith@email.com', '+1-555-0124', 
+                   '', '2024-06-01', '2025-05-31', '2800.00', 'future'
+                 ]);
+               } else {
+                 // If no available properties, show future tenant examples
+                 csvTemplate.push([
+                   'John Doe', 'john.doe@email.com', '+1-555-0123', '', '2024-01-01', '2024-12-31', '2500.00', 'future'
+                 ]);
+                 csvTemplate.push([
+                   'Jane Smith', 'jane.smith@email.com', '+1-555-0124', '', '2024-06-01', '2025-05-31', '2800.00', 'future'
                  ]);
                }
                
@@ -405,7 +407,9 @@ const Tenants = () => {
                          )}
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                         {tenant.property ? tenant.property.name || 'N/A' : 'N/A'}
+                         {tenant.property ? tenant.property.name : (
+                           <span className="text-orange-600 font-medium">Unassigned</span>
+                         )}
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                          {tenant.leaseStartDate && tenant.leaseEndDate ? (
@@ -424,9 +428,10 @@ const Tenants = () => {
                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                            tenant.status === 'active' ? 'bg-green-100 text-green-800' :
                            tenant.status === 'past_due' ? 'bg-red-100 text-red-800' :
+                           tenant.status === 'future' ? 'bg-blue-100 text-blue-800' :
                            'bg-gray-100 text-gray-800'
                          }`}>
-                           {tenant.status || 'N/A'}
+                           {tenant.status === 'future' ? 'Future' : (tenant.status || 'N/A')}
                          </span>
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
