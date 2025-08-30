@@ -638,7 +638,7 @@ const Rentals = () => {
                           {property.address?.city || 'N/A'}, {property.address?.state || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {property.owner?.full_name || 'N/A'}
+                          {property.rental_owner?.company_name || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           -
