@@ -398,8 +398,7 @@ def import_tenants(current_user):
         for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
             try:
                 # Extract data from CSV row
-                first_name = row.get('FIRST_NAME', '').strip() if row.get('FIRST_NAME') else ''
-                last_name = row.get('LAST_NAME', '').strip() if row.get('LAST_NAME') else ''
+                full_name = row.get('FULL_NAME', '').strip() if row.get('FULL_NAME') else ''
                 email = row.get('EMAIL', '').strip() if row.get('EMAIL') else ''
                 phone = row.get('PHONE', '').strip() if row.get('PHONE') else ''
                 property_id = row.get('PROPERTY_ID', '').strip() if row.get('PROPERTY_ID') else ''
@@ -409,12 +408,8 @@ def import_tenants(current_user):
                 rent_amount = row.get('RENT_AMOUNT', '0').strip() if row.get('RENT_AMOUNT') else '0'
                 
                 # Validate required fields
-                if not first_name:
-                    errors.append(f"Row {row_num}: First name is required")
-                    continue
-                
-                if not last_name:
-                    errors.append(f"Row {row_num}: Last name is required")
+                if not full_name:
+                    errors.append(f"Row {row_num}: Full name is required")
                     continue
                 
                 if not email:
@@ -445,9 +440,6 @@ def import_tenants(current_user):
                     rent_amount_float = float(rent_amount) if rent_amount else 0.0
                 except ValueError:
                     rent_amount_float = 0.0
-                
-                # Create full name
-                full_name = f"{first_name} {last_name}".strip()
                 
                 # Create tenant
                 tenant = Tenant(

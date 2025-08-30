@@ -211,20 +211,20 @@ const Tenants = () => {
                // Download CSV template with available properties
                const availableProperties = userProperties.filter(p => p.status === 'available');
                let csvTemplate = [
-                 ['FIRST_NAME', 'LAST_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'STATUS', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT']
+                 ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'STATUS', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT']
                ];
                
                // Add sample rows with available property IDs
                if (availableProperties.length > 0) {
                  csvTemplate.push([
-                   'John', 'Doe', 'john.doe@email.com', '+1-555-0123', 
+                   'John Doe', 'john.doe@email.com', '+1-555-0123', 
                    availableProperties[0].id.toString(), 'active', '2024-01-01', '2024-12-31', 
                    availableProperties[0].rent_amount?.toString() || '2500.00'
                  ]);
                  
                  if (availableProperties.length > 1) {
                    csvTemplate.push([
-                     'Jane', 'Smith', 'jane.smith@email.com', '+1-555-0124', 
+                     'Jane Smith', 'jane.smith@email.com', '+1-555-0124', 
                      availableProperties[1].id.toString(), 'active', '2024-02-01', '2025-01-31', 
                      availableProperties[1].rent_amount?.toString() || '2800.00'
                    ]);
@@ -232,7 +232,7 @@ const Tenants = () => {
                } else {
                  // If no available properties, show generic template
                  csvTemplate.push([
-                   'John', 'Doe', 'john.doe@email.com', '+1-555-0123', '1', 'active', '2024-01-01', '2024-12-31', '2500.00'
+                   'John Doe', 'john.doe@email.com', '+1-555-0123', '1', 'active', '2024-01-01', '2024-12-31', '2500.00'
                  ]);
                }
                
