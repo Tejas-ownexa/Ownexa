@@ -62,19 +62,22 @@ const RentalOwners = () => {
     e.preventDefault();
     
     try {
+      console.log('Sending rental owner data:', newOwnerData);
       const response = await api.post('/api/rental-owners/rental-owners', newOwnerData);
+      console.log('Response received:', response);
       
-      if (response.status === 201) {
+      if (response.status === 201 || response.data.success) {
         toast.success('Rental owner added successfully!');
         setShowAddOwner(false);
         setNewOwnerData({ company_name: '', contact_email: '', contact_phone: '', business_type: '', city: '', state: '' });
         queryClient.invalidateQueries(['owners']);
         fetchOwners();
       } else {
-        toast.error('Failed to add rental owner: ' + response.data.error);
+        toast.error('Failed to add rental owner: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Add owner error:', error);
+      console.error('Error response:', error.response?.data);
       toast.error('Failed to add rental owner. Please try again.');
     }
   };
@@ -490,7 +493,7 @@ const RentalOwners = () => {
       {/* Add Owner Modal */}
       {showAddOwner && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Rental Owner</h3>
                              <form onSubmit={handleAddOwner}>
