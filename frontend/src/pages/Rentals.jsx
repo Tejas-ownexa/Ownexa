@@ -12,7 +12,8 @@ import {
   Filter,
   Search,
   MapPin,
-  DollarSign
+  DollarSign,
+  Upload
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -447,40 +448,118 @@ const Rentals = () => {
                 </div>
               </div>
             </div>
-            <button 
-              onClick={() => {
-                // Export properties functionality
-                const csvContent = [
-                  ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'OPERATING ACCOUNT', 'DEPOSIT TRUST ACCOUNT'],
-                  ...(properties || []).map(property => [
-                    property.title,
-                    `${property.address?.city || ''}, ${property.address?.state || ''}`,
-                    property.owner?.full_name || 'N/A',
-                    'N/A',
-                    'Residential',
-                    'EFT ATK ASSOCIATE...',
-                    'Setup'
-                  ])
-                ].map(row => row.join(',')).join('\n');
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => {
+                  // Export properties functionality
+                  const csvContent = [
+                    ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'OPERATING ACCOUNT', 'DEPOSIT TRUST ACCOUNT'],
+                    ...(properties || []).map(property => [
+                      property.title,
+                      `${property.address?.city || ''}, ${property.address?.state || ''}`,
+                      property.owner?.full_name || 'N/A',
+                      'N/A',
+                      'Residential',
+                      'EFT ATK ASSOCIATE...',
+                      'Setup'
+                    ])
+                  ].map(row => row.join(',')).join('\n');
 
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const link = document.createElement('a');
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `properties_${new Date().toISOString().split('T')[0]}.csv`);
-                if (link && link.style) {
-                  link.style.visibility = 'hidden';
-                }
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                toast.success('Properties exported successfully!');
-              }}
-              className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
-            >
-              <Download className="h-4 w-4" />
-              <span>Export</span>
-            </button>
+                  const blob = new Blob([csvContent], { type: 'text/csv' });
+                  const link = document.createElement('a');
+                  const url = URL.createObjectURL(blob);
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', `properties_${new Date().toISOString().split('T')[0]}.csv`);
+                  if (link && link.style) {
+                    link.style.visibility = 'hidden';
+                  }
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success('Properties exported successfully!');
+                }}
+                className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Export</span>
+              </button>
+              
+              <button 
+                onClick={() => {
+                  // Download CSV template
+                  const csvTemplate = [
+                    ['PROPERTY', 'LOCATION', 'STREET_ADDRESS', 'STREET_ADDRESS_2', 'APT_NUMBER', 'DESCRIPTION', 'RENT_AMOUNT', 'STATUS', 'ZIP_CODE'],
+                    ['Sample Property 1', 'New York, NY', '123 Main St', 'Apt 1B', 'Beautiful apartment in downtown', '2500.00', 'available', '10001'],
+                    ['Sample Property 2', 'Los Angeles, CA', '456 Oak Ave', '', 'Modern house with garden', '3500.00', 'available', '90210'],
+                    ['Sample Property 3', 'Chicago, IL', '789 Pine St', 'Unit 5', 'Cozy studio apartment', '1800.00', 'rented', '60601']
+                  ].map(row => row.join(',')).join('\n');
+
+                  const blob = new Blob([csvTemplate], { type: 'text/csv' });
+                  const link = document.createElement('a');
+                  const url = URL.createObjectURL(blob);
+                  link.setAttribute('href', url);
+                  link.setAttribute('download', 'properties_import_template.csv');
+                  if (link && link.style) {
+                    link.style.visibility = 'hidden';
+                  }
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success('CSV template downloaded!');
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+              >
+                <Download className="h-4 w-4" />
+                <span>Template</span>
+              </button>
+              
+              <button 
+                onClick={() => {
+                  // Create a file input for CSV import
+                  const fileInput = document.createElement('input');
+                  fileInput.type = 'file';
+                  fileInput.accept = '.csv';
+                  fileInput.style.display = 'none';
+                  
+                  fileInput.onchange = async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    try {
+                      const formData = new FormData();
+                      formData.append('csv_file', file);
+                      
+                      const response = await api.post('/api/properties/import', formData, {
+                        headers: {
+                          'Content-Type': 'multipart/form-data',
+                        },
+                      });
+                      
+                      if (response.data.success) {
+                        toast.success(`Successfully imported ${response.data.imported_count} properties!`);
+                        // Refresh the properties list
+                        window.location.reload();
+                      } else {
+                        toast.error('Import failed: ' + response.data.error);
+                      }
+                    } catch (error) {
+                      console.error('Import error:', error);
+                      toast.error('Failed to import properties. Please check your CSV format.');
+                    }
+                    
+                    // Clean up
+                    document.body.removeChild(fileInput);
+                  };
+                  
+                  document.body.appendChild(fileInput);
+                  fileInput.click();
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+              >
+                <Upload className="h-4 w-4" />
+                <span>Import</span>
+              </button>
+            </div>
           </div>
 
           {/* Results Count */}

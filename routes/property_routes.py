@@ -120,6 +120,113 @@ def get_properties(current_user):
         print("Error fetching properties:", str(e))
         return jsonify({'error': str(e)}), 400
 
+@property_bp.route('/import', methods=['POST'])
+@token_required
+def import_properties(current_user):
+    try:
+        print("Property import attempt received")
+        print("Current user:", current_user.username)
+        
+        if 'csv_file' not in request.files:
+            return jsonify({'error': 'No CSV file provided'}), 400
+        
+        csv_file = request.files['csv_file']
+        if csv_file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not csv_file.filename.endswith('.csv'):
+            return jsonify({'error': 'File must be a CSV'}), 400
+        
+        # Read and parse CSV
+        import csv
+        import io
+        
+        # Read the CSV content
+        csv_content = csv_file.read().decode('utf-8')
+        csv_reader = csv.DictReader(io.StringIO(csv_content))
+        
+        imported_count = 0
+        errors = []
+        
+        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
+            try:
+                
+                # Extract data from CSV row
+                title = row.get('PROPERTY', '').strip() if row.get('PROPERTY') else ''
+                location = row.get('LOCATION', '').strip() if row.get('LOCATION') else ''
+                street_address = row.get('STREET_ADDRESS', '').strip() if row.get('STREET_ADDRESS') else ''
+                street_address_2 = row.get('STREET_ADDRESS_2', '').strip() if row.get('STREET_ADDRESS_2') else ''
+                apt_number = row.get('APT_NUMBER', '').strip() if row.get('APT_NUMBER') else ''
+                zip_code = row.get('ZIP_CODE', '').strip() if row.get('ZIP_CODE') else ''
+                description = row.get('DESCRIPTION', 'Default property description').strip() if row.get('DESCRIPTION') else 'Default property description'
+                rent_amount = row.get('RENT_AMOUNT', '0').strip() if row.get('RENT_AMOUNT') else '0'
+                status = row.get('STATUS', 'available').strip() if row.get('STATUS') else 'available'
+                
+                # Parse location (assuming format: "City, State")
+                city = ''
+                state = ''
+                if location and ',' in location:
+                    parts = location.split(',')
+                    city = parts[0].strip()
+                    state = parts[1].strip() if len(parts) > 1 else ''
+                
+                # Validate required fields
+                if not title:
+                    errors.append(f"Row {row_num}: Property title is required")
+                    continue
+                
+                if not city:
+                    errors.append(f"Row {row_num}: City is required")
+                    continue
+                
+                if not state:
+                    errors.append(f"Row {row_num}: State is required")
+                    continue
+                
+                # Convert rent_amount to float
+                try:
+                    rent_amount_float = float(rent_amount) if rent_amount else 0.0
+                except ValueError:
+                    rent_amount_float = 0.0
+                
+                # Create property
+                property = Property(
+                    title=title,
+                    street_address_1=street_address,
+                    street_address_2=street_address_2,
+                    apt_number=apt_number,
+                    city=city,
+                    state=state,
+                    zip_code=zip_code,
+                    description=description,
+                    rent_amount=rent_amount_float,
+                    status=status,
+                    owner_id=current_user.id
+                )
+                
+                db.session.add(property)
+                imported_count += 1
+                
+            except Exception as e:
+                errors.append(f"Row {row_num}: {str(e)}")
+                continue
+        
+        # Commit all properties
+        if imported_count > 0:
+            db.session.commit()
+            print(f"Successfully imported {imported_count} properties")
+        
+        return jsonify({
+            'success': True,
+            'imported_count': imported_count,
+            'errors': errors
+        }), 200
+        
+    except Exception as e:
+        print("Error importing properties:", str(e))
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
 @property_bp.route('/<int:property_id>', methods=['GET'])
 def get_property(property_id):
     try:
