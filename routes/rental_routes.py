@@ -109,6 +109,14 @@ def get_rent_roll(current_user):
             if tenant.lease_end and tenant.lease_end > today:
                 days_left = (tenant.lease_end - today).days
             
+            # Format days left for frontend
+            if days_left > 0:
+                days_left_formatted = f"{days_left} DAYS"
+            elif days_left == 0:
+                days_left_formatted = "EXPIRED"
+            else:
+                days_left_formatted = "EXPIRED"
+            
             # Format lease dates
             lease_dates = f"{tenant.lease_start.strftime('%m/%d/%Y') if tenant.lease_start else 'N/A'} - {tenant.lease_end.strftime('%m/%d/%Y') if tenant.lease_end else 'N/A'}"
             
@@ -122,7 +130,7 @@ def get_rent_roll(current_user):
                 'status': status,
                 'type': 'Residential',
                 'leaseDates': lease_dates,
-                'daysLeft': days_left,
+                'daysLeft': days_left_formatted,
                 'rent': float(tenant.rent_amount) if tenant.rent_amount else 0,
                 'tenant_name': tenant.full_name,
                 'property_title': property_title,
