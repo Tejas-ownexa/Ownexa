@@ -39,6 +39,8 @@ const RentalOwners = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterRentals, setFilterRentals] = useState('all');
   const [selectedFile, setSelectedFile] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmData, setDeleteConfirmData] = useState(null);
 
   // Fetch rental owners
   const fetchOwners = useCallback(async () => {
@@ -84,16 +86,42 @@ const RentalOwners = () => {
 
   // Delete owner handler
   const handleDeleteOwner = async (ownerId) => {
-    if (window.confirm('Are you sure you want to delete this rental owner? This action cannot be undone.')) {
-      try {
-        await api.delete(`/api/rental-owners/rental-owners/${ownerId}`);
-        toast.success('Rental owner deleted successfully!');
-        queryClient.invalidateQueries(['owners']);
-        fetchOwners();
-      } catch (error) {
-        console.error('Delete error:', error);
+    try {
+      const response = await api.delete(`/api/rental-owners/rental-owners/${ownerId}`);
+      toast.success('Rental owner deleted successfully!');
+      queryClient.invalidateQueries(['owners']);
+      fetchOwners();
+    } catch (error) {
+      console.error('Delete error:', error);
+      
+      // Check if this is a confirmation required error
+      if (error.response?.data?.error === 'confirmation_required') {
+        setDeleteConfirmData({
+          ...error.response.data,
+          rental_owner_id: ownerId
+        });
+        setShowDeleteConfirm(true);
+      } else {
         toast.error('Failed to delete rental owner. Please try again.');
       }
+    }
+  };
+
+  // Force delete handler
+  const handleForceDelete = async () => {
+    if (!deleteConfirmData) return;
+    
+    try {
+      const rentalOwnerId = deleteConfirmData.rental_owner_id;
+      const response = await api.delete(`/api/rental-owners/rental-owners/${rentalOwnerId}/force-delete`);
+      toast.success('Rental owner and all properties deleted successfully!');
+      setShowDeleteConfirm(false);
+      setDeleteConfirmData(null);
+      queryClient.invalidateQueries(['owners']);
+      fetchOwners();
+    } catch (error) {
+      console.error('Force delete error:', error);
+      toast.error('Failed to delete rental owner. Please try again.');
     }
   };
 
@@ -572,6 +600,67 @@ const RentalOwners = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && deleteConfirmData && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
+                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mt-4 text-center">Delete Rental Owner</h3>
+              <div className="mt-4">
+                <p className="text-sm text-gray-500 text-center mb-4">
+                  {deleteConfirmData.message}
+                </p>
+                
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <h4 className="font-medium text-red-800 mb-2">Properties that will be deleted:</h4>
+                  <div className="space-y-2">
+                    {deleteConfirmData.properties.map((property, index) => (
+                      <div key={property.id} className="flex justify-between items-center text-sm">
+                        <span className="text-gray-700">{property.title}</span>
+                        <span className="text-gray-500">{property.address}</span>
+                        <span className={`px-2 py-1 rounded text-xs ${
+                          property.status === 'occupied' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {property.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <p className="text-sm text-red-600 text-center font-medium">
+                  ⚠️ This action cannot be undone. All properties and their associated data will be permanently deleted.
+                </p>
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteConfirm(false);
+                    setDeleteConfirmData(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleForceDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700"
+                >
+                  Delete All
+                </button>
+              </div>
             </div>
           </div>
         </div>

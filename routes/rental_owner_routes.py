@@ -201,9 +201,27 @@ def delete_rental_owner(current_user, rental_owner_id):
             return jsonify({'error': 'Rental owner not found'}), 404
         
         # Check if rental owner has properties
-        property_count = Property.query.filter_by(rental_owner_id=rental_owner_id).count()
+        properties = Property.query.filter_by(rental_owner_id=rental_owner_id).all()
+        property_count = len(properties)
+        
+        # If properties exist, return property information for confirmation
         if property_count > 0:
-            return jsonify({'error': f'Cannot delete rental owner with {property_count} properties. Please reassign or delete properties first.'}), 400
+            property_info = []
+            for prop in properties:
+                property_info.append({
+                    'id': prop.id,
+                    'title': prop.title,
+                    'address': f"{prop.street_address_1}, {prop.city}, {prop.state}",
+                    'status': prop.status
+                })
+            
+            return jsonify({
+                'error': 'confirmation_required',
+                'message': f'This rental owner has {property_count} properties. Do you wish to delete it?',
+                'property_count': property_count,
+                'properties': property_info,
+                'rental_owner_name': rental_owner.company_name
+            }), 400
         
         # Manually delete related records to avoid cascade issues
         # Delete rental owner managers first
@@ -220,6 +238,63 @@ def delete_rental_owner(current_user, rental_owner_id):
         
     except Exception as e:
         print(f"Error deleting rental owner: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@token_required
+def force_delete_rental_owner(current_user, rental_owner_id):
+    """Force delete a rental owner and all its properties"""
+    try:
+        # Check if user can manage this rental owner
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager:
+            return jsonify({'error': 'Unauthorized to delete this rental owner'}), 403
+        
+        rental_owner = RentalOwner.query.get(rental_owner_id)
+        if not rental_owner:
+            return jsonify({'error': 'Rental owner not found'}), 404
+        
+        # Get all properties for this rental owner
+        properties = Property.query.filter_by(rental_owner_id=rental_owner_id).all()
+        
+        # Delete all properties and their related data
+        for property in properties:
+            # Delete tenants for this property
+            from models.tenant import Tenant, OutstandingBalance
+            from models.maintenance import MaintenanceRequest
+            
+            # Delete tenants
+            Tenant.query.filter_by(property_id=property.id).delete()
+            
+            # Delete outstanding balances
+            OutstandingBalance.query.filter_by(property_id=property.id).delete()
+            
+            # Delete maintenance requests
+            MaintenanceRequest.query.filter_by(property_id=property.id).delete()
+            
+            # Delete the property
+            db.session.delete(property)
+        
+        # Manually delete related records to avoid cascade issues
+        # Delete rental owner managers first
+        RentalOwnerManager.query.filter_by(rental_owner_id=rental_owner_id).delete()
+        
+        # Then delete the rental owner
+        db.session.delete(rental_owner)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Rental owner "{rental_owner.company_name}" and {len(properties)} properties deleted successfully'
+        }), 200
+        
+    except Exception as e:
+        print(f"Error force deleting rental owner: {str(e)}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
