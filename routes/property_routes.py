@@ -284,9 +284,33 @@ def delete_property(current_user, property_id):
         if not property:
             return jsonify({'error': 'Property not found'}), 404
         
-        # Check if the property belongs to the current user
-        if property.owner_id != current_user.id:
+        # Check if user can manage the rental owner that owns this property
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager:
             return jsonify({'error': 'Unauthorized to delete this property'}), 403
+        
+        # Check if property has related records that would prevent deletion
+        from models.tenant import Tenant, OutstandingBalance
+        from models.maintenance import MaintenanceRequest
+        
+        # Check for tenants
+        tenant_count = Tenant.query.filter_by(property_id=property_id).count()
+        if tenant_count > 0:
+            return jsonify({'error': f'Cannot delete property with {tenant_count} tenants. Please reassign or remove tenants first.'}), 400
+        
+        # Check for outstanding balances
+        balance_count = OutstandingBalance.query.filter_by(property_id=property_id).count()
+        if balance_count > 0:
+            return jsonify({'error': f'Cannot delete property with {balance_count} outstanding balances. Please resolve balances first.'}), 400
+        
+        # Check for maintenance requests
+        maintenance_count = MaintenanceRequest.query.filter_by(property_id=property_id).count()
+        if maintenance_count > 0:
+            return jsonify({'error': f'Cannot delete property with {maintenance_count} maintenance requests. Please resolve requests first.'}), 400
         
         # Delete the property
         db.session.delete(property)

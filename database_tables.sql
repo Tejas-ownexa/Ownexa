@@ -104,19 +104,7 @@ CREATE TABLE draft_leases (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 7. LEASE RENEWALS TABLE
-CREATE TABLE lease_renewals (
-    id SERIAL PRIMARY KEY,
-    tenant_id INTEGER REFERENCES tenants(id),
-    property_id INTEGER REFERENCES properties(id),
-    old_end_date DATE,
-    new_end_date DATE,
-    rent_change NUMERIC(10, 2),
-    status VARCHAR(50),
-    requested_at TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+
 
 -- 8. VENDORS TABLE
 CREATE TABLE vendors (
