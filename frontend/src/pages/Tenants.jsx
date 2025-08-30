@@ -211,7 +211,12 @@ const Tenants = () => {
                // Download CSV template with available properties
                const availableProperties = userProperties.filter(p => p.status === 'available');
                let csvTemplate = [
-                 ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT', 'PAYMENT_STATUS']
+                 ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT', 'PAYMENT_STATUS'],
+                 ['# Required fields: FULL_NAME, EMAIL, PHONE'],
+                 ['# PROPERTY_ID: Leave empty for future tenants, or use available property ID'],
+                 ['# PAYMENT_STATUS: Use "active" for assigned tenants, "future" for unassigned tenants'],
+                 ['# Date format: YYYY-MM-DD (e.g., 2024-01-01)'],
+                 ['# Rent amount: Use numbers only (e.g., 2500.00)']
                ];
                
                // Add sample rows - one assigned, one future tenant
@@ -282,16 +287,30 @@ const Tenants = () => {
                   });
                   
                   if (response.data.success) {
-                    toast.success(`Successfully imported ${response.data.imported_count} tenants!`);
-                    // Refresh the tenants list using React Query
-                    queryClient.invalidateQueries(['tenants']);
-                    fetchTenants();
+                    if (response.data.imported_count > 0) {
+                      toast.success(`Successfully imported ${response.data.imported_count} tenants!`);
+                      // Refresh the tenants list using React Query
+                      queryClient.invalidateQueries(['tenants']);
+                      fetchTenants();
+                    } else {
+                      // Show errors if no tenants were imported
+                      if (response.data.errors && response.data.errors.length > 0) {
+                        const errorMessage = response.data.errors.join(', ');
+                        toast.error(`Import failed: ${errorMessage}`);
+                      } else {
+                        toast.error('No tenants were imported. Please check your CSV format.');
+                      }
+                    }
                   } else {
-                    toast.error('Import failed: ' + response.data.error);
+                    toast.error('Import failed: ' + (response.data.error || 'Unknown error'));
                   }
                 } catch (error) {
                   console.error('Import error:', error);
-                  toast.error('Failed to import tenants. Please check your CSV format.');
+                  if (error.response && error.response.data && error.response.data.error) {
+                    toast.error('Import failed: ' + error.response.data.error);
+                  } else {
+                    toast.error('Failed to import tenants. Please check your CSV format.');
+                  }
                 }
                 
                 // Clean up
