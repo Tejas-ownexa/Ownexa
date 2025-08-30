@@ -1,10 +1,9 @@
-from flask import Blueprint, request, jsonify, url_for
+from flask import Blueprint, request, jsonify, url_for, current_app
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
-from config import app
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -17,7 +16,7 @@ def token_required(f):
         if not token:
             return jsonify({'message': 'Token is missing'}), 401
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
             current_user = User.query.get(data['user_id'])
         except:
             return jsonify({'message': 'Token is invalid'}), 401
@@ -166,7 +165,7 @@ def login():
         access_token = jwt.encode({
             'user_id': user.id,
             'exp': datetime.utcnow() + timedelta(hours=24)
-        }, app.config['SECRET_KEY'], algorithm="HS256")
+        }, current_app.config['SECRET_KEY'], algorithm="HS256")
         
         # Return token and user data
         return jsonify({

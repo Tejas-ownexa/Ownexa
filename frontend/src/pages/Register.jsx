@@ -134,24 +134,45 @@ const Register = () => {
               </div>
             )}
 
-            {/* Full Name */}
-            <div>
-              <label htmlFor="full_name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <div className="mt-1 relative">
-                <input
-                  id="full_name"
-                  type="text"
-                  {...register('full_name', { required: 'Full name is required' })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
-                  placeholder="Enter your full name"
-                />
-                <User className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+            {/* First Name and Last Name */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <div className="mt-1 relative">
+                  <input
+                    id="first_name"
+                    type="text"
+                    {...register('first_name', { required: 'First name is required' })}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                    placeholder="Enter your first name"
+                  />
+                  <User className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                </div>
+                {errors.first_name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.first_name.message}</p>
+                )}
               </div>
-              {errors.full_name && (
-                <p className="mt-1 text-sm text-red-600">{errors.full_name.message}</p>
-              )}
+
+              <div>
+                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <div className="mt-1 relative">
+                  <input
+                    id="last_name"
+                    type="text"
+                    {...register('last_name', { required: 'Last name is required' })}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                    placeholder="Enter your last name"
+                  />
+                  <User className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                </div>
+                {errors.last_name && (
+                  <p className="mt-1 text-sm text-red-600">{errors.last_name.message}</p>
+                )}
+              </div>
             </div>
 
             {/* Username */}

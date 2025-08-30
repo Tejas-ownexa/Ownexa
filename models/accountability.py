@@ -41,9 +41,9 @@ class AccountabilityFinancial(BaseModel):
     status = db.Column(db.String(20), default='draft')  # draft, submitted, approved, rejected
     notes = db.Column(db.Text)
     
-    # Relationships
-    property = db.relationship('Property', back_populates='accountability_financials')
-    user = db.relationship('User', back_populates='accountability_financials')
+    # Relationships (commented out to avoid circular imports)
+    # property = db.relationship('Property', back_populates='accountability_financials')
+    # user = db.relationship('User', back_populates='accountability_financials')
     
     # Status constants
     STATUS_DRAFT = 'draft'
@@ -89,9 +89,9 @@ class GeneralLedger(BaseModel):
     approved_by = db.Column(db.String(100))
     approval_date = db.Column(db.DateTime)
     
-    # Relationships
-    property = db.relationship('Property', back_populates='general_ledger_entries')
-    user = db.relationship('User', back_populates='general_ledger_entries')
+    # Relationships (commented out to avoid circular imports)
+    # property = db.relationship('Property', back_populates='general_ledger_entries')
+    # user = db.relationship('User', back_populates='general_ledger_entries')
     
     # Transaction type constants
     TYPE_DEBIT = 'debit'
@@ -132,9 +132,9 @@ class Banking(BaseModel):
     monthly_fee = db.Column(db.Numeric(8, 2), default=0)
     notes = db.Column(db.Text)
     
-    # Relationships
-    property = db.relationship('Property', back_populates='banking_accounts')
-    user = db.relationship('User', back_populates='banking_accounts')
+    # Relationships (commented out to avoid circular imports)
+    # property = db.relationship('Property', back_populates='banking_accounts')
+    # user = db.relationship('User', back_populates='banking_accounts')
     transactions = db.relationship('BankingTransaction', back_populates='banking_account', cascade='all, delete-orphan')
     
     # Account type constants

@@ -1,4 +1,4 @@
-from config import db
+from models import db
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -23,10 +23,10 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
     
-    # Accountability relationships
-    accountability_financials = db.relationship('AccountabilityFinancial', back_populates='user', cascade='all, delete-orphan')
-    general_ledger_entries = db.relationship('GeneralLedger', back_populates='user', cascade='all, delete-orphan')
-    banking_accounts = db.relationship('Banking', back_populates='user', cascade='all, delete-orphan')
+    # Relationships (commented out for now to avoid circular imports)
+    # accountability_financials = db.relationship('AccountabilityFinancial', back_populates='user', cascade='all, delete-orphan')
+    # general_ledger_entries = db.relationship('GeneralLedger', back_populates='user', cascade='all, delete-orphan')
+    # banking_accounts = db.relationship('Banking', back_populates='user', cascade='all, delete-orphan')
     
     @property
     def full_name(self):

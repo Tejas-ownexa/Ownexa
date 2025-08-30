@@ -22,7 +22,8 @@ os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'properties'), exist_ok=Tr
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'reports'), exist_ok=True)
 
 # Initialize extensions
-db = SQLAlchemy(app)
+from models import db
+db.init_app(app)
 migrate = Migrate(app, db)
 
 # Enable CORS with security

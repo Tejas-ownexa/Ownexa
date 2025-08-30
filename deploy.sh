@@ -30,3 +30,4 @@ vercel --prod
 echo "🎉 Deployment completed!"
 echo "Backend: $BACKEND_URL"
 echo "Frontend: Check Vercel dashboard for the frontend URL"
+

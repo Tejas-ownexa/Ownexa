@@ -1,5 +1,8 @@
 from datetime import datetime
-from config import db
+from flask_sqlalchemy import SQLAlchemy
+
+# Create a db instance that will be initialized in app.py
+db = SQLAlchemy()
 
 # Base model for common fields
 class BaseModel(db.Model):
