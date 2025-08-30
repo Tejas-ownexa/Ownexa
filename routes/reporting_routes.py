@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, send_file
 from datetime import datetime, date, timedelta
 from sqlalchemy import and_, func, desc
 from models import db, User, Property, Tenant, MaintenanceRequest, FinancialTransaction, Vendor, Association, AssociationMembership
+from models.rental_owner import RentalOwner, RentalOwnerManager
 from utils.pdf_generator import PropertyReportPDFGenerator
 from functools import wraps
 import jwt
@@ -157,9 +158,15 @@ def generate_report(current_user):
 
 def generate_property_summary_report(user, start_date, end_date):
     """Generate property summary report"""
-    # Get properties based on user role
-    if user.role == 'OWNER':
-        properties = Property.query.filter_by(owner_id=user.id).all()
+    # Get properties based on user role using RentalOwnerManager relationship
+    if user.role == 'ADMIN' or user.username == 'admin':
+        properties = Property.query.all()
+    elif user.role == 'OWNER':
+        properties = Property.query.join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == user.id
+        ).all()
     elif user.role == 'AGENT':
         properties = Property.query.filter_by(agent_id=user.id).all()
     else:
@@ -224,8 +231,14 @@ def generate_property_summary_report(user, start_date, end_date):
 
 def generate_tenant_report(user, start_date, end_date):
     """Generate tenant report"""
-    if user.role == 'OWNER':
-        tenants = Tenant.query.join(Property).filter(Property.owner_id == user.id).all()
+    if user.role == 'ADMIN' or user.username == 'admin':
+        tenants = Tenant.query.join(Property).all()
+    elif user.role == 'OWNER':
+        tenants = Tenant.query.join(Property).join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == user.id
+        ).all()
     elif user.role == 'AGENT':
         tenants = Tenant.query.join(Property).filter(Property.agent_id == user.id).all()
     else:
@@ -277,11 +290,22 @@ def generate_tenant_report(user, start_date, end_date):
 
 def generate_maintenance_report(user, start_date, end_date):
     """Generate maintenance report"""
-    if user.role == 'OWNER':
+    if user.role == 'ADMIN' or user.username == 'admin':
+        requests = MaintenanceRequest.query.filter(
+            and_(
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
+            )
+        ).all()
+    elif user.role == 'OWNER':
         requests = MaintenanceRequest.query.filter(
             and_(
                 MaintenanceRequest.property_id.in_(
-                    Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
+                    Property.query.join(
+                        RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                    ).filter(
+                        RentalOwnerManager.user_id == user.id
+                    ).with_entities(Property.id)
                 ),
                 MaintenanceRequest.request_date >= start_date,
                 MaintenanceRequest.request_date <= end_date
@@ -358,11 +382,22 @@ def generate_maintenance_report(user, start_date, end_date):
 
 def generate_financial_report(user, start_date, end_date):
     """Generate financial report"""
-    if user.role == 'OWNER':
+    if user.role == 'ADMIN' or user.username == 'admin':
+        transactions = FinancialTransaction.query.filter(
+            and_(
+                FinancialTransaction.transaction_date >= start_date,
+                FinancialTransaction.transaction_date <= end_date
+            )
+        ).all()
+    elif user.role == 'OWNER':
         transactions = FinancialTransaction.query.filter(
             and_(
                 FinancialTransaction.property_id.in_(
-                    Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
+                    Property.query.join(
+                        RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                    ).filter(
+                        RentalOwnerManager.user_id == user.id
+                    ).with_entities(Property.id)
                 ),
                 FinancialTransaction.transaction_date >= start_date,
                 FinancialTransaction.transaction_date <= end_date
@@ -422,8 +457,14 @@ def generate_financial_report(user, start_date, end_date):
 
 def generate_rental_report(user, start_date, end_date):
     """Generate rental report"""
-    if user.role == 'OWNER':
-        properties = Property.query.filter_by(owner_id=user.id).all()
+    if user.role == 'ADMIN' or user.username == 'admin':
+        properties = Property.query.all()
+    elif user.role == 'OWNER':
+        properties = Property.query.join(
+            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == user.id
+        ).all()
     elif user.role == 'AGENT':
         properties = Property.query.filter_by(agent_id=user.id).all()
     else:
@@ -484,12 +525,24 @@ def generate_rental_report(user, start_date, end_date):
 
 def generate_vendor_report(user, start_date, end_date):
     """Generate vendor report"""
-    if user.role == 'OWNER':
+    if user.role == 'ADMIN' or user.username == 'admin':
+        vendors = Vendor.query.all()
+        requests = MaintenanceRequest.query.filter(
+            and_(
+                MaintenanceRequest.request_date >= start_date,
+                MaintenanceRequest.request_date <= end_date
+            )
+        ).all()
+    elif user.role == 'OWNER':
         vendors = Vendor.query.all()
         requests = MaintenanceRequest.query.filter(
             and_(
                 MaintenanceRequest.property_id.in_(
-                    Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
+                    Property.query.join(
+                        RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                    ).filter(
+                        RentalOwnerManager.user_id == user.id
+                    ).with_entities(Property.id)
                 ),
                 MaintenanceRequest.request_date >= start_date,
                 MaintenanceRequest.request_date <= end_date
