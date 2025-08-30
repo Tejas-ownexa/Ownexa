@@ -3,6 +3,7 @@ from models.maintenance import MaintenanceRequest
 from models.property import Property
 from models.tenant import Tenant
 from models.vendor import Vendor
+from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
 from routes.auth_routes import token_required
 from datetime import datetime
@@ -69,13 +70,22 @@ def get_maintenance_requests(current_user):
         
         if current_user.role in ['OWNER', 'AGENT']:
             # Property owners see all requests for their properties
-            requests = MaintenanceRequest.query.join(Property).filter(
-                Property.owner_id == current_user.id
-            ).options(
-                joinedload(MaintenanceRequest.property),
-                joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property),
-                joinedload(MaintenanceRequest.assigned_vendor)
-            ).all()
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                requests = MaintenanceRequest.query.options(
+                    joinedload(MaintenanceRequest.property),
+                    joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property),
+                    joinedload(MaintenanceRequest.assigned_vendor)
+                ).all()
+            else:
+                requests = MaintenanceRequest.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).options(
+                    joinedload(MaintenanceRequest.property),
+                    joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property),
+                    joinedload(MaintenanceRequest.assigned_vendor)
+                ).all()
         elif current_user.role == 'VENDOR':
             # Vendors see their assigned requests AND pending requests matching their vendor types
             vendors = Vendor.query.filter_by(user_id=current_user.id).all()
