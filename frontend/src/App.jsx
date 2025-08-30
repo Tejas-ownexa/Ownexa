@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import ChatWidget from './components/ChatWidget';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -47,90 +48,92 @@ const RootRedirect = () => {
 
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Sidebar />
-            {/* Main content area - responsive padding */}
-            <div className="md:ml-64 transition-all duration-300">
-              <main className="p-4 md:p-8">
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/dashboard" element={
-                    <PrivateRoute>
-                      <DashboardRouter />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/properties" element={
-                    <PrivateRoute>
-                      <Properties />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/properties/:id" element={
-                    <PrivateRoute>
-                      <PropertyDetail />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/add-property" element={
-                    <PrivateRoute>
-                      <AddProperty />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/tenants" element={
-                    <PrivateRoute>
-                      <Tenants />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/rentals" element={
-                    <PrivateRoute>
-                      <Rentals />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/maintenance" element={
-                    <PrivateRoute>
-                      <MaintenanceDashboard />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/maintenance/new" element={
-                    <PrivateRoute>
-                      <MaintenanceRequest />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/vendor-profile" element={
-                    <PrivateRoute>
-                      <VendorProfile />
-                    </PrivateRoute>
-                  } />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router>
+            <div className="min-h-screen bg-gray-50">
+              <Sidebar />
+              {/* Main content area - responsive padding */}
+              <div className="md:ml-64 transition-all duration-300">
+                <main className="p-4 md:p-8">
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/dashboard" element={
+                      <PrivateRoute>
+                        <DashboardRouter />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/properties" element={
+                      <PrivateRoute>
+                        <Properties />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/properties/:id" element={
+                      <PrivateRoute>
+                        <PropertyDetail />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/add-property" element={
+                      <PrivateRoute>
+                        <AddProperty />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/tenants" element={
+                      <PrivateRoute>
+                        <Tenants />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/rentals" element={
+                      <PrivateRoute>
+                        <Rentals />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance" element={
+                      <PrivateRoute>
+                        <MaintenanceDashboard />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/new" element={
+                      <PrivateRoute>
+                        <MaintenanceRequest />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/vendor-profile" element={
+                      <PrivateRoute>
+                        <VendorProfile />
+                      </PrivateRoute>
+                    } />
 
-                  <Route path="/accountability" element={
-                    <PrivateRoute>
-                      <Accountability />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/reports" element={
-                    <PrivateRoute>
-                      <Reporting />
-                    </PrivateRoute>
-                  } />
-                  <Route path="/" element={
-                    <PrivateRoute>
-                      <RootRedirect />
-                    </PrivateRoute>
-                  } />
-                </Routes>
-              </main>
+                    <Route path="/accountability" element={
+                      <PrivateRoute>
+                        <Accountability />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/reports" element={
+                      <PrivateRoute>
+                        <Reporting />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/" element={
+                      <PrivateRoute>
+                        <RootRedirect />
+                      </PrivateRoute>
+                    } />
+                  </Routes>
+                </main>
+              </div>
+              
+              {/* Floating Chat Widget - Available on all authenticated pages */}
+              <ChatWidget />
+              
+              <Toaster position="top-right" />
             </div>
-            
-            {/* Floating Chat Widget - Available on all authenticated pages */}
-            <ChatWidget />
-            
-            <Toaster position="top-right" />
-          </div>
-        </Router>
-      </AuthProvider>
-    </QueryClientProvider>
+          </Router>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

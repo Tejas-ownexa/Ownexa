@@ -161,8 +161,12 @@ const PropertyCard = ({ property, isFavorite = false }) => {
             alt={property.title}
             className="w-full h-full object-cover"
             onError={(e) => {
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
+              if (e.target && e.target.style) {
+                e.target.style.display = 'none';
+              }
+              if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
+                e.target.nextSibling.style.display = 'flex';
+              }
             }}
           />
         ) : null}

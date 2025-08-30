@@ -96,7 +96,9 @@ const Tenants = () => {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
       link.setAttribute('download', `tenants_export_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
+      if (link && link.style) {
+        link.style.visibility = 'hidden';
+      }
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
