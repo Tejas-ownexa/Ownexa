@@ -496,33 +496,61 @@ const RentalOwners = () => {
                              <form onSubmit={handleAddOwner}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
-                                         <input
-                       type="text"
-                       required
-                       value={newOwnerData.full_name}
-                       onChange={(e) => setNewOwnerData({...newOwnerData, full_name: e.target.value})}
-                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     />
+                    <label className="block text-sm font-medium text-gray-700">Company Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newOwnerData.company_name}
+                      onChange={(e) => setNewOwnerData({...newOwnerData, company_name: e.target.value})}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                                         <input
-                       type="email"
-                       required
-                       value={newOwnerData.email}
-                       onChange={(e) => setNewOwnerData({...newOwnerData, email: e.target.value})}
-                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     />
+                    <label className="block text-sm font-medium text-gray-700">Business Type</label>
+                    <input
+                      type="text"
+                      value={newOwnerData.business_type}
+                      onChange={(e) => setNewOwnerData({...newOwnerData, business_type: e.target.value})}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                         <input
-                       type="tel"
-                       value={newOwnerData.phone_number}
-                       onChange={(e) => setNewOwnerData({...newOwnerData, phone_number: e.target.value})}
-                       className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     />
+                    <label className="block text-sm font-medium text-gray-700">Contact Email</label>
+                    <input
+                      type="email"
+                      value={newOwnerData.contact_email}
+                      onChange={(e) => setNewOwnerData({...newOwnerData, contact_email: e.target.value})}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Contact Phone</label>
+                    <input
+                      type="tel"
+                      value={newOwnerData.contact_phone}
+                      onChange={(e) => setNewOwnerData({...newOwnerData, contact_phone: e.target.value})}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">City</label>
+                      <input
+                        type="text"
+                        value={newOwnerData.city}
+                        onChange={(e) => setNewOwnerData({...newOwnerData, city: e.target.value})}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">State</label>
+                      <input
+                        type="text"
+                        value={newOwnerData.state}
+                        onChange={(e) => setNewOwnerData({...newOwnerData, state: e.target.value})}
+                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="flex justify-end space-x-3 mt-6">
