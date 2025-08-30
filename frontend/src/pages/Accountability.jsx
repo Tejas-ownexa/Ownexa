@@ -65,7 +65,7 @@ const Accountability = () => {
       
       // Fetch user's properties
       try {
-        const propertiesResponse = await axios.get(`/api/properties?owner_id=${user.id}`);
+        const propertiesResponse = await axios.get('/api/properties');
         console.log('Properties response:', propertiesResponse.data);
         totalProperties = propertiesResponse.data.length;
       } catch (error) {

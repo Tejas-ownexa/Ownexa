@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from models.accountability import AccountabilityFinancial, GeneralLedger, Banking, BankingTransaction
 from models.property import Property
 from models.financial import PropertyFinancial, FinancialTransaction
+from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
 from routes.auth_routes import token_required
 from datetime import datetime, date
@@ -19,8 +20,15 @@ accountability_bp = Blueprint('accountability', __name__)
 def get_financials_dashboard(current_user):
     """Get dashboard analytics for Financials page"""
     try:
-        # Get user's properties
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get user's properties using RentalOwnerManager relationship
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         property_ids = [p.id for p in properties]
         
         if not property_ids:
@@ -143,8 +151,15 @@ def get_financials_dashboard(current_user):
 def get_general_ledger_dashboard(current_user):
     """Get dashboard analytics for General Ledger page"""
     try:
-        # Get user's properties
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get user's properties using RentalOwnerManager relationship
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         property_ids = [p.id for p in properties]
         
         if not property_ids:
@@ -308,8 +323,15 @@ def get_general_ledger_dashboard(current_user):
 def get_banking_dashboard(current_user):
     """Get dashboard analytics for Banking page"""
     try:
-        # Get user's properties
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get user's properties using RentalOwnerManager relationship
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         property_ids = [p.id for p in properties]
         
         if not property_ids:
@@ -476,7 +498,13 @@ def create_accountability_financial(current_user):
         if not property:
             return jsonify({'error': 'Property not found'}), 404
         
-        if property.owner_id != current_user.id:
+        # Check if user can manage the rental owner that owns this property
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
             return jsonify({'error': 'Access denied'}), 403
         
         # Parse dates
@@ -547,8 +575,15 @@ def create_accountability_financial(current_user):
 def get_accountability_financials(current_user):
     """Get all accountability financial records for user's properties"""
     try:
-        # Get user's properties
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get user's properties using RentalOwnerManager relationship
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         property_ids = [p.id for p in properties]
         
         # Get query parameters
@@ -622,7 +657,13 @@ def create_general_ledger_entry(current_user):
         if not property:
             return jsonify({'error': 'Property not found'}), 404
         
-        if property.owner_id != current_user.id:
+        # Check if user can manage the rental owner that owns this property
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
             return jsonify({'error': 'Access denied'}), 403
         
         # Parse date
@@ -650,7 +691,7 @@ def create_general_ledger_entry(current_user):
             reference_number=data.get('reference_number', ''),
             description=data['description'],
             notes=data.get('notes', ''),
-            posted_by=f"{current_user.first_name} {current_user.last_name}"
+            posted_by=current_user.full_name
         )
         
         db.session.add(ledger_entry)
@@ -675,8 +716,15 @@ def create_general_ledger_entry(current_user):
 def get_general_ledger_entries(current_user):
     """Get all general ledger entries for user's properties"""
     try:
-        # Get user's properties
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get user's properties using RentalOwnerManager relationship
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         property_ids = [p.id for p in properties]
         
         # Get query parameters
@@ -744,7 +792,13 @@ def create_banking_account(current_user):
         if not property:
             return jsonify({'error': 'Property not found'}), 404
         
-        if property.owner_id != current_user.id:
+        # Check if user can manage the rental owner that owns this property
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
             return jsonify({'error': 'Access denied'}), 403
         
         # Create new banking account
@@ -786,8 +840,15 @@ def create_banking_account(current_user):
 def get_banking_accounts(current_user):
     """Get all banking accounts for user's properties"""
     try:
-        # Get user's properties
-        properties = Property.query.filter_by(owner_id=current_user.id).all()
+        # Get user's properties using RentalOwnerManager relationship
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.join(
+                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+            ).filter(
+                RentalOwnerManager.user_id == current_user.id
+            ).all()
         property_ids = [p.id for p in properties]
         
         # Get query parameters
@@ -846,7 +907,13 @@ def create_banking_transaction(current_user, account_id):
         if not banking_account:
             return jsonify({'error': 'Banking account not found'}), 404
         
-        if banking_account.property.owner_id != current_user.id:
+        # Check if user can manage the rental owner that owns this property
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=banking_account.property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
             return jsonify({'error': 'Access denied'}), 403
         
         # Parse dates
@@ -905,7 +972,13 @@ def get_banking_transactions(current_user, account_id):
         if not banking_account:
             return jsonify({'error': 'Banking account not found'}), 404
         
-        if banking_account.property.owner_id != current_user.id:
+        # Check if user can manage the rental owner that owns this property
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=banking_account.property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
             return jsonify({'error': 'Access denied'}), 403
         
         transactions = BankingTransaction.query.filter_by(

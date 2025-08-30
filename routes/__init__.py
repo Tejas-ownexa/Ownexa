@@ -15,6 +15,8 @@ from routes.reporting_routes import reporting_bp
 from routes.accountability_routes import accountability_bp
 from routes.pipeline_routes import pipeline_bp
 
+from routes.rental_owner_routes import rental_owner_bp
+
 def init_routes(app):
     print("Initializing routes...")
     
@@ -94,9 +96,17 @@ def init_routes(app):
     app.register_blueprint(accountability_bp, url_prefix='/api/accountability')
     print("Accountability routes registered")
     
+<<<<<<< HEAD
     # Pipeline routes
     app.register_blueprint(pipeline_bp, url_prefix='/api/pipeline')
     print("Pipeline routes registered")
+=======
+
+    
+    # Rental owner routes
+    app.register_blueprint(rental_owner_bp, url_prefix='/api/rental-owners')
+    print("Rental owner routes registered")
+>>>>>>> 6ccdc1252130b141e128394ebe283bf9a2d6f04f
     
     print("All routes registered successfully")
     

@@ -42,3 +42,5 @@ from models.association import Association, AssociationMembership, AssociationBa
 from models.financial import PropertyFinancial, LoanPayment, FinancialTransaction
 from models.vendor import Vendor
 from models.accountability import AccountabilityFinancial, GeneralLedger, Banking, BankingTransaction
+from models.lease import LeaseRoll, RentalOwnerProfile, LeaseAgreement, LeasePayment
+from models.rental_owner import RentalOwner, RentalOwnerManager

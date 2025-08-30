@@ -177,7 +177,7 @@ def get_vendors(current_user):
             'is_verified': vendor.is_verified,
             'user': {
                 'id': vendor.user.id,
-                'full_name': f"{vendor.user.first_name} {vendor.user.last_name}",
+                'full_name': vendor.user.full_name,
                 'username': vendor.user.username
             } if vendor.user else None
         } for vendor in vendors]), 200
@@ -217,7 +217,7 @@ def get_vendor_assignments(current_user, vendor_id):
             } if assignment.property else None,
             'tenant': {
                 'id': assignment.tenant.id,
-                'full_name': f"{assignment.tenant.first_name} {assignment.tenant.last_name}",
+                'full_name': assignment.tenant.full_name,
                 'phone_number': assignment.tenant.phone_number
             } if assignment.tenant else None
         } for assignment in assignments]), 200
