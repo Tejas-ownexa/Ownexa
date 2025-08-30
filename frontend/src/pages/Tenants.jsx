@@ -93,19 +93,19 @@ const Tenants = () => {
   const handleExport = () => {
     try {
       // Create CSV content
-      const headers = ['First Name', 'Last Name', 'Email', 'Phone', 'Property', 'Status'];
+      const headers = ['Full Name', 'Email', 'Phone', 'Property', 'Lease Start', 'Lease End', 'Rent Amount', 'Payment Status'];
       const csvContent = [
         headers.join(','),
         ...filteredTenants.map(tenant => {
-          const [firstName, ...lastNameParts] = (tenant.name || '').split(' ');
-          const lastName = lastNameParts.join(' ');
           return [
-            `"${firstName || 'N/A'}"`,
-            `"${lastName || 'N/A'}"`,
+            `"${tenant.name || 'N/A'}"`,
             `"${tenant.email || 'N/A'}"`,
             `"${tenant.phone || 'N/A'}"`,
             `"${tenant.property?.name || 'N/A'}"`,
-            `"${tenant.status || 'N/A'}"`
+            `"${tenant.lease_start || 'N/A'}"`,
+            `"${tenant.lease_end || 'N/A'}"`,
+            `"${tenant.rent_amount || 'N/A'}"`,
+            `"${tenant.payment_status || 'N/A'}"`
           ].join(',');
         })
       ].join('\n');
@@ -211,28 +211,28 @@ const Tenants = () => {
                // Download CSV template with available properties
                const availableProperties = userProperties.filter(p => p.status === 'available');
                let csvTemplate = [
-                 ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'STATUS', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT']
+                 ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT', 'PAYMENT_STATUS']
                ];
                
                // Add sample rows with available property IDs
                if (availableProperties.length > 0) {
                  csvTemplate.push([
                    'John Doe', 'john.doe@email.com', '+1-555-0123', 
-                   availableProperties[0].id.toString(), 'active', '2024-01-01', '2024-12-31', 
-                   availableProperties[0].rent_amount?.toString() || '2500.00'
+                   availableProperties[0].id.toString(), '2024-01-01', '2024-12-31', 
+                   availableProperties[0].rent_amount?.toString() || '2500.00', 'active'
                  ]);
                  
                  if (availableProperties.length > 1) {
                    csvTemplate.push([
                      'Jane Smith', 'jane.smith@email.com', '+1-555-0124', 
-                     availableProperties[1].id.toString(), 'active', '2024-02-01', '2025-01-31', 
-                     availableProperties[1].rent_amount?.toString() || '2800.00'
+                     availableProperties[1].id.toString(), '2024-02-01', '2025-01-31', 
+                     availableProperties[1].rent_amount?.toString() || '2800.00', 'active'
                    ]);
                  }
                } else {
                  // If no available properties, show generic template
                  csvTemplate.push([
-                   'John Doe', 'john.doe@email.com', '+1-555-0123', '1', 'active', '2024-01-01', '2024-12-31', '2500.00'
+                   'John Doe', 'john.doe@email.com', '+1-555-0123', '1', '2024-01-01', '2024-12-31', '2500.00', 'active'
                  ]);
                }
                
@@ -325,29 +325,32 @@ const Tenants = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  FIRST NAME
-                </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort('last_name')}
+                  onClick={() => handleSort('full_name')}
                 >
                   <div className="flex items-center space-x-1">
-                    <span>LAST NAME</span>
-                    {getSortIcon('last_name')}
+                    <span>FULL NAME</span>
+                    {getSortIcon('full_name')}
                   </div>
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  UNIT NUMBER
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  PHONE
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   EMAIL
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  RESIDENT CENTER STATUS
+                  PHONE
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PROPERTY
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  LEASE PERIOD
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  RENT AMOUNT
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PAYMENT STATUS
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ACTIONS
@@ -357,31 +360,34 @@ const Tenants = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {isLoading ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center">
+                  <td colSpan="8" className="px-6 py-12 text-center">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <p className="mt-2 text-gray-600">Loading tenants...</p>
                   </td>
                 </tr>
               ) : filteredTenants.length > 0 ? (
                                  filteredTenants.map((tenant) => {
-                   const [firstName, ...lastNameParts] = (tenant.name || '').split(' ');
-                   const lastName = lastNameParts.join(' ');
-                   
                    return (
                      <tr key={tenant.id} className="hover:bg-gray-50">
                        <td className="px-6 py-4 whitespace-nowrap">
                          <div>
                            <Link to={`/tenants/${tenant.id}`} className="text-blue-600 hover:text-blue-800 font-medium">
-                             {firstName || 'N/A'}
+                             {tenant.name || 'N/A'}
                            </Link>
                            <div className="text-xs text-gray-500">TENANT</div>
                          </div>
                        </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                         {lastName || 'N/A'}
-                       </td>
-                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                         {tenant.property ? `${tenant.property.name || 'N/A'} - ${tenant.property.name || 'N/A'}` : 'N/A'}
+                       <td className="px-6 py-4 whitespace-nowrap">
+                         {tenant.email ? (
+                           <div className="flex items-center space-x-2">
+                             <Mail className="h-4 w-4 text-gray-400" />
+                             <Link to={`mailto:${tenant.email}`} className="text-sm text-blue-600 hover:text-blue-800">
+                               {tenant.email}
+                             </Link>
+                           </div>
+                         ) : (
+                           <span className="text-gray-400">--</span>
+                         )}
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap">
                          {tenant.phone ? (
@@ -398,22 +404,30 @@ const Tenants = () => {
                            <span className="text-gray-400">--</span>
                          )}
                        </td>
-                       <td className="px-6 py-4 whitespace-nowrap">
-                         {tenant.email ? (
-                           <div className="flex items-center space-x-2">
-                             <Mail className="h-4 w-4 text-gray-400" />
-                             <Link to={`mailto:${tenant.email}`} className="text-sm text-blue-600 hover:text-blue-800">
-                               {tenant.email}
-                             </Link>
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                         {tenant.property ? tenant.property.name || 'N/A' : 'N/A'}
+                       </td>
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                         {tenant.lease_start && tenant.lease_end ? (
+                           <div>
+                             <div className="text-sm">{new Date(tenant.lease_start).toLocaleDateString()}</div>
+                             <div className="text-xs text-gray-500">to {new Date(tenant.lease_end).toLocaleDateString()}</div>
                            </div>
                          ) : (
                            <span className="text-gray-400">--</span>
                          )}
                        </td>
+                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                         {tenant.rent_amount ? `$${parseFloat(tenant.rent_amount).toLocaleString()}` : 'N/A'}
+                       </td>
                        <td className="px-6 py-4 whitespace-nowrap">
-                         <div className="flex items-center justify-between">
-                           <span className="text-sm text-gray-900">Not invited</span>
-                         </div>
+                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                           tenant.payment_status === 'active' ? 'bg-green-100 text-green-800' :
+                           tenant.payment_status === 'past_due' ? 'bg-red-100 text-red-800' :
+                           'bg-gray-100 text-gray-800'
+                         }`}>
+                           {tenant.payment_status || 'N/A'}
+                         </span>
                        </td>
                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                          <div className="flex items-center space-x-2">
@@ -434,7 +448,7 @@ const Tenants = () => {
                  })
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center">
+                  <td colSpan="8" className="px-6 py-12 text-center">
                     <p className="text-gray-600">No tenants found. Add your first tenant to get started!</p>
                   </td>
                 </tr>

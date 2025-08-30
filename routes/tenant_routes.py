@@ -402,10 +402,10 @@ def import_tenants(current_user):
                 email = row.get('EMAIL', '').strip() if row.get('EMAIL') else ''
                 phone = row.get('PHONE', '').strip() if row.get('PHONE') else ''
                 property_id = row.get('PROPERTY_ID', '').strip() if row.get('PROPERTY_ID') else ''
-                status = row.get('STATUS', 'active').strip() if row.get('STATUS') else 'active'
                 lease_start = row.get('LEASE_START_DATE', '').strip() if row.get('LEASE_START_DATE') else ''
                 lease_end = row.get('LEASE_END_DATE', '').strip() if row.get('LEASE_END_DATE') else ''
                 rent_amount = row.get('RENT_AMOUNT', '0').strip() if row.get('RENT_AMOUNT') else '0'
+                payment_status = row.get('PAYMENT_STATUS', 'active').strip() if row.get('PAYMENT_STATUS') else 'active'
                 
                 # Validate required fields
                 if not full_name:
@@ -450,7 +450,7 @@ def import_tenants(current_user):
                     lease_start=datetime.strptime(lease_start, '%Y-%m-%d').date() if lease_start else None,
                     lease_end=datetime.strptime(lease_end, '%Y-%m-%d').date() if lease_end else None,
                     rent_amount=rent_amount_float,
-                    payment_status=status
+                    payment_status=payment_status
                 )
                 
                 # Update property status to occupied
