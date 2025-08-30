@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { useSearchParams } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,6 +22,7 @@ const Rentals = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('rentroll');
+  const queryClient = useQueryClient();
 
   // Add CSS for toggle switch
   React.useEffect(() => {
@@ -537,8 +538,8 @@ const Rentals = () => {
                       
                       if (response.data.success) {
                         toast.success(`Successfully imported ${response.data.imported_count} properties!`);
-                        // Refresh the properties list
-                        window.location.reload();
+                        // Refresh the properties list using React Query
+                        queryClient.invalidateQueries(['properties']);
                       } else {
                         toast.error('Import failed: ' + response.data.error);
                       }
