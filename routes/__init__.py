@@ -13,7 +13,7 @@ from routes.admin_bot_routes import admin_bot_bp
 from routes.rental_routes import rental_bp
 from routes.reporting_routes import reporting_bp
 from routes.accountability_routes import accountability_bp
-from routes.user_routes import user_bp
+
 from routes.rental_owner_routes import rental_owner_bp
 
 def init_routes(app):
@@ -92,9 +92,7 @@ def init_routes(app):
     app.register_blueprint(accountability_bp, url_prefix='/api/accountability')
     print("Accountability routes registered")
     
-    # User routes
-    app.register_blueprint(user_bp, url_prefix='/api/users')
-    print("User routes registered")
+
     
     # Rental owner routes
     app.register_blueprint(rental_owner_bp, url_prefix='/api/rental-owners')

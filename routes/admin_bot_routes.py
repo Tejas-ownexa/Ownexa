@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify, send_file
 from routes.auth_routes import token_required
 from datetime import datetime, date
 from sqlalchemy.orm import joinedload
+from models.rental_owner import RentalOwner, RentalOwnerManager
 import json
 import requests
 import re
@@ -464,8 +465,10 @@ def get_data_for_intent(intent, current_user):
             if current_user.role == 'ADMIN' or current_user.username == 'admin':
                 tenants = Tenant.query.join(Property).options(joinedload(Tenant.property)).all()
             else:
-                tenants = Tenant.query.join(Property).filter(
-                    Property.owner_id == current_user.id
+                tenants = Tenant.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
                 ).options(joinedload(Tenant.property)).all()
             
             tenant_data = []
@@ -498,11 +501,16 @@ def get_data_for_intent(intent, current_user):
         elif intent == 'property_list':
             from models.property import Property
             
-            # Admin users can see all properties, regular users see only their own
+            # Admin users can see all properties, regular users see only properties they manage
             if current_user.role == 'ADMIN' or current_user.username == 'admin':
                 properties = Property.query.all()
             else:
-                properties = Property.query.filter_by(owner_id=current_user.id).all()
+                # Get properties from rental owners that the current user manages
+                properties = Property.query.join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).all()
             
             property_data = []
             for prop in properties:
@@ -528,8 +536,10 @@ def get_data_for_intent(intent, current_user):
             if current_user.role == 'ADMIN' or current_user.username == 'admin':
                 maintenance_requests = MaintenanceRequest.query.join(Property).order_by(MaintenanceRequest.request_date.desc()).all()
             else:
-                maintenance_requests = MaintenanceRequest.query.join(Property).filter(
-                    Property.owner_id == current_user.id
+                maintenance_requests = MaintenanceRequest.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
                 ).order_by(MaintenanceRequest.request_date.desc()).all()
             
             request_data = []
@@ -558,10 +568,16 @@ def get_data_for_intent(intent, current_user):
                 tenants = Tenant.query.join(Property).options(joinedload(Tenant.property)).all()
                 properties = Property.query.all()
             else:
-                tenants = Tenant.query.join(Property).filter(
-                    Property.owner_id == current_user.id
+                tenants = Tenant.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
                 ).options(joinedload(Tenant.property)).all()
-                properties = Property.query.filter_by(owner_id=current_user.id).all()
+                properties = Property.query.join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).all()
             
             total_rent = sum(float(t.rent_amount) if t.rent_amount else 0 for t in tenants)
             active_tenants = len([t for t in tenants if t.lease_end and t.lease_end > date.today()])
@@ -588,12 +604,20 @@ def get_data_for_intent(intent, current_user):
                 properties = Property.query.all()
                 maintenance_requests = MaintenanceRequest.query.join(Property).order_by(MaintenanceRequest.request_date.desc()).all()
             else:
-                tenants = Tenant.query.join(Property).filter(
-                    Property.owner_id == current_user.id
+                tenants = Tenant.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
                 ).options(joinedload(Tenant.property)).all()
-                properties = Property.query.filter_by(owner_id=current_user.id).all()
-                maintenance_requests = MaintenanceRequest.query.join(Property).filter(
-                    Property.owner_id == current_user.id
+                properties = Property.query.join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).all()
+                maintenance_requests = MaintenanceRequest.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
                 ).order_by(MaintenanceRequest.request_date.desc()).all()
             
             # Calculate financial data
@@ -667,9 +691,27 @@ def get_data_for_intent(intent, current_user):
             from models.property import Property
             from models.maintenance import MaintenanceRequest
             
-            tenants = Tenant.query.join(Property).filter(Property.owner_id == current_user.id).all()
-            properties = Property.query.filter_by(owner_id=current_user.id).all()
-            maintenance = MaintenanceRequest.query.join(Property).filter(Property.owner_id == current_user.id).all()
+            # For general help, use rental owner system for regular users
+            if current_user.role == 'ADMIN' or current_user.username == 'admin':
+                tenants = Tenant.query.join(Property).all()
+                properties = Property.query.all()
+                maintenance = MaintenanceRequest.query.join(Property).all()
+            else:
+                tenants = Tenant.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).all()
+                properties = Property.query.join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).all()
+                maintenance = MaintenanceRequest.query.join(Property).join(
+                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
+                ).filter(
+                    RentalOwnerManager.user_id == current_user.id
+                ).all()
             
             return {
                 "summary": {
