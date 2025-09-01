@@ -16,6 +16,7 @@ app.url_map.strict_slashes = False
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
+
 # Initialize routes
 init_routes(app)
 
