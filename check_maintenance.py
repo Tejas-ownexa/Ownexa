@@ -21,6 +21,7 @@ with app.app_context():
         else:
             print("Property not found")
             
+            
         # Get tenant details
         tenant = Tenant.query.get(request.tenant_id)
         if tenant:
