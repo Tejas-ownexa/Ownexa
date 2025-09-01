@@ -433,6 +433,152 @@ CREATE TABLE lease_renewals (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 26. PROPERTY UNIT DETAILS TABLE (for Listed Units - detailed property information)
+CREATE TABLE property_unit_details (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    unit_number VARCHAR(50), -- Unit identifier (if applicable)
+    bedrooms INTEGER NOT NULL DEFAULT 0,
+    bathrooms NUMERIC(3,1) NOT NULL DEFAULT 0.0, -- Allows for 1.5, 2.5, etc.
+    square_feet INTEGER, -- Property size in square feet
+    unit_type VARCHAR(50) DEFAULT 'Apartment', -- Apartment, House, Condo, etc.
+    floor_number INTEGER, -- Floor number (for multi-story buildings)
+    amenities TEXT, -- JSON or comma-separated list of amenities
+    parking_spaces INTEGER DEFAULT 0,
+    storage_unit BOOLEAN DEFAULT FALSE,
+    balcony_patio BOOLEAN DEFAULT FALSE,
+    furnished BOOLEAN DEFAULT FALSE,
+    pet_friendly BOOLEAN DEFAULT FALSE,
+    laundry_type VARCHAR(50), -- In-unit, Shared, None
+    hvac_type VARCHAR(50), -- Central, Window, None
+    flooring_type VARCHAR(100), -- Hardwood, Carpet, Tile, etc.
+    appliances_included TEXT, -- List of included appliances
+    utilities_included TEXT, -- List of utilities included in rent
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 27. PROPERTY LISTING STATUS TABLE (for tracking listed vs unlisted status)
+CREATE TABLE property_listing_status (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    is_listed BOOLEAN NOT NULL DEFAULT FALSE,
+    listing_date DATE, -- Date when property was listed
+    listing_rent NUMERIC(10, 2), -- Listed rent amount (may differ from actual rent)
+    listing_status VARCHAR(50) DEFAULT 'Draft', -- Draft, Active, Paused, Expired
+    availability_date DATE, -- When the property becomes available
+    listing_description TEXT, -- Marketing description for listing
+    listing_photos TEXT, -- JSON array of photo URLs
+    marketing_channels TEXT, -- Where the property is listed (websites, etc.)
+    listing_agent_id INTEGER REFERENCES "user"(id), -- Who manages the listing
+    
+    -- Lease transition information (for unlisted units)
+    current_lease_end DATE, -- When current lease ends
+    next_lease_start DATE, -- When next lease starts (if scheduled)
+    lease_transition_status VARCHAR(50), -- Active, Ending Soon, Vacant, Maintenance
+    current_tenant_names TEXT, -- Names of current tenants
+    lease_renewal_option BOOLEAN DEFAULT TRUE, -- Whether renewal is possible
+    rent_increase_amount NUMERIC(10, 2) DEFAULT 0.00, -- Planned rent increase
+    
+    -- Marketing metrics
+    listing_views INTEGER DEFAULT 0,
+    inquiries_count INTEGER DEFAULT 0,
+    applications_count INTEGER DEFAULT 0,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Ensure one status record per property
+    UNIQUE(property_id)
+);
+
+-- 28. LEASING APPLICANTS TABLE (for tracking applicants to listed properties)
+CREATE TABLE leasing_applicants (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    listing_status_id INTEGER REFERENCES property_listing_status(id) ON DELETE CASCADE,
+    
+    -- Applicant information
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(120) NOT NULL,
+    phone_number VARCHAR(20),
+    
+    -- Application details
+    application_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    move_in_date DATE,
+    desired_lease_term INTEGER, -- Months
+    monthly_income NUMERIC(10, 2),
+    employment_status VARCHAR(50),
+    employer_name VARCHAR(100),
+    
+    -- Application status
+    application_status VARCHAR(50) NOT NULL DEFAULT 'Submitted', -- Submitted, Under Review, Approved, Rejected, Withdrawn
+    background_check_status VARCHAR(50) DEFAULT 'Pending', -- Pending, Completed, Failed
+    credit_score INTEGER,
+    references_checked BOOLEAN DEFAULT FALSE,
+    
+    -- Decision information
+    approved_by INTEGER REFERENCES "user"(id), -- Who approved/rejected
+    approval_date DATE,
+    rejection_reason TEXT,
+    notes TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 29. LEASE DRAFTS TABLE (for Draft Lease functionality)
+CREATE TABLE lease_drafts (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    applicant_id INTEGER REFERENCES leasing_applicants(id) ON DELETE SET NULL,
+    created_by INTEGER NOT NULL REFERENCES "user"(id),
+    
+    -- Draft lease details
+    draft_name VARCHAR(255) NOT NULL,
+    lease_type VARCHAR(50) NOT NULL DEFAULT 'Fixed Term', -- Fixed Term, Month-to-Month, etc.
+    lease_start_date DATE,
+    lease_end_date DATE,
+    lease_term_months INTEGER,
+    
+    -- Financial terms
+    monthly_rent NUMERIC(10, 2) NOT NULL,
+    security_deposit NUMERIC(10, 2) DEFAULT 0.00,
+    first_month_rent NUMERIC(10, 2),
+    last_month_rent NUMERIC(10, 2) DEFAULT 0.00,
+    pet_deposit NUMERIC(8, 2) DEFAULT 0.00,
+    application_fee NUMERIC(8, 2) DEFAULT 0.00,
+    
+    -- Lease terms
+    late_fee_amount NUMERIC(8, 2) DEFAULT 0.00,
+    late_fee_grace_days INTEGER DEFAULT 5,
+    utilities_tenant_pays TEXT, -- JSON or comma-separated list
+    utilities_landlord_pays TEXT,
+    parking_included BOOLEAN DEFAULT FALSE,
+    pet_policy TEXT,
+    subletting_allowed BOOLEAN DEFAULT FALSE,
+    smoking_allowed BOOLEAN DEFAULT FALSE,
+    
+    -- Custom terms and conditions
+    special_terms TEXT,
+    custom_clauses TEXT,
+    
+    -- Draft status
+    draft_status VARCHAR(50) NOT NULL DEFAULT 'Draft', -- Draft, Ready for Review, Sent to Tenant, Signed
+    version_number INTEGER DEFAULT 1,
+    is_template BOOLEAN DEFAULT FALSE, -- Can be saved as template for future use
+    
+    -- Approval workflow
+    reviewed_by INTEGER REFERENCES "user"(id),
+    review_date DATE,
+    review_notes TEXT,
+    approved_for_sending BOOLEAN DEFAULT FALSE,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better performance
 
 CREATE INDEX idx_tenants_property_id ON tenants(property_id);
@@ -462,6 +608,17 @@ CREATE INDEX idx_lease_agreements_owner_id ON lease_agreements(owner_id);
 CREATE INDEX idx_lease_payments_lease_agreement_id ON lease_payments(lease_agreement_id);
 CREATE INDEX idx_lease_renewals_original_lease_id ON lease_renewals(original_lease_id);
 CREATE INDEX idx_lease_renewals_new_lease_id ON lease_renewals(new_lease_id);
+CREATE INDEX idx_property_unit_details_property_id ON property_unit_details(property_id);
+CREATE INDEX idx_property_listing_status_property_id ON property_listing_status(property_id);
+CREATE INDEX idx_property_listing_status_is_listed ON property_listing_status(is_listed);
+CREATE INDEX idx_property_listing_status_listing_status ON property_listing_status(listing_status);
+CREATE INDEX idx_leasing_applicants_property_id ON leasing_applicants(property_id);
+CREATE INDEX idx_leasing_applicants_listing_status_id ON leasing_applicants(listing_status_id);
+CREATE INDEX idx_leasing_applicants_application_status ON leasing_applicants(application_status);
+CREATE INDEX idx_lease_drafts_property_id ON lease_drafts(property_id);
+CREATE INDEX idx_lease_drafts_applicant_id ON lease_drafts(applicant_id);
+CREATE INDEX idx_lease_drafts_created_by ON lease_drafts(created_by);
+CREATE INDEX idx_lease_drafts_draft_status ON lease_drafts(draft_status);
 
 -- Add comments to tables
 COMMENT ON TABLE "user" IS 'User accounts for property owners, tenants, and vendors';
@@ -481,6 +638,10 @@ COMMENT ON TABLE rental_owner_profiles IS 'Detailed profiles for rental owners';
 COMMENT ON TABLE lease_agreements IS 'Detailed lease agreements and terms';
 COMMENT ON TABLE lease_payments IS 'Payment tracking for lease agreements';
 COMMENT ON TABLE lease_renewals IS 'Lease renewal tracking and history';
+COMMENT ON TABLE property_unit_details IS 'Detailed property specifications including beds, baths, size, and amenities';
+COMMENT ON TABLE property_listing_status IS 'Property listing status, availability, and lease transition information';
+COMMENT ON TABLE leasing_applicants IS 'Applicants for listed properties with application status and background checks';
+COMMENT ON TABLE lease_drafts IS 'Draft lease agreements for properties with terms and approval workflow';
 
 -- Success message
 SELECT 'All tables created successfully!' as status;
