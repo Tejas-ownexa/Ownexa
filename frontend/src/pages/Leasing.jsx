@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { 
   Plus,
   ClipboardList,
@@ -110,6 +110,7 @@ const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) =
 const Leasing = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('listing');
 
   // Handle URL parameters to set initial tab
@@ -660,6 +661,8 @@ const ApplicantsTab = () => {
 
 // Draft Lease Tab Component
 const DraftLeaseTab = () => {
+  const navigate = useNavigate();
+  
   // Sample data for draft leases (replace with real data later)
   const draftLeases = [];
 
@@ -704,7 +707,10 @@ const DraftLeaseTab = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <h2 className="text-2xl font-semibold text-gray-900">Draft leases</h2>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+          <button 
+            onClick={() => navigate('/leasing/add-draft-lease')}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
+          >
             <Plus className="h-4 w-4" />
             <span>Add lease</span>
           </button>
