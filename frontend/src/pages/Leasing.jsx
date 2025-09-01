@@ -88,16 +88,18 @@ const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) =
             </div>
           )}
           {options.map((option) => (
-            <div
+            <label
               key={option.value}
-              onClick={() => handleOptionClick(option.value)}
-              className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center justify-between text-sm"
+              className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-2 text-sm"
             >
+              <input
+                type="checkbox"
+                checked={value.includes(option.value)}
+                onChange={() => handleOptionClick(option.value)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+              />
               <span>{option.label}</span>
-              {value.includes(option.value) && (
-                <Check className="h-4 w-4 text-blue-600" />
-              )}
-            </div>
+            </label>
           ))}
         </div>
       )}
@@ -422,76 +424,34 @@ const ApplicantsTab = () => {
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Status Filter */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-2">Status</label>
-                <div className="space-y-2 max-h-32 overflow-y-auto">
-                  {statusOptions.map((status) => (
-                    <label key={status.value} className="flex items-center space-x-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={statusFilter.includes(status.value)}
-                        onChange={() => {
-                          const newValue = statusFilter.includes(status.value)
-                            ? statusFilter.filter(v => v !== status.value)
-                            : [...statusFilter, status.value];
-                          setStatusFilter(newValue);
-                        }}
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
-                      />
-                      <span className="text-sm text-gray-700">{status.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
+              <MultiSelectDropdown
+                label="Status"
+                options={statusOptions}
+                value={statusFilter}
+                onChange={setStatusFilter}
+                placeholder="All Status"
+              />
 
               {/* Stage Filter (Individual only) */}
               {viewMode === 'individual' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Stage</label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {stageOptions.map((stage) => (
-                      <label key={stage.value} className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={stageFilter.includes(stage.value)}
-                          onChange={() => {
-                            const newValue = stageFilter.includes(stage.value)
-                              ? stageFilter.filter(v => v !== stage.value)
-                              : [...stageFilter, stage.value];
-                            setStageFilter(newValue);
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
-                        />
-                        <span className="text-sm text-gray-700">{stage.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                <MultiSelectDropdown
+                  label="Stage"
+                  options={stageOptions}
+                  value={stageFilter}
+                  onChange={setStageFilter}
+                  placeholder="All Stages"
+                />
               )}
 
               {/* Progress Filter (Group only) */}
               {viewMode === 'group' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-2">Progress</label>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {stageOptions.map((progress) => (
-                      <label key={progress.value} className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={stageFilter.includes(progress.value)}
-                          onChange={() => {
-                            const newValue = stageFilter.includes(progress.value)
-                              ? stageFilter.filter(v => v !== progress.value)
-                              : [...stageFilter, progress.value];
-                            setStageFilter(newValue);
-                          }}
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
-                        />
-                        <span className="text-sm text-gray-700">{progress.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                <MultiSelectDropdown
+                  label="Progress"
+                  options={stageOptions}
+                  value={stageFilter}
+                  onChange={setStageFilter}
+                  placeholder="All Progress"
+                />
               )}
 
               {/* Date Filter */}
