@@ -5,6 +5,7 @@
 -- Enable UUID extension if needed
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+
 -- 1. USER TABLE
 CREATE TABLE "user" (
     id SERIAL PRIMARY KEY,
