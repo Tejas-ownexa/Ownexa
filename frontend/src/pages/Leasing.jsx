@@ -660,15 +660,146 @@ const ApplicantsTab = () => {
 
 // Draft Lease Tab Component
 const DraftLeaseTab = () => {
+  // Sample data for draft leases (replace with real data later)
+  const draftLeases = [];
+
+  // Filter options
+  const rentalFilterOptions = [
+    { value: 'all-rentals', label: 'All rentals' },
+    { value: 'apartment-1', label: 'Apartment 1' },
+    { value: 'apartment-2', label: 'Apartment 2' },
+    { value: 'house-1', label: 'House 1' }
+  ];
+
+  const statusFilterOptions = [
+    { value: 'unknown', label: 'Unknown' },
+    { value: 'not-sent', label: 'Not sent' },
+    { value: 'processing', label: 'Processing' }
+  ];
+
+  const executionFilterOptions = [
+    { value: 'executed', label: 'Executed' },
+    { value: 'not-executed', label: 'Not executed' }
+  ];
+
   return (
-    <div className="text-center py-12">
-      <Edit className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Draft Lease Management</h3>
-      <p className="text-gray-600 mb-6">Create and manage draft lease agreements</p>
-      <button className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
-        <Edit className="h-4 w-4" />
-        <span>Create Draft</span>
-      </button>
+    <div className="space-y-6">
+      {/* Header with Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <h2 className="text-2xl font-semibold text-gray-900">Draft leases</h2>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+            <Plus className="h-4 w-4" />
+            <span>Add lease</span>
+          </button>
+          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2">
+            <FileText className="h-4 w-4" />
+            <span>eSignature Documents</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Filter Section */}
+      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+        <div className="flex-1">
+          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="all-rentals">All rentals</option>
+            {rentalFilterOptions.slice(1).map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1">
+          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="">(1) Unknown, Not sent, Proc...</option>
+            {statusFilterOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1">
+          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="">(2) Executed, Not executed</option>
+            {executionFilterOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1">
+          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
+            <option value="">Add filter option</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Results Count */}
+      <div className="text-sm text-gray-600">
+        0 matches
+      </div>
+
+      {/* Draft Leases Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  LEASE
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ESIGNATURE STATUS
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  LEASE STATUS
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  AGENT
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  START DATE
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  END DATE
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {draftLeases.length > 0 ? (
+                draftLeases.map((lease) => (
+                  <tr key={lease.id} className="hover:bg-gray-50">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {lease.name}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {lease.esignatureStatus}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {lease.leaseStatus}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {lease.agent}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {lease.startDate}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {lease.endDate}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                    <div className="space-y-2">
+                      <p>We didn't find any draft leases. Maybe you don't have any or maybe you need to <span className="text-blue-600 hover:text-blue-800 cursor-pointer">clear your filters</span>.</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
