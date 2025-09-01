@@ -170,13 +170,32 @@ const ApplicantsTab = () => {
   const applicants = []; // Sample data - replace with real data later
   const applicantGroups = []; // Sample group data - replace with real data later
 
-  // Filter states
+  // Filter states - using arrays for multi-select checkboxes
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [stageFilter, setStageFilter] = useState('all');
-  const [unitFilter, setUnitFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [stageFilter, setStageFilter] = useState([]);
+  const [unitFilter, setUnitFilter] = useState([]);
+  const [dateFilter, setDateFilter] = useState('all'); // Keep dropdown for date range
   const [showFilters, setShowFilters] = useState(false);
+
+  // Helper functions for checkbox handling
+  const handleCheckboxChange = (value, currentArray, setArray) => {
+    if (currentArray.includes(value)) {
+      setArray(currentArray.filter(item => item !== value));
+    } else {
+      setArray([...currentArray, value]);
+    }
+  };
+
+  // Get active filter count
+  const getActiveFilterCount = () => {
+    let count = 0;
+    if (statusFilter.length > 0) count++;
+    if (stageFilter.length > 0) count++;
+    if (unitFilter.length > 0) count++;
+    if (dateFilter !== 'all') count++;
+    return count;
+  };
 
   const burgerMenuItems = [
     { label: 'Print Rental Application', icon: Printer, action: () => console.log('Print rental application') },
@@ -294,9 +313,9 @@ const ApplicantsTab = () => {
             </button>
             
             {/* Active Filter Count */}
-            {(statusFilter !== 'all' || stageFilter !== 'all' || unitFilter !== 'all' || dateFilter !== 'all') && (
+            {getActiveFilterCount() > 0 && (
               <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                {[statusFilter, stageFilter, unitFilter, dateFilter].filter(f => f !== 'all').length} active
+                {getActiveFilterCount()} active
               </span>
             )}
           </div>
@@ -308,79 +327,104 @@ const ApplicantsTab = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Status Filter */}
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Status</option>
-                  <option value="submitted">Submitted</option>
-                  <option value="under-review">Under Review</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  {viewMode === 'group' && (
-                    <>
-                      <option value="active">Active</option>
-                      <option value="pending">Pending</option>
-                      <option value="inactive">Inactive</option>
-                    </>
-                  )}
-                </select>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Status</label>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {['submitted', 'under-review', 'approved', 'rejected'].map((status) => (
+                    <label key={status} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={statusFilter.includes(status)}
+                        onChange={() => handleCheckboxChange(status, statusFilter, setStatusFilter)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-700 capitalize">
+                        {status.replace('-', ' ')}
+                      </span>
+                    </label>
+                  ))}
+                  {viewMode === 'group' && ['active', 'pending', 'inactive'].map((status) => (
+                    <label key={status} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={statusFilter.includes(status)}
+                        onChange={() => handleCheckboxChange(status, statusFilter, setStatusFilter)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-700 capitalize">{status}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Stage Filter (Individual only) */}
               {viewMode === 'individual' && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Stage</label>
-                  <select
-                    value={stageFilter}
-                    onChange={(e) => setStageFilter(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Stages</option>
-                    <option value="application-submitted">Application Submitted</option>
-                    <option value="background-check">Background Check</option>
-                    <option value="reference-verification">Reference Verification</option>
-                    <option value="final-review">Final Review</option>
-                    <option value="lease-preparation">Lease Preparation</option>
-                  </select>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">Stage</label>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {[
+                      'application-submitted',
+                      'background-check', 
+                      'reference-verification',
+                      'final-review',
+                      'lease-preparation'
+                    ].map((stage) => (
+                      <label key={stage} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={stageFilter.includes(stage)}
+                          onChange={() => handleCheckboxChange(stage, stageFilter, setStageFilter)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="text-sm text-gray-700 capitalize">
+                          {stage.replace('-', ' ')}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Progress Filter (Group only) */}
               {viewMode === 'group' && (
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Progress</label>
-                  <select
-                    value={stageFilter}
-                    onChange={(e) => setStageFilter(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="all">All Progress</option>
-                    <option value="0-25">0-25% Complete</option>
-                    <option value="26-50">26-50% Complete</option>
-                    <option value="51-75">51-75% Complete</option>
-                    <option value="76-100">76-100% Complete</option>
-                  </select>
+                  <label className="block text-xs font-medium text-gray-700 mb-2">Progress</label>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {[
+                      { value: '0-25', label: '0-25% Complete' },
+                      { value: '26-50', label: '26-50% Complete' },
+                      { value: '51-75', label: '51-75% Complete' },
+                      { value: '76-100', label: '76-100% Complete' }
+                    ].map((progress) => (
+                      <label key={progress.value} className="flex items-center space-x-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={stageFilter.includes(progress.value)}
+                          onChange={() => handleCheckboxChange(progress.value, stageFilter, setStageFilter)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                        />
+                        <span className="text-sm text-gray-700">{progress.label}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {/* Unit Filter */}
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Unit</label>
-                <select
-                  value={unitFilter}
-                  onChange={(e) => setUnitFilter(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  <option value="all">All Units</option>
-                  <option value="101">Unit 101</option>
-                  <option value="102">Unit 102</option>
-                  <option value="201">Unit 201</option>
-                  <option value="202">Unit 202</option>
-                  {/* Add more units dynamically from backend */}
-                </select>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Unit</label>
+                <div className="space-y-2 max-h-32 overflow-y-auto">
+                  {['101', '102', '201', '202', '301', '302'].map((unit) => (
+                    <label key={unit} className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={unitFilter.includes(unit)}
+                        onChange={() => handleCheckboxChange(unit, unitFilter, setUnitFilter)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                      />
+                      <span className="text-sm text-gray-700">Unit {unit}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Date Filter */}
@@ -407,9 +451,9 @@ const ApplicantsTab = () => {
               <button
                 onClick={() => {
                   setSearchTerm('');
-                  setStatusFilter('all');
-                  setStageFilter('all');
-                  setUnitFilter('all');
+                  setStatusFilter([]);
+                  setStageFilter([]);
+                  setUnitFilter([]);
                   setDateFilter('all');
                 }}
                 className="text-sm text-gray-600 hover:text-gray-800 underline"
