@@ -229,7 +229,7 @@ const ApplicantsTab = () => {
       </div>
 
       {/* View Mode Toggle */}
-      <div className="flex justify-center">
+      <div className="flex justify-start">
         <div className="inline-flex rounded-lg border border-gray-200 bg-gray-100 p-1">
           <button
             onClick={() => setViewMode('individual')}
