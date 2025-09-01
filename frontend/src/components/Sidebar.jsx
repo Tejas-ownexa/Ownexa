@@ -233,15 +233,15 @@ const Sidebar = () => {
       </div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      <div className="md:hidden fixed top-2 left-2 z-50">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-2 bg-white rounded-md shadow-lg"
+          className="p-2 bg-white rounded-md shadow-lg border border-gray-200"
         >
           {isMobileOpen ? (
-            <X className="h-6 w-6 text-gray-600" />
+            <X className="h-5 w-5 text-gray-600" />
           ) : (
-            <Menu className="h-6 w-6 text-gray-600" />
+            <Menu className="h-5 w-5 text-gray-600" />
           )}
         </button>
       </div>
@@ -251,7 +251,7 @@ const Sidebar = () => {
         isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileOpen(false)} />
-        <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300">
+        <div className="absolute left-0 top-0 h-full w-80 sm:w-64 bg-white shadow-lg transform transition-transform duration-300">
           {/* Mobile Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <Link 

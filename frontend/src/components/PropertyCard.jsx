@@ -154,7 +154,7 @@ const PropertyCard = ({ property, isFavorite = false }) => {
   return (
     <div className="card hover:shadow-lg transition-shadow duration-300">
       {/* Property Image */}
-      <div className="relative h-48 bg-gray-200 overflow-hidden">
+      <div className="relative h-40 sm:h-48 bg-gray-200 overflow-hidden">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -203,28 +203,28 @@ const PropertyCard = ({ property, isFavorite = false }) => {
       </div>
 
       {/* Property Details */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         <div className="mb-2">
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1">
             {property.title || 'Untitled Property'}
           </h3>
-          <div className="flex items-center text-gray-600 text-sm">
-            <MapPin className="h-4 w-4 mr-1" />
-            <span>{formatAddress(property)}</span>
+          <div className="flex items-center text-gray-600 text-xs sm:text-sm">
+            <MapPin className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+            <span className="line-clamp-1">{formatAddress(property)}</span>
           </div>
         </div>
 
         {/* Rent Amount */}
         <div className="mb-3">
-          <div className="text-2xl font-bold text-primary-600">
+          <div className="text-xl sm:text-2xl font-bold text-primary-600">
             {formatPrice(property.rent_amount)}
           </div>
-          <span className="text-sm text-gray-600">/month</span>
+          <span className="text-xs sm:text-sm text-gray-600">/month</span>
         </div>
 
         {/* Property Description */}
         <div className="mb-4">
-          <p className="text-sm text-gray-600 line-clamp-2">
+          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
             {property.description || 'No description available'}
           </p>
         </div>
@@ -232,7 +232,7 @@ const PropertyCard = ({ property, isFavorite = false }) => {
         {/* View Details Button */}
         <Link
           to={`/properties/${property.id}`}
-          className="block w-full text-center btn-primary"
+          className="block w-full text-center btn-primary text-sm sm:text-base py-2 sm:py-2"
         >
           View Details
         </Link>

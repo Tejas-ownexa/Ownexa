@@ -59,7 +59,7 @@ const App = () => {
               <Sidebar />
               {/* Main content area - responsive padding */}
               <div className="md:ml-64 transition-all duration-300">
-                <main className="p-4 md:p-8">
+                <main className="p-2 sm:p-4 md:p-6 lg:p-8">
                   <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
