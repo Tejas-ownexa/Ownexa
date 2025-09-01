@@ -24,7 +24,8 @@ import {
   ChevronUp,
   Receipt,
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  ClipboardList
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -67,6 +68,7 @@ const Sidebar = () => {
           { name: 'Outstanding Balance', href: '/outstanding-balances', icon: AlertTriangle }
         ]
       },
+      { name: 'Leasing', href: '/leasing', icon: ClipboardList },
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },

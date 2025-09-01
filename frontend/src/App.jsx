@@ -18,6 +18,7 @@ import Rentals from './pages/Rentals';
 import RentalOwners from './pages/RentalOwners';
 import RentRoll from './pages/RentRoll';
 import OutstandingBalances from './pages/OutstandingBalances';
+import Leasing from './pages/Leasing';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import MaintenanceDashboard from './pages/MaintenanceDashboard';
 import MaintenanceRequest from './pages/MaintenanceRequest';
@@ -102,6 +103,11 @@ const App = () => {
                     <Route path="/outstanding-balances" element={
                       <PrivateRoute>
                         <OutstandingBalances />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/leasing" element={
+                      <PrivateRoute>
+                        <Leasing />
                       </PrivateRoute>
                     } />
                     <Route path="/maintenance" element={
