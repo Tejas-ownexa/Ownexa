@@ -504,16 +504,21 @@ CREATE TABLE leasing_applicants (
     email VARCHAR(120) NOT NULL,
     phone_number VARCHAR(20),
     
+    -- Unit information (for Individual view)
+    unit_number VARCHAR(50), -- Specific unit they're applying for
+    
     -- Application details
     application_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    application_received DATE NOT NULL DEFAULT CURRENT_DATE, -- When application was first received
     move_in_date DATE,
     desired_lease_term INTEGER, -- Months
     monthly_income NUMERIC(10, 2),
     employment_status VARCHAR(50),
     employer_name VARCHAR(100),
     
-    -- Application status
+    -- Application status and workflow (for Individual view)
     application_status VARCHAR(50) NOT NULL DEFAULT 'Submitted', -- Submitted, Under Review, Approved, Rejected, Withdrawn
+    stage_in_process VARCHAR(100) DEFAULT 'Application Submitted', -- Current stage: Application Submitted, Background Check, Reference Verification, Final Review, etc.
     background_check_status VARCHAR(50) DEFAULT 'Pending', -- Pending, Completed, Failed
     credit_score INTEGER,
     references_checked BOOLEAN DEFAULT FALSE,
@@ -523,6 +528,10 @@ CREATE TABLE leasing_applicants (
     approval_date DATE,
     rejection_reason TEXT,
     notes TEXT,
+    
+    -- Workflow tracking
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- When application was last modified
+    workflow_stage_history TEXT, -- JSON array of stage changes with timestamps
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -579,6 +588,59 @@ CREATE TABLE lease_drafts (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 30. APPLICANT GROUPS TABLE (for tracking grouped applications)
+CREATE TABLE applicant_groups (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    
+    -- Group information
+    group_name VARCHAR(255), -- Optional group identifier
+    unit_number VARCHAR(50), -- Unit they're applying for as a group
+    
+    -- Group status and progress (for Group view)
+    group_status VARCHAR(50) NOT NULL DEFAULT 'Pending', -- Active, Pending, Inactive, Approved, Rejected
+    percent_complete INTEGER DEFAULT 0 CHECK (percent_complete >= 0 AND percent_complete <= 100), -- Progress percentage 0-100
+    
+    -- Group workflow tracking
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- When group was last modified
+    completion_milestones TEXT, -- JSON object tracking completion stages
+    
+    -- Group settings
+    max_members INTEGER DEFAULT NULL, -- Maximum allowed members (NULL = unlimited)
+    is_joint_application BOOLEAN DEFAULT TRUE, -- Whether this is a joint application or separate applications
+    primary_applicant_id INTEGER REFERENCES leasing_applicants(id), -- Lead applicant for the group
+    
+    -- Group notes and history
+    group_notes TEXT,
+    status_change_history TEXT, -- JSON array of status changes with timestamps
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 31. APPLICANT GROUP MEMBERS TABLE (many-to-many relationship)
+CREATE TABLE applicant_group_members (
+    id SERIAL PRIMARY KEY,
+    group_id INTEGER NOT NULL REFERENCES applicant_groups(id) ON DELETE CASCADE,
+    applicant_id INTEGER NOT NULL REFERENCES leasing_applicants(id) ON DELETE CASCADE,
+    
+    -- Member role in group
+    member_role VARCHAR(50) DEFAULT 'Member', -- Primary, Co-applicant, Member, Guarantor
+    is_primary BOOLEAN DEFAULT FALSE, -- Whether this is the primary contact for the group
+    
+    -- Member-specific status
+    member_status VARCHAR(50) DEFAULT 'Active', -- Active, Inactive, Removed
+    joined_date DATE DEFAULT CURRENT_DATE,
+    removed_date DATE,
+    removal_reason TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Ensure unique group-applicant pairs
+    UNIQUE(group_id, applicant_id)
+);
+
 -- Create indexes for better performance
 
 CREATE INDEX idx_tenants_property_id ON tenants(property_id);
@@ -619,6 +681,20 @@ CREATE INDEX idx_lease_drafts_property_id ON lease_drafts(property_id);
 CREATE INDEX idx_lease_drafts_applicant_id ON lease_drafts(applicant_id);
 CREATE INDEX idx_lease_drafts_created_by ON lease_drafts(created_by);
 CREATE INDEX idx_lease_drafts_draft_status ON lease_drafts(draft_status);
+CREATE INDEX idx_leasing_applicants_unit_number ON leasing_applicants(unit_number);
+CREATE INDEX idx_leasing_applicants_stage_in_process ON leasing_applicants(stage_in_process);
+CREATE INDEX idx_leasing_applicants_last_updated ON leasing_applicants(last_updated);
+CREATE INDEX idx_leasing_applicants_application_received ON leasing_applicants(application_received);
+CREATE INDEX idx_applicant_groups_property_id ON applicant_groups(property_id);
+CREATE INDEX idx_applicant_groups_unit_number ON applicant_groups(unit_number);
+CREATE INDEX idx_applicant_groups_group_status ON applicant_groups(group_status);
+CREATE INDEX idx_applicant_groups_percent_complete ON applicant_groups(percent_complete);
+CREATE INDEX idx_applicant_groups_last_updated ON applicant_groups(last_updated);
+CREATE INDEX idx_applicant_groups_primary_applicant_id ON applicant_groups(primary_applicant_id);
+CREATE INDEX idx_applicant_group_members_group_id ON applicant_group_members(group_id);
+CREATE INDEX idx_applicant_group_members_applicant_id ON applicant_group_members(applicant_id);
+CREATE INDEX idx_applicant_group_members_member_role ON applicant_group_members(member_role);
+CREATE INDEX idx_applicant_group_members_member_status ON applicant_group_members(member_status);
 
 -- Add comments to tables
 COMMENT ON TABLE "user" IS 'User accounts for property owners, tenants, and vendors';
@@ -640,8 +716,10 @@ COMMENT ON TABLE lease_payments IS 'Payment tracking for lease agreements';
 COMMENT ON TABLE lease_renewals IS 'Lease renewal tracking and history';
 COMMENT ON TABLE property_unit_details IS 'Detailed property specifications including beds, baths, size, and amenities';
 COMMENT ON TABLE property_listing_status IS 'Property listing status, availability, and lease transition information';
-COMMENT ON TABLE leasing_applicants IS 'Applicants for listed properties with application status and background checks';
+COMMENT ON TABLE leasing_applicants IS 'Individual applicants with workflow tracking, stage progression, and detailed status';
 COMMENT ON TABLE lease_drafts IS 'Draft lease agreements for properties with terms and approval workflow';
+COMMENT ON TABLE applicant_groups IS 'Grouped applications with progress tracking and completion percentages';
+COMMENT ON TABLE applicant_group_members IS 'Many-to-many relationship linking applicants to groups with member roles';
 
 -- Success message
 SELECT 'All tables created successfully!' as status;

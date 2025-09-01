@@ -17,7 +17,11 @@ import {
   Printer,
   CheckSquare,
   FileEdit,
-  DollarSign
+  DollarSign,
+  Filter,
+  Search,
+  Calendar,
+  ChevronDown
 } from 'lucide-react';
 
 const Leasing = () => {
@@ -166,6 +170,14 @@ const ApplicantsTab = () => {
   const applicants = []; // Sample data - replace with real data later
   const applicantGroups = []; // Sample group data - replace with real data later
 
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [stageFilter, setStageFilter] = useState('all');
+  const [unitFilter, setUnitFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('all'); // all, today, week, month
+  const [showFilters, setShowFilters] = useState(false);
+
   const burgerMenuItems = [
     { label: 'Print Rental Application', icon: Printer, action: () => console.log('Print rental application') },
     { label: 'Customize Applicants checklist', icon: CheckSquare, action: () => console.log('Customize applicants checklist') },
@@ -252,6 +264,161 @@ const ApplicantsTab = () => {
             By Group
           </button>
         </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
+        {/* Search and Filter Toggle */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+          {/* Search Bar */}
+          <div className="relative w-full lg:w-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder={viewMode === 'individual' ? 'Search applicants...' : 'Search groups...'}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full lg:w-64"
+            />
+          </div>
+
+          {/* Filter Toggle Button */}
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+            >
+              <Filter className="h-4 w-4" />
+              <span>Filters</span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {/* Active Filter Count */}
+            {(statusFilter !== 'all' || stageFilter !== 'all' || unitFilter !== 'all' || dateFilter !== 'all') && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {[statusFilter, stageFilter, unitFilter, dateFilter].filter(f => f !== 'all').length} active
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Expandable Filter Options */}
+        {showFilters && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Status Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Status</option>
+                  <option value="submitted">Submitted</option>
+                  <option value="under-review">Under Review</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  {viewMode === 'group' && (
+                    <>
+                      <option value="active">Active</option>
+                      <option value="pending">Pending</option>
+                      <option value="inactive">Inactive</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              {/* Stage Filter (Individual only) */}
+              {viewMode === 'individual' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Stage</label>
+                  <select
+                    value={stageFilter}
+                    onChange={(e) => setStageFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All Stages</option>
+                    <option value="application-submitted">Application Submitted</option>
+                    <option value="background-check">Background Check</option>
+                    <option value="reference-verification">Reference Verification</option>
+                    <option value="final-review">Final Review</option>
+                    <option value="lease-preparation">Lease Preparation</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Progress Filter (Group only) */}
+              {viewMode === 'group' && (
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Progress</label>
+                  <select
+                    value={stageFilter}
+                    onChange={(e) => setStageFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All Progress</option>
+                    <option value="0-25">0-25% Complete</option>
+                    <option value="26-50">26-50% Complete</option>
+                    <option value="51-75">51-75% Complete</option>
+                    <option value="76-100">76-100% Complete</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Unit Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Unit</label>
+                <select
+                  value={unitFilter}
+                  onChange={(e) => setUnitFilter(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Units</option>
+                  <option value="101">Unit 101</option>
+                  <option value="102">Unit 102</option>
+                  <option value="201">Unit 201</option>
+                  <option value="202">Unit 202</option>
+                  {/* Add more units dynamically from backend */}
+                </select>
+              </div>
+
+              {/* Date Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  {viewMode === 'individual' ? 'Application Date' : 'Last Updated'}
+                </label>
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                  <option value="quarter">Last 3 Months</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Clear Filters */}
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setStatusFilter('all');
+                  setStageFilter('all');
+                  setUnitFilter('all');
+                  setDateFilter('all');
+                }}
+                className="text-sm text-gray-600 hover:text-gray-800 underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Applicants Table */}
