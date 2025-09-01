@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import { 
@@ -21,8 +21,89 @@ import {
   Filter,
   Search,
   Calendar,
-  ChevronDown
+  ChevronDown,
+  X,
+  Check
 } from 'lucide-react';
+
+// Custom Multi-Select Dropdown Component
+const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleOptionClick = (optionValue) => {
+    const newValue = value.includes(optionValue)
+      ? value.filter(v => v !== optionValue)
+      : [...value, optionValue];
+    onChange(newValue);
+  };
+
+  const getDisplayText = () => {
+    if (value.length === 0) return placeholder || 'Select options...';
+    if (value.length === 1) {
+      const option = options.find(opt => opt.value === value[0]);
+      return option ? option.label : value[0];
+    }
+    return `${value.length} selected`;
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-left focus:ring-2 focus:ring-blue-500 focus:border-transparent flex justify-between items-center"
+      >
+        <span className={value.length === 0 ? 'text-gray-500' : 'text-gray-900'}>
+          {getDisplayText()}
+        </span>
+        <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+          {value.length > 0 && (
+            <div className="p-2 border-b border-gray-200">
+              <button
+                onClick={() => onChange([])}
+                className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              >
+                <X className="h-3 w-3" />
+                Clear all
+              </button>
+            </div>
+          )}
+          {options.map((option) => (
+            <div
+              key={option.value}
+              onClick={() => handleOptionClick(option.value)}
+              className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center justify-between text-sm"
+            >
+              <span>{option.label}</span>
+              {value.includes(option.value) && (
+                <Check className="h-4 w-4 text-blue-600" />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Leasing = () => {
   const { user } = useAuth();
@@ -193,6 +274,32 @@ const ApplicantsTab = () => {
     { label: 'Manage application fees', icon: DollarSign, action: () => console.log('Manage application fees') }
   ];
 
+  // Filter options
+  const statusOptions = [
+    { value: 'submitted', label: 'Submitted' },
+    { value: 'under-review', label: 'Under Review' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'rejected', label: 'Rejected' },
+    ...(viewMode === 'group' ? [
+      { value: 'active', label: 'Active' },
+      { value: 'pending', label: 'Pending' },
+      { value: 'inactive', label: 'Inactive' }
+    ] : [])
+  ];
+
+  const stageOptions = viewMode === 'individual' ? [
+    { value: 'application-submitted', label: 'Application Submitted' },
+    { value: 'background-check', label: 'Background Check' },
+    { value: 'reference-verification', label: 'Reference Verification' },
+    { value: 'final-review', label: 'Final Review' },
+    { value: 'lease-preparation', label: 'Lease Preparation' }
+  ] : [
+    { value: '0-25', label: '0-25% Complete' },
+    { value: '26-50', label: '26-50% Complete' },
+    { value: '51-75', label: '51-75% Complete' },
+    { value: '76-100', label: '76-100% Complete' }
+  ];
+
   return (
     <div className="space-y-6">
       {/* Action Buttons */}
@@ -315,75 +422,34 @@ const ApplicantsTab = () => {
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Status Filter */}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                <select
-                  multiple
-                  value={statusFilter}
-                  onChange={(e) => {
-                    const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
-                    setStatusFilter(selectedValues);
-                  }}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
-                >
-                  <option value="submitted">Submitted</option>
-                  <option value="under-review">Under Review</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  {viewMode === 'group' && (
-                    <>
-                      <option value="active">Active</option>
-                      <option value="pending">Pending</option>
-                      <option value="inactive">Inactive</option>
-                    </>
-                  )}
-                </select>
-                <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-              </div>
+              <MultiSelectDropdown
+                label="Status"
+                options={statusOptions}
+                value={statusFilter}
+                onChange={setStatusFilter}
+                placeholder="All Status"
+              />
 
               {/* Stage Filter (Individual only) */}
               {viewMode === 'individual' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Stage</label>
-                  <select
-                    multiple
-                    value={stageFilter}
-                    onChange={(e) => {
-                      const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
-                      setStageFilter(selectedValues);
-                    }}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
-                  >
-                    <option value="application-submitted">Application Submitted</option>
-                    <option value="background-check">Background Check</option>
-                    <option value="reference-verification">Reference Verification</option>
-                    <option value="final-review">Final Review</option>
-                    <option value="lease-preparation">Lease Preparation</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-                </div>
+                <MultiSelectDropdown
+                  label="Stage"
+                  options={stageOptions}
+                  value={stageFilter}
+                  onChange={setStageFilter}
+                  placeholder="All Stages"
+                />
               )}
 
               {/* Progress Filter (Group only) */}
               {viewMode === 'group' && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Progress</label>
-                  <select
-                    multiple
-                    value={stageFilter}
-                    onChange={(e) => {
-                      const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
-                      setStageFilter(selectedValues);
-                    }}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
-                  >
-                    <option value="0-25">0-25% Complete</option>
-                    <option value="26-50">26-50% Complete</option>
-                    <option value="51-75">51-75% Complete</option>
-                    <option value="76-100">76-100% Complete</option>
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
-                </div>
+                <MultiSelectDropdown
+                  label="Progress"
+                  options={stageOptions}
+                  value={stageFilter}
+                  onChange={setStageFilter}
+                  placeholder="All Progress"
+                />
               )}
 
               {/* Date Filter */}
