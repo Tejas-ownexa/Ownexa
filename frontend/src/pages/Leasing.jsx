@@ -663,23 +663,39 @@ const DraftLeaseTab = () => {
   // Sample data for draft leases (replace with real data later)
   const draftLeases = [];
 
+  // Filter state
+  const [rentalFilter, setRentalFilter] = useState([]);
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [executionFilter, setExecutionFilter] = useState([]);
+  const [additionalFilter, setAdditionalFilter] = useState([]);
+
   // Filter options
   const rentalFilterOptions = [
-    { value: 'all-rentals', label: 'All rentals' },
     { value: 'apartment-1', label: 'Apartment 1' },
     { value: 'apartment-2', label: 'Apartment 2' },
-    { value: 'house-1', label: 'House 1' }
+    { value: 'house-1', label: 'House 1' },
+    { value: 'condo-1', label: 'Condo 1' }
   ];
 
   const statusFilterOptions = [
     { value: 'unknown', label: 'Unknown' },
     { value: 'not-sent', label: 'Not sent' },
-    { value: 'processing', label: 'Processing' }
+    { value: 'processing', label: 'Processing' },
+    { value: 'sent', label: 'Sent' },
+    { value: 'completed', label: 'Completed' }
   ];
 
   const executionFilterOptions = [
     { value: 'executed', label: 'Executed' },
-    { value: 'not-executed', label: 'Not executed' }
+    { value: 'not-executed', label: 'Not executed' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
+
+  const additionalFilterOptions = [
+    { value: 'urgent', label: 'Urgent' },
+    { value: 'standard', label: 'Standard' },
+    { value: 'low-priority', label: 'Low Priority' }
   ];
 
   return (
@@ -700,41 +716,48 @@ const DraftLeaseTab = () => {
       </div>
 
       {/* Filter Section */}
-      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-        <div className="flex-1">
-          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-            <option value="all-rentals">All rentals</option>
-            {rentalFilterOptions.slice(1).map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <MultiSelectDropdown
+            label=""
+            options={rentalFilterOptions}
+            value={rentalFilter}
+            onChange={setRentalFilter}
+            placeholder="All rentals"
+          />
         </div>
-        <div className="flex-1">
-          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-            <option value="">(1) Unknown, Not sent, Proc...</option>
-            {statusFilterOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+        <div>
+          <MultiSelectDropdown
+            label=""
+            options={statusFilterOptions}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            placeholder="Unknown, Not sent, Processing..."
+          />
         </div>
-        <div className="flex-1">
-          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-            <option value="">(2) Executed, Not executed</option>
-            {executionFilterOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+        <div>
+          <MultiSelectDropdown
+            label=""
+            options={executionFilterOptions}
+            value={executionFilter}
+            onChange={setExecutionFilter}
+            placeholder="Executed, Not executed"
+          />
         </div>
-        <div className="flex-1">
-          <select className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white">
-            <option value="">Add filter option</option>
-          </select>
+        <div>
+          <MultiSelectDropdown
+            label=""
+            options={additionalFilterOptions}
+            value={additionalFilter}
+            onChange={setAdditionalFilter}
+            placeholder="Add filter option"
+          />
         </div>
       </div>
 
       {/* Results Count */}
       <div className="text-sm text-gray-600">
-        0 matches
+        {draftLeases.length} matches
       </div>
 
       {/* Draft Leases Table */}
@@ -791,7 +814,19 @@ const DraftLeaseTab = () => {
                 <tr>
                   <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                     <div className="space-y-2">
-                      <p>We didn't find any draft leases. Maybe you don't have any or maybe you need to <span className="text-blue-600 hover:text-blue-800 cursor-pointer">clear your filters</span>.</p>
+                      <p>We didn't find any draft leases. Maybe you don't have any or maybe you need to{' '}
+                        <span 
+                          className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                          onClick={() => {
+                            setRentalFilter([]);
+                            setStatusFilter([]);
+                            setExecutionFilter([]);
+                            setAdditionalFilter([]);
+                          }}
+                        >
+                          clear your filters
+                        </span>.
+                      </p>
                     </div>
                   </td>
                 </tr>
