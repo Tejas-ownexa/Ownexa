@@ -641,6 +641,164 @@ CREATE TABLE applicant_group_members (
     UNIQUE(group_id, applicant_id)
 );
 
+-- 32. DRAFT LEASE APPROVED APPLICANTS TABLE (for approved applicants in draft lease)
+CREATE TABLE draft_lease_approved_applicants (
+    id SERIAL PRIMARY KEY,
+    lease_draft_id INTEGER NOT NULL REFERENCES lease_drafts(id) ON DELETE CASCADE,
+    applicant_id INTEGER REFERENCES leasing_applicants(id) ON DELETE SET NULL,
+    
+    -- Applicant details (stored separately in case applicant is deleted)
+    full_name VARCHAR(100) NOT NULL,
+    email VARCHAR(120),
+    phone_number VARCHAR(20),
+    
+    -- Move-in details
+    move_in_date DATE,
+    relationship_to_primary VARCHAR(50), -- Primary, Spouse, Roommate, Child, etc.
+    emergency_contact_name VARCHAR(100),
+    emergency_contact_phone VARCHAR(20),
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 33. DRAFT LEASE RECURRING CHARGES TABLE (for recurring charges in draft lease)
+CREATE TABLE draft_lease_recurring_charges (
+    id SERIAL PRIMARY KEY,
+    lease_draft_id INTEGER NOT NULL REFERENCES lease_drafts(id) ON DELETE CASCADE,
+    
+    -- Charge details
+    account VARCHAR(100) NOT NULL, -- maintenance, utilities, parking, pet-fee, other
+    next_due_date DATE NOT NULL,
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    memo TEXT,
+    frequency VARCHAR(50) NOT NULL DEFAULT 'monthly', -- weekly, bi-weekly, monthly, quarterly, yearly
+    
+    -- Status and tracking
+    is_active BOOLEAN DEFAULT TRUE,
+    created_by INTEGER REFERENCES "user"(id),
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 34. DRAFT LEASE ONE-TIME CHARGES TABLE (for one-time charges in draft lease)
+CREATE TABLE draft_lease_one_time_charges (
+    id SERIAL PRIMARY KEY,
+    lease_draft_id INTEGER NOT NULL REFERENCES lease_drafts(id) ON DELETE CASCADE,
+    
+    -- Charge details
+    account VARCHAR(100) NOT NULL, -- maintenance, utilities, parking, pet-fee, security-deposit, cleaning-fee, other
+    due_date DATE NOT NULL,
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    memo TEXT,
+    
+    -- Status and tracking
+    is_paid BOOLEAN DEFAULT FALSE,
+    payment_date DATE,
+    payment_method VARCHAR(50),
+    created_by INTEGER REFERENCES "user"(id),
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 35. DRAFT LEASE RENT CHARGES TABLE (for rent splitting in draft lease)
+CREATE TABLE draft_lease_rent_charges (
+    id SERIAL PRIMARY KEY,
+    lease_draft_id INTEGER NOT NULL REFERENCES lease_drafts(id) ON DELETE CASCADE,
+    
+    -- Rent splitting details
+    charge_name VARCHAR(100) NOT NULL, -- e.g., "Primary Rent", "Prorated Rent", "Split Rent"
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    percentage_of_total NUMERIC(5, 2) DEFAULT 100.00, -- Percentage of total rent (0-100)
+    is_prorated BOOLEAN DEFAULT FALSE,
+    proration_days INTEGER, -- If prorated, number of days
+    proration_start_date DATE,
+    proration_end_date DATE,
+    
+    -- Responsible party
+    responsible_applicant_id INTEGER REFERENCES draft_lease_approved_applicants(id) ON DELETE SET NULL,
+    responsibility_percentage NUMERIC(5, 2) DEFAULT 100.00, -- How much of this charge this applicant pays
+    
+    -- Payment details
+    due_date DATE,
+    due_day_of_month INTEGER DEFAULT 1, -- Recurring payment day (1-31)
+    memo TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 36. DRAFT LEASE MOVE_IN_CHARGES TABLE (for move-in charges in draft lease)
+CREATE TABLE draft_lease_move_in_charges (
+    id SERIAL PRIMARY KEY,
+    lease_draft_id INTEGER NOT NULL REFERENCES lease_drafts(id) ON DELETE CASCADE,
+    
+    -- Move-in charge details
+    charge_type VARCHAR(100) NOT NULL, -- security-deposit, first-month-rent, last-month-rent, pet-deposit, application-fee, cleaning-fee, key-deposit, other
+    charge_name VARCHAR(100) NOT NULL, -- Display name for the charge
+    amount NUMERIC(10, 2) NOT NULL DEFAULT 0.00,
+    
+    -- Due date and payment tracking
+    due_date DATE, -- When this charge is due (usually before move-in)
+    is_required BOOLEAN DEFAULT TRUE, -- Whether this charge is mandatory
+    is_refundable BOOLEAN DEFAULT FALSE, -- Whether this charge is refundable
+    refund_conditions TEXT, -- Conditions for refund (if applicable)
+    
+    -- Payment tracking
+    is_paid BOOLEAN DEFAULT FALSE,
+    payment_date DATE,
+    payment_method VARCHAR(50),
+    payment_reference VARCHAR(100),
+    
+    -- Responsible party
+    responsible_applicant_id INTEGER REFERENCES draft_lease_approved_applicants(id) ON DELETE SET NULL,
+    memo TEXT,
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 37. DRAFT LEASE SIGNATURES TABLE (for tracking signature status)
+CREATE TABLE draft_lease_signatures (
+    id SERIAL PRIMARY KEY,
+    lease_draft_id INTEGER NOT NULL REFERENCES lease_drafts(id) ON DELETE CASCADE,
+    
+    -- Signature tracking
+    signature_status VARCHAR(50) NOT NULL DEFAULT 'unsigned', -- signed, unsigned
+    esignature_status VARCHAR(50) DEFAULT 'not-sent', -- not-sent, sent, pending, signed, declined
+    lease_status VARCHAR(50) DEFAULT 'draft', -- draft, ready-for-signature, active, expired, terminated
+    agent_id INTEGER REFERENCES "user"(id), -- Leasing agent responsible
+    
+    -- Signature dates and tracking
+    esignature_sent_date TIMESTAMP,
+    esignature_signed_date TIMESTAMP,
+    signature_ip_address INET, -- IP address where signature was made
+    signature_location VARCHAR(255), -- Geographic location of signature
+    
+    -- Document management
+    original_document_url VARCHAR(500), -- URL to original unsigned document
+    signed_document_url VARCHAR(500), -- URL to final signed document
+    esignature_provider VARCHAR(50), -- DocuSign, HelloSign, Adobe Sign, etc.
+    esignature_envelope_id VARCHAR(255), -- Provider's envelope/document ID
+    
+    -- Notifications and reminders
+    reminder_count INTEGER DEFAULT 0,
+    last_reminder_sent TIMESTAMP,
+    notification_email VARCHAR(120), -- Email for notifications
+    
+    -- Execution details
+    execution_method VARCHAR(50) DEFAULT 'electronic', -- electronic, wet-signature, notarized
+    notary_required BOOLEAN DEFAULT FALSE,
+    witness_required BOOLEAN DEFAULT FALSE,
+    notary_info TEXT, -- Notary details if required
+    witness_info TEXT, -- Witness details if required
+    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better performance
 
 CREATE INDEX idx_tenants_property_id ON tenants(property_id);
@@ -695,6 +853,23 @@ CREATE INDEX idx_applicant_group_members_group_id ON applicant_group_members(gro
 CREATE INDEX idx_applicant_group_members_applicant_id ON applicant_group_members(applicant_id);
 CREATE INDEX idx_applicant_group_members_member_role ON applicant_group_members(member_role);
 CREATE INDEX idx_applicant_group_members_member_status ON applicant_group_members(member_status);
+CREATE INDEX idx_draft_lease_approved_applicants_lease_draft_id ON draft_lease_approved_applicants(lease_draft_id);
+CREATE INDEX idx_draft_lease_approved_applicants_applicant_id ON draft_lease_approved_applicants(applicant_id);
+CREATE INDEX idx_draft_lease_recurring_charges_lease_draft_id ON draft_lease_recurring_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_recurring_charges_account ON draft_lease_recurring_charges(account);
+CREATE INDEX idx_draft_lease_recurring_charges_next_due_date ON draft_lease_recurring_charges(next_due_date);
+CREATE INDEX idx_draft_lease_one_time_charges_lease_draft_id ON draft_lease_one_time_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_one_time_charges_account ON draft_lease_one_time_charges(account);
+CREATE INDEX idx_draft_lease_one_time_charges_due_date ON draft_lease_one_time_charges(due_date);
+CREATE INDEX idx_draft_lease_rent_charges_lease_draft_id ON draft_lease_rent_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_rent_charges_responsible_applicant_id ON draft_lease_rent_charges(responsible_applicant_id);
+CREATE INDEX idx_draft_lease_move_in_charges_lease_draft_id ON draft_lease_move_in_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_move_in_charges_charge_type ON draft_lease_move_in_charges(charge_type);
+CREATE INDEX idx_draft_lease_move_in_charges_responsible_applicant_id ON draft_lease_move_in_charges(responsible_applicant_id);
+CREATE INDEX idx_draft_lease_signatures_lease_draft_id ON draft_lease_signatures(lease_draft_id);
+CREATE INDEX idx_draft_lease_signatures_signature_status ON draft_lease_signatures(signature_status);
+CREATE INDEX idx_draft_lease_signatures_esignature_status ON draft_lease_signatures(esignature_status);
+CREATE INDEX idx_draft_lease_signatures_lease_status ON draft_lease_signatures(lease_status);
 
 -- Add comments to tables
 COMMENT ON TABLE "user" IS 'User accounts for property owners, tenants, and vendors';
@@ -720,6 +895,12 @@ COMMENT ON TABLE leasing_applicants IS 'Individual applicants with workflow trac
 COMMENT ON TABLE lease_drafts IS 'Draft lease agreements for properties with terms and approval workflow';
 COMMENT ON TABLE applicant_groups IS 'Grouped applications with progress tracking and completion percentages';
 COMMENT ON TABLE applicant_group_members IS 'Many-to-many relationship linking applicants to groups with member roles';
+COMMENT ON TABLE draft_lease_approved_applicants IS 'Approved applicants associated with draft leases including move-in details';
+COMMENT ON TABLE draft_lease_recurring_charges IS 'Recurring charges configured for draft leases (utilities, maintenance, etc.)';
+COMMENT ON TABLE draft_lease_one_time_charges IS 'One-time charges configured for draft leases (deposits, fees, etc.)';
+COMMENT ON TABLE draft_lease_rent_charges IS 'Rent splitting and proration details for draft leases';
+COMMENT ON TABLE draft_lease_move_in_charges IS 'Move-in charges and deposits required before tenant occupancy';
+COMMENT ON TABLE draft_lease_signatures IS 'Electronic signature tracking and document management for draft leases';
 
 -- Success message
 SELECT 'All tables created successfully!' as status;
