@@ -9,7 +9,8 @@ import {
   Users,
   Edit,
   RefreshCw,
-  Home
+  Home,
+  Download
 } from 'lucide-react';
 
 const Leasing = () => {
@@ -226,6 +227,38 @@ const ListedUnitsTab = () => {
     <div className="space-y-6">
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+        <button 
+          onClick={() => {
+            // Export listed units functionality
+            const csvHeaders = ['Listed', 'Available', 'Unit', 'Beds', 'Baths', 'Size', 'Listing Rent'];
+            const csvData = listedUnits.length > 0 
+              ? listedUnits.map(unit => [
+                  unit.listed || 'N/A',
+                  unit.available || 'N/A', 
+                  unit.unit || 'N/A',
+                  unit.beds || 'N/A',
+                  unit.baths || 'N/A',
+                  unit.size || 'N/A',
+                  unit.listingRent || 'N/A'
+                ])
+              : [['No listed units available']];
+            
+            const csvContent = [csvHeaders, ...csvData].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `listed_units_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+          className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
+        >
+          <Download className="h-4 w-4" />
+          <span>Export</span>
+        </button>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Add Listing</span>
@@ -324,6 +357,36 @@ const UnlistedUnitsTab = () => {
     <div className="space-y-6">
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
+        <button 
+          onClick={() => {
+            // Export unlisted units functionality
+            const csvHeaders = ['Status', 'Lease End', 'Next Lease', 'Unit', 'Tenants'];
+            const csvData = unlistedUnits.length > 0 
+              ? unlistedUnits.map(unit => [
+                  unit.status || 'N/A',
+                  unit.leaseEnd || 'N/A', 
+                  unit.nextLease || 'N/A',
+                  unit.unit || 'N/A',
+                  unit.tenants || 'N/A'
+                ])
+              : [['No unlisted units available']];
+            
+            const csvContent = [csvHeaders, ...csvData].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `unlisted_units_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+          className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
+        >
+          <Download className="h-4 w-4" />
+          <span>Export</span>
+        </button>
         <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Create Listing</span>
@@ -341,25 +404,19 @@ const UnlistedUnitsTab = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Listed
+                  Status
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Available
+                  Lease End
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Next Lease
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Unit
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Beds
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Baths
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                  Size
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Listing Rent
+                  Tenants
                 </th>
               </tr>
             </thead>
@@ -368,31 +425,25 @@ const UnlistedUnitsTab = () => {
                 unlistedUnits.map((unit) => (
                   <tr key={unit.id} className="hover:bg-gray-50">
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.listed}
+                      {unit.status}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.available}
+                      {unit.leaseEnd}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {unit.nextLease}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {unit.unit}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.beds}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.baths}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden sm:table-cell">
-                      {unit.size}
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.listingRent}
+                      {unit.tenants}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
+                  <td colSpan="5" className="px-3 sm:px-6 py-12 text-center">
                     <div className="text-gray-400 mb-4">
                       <Building className="h-16 w-16 mx-auto" />
                     </div>
