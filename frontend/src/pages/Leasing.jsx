@@ -376,14 +376,6 @@ const UnlistedUnitsTab = () => {
           <Download className="h-4 w-4" />
           <span>Export</span>
         </button>
-        <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2">
-          <Plus className="h-4 w-4" />
-          <span>Create Listing</span>
-        </button>
-        <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2">
-          <Building className="h-4 w-4" />
-          <span>View Unlisted</span>
-        </button>
       </div>
 
       {/* Unlisted Units Table */}
@@ -438,10 +430,7 @@ const UnlistedUnitsTab = () => {
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No unlisted units found</h3>
                     <p className="text-gray-600 mb-6">All your properties are either listed or need to be added to the system</p>
-                    <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
-                      <Plus className="h-4 w-4" />
-                      <span>Create First Listing</span>
-                    </button>
+                    <p className="text-sm text-gray-500">Use the Export button above to download an empty template or manage units through the properties section.</p>
                   </td>
                 </tr>
               )}
