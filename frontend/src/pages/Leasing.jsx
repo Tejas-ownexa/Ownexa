@@ -3,15 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 import { 
   Plus,
-  Search,
-  Filter,
-  Download,
-  Upload,
-  MoreHorizontal,
   ClipboardList,
   FileText,
-  Calendar,
-  User,
   Building,
   Users,
   Edit,
@@ -23,8 +16,6 @@ const Leasing = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState('listing');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
 
   // Handle URL parameters to set initial tab
   useEffect(() => {
@@ -34,14 +25,7 @@ const Leasing = () => {
     }
   }, [searchParams]);
 
-  // Tab configurations
-  const tabs = [
-    { id: 'listing', label: 'Listing', icon: Building },
-    { id: 'applicants', label: 'Applicants', icon: Users },
-    { id: 'draft-lease', label: 'Draft Lease', icon: Edit },
-    { id: 'lease-renewals', label: 'Lease Renewals', icon: RefreshCw },
-    { id: 'leasing', label: 'Leasing', icon: Home }
-  ];
+
 
   // Render content based on active tab
   const renderTabContent = () => {
@@ -83,37 +67,9 @@ const Leasing = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="border-b border-gray-200">
-          <nav className="flex flex-wrap space-x-4 sm:space-x-8 px-4 sm:px-6">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-3 px-1 border-b-2 font-medium text-sm whitespace-nowrap flex items-center space-x-2 ${
-                    activeTab === tab.id
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">
-                    {tab.label.split(' ')[0]}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Tab Content */}
-        <div className="p-4 sm:p-6">
-          {renderTabContent()}
-        </div>
+      {/* Tab Content */}
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        {renderTabContent()}
       </div>
 
     </div>
