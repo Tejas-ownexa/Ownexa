@@ -259,14 +259,6 @@ const ListedUnitsTab = () => {
           <Download className="h-4 w-4" />
           <span>Export</span>
         </button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
-          <Plus className="h-4 w-4" />
-          <span>Add Listing</span>
-        </button>
-        <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
-          <Building className="h-4 w-4" />
-          <span>View All Listed</span>
-        </button>
       </div>
 
       {/* Listed Units Table */}
@@ -333,10 +325,7 @@ const ListedUnitsTab = () => {
                     </div>
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No listed units found</h3>
                     <p className="text-gray-600 mb-6">Get started by adding your first property listing</p>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
-                      <Plus className="h-4 w-4" />
-                      <span>Add First Listing</span>
-                    </button>
+                    <p className="text-sm text-gray-500">Use the Export button above to download an empty template or add listings through the properties section.</p>
                   </td>
                 </tr>
               )}
