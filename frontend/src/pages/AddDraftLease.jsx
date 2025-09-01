@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, Info } from 'lucide-react';
+import { Plus, Calendar, Info, X } from 'lucide-react';
 
 const AddDraftLease = () => {
   const navigate = useNavigate();
@@ -52,7 +52,24 @@ const AddDraftLease = () => {
   };
 
   const addRecurringCharge = () => {
-    setRecurringCharges(prev => [...prev, { id: Date.now(), description: '', amount: '', frequency: 'monthly' }]);
+    setRecurringCharges(prev => [...prev, { 
+      id: Date.now(), 
+      account: '', 
+      nextDueDate: '', 
+      amount: '', 
+      memo: '', 
+      frequency: 'monthly' 
+    }]);
+  };
+
+  const removeRecurringCharge = (id) => {
+    setRecurringCharges(prev => prev.filter(charge => charge.id !== id));
+  };
+
+  const updateRecurringCharge = (id, field, value) => {
+    setRecurringCharges(prev => prev.map(charge => 
+      charge.id === id ? { ...charge, [field]: value } : charge
+    ));
   };
 
   const handleSave = () => {
@@ -345,6 +362,104 @@ const AddDraftLease = () => {
             <p className="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 leading-relaxed">
               Create charges for tenants that are part of this lease
             </p>
+
+            {/* Recurring Charges */}
+            {recurringCharges.map((charge) => (
+              <div key={charge.id} className="mb-6 p-3 sm:p-4 border-l-4 border-green-500 bg-green-50 rounded-r-md">
+                <div className="flex justify-between items-start mb-4">
+                  <h4 className="text-sm sm:text-base font-medium text-gray-900">Recurring</h4>
+                  <button
+                    onClick={() => removeRecurringCharge(charge.id)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {/* Account */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      ACCOUNT <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={charge.account}
+                      onChange={(e) => updateRecurringCharge(charge.id, 'account', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option value="">Select</option>
+                      <option value="maintenance">Maintenance</option>
+                      <option value="utilities">Utilities</option>
+                      <option value="parking">Parking</option>
+                      <option value="pet-fee">Pet Fee</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* Next Due Date */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      NEXT DUE DATE <span className="text-red-500">*</span> <Info className="inline h-3 w-3 sm:h-4 sm:w-4 ml-1 text-gray-400" />
+                    </label>
+                    <input
+                      type="date"
+                      value={charge.nextDueDate}
+                      onChange={(e) => updateRecurringCharge(charge.id, 'nextDueDate', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="mm/dd/yyyy"
+                    />
+                  </div>
+
+                  {/* Amount */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">AMOUNT</label>
+                    <input
+                      type="number"
+                      value={charge.amount}
+                      onChange={(e) => updateRecurringCharge(charge.id, 'amount', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="$0.00"
+                    />
+                  </div>
+
+                  {/* Memo */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">MEMO</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={charge.memo}
+                        onChange={(e) => updateRecurringCharge(charge.id, 'memo', e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        maxLength={100}
+                      />
+                      <div className="absolute right-2 top-full mt-1 text-xs text-gray-500">
+                        {100 - (charge.memo?.length || 0)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Frequency */}
+                <div className="mt-3 sm:mt-4">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    FREQUENCY <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={charge.frequency}
+                    onChange={(e) => updateRecurringCharge(charge.id, 'frequency', e.target.value)}
+                    className="w-full sm:w-48 border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                  >
+                    <option value="weekly">Weekly</option>
+                    <option value="bi-weekly">Bi-weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                </div>
+              </div>
+            ))}
+
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <button
                 onClick={addRecurringCharge}
