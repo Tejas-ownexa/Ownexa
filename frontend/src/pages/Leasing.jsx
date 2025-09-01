@@ -263,25 +263,22 @@ const ApplicantsTab = () => {
                 {viewMode === 'individual' ? (
                   <>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
+                      Full name
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Phone
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Property
-                    </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Application Date
+                      Unit
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      Stage in process
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Last Updated
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Application received
                     </th>
                   </>
                 ) : (
@@ -314,19 +311,10 @@ const ApplicantsTab = () => {
                   applicants.map((applicant) => (
                     <tr key={applicant.id} className="hover:bg-gray-50">
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.name}
+                        {applicant.fullName}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.email}
-                      </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.phone}
-                      </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.property}
-                      </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.applicationDate}
+                        {applicant.unit}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -338,16 +326,20 @@ const ApplicantsTab = () => {
                           {applicant.status}
                         </span>
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900">
-                          View
-                        </button>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {applicant.stageInProcess}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {applicant.lastUpdated}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {applicant.applicationReceived}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
+                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
                       <div className="text-gray-400 mb-4">
                         <Users className="h-16 w-16 mx-auto" />
                       </div>
