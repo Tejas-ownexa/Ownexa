@@ -160,9 +160,9 @@ const Dashboard = () => {
   // Vendor Dashboard - Show only maintenance-related information
   if (user.role === 'VENDOR') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Vendor Dashboard</h1>
@@ -175,7 +175,7 @@ const Dashboard = () => {
         </div>
 
         {/* Vendor Maintenance Statistics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <DashboardWidget
             title="Total Assigned"
             value={vendorStats.total}
@@ -211,7 +211,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
@@ -238,7 +238,7 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Maintenance Requests */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900">Recent Maintenance Requests</h2>
             <Link
@@ -281,9 +281,9 @@ const Dashboard = () => {
 
   // Regular Dashboard for OWNER and AGENT roles
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-4 -mt-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-md p-4 -mt-4">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
@@ -336,7 +336,7 @@ const Dashboard = () => {
       </div>
 
       {/* Dashboard Widgets */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 -mt-2">
         <DashboardWidget
           title="Total Properties"
           value={userProperties?.length || 0}
@@ -371,68 +371,9 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-primary-100 rounded-lg">
-              <Home className="h-6 w-6 text-primary-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">My Properties</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {userProperties?.length || 0}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <User className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Tenants</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {tenantStatsLoading ? '...' : (tenantStats?.total_tenants || 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Current Tenants</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {tenantStatsLoading ? '...' : (tenantStats?.current_tenants || 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Overdue</p>
-              <p className="text-2xl font-semibold text-gray-900">
-                {tenantStatsLoading ? '...' : (tenantStats?.overdue_tenants || 0)}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Additional Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 -mt-2">
+        <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <DollarSign className="h-6 w-6 text-yellow-600" />
@@ -446,7 +387,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
               <Heart className="h-6 w-6 text-purple-600" />
@@ -460,7 +401,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg shadow-md p-4">
           <div className="flex items-center">
             <div className="p-2 bg-indigo-100 rounded-lg">
               <User className="h-6 w-6 text-indigo-600" />
@@ -499,7 +440,7 @@ const Dashboard = () => {
           </nav>
         </div>
 
-        <div className="p-6">
+        <div className="p-4">
           {/* Properties Tab */}
           {activeTab === 'properties' && (
             <div>
@@ -515,7 +456,7 @@ const Dashboard = () => {
                   <div className="text-lg">Loading properties...</div>
                 </div>
               ) : userProperties && userProperties.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {userProperties.map((property) => (
                     <PropertyCard key={property.id} property={property} isFavorite={isPropertyFavorited(property.id)} />
                   ))}
@@ -618,7 +559,7 @@ const Dashboard = () => {
                   <div className="text-lg">Loading favorites...</div>
                 </div>
               ) : favorites && favorites.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {favorites.map((favorite) => (
                     <PropertyCard key={favorite.property.id} property={favorite.property} isFavorite={true} />
                   ))}
@@ -651,7 +592,7 @@ const Dashboard = () => {
                 </div>
               ) : maintenanceList && maintenanceList.length > 0 ? (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-1 gap-6">
+                  <div className="grid grid-cols-1 gap-4">
                     {maintenanceList.map((request) => (
                       <div key={request.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
                         {/* Header */}
@@ -679,7 +620,7 @@ const Dashboard = () => {
 
                         {/* Content */}
                         <div className="px-6 py-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Property Details */}
                             <div>
                               <h4 className="text-sm font-medium text-gray-900 mb-3">Property Details</h4>
@@ -784,8 +725,8 @@ const Dashboard = () => {
           {activeTab === 'profile' && (
             <div>
               <h2 className="text-xl font-semibold mb-6">Profile Information</h2>
-              <div className="bg-gray-50 rounded-lg p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Full Name

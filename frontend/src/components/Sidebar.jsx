@@ -71,7 +71,7 @@ const Sidebar = () => {
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
-      // { name: 'Data Import', href: '/import', icon: Upload },
+      { name: 'Excel Import', href: '/excel-import', icon: Upload },
     ];
   };
 
@@ -103,7 +103,7 @@ const Sidebar = () => {
         <div className="lg:hidden fixed inset-0 z-40">
           <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setIsMobileOpen(false)} />
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-            <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+            <div className="flex-1 h-0 pt-3 pb-4 overflow-y-auto">
               <div className="flex-shrink-0 flex items-center px-4">
                 <h1 className="text-xl font-bold text-gray-900">Property Manager</h1>
               </div>
@@ -181,10 +181,10 @@ const Sidebar = () => {
       )}
 
       {/* Desktop sidebar */}
-      <div className={`hidden lg:flex lg:flex-shrink-0 ${isCollapsed ? 'w-16' : 'w-64'}`}>
+      <div className={`hidden lg:flex lg:flex-shrink-0 lg:fixed lg:inset-y-0 lg:left-0 ${isCollapsed ? 'w-16' : 'w-64'}`}>
         <div className="flex flex-col w-full">
           <div className="flex-1 flex flex-col min-h-0 bg-white border-r border-gray-200">
-            <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
+            <div className="flex-1 flex flex-col pt-3 pb-4 overflow-y-auto">
               <div className="flex items-center flex-shrink-0 px-4">
                 {!isCollapsed && <h1 className="text-xl font-bold text-gray-900">Property Manager</h1>}
               </div>

@@ -4,7 +4,13 @@ import config from '../config';
 // Set the base URL for all API calls
 const api = axios.create({
   baseURL: config.API_BASE_URL,
-  timeout: 30000, // 30 second timeout for PDF generation
+  timeout: 120000, // 2 minute timeout for file uploads
+  maxContentLength: Infinity, // Allow large file uploads
+  maxBodyLength: Infinity,
+  headers: {
+    'Accept': 'application/json',
+    'Cache-Control': 'no-cache'
+  }
 });
 
 // Add a request interceptor to include the auth token

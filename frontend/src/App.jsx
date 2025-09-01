@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
@@ -25,6 +25,7 @@ import VendorProfile from './pages/VendorProfile';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
+import ExcelImportPage from './pages/ExcelImportPage';
 // import DataImport from './pages/DataImport';
 import './index.css';
 
@@ -59,8 +60,8 @@ const App = () => {
             <div className="min-h-screen bg-gray-50">
               <Sidebar />
               {/* Main content area - responsive padding */}
-              <div className="md:ml-64 transition-all duration-300">
-                <main className="p-4 md:p-8">
+              <div className="lg:ml-64 transition-all duration-300">
+                <main className="p-4 md:px-6 md:py-2">
                   <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
@@ -129,6 +130,11 @@ const App = () => {
                     <Route path="/reports" element={
                       <PrivateRoute>
                         <Reporting />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/excel-import" element={
+                      <PrivateRoute>
+                        <ExcelImportPage />
                       </PrivateRoute>
                     } />
                     {/* <Route path="/import" element={
