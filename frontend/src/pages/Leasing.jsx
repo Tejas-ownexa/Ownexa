@@ -102,17 +102,51 @@ const Leasing = () => {
   );
 };
 
-// Listing Tab Component
+// Listing Tab Component  
 const ListingTab = () => {
+  const [listingActiveTab, setListingActiveTab] = React.useState('listed');
+
+  const renderListingContent = () => {
+    switch (listingActiveTab) {
+      case 'listed':
+        return <ListedUnitsTab />;
+      case 'unlisted':
+        return <UnlistedUnitsTab />;
+      default:
+        return <ListedUnitsTab />;
+    }
+  };
+
   return (
-    <div className="text-center py-12">
-      <Building className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Listing Management</h3>
-      <p className="text-gray-600 mb-6">Manage property listings and availability</p>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
-        <Plus className="h-4 w-4" />
-        <span>Create Listing</span>
-      </button>
+    <div className="space-y-6">
+      {/* Listing Sub-tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setListingActiveTab('listed')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+              listingActiveTab === 'listed'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Listed Units
+          </button>
+          <button
+            onClick={() => setListingActiveTab('unlisted')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+              listingActiveTab === 'unlisted'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Unlisted Units
+          </button>
+        </nav>
+      </div>
+
+      {/* Listing Content */}
+      {renderListingContent()}
     </div>
   );
 };
@@ -177,6 +211,48 @@ const LeasingTab = () => {
         <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
           <FileText className="h-4 w-4" />
           <span>Generate Report</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Listed Units Tab Component
+const ListedUnitsTab = () => {
+  return (
+    <div className="text-center py-12">
+      <Building className="h-16 w-16 mx-auto text-gray-300 mb-4" />
+      <h3 className="text-lg font-medium text-gray-900 mb-2">Listed Units</h3>
+      <p className="text-gray-600 mb-6">Manage properties that are currently listed for rent</p>
+      <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
+          <Plus className="h-4 w-4" />
+          <span>Add Listing</span>
+        </button>
+        <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
+          <Building className="h-4 w-4" />
+          <span>View All Listed</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Unlisted Units Tab Component
+const UnlistedUnitsTab = () => {
+  return (
+    <div className="text-center py-12">
+      <Building className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+      <h3 className="text-lg font-medium text-gray-900 mb-2">Unlisted Units</h3>
+      <p className="text-gray-600 mb-6">Manage properties that are not currently listed for rent</p>
+      <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
+        <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2">
+          <Plus className="h-4 w-4" />
+          <span>Create Listing</span>
+        </button>
+        <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2">
+          <Building className="h-4 w-4" />
+          <span>View Unlisted</span>
         </button>
       </div>
     </div>
