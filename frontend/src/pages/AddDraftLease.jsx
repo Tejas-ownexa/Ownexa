@@ -43,7 +43,23 @@ const AddDraftLease = () => {
   };
 
   const addOneTimeCharge = () => {
-    setOneTimeCharges(prev => [...prev, { id: Date.now(), description: '', amount: '' }]);
+    setOneTimeCharges(prev => [...prev, { 
+      id: Date.now(), 
+      account: '', 
+      dueDate: '', 
+      amount: '', 
+      memo: '' 
+    }]);
+  };
+
+  const removeOneTimeCharge = (id) => {
+    setOneTimeCharges(prev => prev.filter(charge => charge.id !== id));
+  };
+
+  const updateOneTimeCharge = (id, field, value) => {
+    setOneTimeCharges(prev => prev.map(charge => 
+      charge.id === id ? { ...charge, [field]: value } : charge
+    ));
   };
 
   const splitRentCharge = () => {
@@ -456,6 +472,87 @@ const AddDraftLease = () => {
                     <option value="quarterly">Quarterly</option>
                     <option value="yearly">Yearly</option>
                   </select>
+                </div>
+              </div>
+            ))}
+
+            {/* One-time Charges */}
+            {oneTimeCharges.map((charge) => (
+              <div key={charge.id} className="mb-6 p-3 sm:p-4 border-l-4 border-green-500 bg-green-50 rounded-r-md">
+                <div className="flex justify-between items-start mb-4">
+                  <h4 className="text-sm sm:text-base font-medium text-gray-900">One-time</h4>
+                  <button
+                    onClick={() => removeOneTimeCharge(charge.id)}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                  {/* Account */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      ACCOUNT <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={charge.account}
+                      onChange={(e) => updateOneTimeCharge(charge.id, 'account', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                    >
+                      <option value="">Select</option>
+                      <option value="maintenance">Maintenance</option>
+                      <option value="utilities">Utilities</option>
+                      <option value="parking">Parking</option>
+                      <option value="pet-fee">Pet Fee</option>
+                      <option value="security-deposit">Security Deposit</option>
+                      <option value="cleaning-fee">Cleaning Fee</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+
+                  {/* Due Date */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      DUE DATE <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={charge.dueDate}
+                      onChange={(e) => updateOneTimeCharge(charge.id, 'dueDate', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="mm/dd/yyyy"
+                    />
+                  </div>
+
+                  {/* Amount */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">AMOUNT</label>
+                    <input
+                      type="number"
+                      value={charge.amount}
+                      onChange={(e) => updateOneTimeCharge(charge.id, 'amount', e.target.value)}
+                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="$0.00"
+                    />
+                  </div>
+
+                  {/* Memo */}
+                  <div>
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">MEMO</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={charge.memo}
+                        onChange={(e) => updateOneTimeCharge(charge.id, 'memo', e.target.value)}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm sm:text-base focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        maxLength={100}
+                      />
+                      <div className="absolute right-2 top-full mt-1 text-xs text-gray-500">
+                        {100 - (charge.memo?.length || 0)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
