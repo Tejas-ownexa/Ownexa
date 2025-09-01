@@ -25,7 +25,8 @@ import {
   Receipt,
   UserCheck,
   AlertTriangle,
-  ClipboardList
+  ClipboardList,
+  RefreshCw
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -35,6 +36,7 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [rentalsExpanded, setRentalsExpanded] = useState(false);
+  const [leasingExpanded, setLeasingExpanded] = useState(false);
 
   const getNavItems = () => {
     if (!user) return [];
@@ -68,7 +70,20 @@ const Sidebar = () => {
           { name: 'Outstanding Balance', href: '/outstanding-balances', icon: AlertTriangle }
         ]
       },
-      { name: 'Leasing', href: '/leasing', icon: ClipboardList },
+      {
+        name: 'Leasing',
+        icon: ClipboardList,
+        isExpandable: true,
+        isExpanded: leasingExpanded,
+        toggle: () => setLeasingExpanded(!leasingExpanded),
+        subItems: [
+          { name: 'Listing', href: '/leasing?tab=listing', icon: Building },
+          { name: 'Applicants', href: '/leasing?tab=applicants', icon: Users },
+          { name: 'Draft Lease', href: '/leasing?tab=draft-lease', icon: FileText },
+          { name: 'Lease Renewals', href: '/leasing?tab=lease-renewals', icon: RefreshCw },
+          { name: 'Leasing Overview', href: '/leasing?tab=leasing', icon: Home }
+        ]
+      },
       { name: 'Maintenance', href: '/maintenance', icon: Wrench },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
