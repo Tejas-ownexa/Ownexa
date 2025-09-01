@@ -25,6 +25,42 @@ const Leasing = () => {
     }
   }, [searchParams]);
 
+  // Get page title and description based on active tab
+  const getPageInfo = () => {
+    switch (activeTab) {
+      case 'listing':
+        return {
+          title: 'Listing',
+          description: 'Manage property listings and availability'
+        };
+      case 'applicants':
+        return {
+          title: 'Applicants',
+          description: 'Review and process rental applications'
+        };
+      case 'draft-lease':
+        return {
+          title: 'Draft Lease',
+          description: 'Create and manage draft lease agreements'
+        };
+      case 'lease-renewals':
+        return {
+          title: 'Lease Renewals',
+          description: 'Manage lease renewals and extensions'
+        };
+      case 'leasing':
+        return {
+          title: 'Leasing Overview',
+          description: 'Complete leasing dashboard and analytics'
+        };
+      default:
+        return {
+          title: 'Listing',
+          description: 'Manage property listings and availability'
+        };
+    }
+  };
+
 
 
   // Render content based on active tab
@@ -45,25 +81,15 @@ const Leasing = () => {
     }
   };
 
+  const pageInfo = getPageInfo();
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Leasing</h1>
-            <p className="text-gray-600">Manage leases, applications, and tenant onboarding</p>
-          </div>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-            <button className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base">
-              <Plus className="h-4 w-4" />
-              <span>New Lease</span>
-            </button>
-            <button className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base">
-              <FileText className="h-4 w-4" />
-              <span>New Application</span>
-            </button>
-          </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{pageInfo.title}</h1>
+          <p className="text-gray-600">{pageInfo.description}</p>
         </div>
       </div>
 
