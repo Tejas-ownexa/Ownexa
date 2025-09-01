@@ -170,18 +170,18 @@ const ApplicantsTab = () => {
   const applicants = []; // Sample data - replace with real data later
   const applicantGroups = []; // Sample group data - replace with real data later
 
-  // Filter states
+  // Filter states - using arrays for multi-select
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [stageFilter, setStageFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [stageFilter, setStageFilter] = useState([]);
+  const [dateFilter, setDateFilter] = useState('all'); // Keep single select for date
   const [showFilters, setShowFilters] = useState(false);
 
   // Get active filter count
   const getActiveFilterCount = () => {
     let count = 0;
-    if (statusFilter !== 'all') count++;
-    if (stageFilter !== 'all') count++;
+    if (statusFilter.length > 0) count++;
+    if (stageFilter.length > 0) count++;
     if (dateFilter !== 'all') count++;
     return count;
   };
@@ -318,11 +318,14 @@ const ApplicantsTab = () => {
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Status</label>
                 <select
+                  multiple
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onChange={(e) => {
+                    const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+                    setStatusFilter(selectedValues);
+                  }}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
                 >
-                  <option value="all">All Status</option>
                   <option value="submitted">Submitted</option>
                   <option value="under-review">Under Review</option>
                   <option value="approved">Approved</option>
@@ -335,6 +338,7 @@ const ApplicantsTab = () => {
                     </>
                   )}
                 </select>
+                <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
               </div>
 
               {/* Stage Filter (Individual only) */}
@@ -342,17 +346,21 @@ const ApplicantsTab = () => {
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Stage</label>
                   <select
+                    multiple
                     value={stageFilter}
-                    onChange={(e) => setStageFilter(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => {
+                      const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+                      setStageFilter(selectedValues);
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
                   >
-                    <option value="all">All Stages</option>
                     <option value="application-submitted">Application Submitted</option>
                     <option value="background-check">Background Check</option>
                     <option value="reference-verification">Reference Verification</option>
                     <option value="final-review">Final Review</option>
                     <option value="lease-preparation">Lease Preparation</option>
                   </select>
+                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
                 </div>
               )}
 
@@ -361,16 +369,20 @@ const ApplicantsTab = () => {
                 <div>
                   <label className="block text-xs font-medium text-gray-700 mb-1">Progress</label>
                   <select
+                    multiple
                     value={stageFilter}
-                    onChange={(e) => setStageFilter(e.target.value)}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => {
+                      const selectedValues = Array.from(e.target.selectedOptions, option => option.value);
+                      setStageFilter(selectedValues);
+                    }}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
                   >
-                    <option value="all">All Progress</option>
                     <option value="0-25">0-25% Complete</option>
                     <option value="26-50">26-50% Complete</option>
                     <option value="51-75">51-75% Complete</option>
                     <option value="76-100">76-100% Complete</option>
                   </select>
+                  <p className="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple</p>
                 </div>
               )}
 
@@ -398,8 +410,8 @@ const ApplicantsTab = () => {
               <button
                 onClick={() => {
                   setSearchTerm('');
-                  setStatusFilter('all');
-                  setStageFilter('all');
+                  setStatusFilter([]);
+                  setStageFilter([]);
                   setDateFilter('all');
                 }}
                 className="text-sm text-gray-600 hover:text-gray-800 underline"
