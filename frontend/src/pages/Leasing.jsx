@@ -10,7 +10,14 @@ import {
   Edit,
   RefreshCw,
   Home,
-  Download
+  Download,
+  MoreHorizontal,
+  UserPlus,
+  UsersIcon,
+  Printer,
+  CheckSquare,
+  FileEdit,
+  DollarSign
 } from 'lucide-react';
 
 const Leasing = () => {
@@ -154,15 +161,163 @@ const ListingTab = () => {
 
 // Applicants Tab Component
 const ApplicantsTab = () => {
+  const [showBurgerMenu, setShowBurgerMenu] = useState(false);
+  const applicants = []; // Sample data - replace with real data later
+
+  const burgerMenuItems = [
+    { label: 'Print Rental Application', icon: Printer, action: () => console.log('Print rental application') },
+    { label: 'Customize Applicants checklist', icon: CheckSquare, action: () => console.log('Customize applicants checklist') },
+    { label: 'Customize rental application', icon: FileEdit, action: () => console.log('Customize rental application') },
+    { label: 'Manage application fees', icon: DollarSign, action: () => console.log('Manage application fees') }
+  ];
+
   return (
-    <div className="text-center py-12">
-      <Users className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Applicant Management</h3>
-      <p className="text-gray-600 mb-6">Review and process rental applications</p>
-      <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
-        <Users className="h-4 w-4" />
-        <span>View Applications</span>
-      </button>
+    <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+        <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+          <Download className="h-4 w-4" />
+          <span>Export</span>
+        </button>
+        
+        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+          <UserPlus className="h-4 w-4" />
+          <span>Add Applicants</span>
+        </button>
+        
+        <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+          <UsersIcon className="h-4 w-4" />
+          <span>Create group</span>
+        </button>
+
+        {/* Burger Menu */}
+        <div className="relative w-full sm:w-auto">
+          <button 
+            onClick={() => setShowBurgerMenu(!showBurgerMenu)}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sm:hidden">More Options</span>
+          </button>
+
+          {/* Dropdown Menu */}
+          {showBurgerMenu && (
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+              <div className="py-2">
+                {burgerMenuItems.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        item.action();
+                        setShowBurgerMenu(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                    >
+                      <Icon className="h-4 w-4 text-gray-500" />
+                      <span className="text-sm text-gray-700">{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Applicants Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Phone
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Property
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Application Date
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {applicants.length > 0 ? (
+                applicants.map((applicant) => (
+                  <tr key={applicant.id} className="hover:bg-gray-50">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {applicant.name}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {applicant.email}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {applicant.phone}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {applicant.property}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {applicant.applicationDate}
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        applicant.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                        applicant.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
+                        applicant.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {applicant.status}
+                      </span>
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button className="text-blue-600 hover:text-blue-900">
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
+                    <div className="text-gray-400 mb-4">
+                      <Users className="h-16 w-16 mx-auto" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No applicants found</h3>
+                    <p className="text-gray-600 mb-6">Get started by adding your first applicant or wait for applications to come in</p>
+                    <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
+                      <UserPlus className="h-4 w-4" />
+                      <span>Add First Applicant</span>
+                    </button>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Click outside to close burger menu */}
+      {showBurgerMenu && (
+        <div 
+          className="fixed inset-0 z-5" 
+          onClick={() => setShowBurgerMenu(false)}
+        />
+      )}
     </div>
   );
 };
