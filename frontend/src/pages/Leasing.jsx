@@ -889,15 +889,244 @@ const DraftLeaseTab = () => {
 
 // Lease Renewals Tab Component
 const LeaseRenewalsTab = () => {
+  const [activeRenewalTab, setActiveRenewalTab] = useState('renewals');
+  const [filterRentals, setFilterRentals] = useState('all-rentals');
+  const [filterDays, setFilterDays] = useState('241-days');
+  
+  // Sample lease renewal data - replace with real data later
+  const leaseRenewals = [
+    {
+      id: 1,
+      daysLeft: 348,
+      lease: 'ATK 83 - PEMBROKE CAY CONDO - ATK 83 | MATIANA MALAGUTI',
+      currentTerms: 'Fixed | $2,850.00\n8/15/2025 - 8/14/2026',
+      rentalOwners: 'ATK ASSOCIATES LLC'
+    },
+    {
+      id: 2,
+      daysLeft: 334,
+      lease: 'ATK 11 - MOORS POINTE COND - ATK 11 | Hector Sanchez',
+      currentTerms: 'Fixed w/rollover | $2,000.00\n8/15/2021 - 7/31/2026',
+      rentalOwners: 'ATK ASSOCIATES LLC'
+    },
+    {
+      id: 3,
+      daysLeft: 334,
+      lease: 'ATK 51 - BEACH CLUB CONDO - ATK 51 | Amarilis B Delgado',
+      currentTerms: 'Fixed | $2,200.00\n8/1/2025 - 7/31/2026',
+      rentalOwners: 'ATK ASSOCIATES LLC'
+    },
+    {
+      id: 4,
+      daysLeft: 317,
+      lease: 'KRSS 4 - INDIAN SUMMER VILL - KRSS 4 | Angie Panameno, Samuel Cajina',
+      currentTerms: 'Fixed | $2,600.00\n7/15/2025 - 7/14/2026',
+      rentalOwners: 'KRSS CONSULTANTS INC'
+    },
+    {
+      id: 5,
+      daysLeft: 303,
+      lease: 'KRSS 7 - CENTURY PARK CONDO - KRSS 7 | Tania Onalsy Mata, Samuel Rodolfo Perez',
+      currentTerms: 'Fixed w/rollover | $2,500.00\n7/1/2025 - 6/30/2026',
+      rentalOwners: 'KRSS CONSULTANTS INC'
+    },
+    {
+      id: 6,
+      daysLeft: 303,
+      lease: 'ATK 26 - BONITA GOLF VIEW - ATK 26 | Jorge Novellas, Isis D Novellas',
+      currentTerms: 'Fixed | $2,700.00\n7/1/2025 - 6/30/2026',
+      rentalOwners: 'ATK ASSOCIATES LLC'
+    },
+    {
+      id: 7,
+      daysLeft: 303,
+      lease: 'KT 8 - FLORAL PARK VILLAS - KT 8 | Oriitheneer Sherrine Rono',
+      currentTerms: 'Fixed | $1,500.00\n7/1/2025 - 6/30/2026',
+      rentalOwners: 'KT PROPERTIES LLC'
+    },
+    {
+      id: 8,
+      daysLeft: 303,
+      lease: 'KRSS 6 - TERRANOVA - KRSS 6 | Pablo Fernandez, Atinay Reyes',
+      currentTerms: 'Fixed w/rollover | $2,300.00\n7/15/2025 - 6/30/2026',
+      rentalOwners: 'KRSS CONSULTANTS INC, KRSS CONSULTANTS LLC'
+    },
+    {
+      id: 9,
+      daysLeft: 302,
+      lease: 'ATK 48 - SUNSET VILLAS CONDO - ATK 48 | Dayana Lisca',
+      currentTerms: 'Fixed w/rollover | $2,000.00',
+      rentalOwners: 'ATK ASSOCIATES LLC'
+    }
+  ];
+
+  const getFilteredLeases = () => {
+    return leaseRenewals.filter(lease => {
+      // Apply filtering logic based on selected filters
+      return true; // For now, return all
+    });
+  };
+
+  const filteredLeases = getFilteredLeases();
+
   return (
-    <div className="text-center py-12">
-      <RefreshCw className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Lease Renewals</h3>
-      <p className="text-gray-600 mb-6">Manage lease renewals and extensions</p>
-      <button className="bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
-        <RefreshCw className="h-4 w-4" />
-        <span>Process Renewal</span>
-      </button>
+    <div className="space-y-6">
+      {/* Header with Title */}
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Lease management</h2>
+      </div>
+
+      {/* Top Level Tabs */}
+      <div className="border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveRenewalTab('renewals')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeRenewalTab === 'renewals'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Renewals
+          </button>
+          <button
+            onClick={() => setActiveRenewalTab('leasing')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+              activeRenewalTab === 'leasing'
+                ? 'border-green-500 text-green-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Leasing
+          </button>
+        </nav>
+      </div>
+
+      {/* Sub-tabs for Renewals */}
+      {activeRenewalTab === 'renewals' && (
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 font-medium text-sm whitespace-nowrap">
+              Not Started (23)
+            </button>
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+              Renewal offers (0)
+            </button>
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+              Accepted offers (0)
+            </button>
+          </nav>
+        </div>
+      )}
+
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+        <div className="w-full sm:w-48">
+          <select
+            value={filterRentals}
+            onChange={(e) => setFilterRentals(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="all-rentals">All rentals</option>
+            <option value="atk-associates">ATK Associates</option>
+            <option value="krss-consultants">KRSS Consultants</option>
+            <option value="kt-properties">KT Properties</option>
+          </select>
+        </div>
+        <div className="w-full sm:w-64">
+          <select
+            value={filterDays}
+            onChange={(e) => setFilterDays(e.target.value)}
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          >
+            <option value="241-days">(8) 241+ days, 181-240 days, 1...</option>
+            <option value="180-days">180 days or less</option>
+            <option value="120-days">120 days or less</option>
+            <option value="60-days">60 days or less</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Results Count */}
+      <div className="text-sm text-gray-600">
+        {filteredLeases.length} matches
+      </div>
+
+      {/* Lease Renewals Table */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 sm:px-6 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
+                  DAYS LEFT
+                  <ChevronDown className="inline h-4 w-4 ml-1" />
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  LEASE
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  CURRENT TERMS
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  RENTAL OWNERS
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredLeases.map((lease) => (
+                <tr key={lease.id} className="hover:bg-gray-50">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {lease.daysLeft} DAYS
+                    </span>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-sm">
+                    <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
+                      {lease.lease}
+                    </a>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">
+                    <div className="whitespace-pre-line">
+                      {lease.currentTerms}
+                    </div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-sm">
+                    <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
+                      {lease.rentalOwners}
+                    </a>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button className="bg-white text-gray-700 px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors text-sm">
+                        Generate offer
+                      </button>
+                      <button className="text-gray-400 hover:text-gray-600">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
