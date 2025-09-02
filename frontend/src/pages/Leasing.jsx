@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import AddApplicantModal from '../components/AddApplicantModal';
 import { 
   Plus,
   ClipboardList,
@@ -112,6 +113,15 @@ const Leasing = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('listing');
+  const [isAddApplicantModalOpen, setIsAddApplicantModalOpen] = useState(false);
+
+  // Handle saving new applicant
+  const handleSaveApplicant = (applicantData) => {
+    console.log('Saving applicant:', applicantData);
+    // TODO: Implement API call to save applicant
+    // For now, just close the modal
+    setIsAddApplicantModalOpen(false);
+  };
 
   // Handle URL parameters to set initial tab
   useEffect(() => {
@@ -194,6 +204,12 @@ const Leasing = () => {
         {renderTabContent()}
       </div>
 
+      {/* Add Applicant Modal */}
+      <AddApplicantModal
+        isOpen={isAddApplicantModalOpen}
+        onClose={() => setIsAddApplicantModalOpen(false)}
+        onSave={handleSaveApplicant}
+      />
     </div>
   );
 };
@@ -312,7 +328,10 @@ const ApplicantsTab = () => {
           <span>Export</span>
         </button>
         
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+        <button 
+          onClick={() => setIsAddApplicantModalOpen(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
+        >
           <UserPlus className="h-4 w-4" />
           <span>Add Applicants</span>
         </button>
