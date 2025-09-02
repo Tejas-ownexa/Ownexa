@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import AddApplicantModal from '../components/AddApplicantModal';
+import CreateApplicantGroupModal from '../components/CreateApplicantGroupModal';
 import { 
   Plus,
   ClipboardList,
@@ -114,6 +115,7 @@ const Leasing = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('listing');
   const [isAddApplicantModalOpen, setIsAddApplicantModalOpen] = useState(false);
+  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
 
   // Handle saving new applicant
   const handleSaveApplicant = (applicantData) => {
@@ -121,6 +123,14 @@ const Leasing = () => {
     // TODO: Implement API call to save applicant
     // For now, just close the modal
     setIsAddApplicantModalOpen(false);
+  };
+
+  // Handle saving new applicant group
+  const handleSaveApplicantGroup = (groupData) => {
+    console.log('Saving applicant group:', groupData);
+    // TODO: Implement API call to save applicant group
+    // For now, just close the modal
+    setIsCreateGroupModalOpen(false);
   };
 
   // Handle URL parameters to set initial tab
@@ -175,7 +185,10 @@ const Leasing = () => {
       case 'listing':
         return <ListingTab />;
       case 'applicants':
-        return <ApplicantsTab onOpenAddApplicant={() => setIsAddApplicantModalOpen(true)} />;
+        return <ApplicantsTab 
+          onOpenAddApplicant={() => setIsAddApplicantModalOpen(true)}
+          onOpenCreateGroup={() => setIsCreateGroupModalOpen(true)}
+        />;
       case 'draft-lease':
         return <DraftLeaseTab />;
       case 'lease-renewals':
@@ -209,6 +222,13 @@ const Leasing = () => {
         isOpen={isAddApplicantModalOpen}
         onClose={() => setIsAddApplicantModalOpen(false)}
         onSave={handleSaveApplicant}
+      />
+
+      {/* Create Applicant Group Modal */}
+      <CreateApplicantGroupModal
+        isOpen={isCreateGroupModalOpen}
+        onClose={() => setIsCreateGroupModalOpen(false)}
+        onSave={handleSaveApplicantGroup}
       />
     </div>
   );
@@ -264,7 +284,7 @@ const ListingTab = () => {
 };
 
 // Applicants Tab Component
-const ApplicantsTab = ({ onOpenAddApplicant }) => {
+const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or 'group'
   const applicants = []; // Sample data - replace with real data later
@@ -336,7 +356,10 @@ const ApplicantsTab = ({ onOpenAddApplicant }) => {
           <span>Add Applicants</span>
         </button>
         
-        <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+        <button 
+          onClick={onOpenCreateGroup}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
+        >
           <UsersIcon className="h-4 w-4" />
           <span>Create group</span>
         </button>
