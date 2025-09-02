@@ -955,6 +955,23 @@ const LeaseRenewalsTab = () => {
         </div>
       )}
 
+      {/* Sub-tabs for Leasing */}
+      {activeRenewalTab === 'leasing' && (
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 font-medium text-sm whitespace-nowrap">
+              Move outs (0)
+            </button>
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+              Move ins (0)
+            </button>
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+              Vacancies (53)
+            </button>
+          </nav>
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
         <div className="w-full sm:w-48">
@@ -994,8 +1011,16 @@ const LeaseRenewalsTab = () => {
         {filteredLeases.length} matches
       </div>
 
-      {/* Lease Renewals Table */}
+      {/* Content Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {/* Export Button */}
+        <div className="flex justify-end p-4 border-b border-gray-200">
+          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2">
+            <Download className="h-4 w-4" />
+            <span>Export</span>
+          </button>
+        </div>
+        
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -1006,75 +1031,119 @@ const LeaseRenewalsTab = () => {
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
-                  DAYS LEFT
-                  <ChevronDown className="inline h-4 w-4 ml-1" />
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  LEASE
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  CURRENT TERMS
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  RENTAL OWNERS
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  ACTIONS
-                </th>
+                {activeRenewalTab === 'renewals' ? (
+                  <>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
+                      DAYS LEFT
+                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      LEASE
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      CURRENT TERMS
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      RENTAL OWNERS
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      ACTIONS
+                    </th>
+                  </>
+                ) : (
+                  <>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
+                      DAYS LEFT
+                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      LEASE
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      STATUS
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NOTICE GIVEN DATE
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      MOVE OUT DATE
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      COMMENTS
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NEXT LEASE
+                    </th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredLeases.length > 0 ? (
-                filteredLeases.map((lease) => (
-                  <tr key={lease.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                      <input
-                        type="checkbox"
-                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                      />
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {lease.daysLeft} DAYS
-                      </span>
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 text-sm">
-                      <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
-                        {lease.lease}
-                      </a>
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">
-                      <div className="whitespace-pre-line">
-                        {lease.currentTerms}
+              {activeRenewalTab === 'renewals' ? (
+                filteredLeases.length > 0 ? (
+                  filteredLeases.map((lease) => (
+                    <tr key={lease.id} className="hover:bg-gray-50">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <input
+                          type="checkbox"
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          {lease.daysLeft} DAYS
+                        </span>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 text-sm">
+                        <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
+                          {lease.lease}
+                        </a>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">
+                        <div className="whitespace-pre-line">
+                          {lease.currentTerms}
+                        </div>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 text-sm">
+                        <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
+                          {lease.rentalOwners}
+                        </a>
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm">
+                        <div className="flex items-center justify-end space-x-2">
+                          <button className="bg-white text-gray-700 px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors text-sm">
+                            Generate offer
+                          </button>
+                          <button className="text-gray-400 hover:text-gray-600">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                      <div className="text-gray-400 mb-4">
+                        <RefreshCw className="h-16 w-16 mx-auto" />
                       </div>
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 text-sm">
-                      <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
-                        {lease.rentalOwners}
-                      </a>
-                    </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button className="bg-white text-gray-700 px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors text-sm">
-                          Generate offer
-                        </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No lease renewals found</h3>
+                      <p className="text-gray-600 mb-6">There are currently no lease renewals to manage</p>
+                      <p className="text-sm text-gray-500">Lease renewals will appear here when they become available for processing</p>
                     </td>
                   </tr>
-                ))
+                )
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                  <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
                     <div className="text-gray-400 mb-4">
-                      <RefreshCw className="h-16 w-16 mx-auto" />
+                      <svg className="h-16 w-16 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.3"/>
+                        <path d="M12 8v4m0 4h.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No lease renewals found</h3>
-                    <p className="text-gray-600 mb-6">There are currently no lease renewals to manage</p>
-                    <p className="text-sm text-gray-500">Lease renewals will appear here when they become available for processing</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">We didn't find any leases matching your criteria.</h3>
+                    <p className="text-gray-600">Try changing your filters.</p>
                   </td>
                 </tr>
               )}
