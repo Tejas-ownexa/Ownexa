@@ -175,7 +175,7 @@ const Leasing = () => {
       case 'listing':
         return <ListingTab />;
       case 'applicants':
-        return <ApplicantsTab />;
+        return <ApplicantsTab onOpenAddApplicant={() => setIsAddApplicantModalOpen(true)} />;
       case 'draft-lease':
         return <DraftLeaseTab />;
       case 'lease-renewals':
@@ -264,7 +264,7 @@ const ListingTab = () => {
 };
 
 // Applicants Tab Component
-const ApplicantsTab = () => {
+const ApplicantsTab = ({ onOpenAddApplicant }) => {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or 'group'
   const applicants = []; // Sample data - replace with real data later
@@ -329,7 +329,7 @@ const ApplicantsTab = () => {
         </button>
         
         <button 
-          onClick={() => setIsAddApplicantModalOpen(true)}
+          onClick={onOpenAddApplicant}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto"
         >
           <UserPlus className="h-4 w-4" />
