@@ -891,7 +891,7 @@ const DraftLeaseTab = () => {
 const LeaseRenewalsTab = () => {
   const [activeRenewalTab, setActiveRenewalTab] = useState('renewals');
   const [filterRentals, setFilterRentals] = useState('all-rentals');
-  const [filterDays, setFilterDays] = useState('241-days');
+  const [filterDays, setFilterDays] = useState('all');
   
   // Lease renewal data - will be populated from backend API
   const leaseRenewals = [];
@@ -975,10 +975,15 @@ const LeaseRenewalsTab = () => {
             onChange={(e) => setFilterDays(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
           >
-            <option value="241-days">241+ days, 181-240 days, 1...</option>
-            <option value="180-days">180 days or less</option>
-            <option value="120-days">120 days or less</option>
-            <option value="60-days">60 days or less</option>
+            <option value="all">All time periods</option>
+            <option value="241-plus">241+ days</option>
+            <option value="181-240">181-240 days</option>
+            <option value="121-180">121-180 days</option>
+            <option value="91-120">91-120 days</option>
+            <option value="61-90">61-90 days</option>
+            <option value="31-60">31-60 days</option>
+            <option value="30-fewer">30 days or fewer</option>
+            <option value="expired">Expired</option>
           </select>
         </div>
       </div>
