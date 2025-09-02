@@ -891,7 +891,7 @@ const DraftLeaseTab = () => {
 const LeaseRenewalsTab = () => {
   const [activeRenewalTab, setActiveRenewalTab] = useState('renewals');
   const [filterRentals, setFilterRentals] = useState('all-rentals');
-  const [filterDays, setFilterDays] = useState('all');
+  const [filterDays, setFilterDays] = useState([]);
   
   // Lease renewal data - will be populated from backend API
   const leaseRenewals = [];
@@ -970,21 +970,22 @@ const LeaseRenewalsTab = () => {
           </select>
         </div>
         <div className="w-full sm:w-64">
-          <select
+          <MultiSelectDropdown
+            label=""
+            options={[
+              { value: '241-plus', label: '241+ days' },
+              { value: '181-240', label: '181-240 days' },
+              { value: '121-180', label: '121-180 days' },
+              { value: '91-120', label: '91-120 days' },
+              { value: '61-90', label: '61-90 days' },
+              { value: '31-60', label: '31-60 days' },
+              { value: '30-fewer', label: '30 days or fewer' },
+              { value: 'expired', label: 'Expired' }
+            ]}
             value={filterDays}
-            onChange={(e) => setFilterDays(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
-          >
-            <option value="all">All time periods</option>
-            <option value="241-plus">241+ days</option>
-            <option value="181-240">181-240 days</option>
-            <option value="121-180">121-180 days</option>
-            <option value="91-120">91-120 days</option>
-            <option value="61-90">61-90 days</option>
-            <option value="31-60">31-60 days</option>
-            <option value="30-fewer">30 days or fewer</option>
-            <option value="expired">Expired</option>
-          </select>
+            onChange={setFilterDays}
+            placeholder="All time periods"
+          />
         </div>
       </div>
 
