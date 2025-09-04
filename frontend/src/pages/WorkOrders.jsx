@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronDown, Download, HelpCircle, ChevronUp } from 'lucide-react';
 
 // Multi-select dropdown component with checkboxes
@@ -71,6 +72,7 @@ const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) =
 };
 
 const WorkOrders = () => {
+  const navigate = useNavigate();
   const [selectedProperty, setSelectedProperty] = useState('all');
   const [selectedStatuses, setSelectedStatuses] = useState(['new', 'in-progress', 'completed', 'deferred', 'closed']);
   const [filterOption, setFilterOption] = useState('');
@@ -98,8 +100,7 @@ const WorkOrders = () => {
   };
 
   const handleAddWorkOrder = () => {
-    // TODO: Navigate to add work order page
-    console.log('Add work order');
+    navigate('/maintenance/work-orders/add');
   };
 
   const handlePrintWorkOrders = () => {
