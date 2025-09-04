@@ -21,6 +21,10 @@ const Vendors = () => {
     navigate('/maintenance/vendors/add');
   };
 
+  const handleManageCategories = () => {
+    navigate('/maintenance/vendors/categories');
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -36,7 +40,10 @@ const Vendors = () => {
             >
               Add vendor
             </button>
-            <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+            <button 
+              onClick={handleManageCategories}
+              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+            >
               Manage categories
             </button>
             <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
