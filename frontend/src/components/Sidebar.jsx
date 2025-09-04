@@ -111,8 +111,7 @@ const Sidebar = () => {
         toggle: () => setMaintenanceExpanded(!maintenanceExpanded),
         subItems: [
           { name: 'Vendors', href: '/maintenance/vendors', icon: Users },
-          { name: 'Work Orders', href: '/maintenance/work-orders', icon: ClipboardList },
-          { name: 'Property inspections', href: '/maintenance/property-inspections', icon: Search }
+          { name: 'Work Orders', href: '/maintenance/work-orders', icon: ClipboardList }
         ]
       },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
