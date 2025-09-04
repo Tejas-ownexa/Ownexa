@@ -26,6 +26,7 @@ import MaintenanceRequest from './pages/MaintenanceRequest';
 import VendorProfile from './pages/VendorProfile';
 import Vendors from './pages/Vendors';
 import AddVendor from './pages/AddVendor';
+import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import PropertyInspections from './pages/PropertyInspections';
 
@@ -138,6 +139,11 @@ const App = () => {
                     <Route path="/maintenance/vendors/add" element={
                       <PrivateRoute>
                         <AddVendor />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/vendors/categories" element={
+                      <PrivateRoute>
+                        <ManageVendorCategories />
                       </PrivateRoute>
                     } />
                     <Route path="/maintenance/work-orders" element={
