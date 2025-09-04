@@ -107,25 +107,76 @@ CREATE TABLE draft_leases (
 
 
 
--- 8. VENDORS TABLE
-CREATE TABLE vendors (
+-- 8. VENDOR CATEGORIES TABLE
+CREATE TABLE vendor_categories (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-    vendor_type VARCHAR(50) NOT NULL,
-    business_name VARCHAR(255) NOT NULL,
-    phone_number VARCHAR(20) NOT NULL,
-    email VARCHAR(120) NOT NULL,
-    address TEXT NOT NULL,
-    license_number VARCHAR(100),
-    insurance_info TEXT,
-    hourly_rate NUMERIC(10, 2),
-    is_verified BOOLEAN DEFAULT FALSE,
-    is_active BOOLEAN DEFAULT TRUE,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    is_deletable BOOLEAN DEFAULT TRUE,
+    created_by_user_id INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 9. MAINTENANCE REQUESTS TABLE
+-- Insert default categories
+INSERT INTO vendor_categories (name, description, is_deletable) VALUES 
+('Uncategorized', 'Default category for vendors without specific classification', FALSE),
+('Plumbing', 'Plumbing contractors and services', TRUE),
+('Electrical', 'Electrical contractors and services', TRUE),
+('HVAC', 'Heating, Ventilation, and Air Conditioning services', TRUE),
+('Landscaping', 'Landscaping and grounds maintenance services', TRUE),
+('Cleaning', 'Cleaning and janitorial services', TRUE);
+
+-- 9. VENDORS TABLE (Enhanced)
+CREATE TABLE vendors (
+    id SERIAL PRIMARY KEY,
+    created_by_user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    
+    -- Basic Information
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    company_name VARCHAR(255),
+    is_company BOOLEAN DEFAULT FALSE,
+    category_id INTEGER REFERENCES vendor_categories(id) ON DELETE SET NULL,
+    expense_account VARCHAR(100),
+    account_number VARCHAR(50),
+    
+    -- Contact Information
+    primary_email VARCHAR(120) NOT NULL,
+    alternate_email VARCHAR(120),
+    phone_1 VARCHAR(20),
+    phone_2 VARCHAR(20),
+    phone_3 VARCHAR(20),
+    phone_4 VARCHAR(20),
+    
+    -- Address Information
+    street_address TEXT,
+    city VARCHAR(100),
+    state VARCHAR(50),
+    zip_code VARCHAR(20),
+    country VARCHAR(100) DEFAULT 'United States',
+    website VARCHAR(255),
+    comments TEXT,
+    
+    -- Tax Filing Information (1099-NEC)
+    tax_id_type VARCHAR(20), -- 'ssn', 'ein', 'itin'
+    taxpayer_id VARCHAR(50),
+    use_different_name BOOLEAN DEFAULT FALSE,
+    use_different_address BOOLEAN DEFAULT FALSE,
+    
+    -- Insurance Information
+    insurance_provider VARCHAR(255),
+    policy_number VARCHAR(100),
+    insurance_expiration_date VARCHAR(20), -- Format: m/yyyy
+    
+    -- System Fields
+    is_active BOOLEAN DEFAULT TRUE,
+    is_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 10. MAINTENANCE REQUESTS TABLE
 CREATE TABLE maintenance_requests (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
@@ -812,7 +863,15 @@ CREATE INDEX idx_loan_payments_property_financial_id ON loan_payments(property_f
 CREATE INDEX idx_rent_roll_tenant_id ON rent_roll(tenant_id);
 CREATE INDEX idx_rent_roll_property_id ON rent_roll(property_id);
 CREATE INDEX idx_outstanding_balances_tenant_id ON outstanding_balances(tenant_id);
-CREATE INDEX idx_vendors_user_id ON vendors(user_id);
+-- Vendor related indexes
+CREATE INDEX idx_vendor_categories_name ON vendor_categories(name);
+CREATE INDEX idx_vendor_categories_created_by ON vendor_categories(created_by_user_id);
+CREATE INDEX idx_vendors_created_by_user ON vendors(created_by_user_id);
+CREATE INDEX idx_vendors_category ON vendors(category_id);
+CREATE INDEX idx_vendors_primary_email ON vendors(primary_email);
+CREATE INDEX idx_vendors_first_last_name ON vendors(first_name, last_name);
+CREATE INDEX idx_vendors_company_name ON vendors(company_name);
+CREATE INDEX idx_vendors_active ON vendors(is_active);
 CREATE INDEX idx_listings_property_id ON listings(property_id);
 CREATE INDEX idx_applicants_listing_id ON applicants(listing_id);
 CREATE INDEX idx_lease_roll_property_id ON lease_roll(property_id);
@@ -877,7 +936,8 @@ COMMENT ON TABLE "user" IS 'User accounts for property owners, tenants, and vend
 COMMENT ON TABLE properties IS 'Property listings with details and status';
 COMMENT ON TABLE tenants IS 'Tenant information and lease details';
 COMMENT ON TABLE maintenance_requests IS 'Maintenance requests and their status';
-COMMENT ON TABLE vendors IS 'Vendor profiles and contact information';
+COMMENT ON TABLE vendor_categories IS 'Categories for organizing vendors by service type';
+COMMENT ON TABLE vendors IS 'Comprehensive vendor profiles with contact, tax, and insurance information';
 COMMENT ON TABLE property_financials IS 'Financial details for each property';
 COMMENT ON TABLE financial_transactions IS 'All financial transactions for properties';
 COMMENT ON TABLE associations IS 'Homeowner associations';
