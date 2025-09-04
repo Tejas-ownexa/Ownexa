@@ -25,6 +25,7 @@ import MaintenanceDashboard from './pages/MaintenanceDashboard';
 import MaintenanceRequest from './pages/MaintenanceRequest';
 import VendorProfile from './pages/VendorProfile';
 import Vendors from './pages/Vendors';
+import AddVendor from './pages/AddVendor';
 import WorkOrders from './pages/WorkOrders';
 import PropertyInspections from './pages/PropertyInspections';
 
@@ -132,6 +133,11 @@ const App = () => {
                     <Route path="/maintenance/vendors" element={
                       <PrivateRoute>
                         <Vendors />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/vendors/add" element={
+                      <PrivateRoute>
+                        <AddVendor />
                       </PrivateRoute>
                     } />
                     <Route path="/maintenance/work-orders" element={
