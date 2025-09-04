@@ -8,6 +8,8 @@ const AddWorkOrder = () => {
   const [formData, setFormData] = useState({
     // Task details
     addToTask: 'create-new-task',
+    property: '',
+    existingTask: '',
     taskType: '',
     category: '',
     assignedTo: '',
@@ -141,6 +143,53 @@ const AddWorkOrder = () => {
                 </label>
               </div>
             </div>
+
+            {/* Additional fields when "Add to existing task" is selected */}
+            {formData.addToTask === 'add-to-existing' && (
+              <div className="space-y-6 bg-gray-50 p-4 rounded-lg">
+                {/* Property Required */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    PROPERTY (REQUIRED)
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.property}
+                      onChange={(e) => handleInputChange('property', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      required
+                    >
+                      <option value="">Select property</option>
+                      <option value="property1">123 Main Street</option>
+                      <option value="property2">456 Oak Avenue</option>
+                      <option value="property3">789 Pine Road</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* Add to Task (Required) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ADD TO TASK (REQUIRED)
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={formData.existingTask}
+                      onChange={(e) => handleInputChange('existingTask', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      required
+                    >
+                      <option value="">Select existing task</option>
+                      <option value="task1">Routine Maintenance - Q1</option>
+                      <option value="task2">Emergency Repairs</option>
+                      <option value="task3">Annual Inspections</option>
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Task Type and Category */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
