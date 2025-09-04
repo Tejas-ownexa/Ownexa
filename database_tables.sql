@@ -176,7 +176,81 @@ CREATE TABLE vendors (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 10. MAINTENANCE REQUESTS TABLE
+-- 10. WORK ORDERS TABLE
+CREATE TABLE work_orders (
+    id SERIAL PRIMARY KEY,
+    work_order_number VARCHAR(50) UNIQUE NOT NULL,
+    
+    -- Property and Unit Information
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    unit_number VARCHAR(50),
+    
+    -- Work Order Details
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    priority VARCHAR(20) NOT NULL DEFAULT 'medium', -- 'low', 'medium', 'high', 'urgent'
+    status VARCHAR(50) NOT NULL DEFAULT 'new', -- 'new', 'in_progress', 'complete', 'cancelled'
+    category VARCHAR(100), -- 'plumbing', 'electrical', 'hvac', etc.
+    
+    -- Assignment and Scheduling
+    assigned_to_user_id INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
+    assigned_vendor_id INTEGER REFERENCES vendors(id) ON DELETE SET NULL,
+    due_date DATE,
+    scheduled_date DATE,
+    completed_date DATE,
+    
+    -- Financial Information
+    estimated_cost NUMERIC(10, 2),
+    actual_cost NUMERIC(10, 2),
+    bill_total NUMERIC(10, 2),
+    bill_status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'submitted', 'approved', 'paid'
+    
+    -- Timestamps and Tracking
+    created_by_user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    age_days INTEGER GENERATED ALWAYS AS (EXTRACT(days FROM CURRENT_DATE - created_at::date)) STORED,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Additional Fields
+    notes TEXT,
+    is_emergency BOOLEAN DEFAULT FALSE,
+    tenant_notified BOOLEAN DEFAULT FALSE,
+    photos_required BOOLEAN DEFAULT FALSE
+);
+
+-- Add trigger to update work_order_number automatically
+CREATE OR REPLACE FUNCTION generate_work_order_number()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.work_order_number IS NULL OR NEW.work_order_number = '' THEN
+        NEW.work_order_number = 'WO-' || LPAD(NEW.id::text, 6, '0');
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_generate_work_order_number
+    BEFORE INSERT ON work_orders
+    FOR EACH ROW
+    EXECUTE FUNCTION generate_work_order_number();
+
+-- Add trigger to update last_updated timestamp
+CREATE OR REPLACE FUNCTION update_work_order_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.last_updated = CURRENT_TIMESTAMP;
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_work_order_timestamp
+    BEFORE UPDATE ON work_orders
+    FOR EACH ROW
+    EXECUTE FUNCTION update_work_order_timestamp();
+
+-- 11. MAINTENANCE REQUESTS TABLE
 CREATE TABLE maintenance_requests (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
@@ -872,6 +946,16 @@ CREATE INDEX idx_vendors_primary_email ON vendors(primary_email);
 CREATE INDEX idx_vendors_first_last_name ON vendors(first_name, last_name);
 CREATE INDEX idx_vendors_company_name ON vendors(company_name);
 CREATE INDEX idx_vendors_active ON vendors(is_active);
+-- Work Orders indexes
+CREATE INDEX idx_work_orders_property_id ON work_orders(property_id);
+CREATE INDEX idx_work_orders_assigned_user ON work_orders(assigned_to_user_id);
+CREATE INDEX idx_work_orders_assigned_vendor ON work_orders(assigned_vendor_id);
+CREATE INDEX idx_work_orders_created_by ON work_orders(created_by_user_id);
+CREATE INDEX idx_work_orders_status ON work_orders(status);
+CREATE INDEX idx_work_orders_priority ON work_orders(priority);
+CREATE INDEX idx_work_orders_due_date ON work_orders(due_date);
+CREATE INDEX idx_work_orders_work_order_number ON work_orders(work_order_number);
+CREATE INDEX idx_work_orders_created_at ON work_orders(created_at);
 CREATE INDEX idx_listings_property_id ON listings(property_id);
 CREATE INDEX idx_applicants_listing_id ON applicants(listing_id);
 CREATE INDEX idx_lease_roll_property_id ON lease_roll(property_id);
@@ -938,6 +1022,7 @@ COMMENT ON TABLE tenants IS 'Tenant information and lease details';
 COMMENT ON TABLE maintenance_requests IS 'Maintenance requests and their status';
 COMMENT ON TABLE vendor_categories IS 'Categories for organizing vendors by service type';
 COMMENT ON TABLE vendors IS 'Comprehensive vendor profiles with contact, tax, and insurance information';
+COMMENT ON TABLE work_orders IS 'Work orders for property maintenance and repairs with tracking and billing';
 COMMENT ON TABLE property_financials IS 'Financial details for each property';
 COMMENT ON TABLE financial_transactions IS 'All financial transactions for properties';
 COMMENT ON TABLE associations IS 'Homeowner associations';
