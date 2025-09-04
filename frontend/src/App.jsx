@@ -29,7 +29,6 @@ import AddVendor from './pages/AddVendor';
 import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
-import PropertyInspections from './pages/PropertyInspections';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
@@ -155,11 +154,6 @@ const App = () => {
                     <Route path="/maintenance/work-orders/add" element={
                       <PrivateRoute>
                         <AddWorkOrder />
-                      </PrivateRoute>
-                    } />
-                    <Route path="/maintenance/property-inspections" element={
-                      <PrivateRoute>
-                        <PropertyInspections />
                       </PrivateRoute>
                     } />
                     <Route path="/vendor-profile" element={
