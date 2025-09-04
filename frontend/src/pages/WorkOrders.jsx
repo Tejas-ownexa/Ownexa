@@ -1,12 +1,90 @@
 import React, { useState } from 'react';
 import { ChevronDown, Download, HelpCircle, ChevronUp } from 'lucide-react';
 
+// Multi-select dropdown component with checkboxes
+const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleToggle = (optionValue) => {
+    const newValue = value.includes(optionValue)
+      ? value.filter(v => v !== optionValue)
+      : [...value, optionValue];
+    onChange(newValue);
+  };
+
+  const getDisplayText = () => {
+    if (value.length === 0) return placeholder;
+    if (value.length === options.length) return `(${value.length}) New, In progress, Comple...`;
+    return `(${value.length}) ${options.filter(opt => value.includes(opt.value)).map(opt => opt.label).join(', ')}`;
+  };
+
+  // Close dropdown when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isOpen && !event.target.closest('.multi-select-dropdown')) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
+  return (
+    <div className="relative multi-select-dropdown">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full text-left"
+      >
+        {getDisplayText()}
+      </button>
+      <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+      
+      {isOpen && (
+        <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg">
+          <div className="p-2">
+            {options.map((option) => (
+              <label key={option.value} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer">
+                <div className={`flex items-center justify-center w-5 h-5 rounded ${
+                  value.includes(option.value) ? 'bg-green-600' : 'bg-gray-200'
+                }`}>
+                  {value.includes(option.value) && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-sm text-gray-700">{option.label}</span>
+                <input
+                  type="checkbox"
+                  checked={value.includes(option.value)}
+                  onChange={() => handleToggle(option.value)}
+                  className="sr-only"
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const WorkOrders = () => {
   const [selectedProperty, setSelectedProperty] = useState('all');
-  const [selectedStatus, setSelectedStatus] = useState('new-progress-complete');
+  const [selectedStatuses, setSelectedStatuses] = useState(['new', 'in-progress', 'completed', 'deferred', 'closed']);
   const [filterOption, setFilterOption] = useState('');
   const [sortBy, setSortBy] = useState('updated');
   const [sortOrder, setSortOrder] = useState('desc');
+
+  // Status options for multi-select dropdown
+  const statusOptions = [
+    { value: 'new', label: 'New' },
+    { value: 'in-progress', label: 'In progress' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'deferred', label: 'Deferred' },
+    { value: 'closed', label: 'Closed' }
+  ];
 
   const handleExport = () => {
     // TODO: Implement export functionality
@@ -15,7 +93,7 @@ const WorkOrders = () => {
 
   const handleClearFilters = () => {
     setSelectedProperty('all');
-    setSelectedStatus('new-progress-complete');
+    setSelectedStatuses(['new', 'in-progress', 'completed', 'deferred', 'closed']);
     setFilterOption('');
   };
 
@@ -87,20 +165,12 @@ const WorkOrders = () => {
             <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
           </div>
 
-          <div className="relative">
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="new-progress-complete">(5) New, In progress, Complete...</option>
-              <option value="new">New</option>
-              <option value="in-progress">In Progress</option>
-              <option value="complete">Complete</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-          </div>
+          <MultiSelectDropdown
+            options={statusOptions}
+            value={selectedStatuses}
+            onChange={setSelectedStatuses}
+            placeholder="Select statuses"
+          />
 
           <div className="relative">
             <select
