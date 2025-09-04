@@ -250,7 +250,58 @@ CREATE TRIGGER trigger_update_work_order_timestamp
     FOR EACH ROW
     EXECUTE FUNCTION update_work_order_timestamp();
 
--- 11. MAINTENANCE REQUESTS TABLE
+-- 11. WORK ORDER PARTS AND LABOR TABLE
+CREATE TABLE work_order_parts (
+    id SERIAL PRIMARY KEY,
+    work_order_id INTEGER NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
+    qty INTEGER DEFAULT 0,
+    account VARCHAR(255),
+    description TEXT,
+    unit_price NUMERIC(10, 2) DEFAULT 0.00,
+    total_price NUMERIC(10, 2) DEFAULT 0.00,
+    line_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 12. WORK ORDER FILES TABLE
+CREATE TABLE work_order_files (
+    id SERIAL PRIMARY KEY,
+    work_order_id INTEGER NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    file_size INTEGER,
+    file_type VARCHAR(100),
+    uploaded_by_user_id INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 13. TASKS TABLE (for task management)
+CREATE TABLE tasks (
+    id SERIAL PRIMARY KEY,
+    task_name VARCHAR(255) NOT NULL,
+    task_type VARCHAR(100), -- 'maintenance', 'repair', 'inspection', 'emergency'
+    description TEXT,
+    property_id INTEGER REFERENCES properties(id) ON DELETE CASCADE,
+    assigned_to_user_id INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
+    status VARCHAR(50) DEFAULT 'active', -- 'active', 'completed', 'cancelled'
+    start_date DATE,
+    end_date DATE,
+    created_by_user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 14. WORK ORDER TASKS RELATIONSHIP TABLE
+CREATE TABLE work_order_tasks (
+    id SERIAL PRIMARY KEY,
+    work_order_id INTEGER NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
+    task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(work_order_id, task_id)
+);
+
+-- 15. MAINTENANCE REQUESTS TABLE
 CREATE TABLE maintenance_requests (
     id SERIAL PRIMARY KEY,
     tenant_id INTEGER NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
@@ -956,6 +1007,21 @@ CREATE INDEX idx_work_orders_priority ON work_orders(priority);
 CREATE INDEX idx_work_orders_due_date ON work_orders(due_date);
 CREATE INDEX idx_work_orders_work_order_number ON work_orders(work_order_number);
 CREATE INDEX idx_work_orders_created_at ON work_orders(created_at);
+-- Work Order Parts indexes
+CREATE INDEX idx_work_order_parts_work_order_id ON work_order_parts(work_order_id);
+CREATE INDEX idx_work_order_parts_line_order ON work_order_parts(work_order_id, line_order);
+-- Work Order Files indexes
+CREATE INDEX idx_work_order_files_work_order_id ON work_order_files(work_order_id);
+CREATE INDEX idx_work_order_files_uploaded_by ON work_order_files(uploaded_by_user_id);
+-- Tasks indexes
+CREATE INDEX idx_tasks_property_id ON tasks(property_id);
+CREATE INDEX idx_tasks_assigned_to ON tasks(assigned_to_user_id);
+CREATE INDEX idx_tasks_created_by ON tasks(created_by_user_id);
+CREATE INDEX idx_tasks_status ON tasks(status);
+CREATE INDEX idx_tasks_task_type ON tasks(task_type);
+-- Work Order Tasks relationship indexes
+CREATE INDEX idx_work_order_tasks_work_order_id ON work_order_tasks(work_order_id);
+CREATE INDEX idx_work_order_tasks_task_id ON work_order_tasks(task_id);
 CREATE INDEX idx_listings_property_id ON listings(property_id);
 CREATE INDEX idx_applicants_listing_id ON applicants(listing_id);
 CREATE INDEX idx_lease_roll_property_id ON lease_roll(property_id);
@@ -1023,6 +1089,10 @@ COMMENT ON TABLE maintenance_requests IS 'Maintenance requests and their status'
 COMMENT ON TABLE vendor_categories IS 'Categories for organizing vendors by service type';
 COMMENT ON TABLE vendors IS 'Comprehensive vendor profiles with contact, tax, and insurance information';
 COMMENT ON TABLE work_orders IS 'Work orders for property maintenance and repairs with tracking and billing';
+COMMENT ON TABLE work_order_parts IS 'Parts and labor line items for work orders with pricing and quantities';
+COMMENT ON TABLE work_order_files IS 'File attachments for work orders (photos, documents, etc.)';
+COMMENT ON TABLE tasks IS 'Task management for organizing and grouping work orders';
+COMMENT ON TABLE work_order_tasks IS 'Many-to-many relationship between work orders and tasks';
 COMMENT ON TABLE property_financials IS 'Financial details for each property';
 COMMENT ON TABLE financial_transactions IS 'All financial transactions for properties';
 COMMENT ON TABLE associations IS 'Homeowner associations';
