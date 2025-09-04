@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChevronDown, Download } from 'lucide-react';
 
 const Vendors = () => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [filterOption, setFilterOption] = useState('');
 
@@ -15,6 +17,10 @@ const Vendors = () => {
     setFilterOption('');
   };
 
+  const handleAddVendor = () => {
+    navigate('/maintenance/vendors/add');
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -24,7 +30,10 @@ const Vendors = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Vendors</h1>
           </div>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-            <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+            <button 
+              onClick={handleAddVendor}
+              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+            >
               Add vendor
             </button>
             <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
