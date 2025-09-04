@@ -24,7 +24,9 @@ import MaintenanceRequests from './pages/MaintenanceRequests';
 import MaintenanceDashboard from './pages/MaintenanceDashboard';
 import MaintenanceRequest from './pages/MaintenanceRequest';
 import VendorProfile from './pages/VendorProfile';
-import Associations from './pages/Associations';
+import Vendors from './pages/Vendors';
+import WorkOrders from './pages/WorkOrders';
+import PropertyInspections from './pages/PropertyInspections';
 
 // import Accountability from './pages/Accountability';
 // import Reporting from './pages/Reporting';
@@ -168,6 +170,21 @@ const App = () => {
                     <Route path="/maintenance/new" element={
                       <PrivateRoute>
                         <MaintenanceRequest />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/vendors" element={
+                      <PrivateRoute>
+                        <Vendors />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/work-orders" element={
+                      <PrivateRoute>
+                        <WorkOrders />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/property-inspections" element={
+                      <PrivateRoute>
+                        <PropertyInspections />
                       </PrivateRoute>
                     } />
                     <Route path="/vendor-profile" element={

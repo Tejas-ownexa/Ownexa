@@ -40,6 +40,7 @@ const Sidebar = () => {
   const [rentalsExpanded, setRentalsExpanded] = useState(false);
   const [leasingExpanded, setLeasingExpanded] = useState(false);
   const [associationsExpanded, setAssociationsExpanded] = useState(false);
+  const [maintenanceExpanded, setMaintenanceExpanded] = useState(false);
 
   const getNavItems = () => {
     if (!user) return [];
@@ -102,7 +103,18 @@ const Sidebar = () => {
           { name: 'Leasing Overview', href: '/leasing?tab=leasing', icon: Home }
         ]
       },
-      { name: 'Maintenance', href: '/maintenance', icon: Wrench },
+      {
+        name: 'Maintenance',
+        icon: Wrench,
+        isExpandable: true,
+        isExpanded: maintenanceExpanded,
+        toggle: () => setMaintenanceExpanded(!maintenanceExpanded),
+        subItems: [
+          { name: 'Vendors', href: '/maintenance/vendors', icon: Users },
+          { name: 'Work Orders', href: '/maintenance/work-orders', icon: ClipboardList },
+          { name: 'Property inspections', href: '/maintenance/property-inspections', icon: Search }
+        ]
+      },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
     ];
