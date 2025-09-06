@@ -108,16 +108,20 @@ def get_report_types(current_user):
 @token_required
 def generate_report(current_user):
     """Generate a report based on type and date range"""
+    print(f"🔍 Generate report called for user: {current_user.username}")
     user = current_user
     
     if not user:
+        print("❌ User not found")
         return jsonify({'error': 'User not found'}), 404
     
     data = request.get_json()
+    print(f"🔍 Request data: {data}")
     report_type = data.get('report_type')
     start_date = data.get('start_date')
     end_date = data.get('end_date')
     format_type = data.get('format', 'json')  # json or pdf
+    print(f"🔍 Report type: {report_type}, Date range: {start_date} to {end_date}, Format: {format_type}")
     
     # Validate date range
     try:
@@ -132,41 +136,46 @@ def generate_report(current_user):
     # Generate report data based on type
     report_data = None
     
-    if report_type == 'property_summary':
-        report_data = generate_property_summary_report(user, start_date, end_date)
-    elif report_type == 'tenant_report':
-        report_data = generate_tenant_report(user, start_date, end_date)
-    elif report_type == 'maintenance_report':
-        report_data = generate_maintenance_report(user, start_date, end_date)
-    elif report_type == 'financial_report':
-        report_data = generate_financial_report(user, start_date, end_date)
-    elif report_type == 'rental_report':
-        report_data = generate_rental_report(user, start_date, end_date)
-    elif report_type == 'vendor_report':
-        report_data = generate_vendor_report(user, start_date, end_date)
-    elif report_type == 'association_report':
-        report_data = generate_association_report(user, start_date, end_date)
-    elif report_type == 'comprehensive_report':
-        report_data = generate_comprehensive_report(user, start_date, end_date)
-    else:
-        return jsonify({'error': 'Invalid report type'}), 400
-    
-    if format_type == 'pdf':
-        return generate_pdf_report(report_data, report_type, start_date, end_date)
-    else:
-        return jsonify(report_data)
+    try:
+        if report_type == 'property_summary':
+            report_data = generate_property_summary_report(user, start_date, end_date)
+        elif report_type == 'tenant_report':
+            report_data = generate_tenant_report(user, start_date, end_date)
+        elif report_type == 'maintenance_report':
+            report_data = generate_maintenance_report(user, start_date, end_date)
+        elif report_type == 'financial_report':
+            report_data = generate_financial_report(user, start_date, end_date)
+        elif report_type == 'rental_report':
+            report_data = generate_rental_report(user, start_date, end_date)
+        elif report_type == 'vendor_report':
+            report_data = generate_vendor_report(user, start_date, end_date)
+        elif report_type == 'association_report':
+            report_data = generate_association_report(user, start_date, end_date)
+        elif report_type == 'comprehensive_report':
+            report_data = generate_comprehensive_report(user, start_date, end_date)
+        else:
+            print(f"❌ Invalid report type: {report_type}")
+            return jsonify({'error': 'Invalid report type'}), 400
+        
+        print(f"✅ Report data generated successfully: {type(report_data)}")
+        
+        if format_type == 'pdf':
+            return generate_pdf_report(report_data, report_type, start_date, end_date)
+        else:
+            return jsonify(report_data)
+    except Exception as e:
+        print(f"❌ Error generating report: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Error generating report: {str(e)}'}), 500
 
 def generate_property_summary_report(user, start_date, end_date):
     """Generate property summary report"""
-    # Get properties based on user role using RentalOwnerManager relationship
+    # Get properties based on user role using owner_id relationship
     if user.role == 'ADMIN' or user.username == 'admin':
         properties = Property.query.all()
     elif user.role == 'OWNER':
-        properties = Property.query.join(
-            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == user.id
-        ).all()
+        properties = Property.query.filter_by(owner_id=user.id).all()
     elif user.role == 'AGENT':
         properties = Property.query.filter_by(agent_id=user.id).all()
     else:
@@ -234,11 +243,7 @@ def generate_tenant_report(user, start_date, end_date):
     if user.role == 'ADMIN' or user.username == 'admin':
         tenants = Tenant.query.join(Property).all()
     elif user.role == 'OWNER':
-        tenants = Tenant.query.join(Property).join(
-            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == user.id
-        ).all()
+        tenants = Tenant.query.join(Property).filter(Property.owner_id == user.id).all()
     elif user.role == 'AGENT':
         tenants = Tenant.query.join(Property).filter(Property.agent_id == user.id).all()
     else:
@@ -290,6 +295,9 @@ def generate_tenant_report(user, start_date, end_date):
 
 def generate_maintenance_report(user, start_date, end_date):
     """Generate maintenance report"""
+    print(f"🔍 Generating maintenance report for user {user.username} (role: {user.role})")
+    print(f"🔍 Date range: {start_date} to {end_date}")
+    
     if user.role == 'ADMIN' or user.username == 'admin':
         requests = MaintenanceRequest.query.filter(
             and_(
@@ -301,11 +309,7 @@ def generate_maintenance_report(user, start_date, end_date):
         requests = MaintenanceRequest.query.filter(
             and_(
                 MaintenanceRequest.property_id.in_(
-                    Property.query.join(
-                        RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-                    ).filter(
-                        RentalOwnerManager.user_id == user.id
-                    ).with_entities(Property.id)
+                    Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
                 ),
                 MaintenanceRequest.request_date >= start_date,
                 MaintenanceRequest.request_date <= end_date
@@ -331,6 +335,8 @@ def generate_maintenance_report(user, start_date, end_date):
         ).all()
     else:
         requests = []
+    
+    print(f"🔍 Found {len(requests)} maintenance requests")
     
     request_data = []
     total_requests = len(requests)
@@ -393,11 +399,7 @@ def generate_financial_report(user, start_date, end_date):
         transactions = FinancialTransaction.query.filter(
             and_(
                 FinancialTransaction.property_id.in_(
-                    Property.query.join(
-                        RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-                    ).filter(
-                        RentalOwnerManager.user_id == user.id
-                    ).with_entities(Property.id)
+                    Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
                 ),
                 FinancialTransaction.transaction_date >= start_date,
                 FinancialTransaction.transaction_date <= end_date
@@ -460,11 +462,7 @@ def generate_rental_report(user, start_date, end_date):
     if user.role == 'ADMIN' or user.username == 'admin':
         properties = Property.query.all()
     elif user.role == 'OWNER':
-        properties = Property.query.join(
-            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == user.id
-        ).all()
+        properties = Property.query.filter_by(owner_id=user.id).all()
     elif user.role == 'AGENT':
         properties = Property.query.filter_by(agent_id=user.id).all()
     else:
@@ -538,11 +536,7 @@ def generate_vendor_report(user, start_date, end_date):
         requests = MaintenanceRequest.query.filter(
             and_(
                 MaintenanceRequest.property_id.in_(
-                    Property.query.join(
-                        RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-                    ).filter(
-                        RentalOwnerManager.user_id == user.id
-                    ).with_entities(Property.id)
+                    Property.query.filter_by(owner_id=user.id).with_entities(Property.id)
                 ),
                 MaintenanceRequest.request_date >= start_date,
                 MaintenanceRequest.request_date <= end_date

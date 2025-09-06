@@ -3,10 +3,96 @@ from models.tenant import Tenant, RentRoll, OutstandingBalance
 from models.property import Property
 from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
-from datetime import datetime
+from datetime import datetime, date
+from calendar import monthrange
+from decimal import Decimal
 from routes.auth_routes import token_required
 
 tenant_bp = Blueprint('tenant_bp', __name__)
+
+def calculate_prorated_rent(monthly_rent, lease_start_date, rent_payment_day=1):
+    """
+    Calculate prorated rent for a tenant joining mid-month
+    
+    Args:
+        monthly_rent (Decimal): Full monthly rent amount
+        lease_start_date (date): Date when tenant moves in
+        rent_payment_day (int): Day of month when rent is due (1-31)
+    
+    Returns:
+        dict: {
+            'prorated_amount': Decimal,
+            'days_in_month': int,
+            'days_tenant_stays': int,
+            'daily_rate': Decimal,
+            'next_full_payment_date': date
+        }
+    """
+    if not isinstance(lease_start_date, date):
+        lease_start_date = datetime.strptime(lease_start_date, '%Y-%m-%d').date()
+    
+    # Get the total days in the move-in month
+    year = lease_start_date.year
+    month = lease_start_date.month
+    _, days_in_month = monthrange(year, month)
+    
+    # Calculate daily rent rate
+    daily_rate = Decimal(str(monthly_rent)) / Decimal(str(days_in_month))
+    
+    # Determine the billing period for the first month
+    # If lease starts before or on payment day, bill from lease start to payment day (same month)
+    # If lease starts after payment day, bill from lease start to next payment day (next month)
+    
+    if lease_start_date.day <= rent_payment_day:
+        # Bill from lease start to payment day in same month
+        days_to_bill = rent_payment_day - lease_start_date.day + 1
+        next_payment_month = month + 1 if month < 12 else 1
+        next_payment_year = year if month < 12 else year + 1
+    else:
+        # Bill from lease start to next payment day
+        if month == 12:
+            next_payment_month = 1
+            next_payment_year = year + 1
+        else:
+            next_payment_month = month + 1
+            next_payment_year = year
+        
+        # Get days in next month for payment day calculation
+        _, days_in_next_month = monthrange(next_payment_year, next_payment_month)
+        actual_payment_day = min(rent_payment_day, days_in_next_month)
+        
+        # Days from lease start to end of current month
+        days_current_month = days_in_month - lease_start_date.day + 1
+        # Days from start of next month to payment day
+        days_next_month = actual_payment_day
+        
+        days_to_bill = days_current_month + days_next_month
+        
+        # Recalculate daily rate considering both months
+        _, days_in_next_month = monthrange(next_payment_year, next_payment_month)
+        avg_days_per_month = (days_in_month + days_in_next_month) / 2
+        daily_rate = Decimal(str(monthly_rent)) / Decimal(str(avg_days_per_month))
+    
+    # Calculate prorated amount
+    prorated_amount = daily_rate * Decimal(str(days_to_bill))
+    
+    # Calculate next full payment date
+    try:
+        _, days_in_next_month = monthrange(next_payment_year, next_payment_month)
+        actual_payment_day = min(rent_payment_day, days_in_next_month)
+        next_full_payment_date = date(next_payment_year, next_payment_month, actual_payment_day)
+    except ValueError:
+        # Fallback to first day of next month
+        next_full_payment_date = date(next_payment_year, next_payment_month, 1)
+    
+    return {
+        'prorated_amount': round(prorated_amount, 2),
+        'days_in_month': days_in_month,
+        'days_tenant_stays': days_to_bill,
+        'daily_rate': round(daily_rate, 2),
+        'next_full_payment_date': next_full_payment_date,
+        'calculation_note': f"Prorated for {days_to_bill} days at ${round(daily_rate, 2)}/day"
+    }
 
 @tenant_bp.route('/', methods=['POST'])
 @token_required
@@ -25,7 +111,8 @@ def create_tenant(current_user):
             'property_id': data.get('propertyId'),
             'lease_start': data.get('leaseStartDate'),
             'lease_end': data.get('leaseEndDate'),
-            'rent_amount': data.get('rentAmount')
+            'rent_amount': data.get('rentAmount'),
+            'rent_payment_day': data.get('rentPaymentDay', 1)  # Default to 1st of month
         }
         print("Mapped tenant data:", tenant_data)
 
@@ -48,13 +135,8 @@ def create_tenant(current_user):
                 if not property:
                     return jsonify({'error': 'Property not found'}), 404
                 
-                # Check if user can manage the rental owner that owns this property
-                manager = RentalOwnerManager.query.filter_by(
-                    rental_owner_id=property.rental_owner_id,
-                    user_id=current_user.id
-                ).first()
-                
-                if not manager:
+                # Check if user owns this property
+                if property.owner_id != current_user.id:
                     return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
                 # Check if property is available
@@ -66,6 +148,7 @@ def create_tenant(current_user):
                 existing_tenant.lease_start = datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date() if tenant_data.get('lease_start') else None
                 existing_tenant.lease_end = datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date() if tenant_data.get('lease_end') else None
                 existing_tenant.rent_amount = property.rent_amount  # Use property's rent amount
+                existing_tenant.rent_payment_day = tenant_data.get('rent_payment_day', 1)
                 existing_tenant.payment_status = 'active'
                 
                 # Update property status
@@ -76,6 +159,7 @@ def create_tenant(current_user):
                 existing_tenant.lease_start = datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date() if tenant_data.get('lease_start') else None
                 existing_tenant.lease_end = datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date() if tenant_data.get('lease_end') else None
                 existing_tenant.rent_amount = tenant_data.get('rent_amount', 0)
+                existing_tenant.rent_payment_day = tenant_data.get('rent_payment_day', 1)
                 existing_tenant.payment_status = 'future'
             
             db.session.commit()
@@ -92,6 +176,7 @@ def create_tenant(current_user):
                     'lease_start': existing_tenant.lease_start.isoformat() if existing_tenant.lease_start else None,
                     'lease_end': existing_tenant.lease_end.isoformat() if existing_tenant.lease_end else None,
                     'rent_amount': float(existing_tenant.rent_amount),
+                    'rent_payment_day': existing_tenant.rent_payment_day,
                     'payment_status': existing_tenant.payment_status
                 }
             }), 200
@@ -104,13 +189,8 @@ def create_tenant(current_user):
             if not property:
                 return jsonify({'error': 'Property not found'}), 404
             
-            # Check if user can manage the rental owner that owns this property
-            manager = RentalOwnerManager.query.filter_by(
-                rental_owner_id=property.rental_owner_id,
-                user_id=current_user.id
-            ).first()
-            
-            if not manager:
+            # Check if user owns this property
+            if property.owner_id != current_user.id:
                 return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
             # Check if property is available
@@ -132,6 +212,7 @@ def create_tenant(current_user):
             lease_start=datetime.strptime(tenant_data['lease_start'], '%Y-%m-%d').date() if tenant_data.get('lease_start') else None,
             lease_end=datetime.strptime(tenant_data['lease_end'], '%Y-%m-%d').date() if tenant_data.get('lease_end') else None,
             rent_amount=property_rent_amount,
+            rent_payment_day=tenant_data.get('rent_payment_day', 1),
             payment_status='future' if not tenant_data.get('property_id') else 'active'
         )
 
@@ -141,10 +222,36 @@ def create_tenant(current_user):
 
         print("Attempting to save tenant to database")
         db.session.add(tenant)
+        db.session.flush()  # Get the tenant ID before committing
+        
+        # Calculate and create prorated rent entry if tenant is assigned to a property
+        prorated_info = None
+        if property and tenant.lease_start:
+            lease_start_date = tenant.lease_start
+            rent_payment_day = tenant.rent_payment_day
+            monthly_rent = property.rent_amount
+            
+            # Calculate prorated rent for the first month
+            prorated_info = calculate_prorated_rent(monthly_rent, lease_start_date, rent_payment_day)
+            
+            # Create a rent roll entry for the prorated first month
+            prorated_rent_entry = RentRoll(
+                tenant_id=tenant.id,
+                property_id=tenant.property_id,
+                payment_date=lease_start_date,  # Due on move-in date
+                amount_paid=prorated_info['prorated_amount'],
+                payment_method='Pending',
+                status='pending',
+                remarks=prorated_info['calculation_note']
+            )
+            
+            db.session.add(prorated_rent_entry)
+            print(f"Created prorated rent entry: ${prorated_info['prorated_amount']} for {prorated_info['days_tenant_stays']} days")
+        
         db.session.commit()
         print("Tenant successfully saved to database")
 
-        return jsonify({
+        response_data = {
             'message': 'Tenant created successfully',
             'tenant': {
                 'id': tenant.id,
@@ -155,9 +262,23 @@ def create_tenant(current_user):
                 'lease_start': tenant.lease_start.isoformat(),
                 'lease_end': tenant.lease_end.isoformat(),
                 'rent_amount': float(tenant.rent_amount),
+                'rent_payment_day': tenant.rent_payment_day,
                 'payment_status': tenant.payment_status
             }
-        }), 201
+        }
+        
+        # Include prorated rent information if calculated
+        if prorated_info:
+            response_data['prorated_rent'] = {
+                'first_month_amount': float(prorated_info['prorated_amount']),
+                'days_prorated': prorated_info['days_tenant_stays'],
+                'daily_rate': float(prorated_info['daily_rate']),
+                'next_full_payment_date': prorated_info['next_full_payment_date'].isoformat(),
+                'calculation_note': prorated_info['calculation_note']
+            }
+            response_data['message'] += f" First month prorated: ${prorated_info['prorated_amount']}"
+        
+        return jsonify(response_data), 201
     except Exception as e:
         print("Error creating tenant:", str(e))
         db.session.rollback()
@@ -168,11 +289,9 @@ def create_tenant(current_user):
 def get_tenants(current_user):
     try:
         print("Fetching tenants for user:", current_user.id)
-        # Get all tenants for properties managed by the current user, plus unassigned tenants
-        assigned_tenants = Tenant.query.join(Property).join(
-            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == current_user.id
+        # Get all tenants for properties owned by the current user, plus unassigned tenants
+        assigned_tenants = Tenant.query.join(Property).filter(
+            Property.owner_id == current_user.id
         ).all()
         unassigned_tenants = Tenant.query.filter(Tenant.property_id.is_(None)).all()
         
@@ -247,11 +366,9 @@ def get_tenants(current_user):
 def get_tenant_statistics(current_user):
     try:
         print("Fetching tenant statistics for user:", current_user.id)
-        # Get all tenants for properties managed by the current user
-        tenants = Tenant.query.join(Property).join(
-            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == current_user.id
+        # Get all tenants for properties owned by the current user
+        tenants = Tenant.query.join(Property).filter(
+            Property.owner_id == current_user.id
         ).all()
         
         total_tenants = len(tenants)
@@ -426,13 +543,36 @@ def get_available_tenants(current_user):
     try:
         available_tenants = []
         
-        # For now, let's just get unassigned tenants (future tenants) from the tenants table
-        # We'll add registered users later once we debug the User model issue
+        # 1. Get registered users with TENANT role (from user table)
+        from models.user import User
+        tenant_users = User.query.filter(User.role == 'TENANT').all()
+        
+        for user in tenant_users:
+            # Check if this user is already assigned to a property as a tenant
+            existing_tenant = Tenant.query.filter_by(email=user.email).first()
+            if not existing_tenant or existing_tenant.property_id is None:
+                available_tenants.append({
+                    'id': user.id,  # Use numeric ID
+                    'full_name': user.full_name,
+                    'email': user.email,
+                    'phone_number': user.phone_number,
+                    'street_address_1': user.street_address_1,
+                    'city': user.city,
+                    'state': user.state,
+                    'zip_code': user.zip_code,
+                    'rent_amount': 'N/A',  # Will be set when assigned to property
+                    'source': 'user',  # Track source for processing
+                    'user_id': user.id  # Store original user ID
+                })
+        
+        # 2. Get unassigned tenants (future tenants) from the tenants table
         unassigned_tenants = Tenant.query.filter(Tenant.property_id.is_(None)).all()
         
+        # Start tenant IDs from a high number to avoid conflicts with user IDs
+        tenant_id_offset = 10000
         for tenant in unassigned_tenants:
             available_tenants.append({
-                'id': tenant.id,
+                'id': tenant_id_offset + tenant.id,  # Offset to avoid conflicts with user IDs
                 'full_name': tenant.full_name,
                 'email': tenant.email,
                 'phone_number': tenant.phone_number,
@@ -440,14 +580,65 @@ def get_available_tenants(current_user):
                 'city': None,
                 'state': None,
                 'zip_code': None,
-                'rent_amount': str(tenant.rent_amount) if tenant.rent_amount else 'N/A'
+                'rent_amount': str(tenant.rent_amount) if tenant.rent_amount else 'N/A',
+                'source': 'tenant',  # Track source for processing
+                'tenant_id': tenant.id  # Store original tenant ID
             })
         
-        print(f"Found {len(available_tenants)} available tenants ({len([t for t in available_tenants if t['rent_amount'] != 'N/A'])} with rent amounts)")
+        print(f"Found {len(available_tenants)} available tenants:")
+        print(f"  - {len(tenant_users)} from user table (TENANT role)")
+        print(f"  - {len(unassigned_tenants)} from tenant table (unassigned)")
         return jsonify({'available_tenants': available_tenants}), 200
     except Exception as e:
         print(f"Error fetching available tenants: {str(e)}")
         return jsonify({'error': 'Failed to fetch available tenants'}), 500
+
+@tenant_bp.route('/calculate-prorated-rent', methods=['POST'])
+@token_required
+def calculate_prorated_rent_preview(current_user):
+    """Calculate prorated rent preview for frontend"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['propertyId', 'leaseStartDate', 'rentPaymentDay']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Get property details
+        property = Property.query.get(data['propertyId'])
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        # Check if user owns this property
+        if property.owner_id != current_user.id:
+            return jsonify({'error': 'Not authorized to access this property'}), 403
+        
+        # Calculate prorated rent
+        lease_start_date = data['leaseStartDate']
+        rent_payment_day = int(data['rentPaymentDay'])
+        monthly_rent = property.rent_amount
+        
+        prorated_info = calculate_prorated_rent(monthly_rent, lease_start_date, rent_payment_day)
+        
+        return jsonify({
+            'success': True,
+            'prorated_rent': {
+                'monthly_rent': float(monthly_rent),
+                'first_month_amount': float(prorated_info['prorated_amount']),
+                'days_in_month': prorated_info['days_in_month'],
+                'days_prorated': prorated_info['days_tenant_stays'],
+                'daily_rate': float(prorated_info['daily_rate']),
+                'next_full_payment_date': prorated_info['next_full_payment_date'].isoformat(),
+                'calculation_note': prorated_info['calculation_note'],
+                'savings': float(monthly_rent) - float(prorated_info['prorated_amount'])
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error calculating prorated rent: {str(e)}")
+        return jsonify({'error': str(e)}), 400
 
 @tenant_bp.route('/import', methods=['POST'])
 @token_required
@@ -513,13 +704,8 @@ def import_tenants(current_user):
                         errors.append(f"Row {row_num}: Property with ID {property_id} not found")
                         continue
                     
-                    # Check if user can manage the rental owner that owns this property
-                    manager = RentalOwnerManager.query.filter_by(
-                        rental_owner_id=property.rental_owner_id,
-                        user_id=current_user.id
-                    ).first()
-                    
-                    if not manager:
+                    # Check if user owns this property
+                    if property.owner_id != current_user.id:
                         errors.append(f"Row {row_num}: Property {property_id} does not belong to you")
                         continue
                     
@@ -592,12 +778,8 @@ def delete_tenant(current_user, tenant_id):
             if not property:
                 return jsonify({'error': 'Property not found'}), 404
                 
-            manager = RentalOwnerManager.query.filter_by(
-                rental_owner_id=property.rental_owner_id,
-                user_id=current_user.id
-            ).first()
-            
-            if not manager:
+            # Check if user owns this property
+            if property.owner_id != current_user.id:
                 return jsonify({'error': 'Unauthorized to delete this tenant'}), 403
             
             # Update property status back to available
