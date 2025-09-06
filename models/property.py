@@ -21,17 +21,12 @@ class Property(BaseModel):
     description = db.Column(db.Text, nullable=False)
     rent_amount = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='available')
-    rental_owner_id = db.Column(db.Integer, db.ForeignKey('rental_owners.id', ondelete='CASCADE'), nullable=False)
-    created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     image_url = db.Column(db.String(500))  # Store image URL/path
-    
-    # Explicitly add the timestamp columns
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    rental_owner = db.relationship('RentalOwner', back_populates='properties')
-    created_by_user = db.relationship('User', backref='created_properties')
+    owner = db.relationship('User', foreign_keys=[owner_id], backref='owned_properties')
     tenants = db.relationship('Tenant', back_populates='property')
     maintenance_requests = db.relationship('MaintenanceRequest', back_populates='property')
     listings = db.relationship('Listing', back_populates='property')

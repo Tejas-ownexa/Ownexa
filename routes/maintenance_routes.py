@@ -77,10 +77,8 @@ def get_maintenance_requests(current_user):
                     joinedload(MaintenanceRequest.assigned_vendor)
                 ).all()
             else:
-                requests = MaintenanceRequest.query.join(Property).join(
-                    RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-                ).filter(
-                    RentalOwnerManager.user_id == current_user.id
+                requests = MaintenanceRequest.query.join(Property).filter(
+                    Property.owner_id == current_user.id
                 ).options(
                     joinedload(MaintenanceRequest.property),
                     joinedload(MaintenanceRequest.tenant).joinedload(Tenant.property),
