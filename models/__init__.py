@@ -37,7 +37,8 @@ from models.maintenance import MaintenanceRequest
 from models.listing import Listing
 from models.association import Association, AssociationMembership, AssociationBalance, Violation
 from models.financial import PropertyFinancial, LoanPayment, FinancialTransaction
-from models.vendor import Vendor
+from models.vendor import Vendor, VendorCategory
+from models.work_order import WorkOrder, WorkOrderPart, WorkOrderFile, Task, work_order_tasks
 from models.accountability import AccountabilityFinancial, GeneralLedger, Banking, BankingTransaction
 from models.lease import LeaseRoll, RentalOwnerProfile, LeaseAgreement, LeasePayment
 from models.rental_owner import RentalOwner, RentalOwnerManager

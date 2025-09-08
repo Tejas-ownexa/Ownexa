@@ -1,17 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench } from 'lucide-react';
+import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench, TrendingUp, TrendingDown, Calendar, PieChart, BarChart3, Activity } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import DashboardWidget from '../components/DashboardWidget';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement } from 'chart.js';
+import { Line, Pie, Bar } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  BarElement
+);
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('properties');
+  const [activeTab, setActiveTab] = useState('overview');
   const [maintenanceList, setMaintenanceList] = useState([]);
   const [maintenanceLoading, setMaintenanceLoading] = useState(true);
+  const [animationTrigger, setAnimationTrigger] = useState(false);
+  
+  useEffect(() => {
+    setAnimationTrigger(true);
+  }, []);
 
   const { data: userProperties, isLoading: propertiesLoading } = useQuery(
     ['user-properties'],
@@ -121,12 +141,97 @@ const Dashboard = () => {
   );
 
   const tabs = [
-    { id: 'properties', label: 'My Properties', icon: Home },
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'properties', label: 'Properties', icon: Home },
     { id: 'tenants', label: 'Tenants', icon: User },
     { id: 'maintenance', label: 'Maintenance', icon: Wrench },
-    { id: 'favorites', label: 'Favorites', icon: Heart },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
     { id: 'profile', label: 'Profile', icon: User },
   ];
+
+  // Chart data configurations
+  const revenueChartData = {
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    datasets: [
+      {
+        label: 'Monthly Revenue',
+        data: [4200, 4800, 4500, 5200, 4900, 5400],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  };
+
+  const propertyStatusData = {
+    labels: ['Occupied', 'Vacant', 'Maintenance'],
+    datasets: [
+      {
+        data: [75, 20, 5],
+        backgroundColor: [
+          'rgba(34, 197, 94, 0.8)',
+          'rgba(239, 68, 68, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+        ],
+        borderColor: [
+          'rgba(34, 197, 94, 1)',
+          'rgba(239, 68, 68, 1)',
+          'rgba(245, 158, 11, 1)',
+        ],
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const maintenanceStatusData = {
+    labels: ['Pending', 'In Progress', 'Completed'],
+    datasets: [
+      {
+        label: 'Maintenance Requests',
+        data: [12, 8, 25],
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.8)',
+          'rgba(245, 158, 11, 0.8)',
+          'rgba(34, 197, 94, 0.8)',
+        ],
+        borderColor: [
+          'rgba(239, 68, 68, 1)',
+          'rgba(245, 158, 11, 1)',
+          'rgba(34, 197, 94, 1)',
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Monthly Revenue Trend',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const pieChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+      },
+    },
+  };
 
 
 
@@ -156,28 +261,36 @@ const Dashboard = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl shadow-xl p-6 text-white transform transition-all duration-300 hover:shadow-2xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {user?.full_name || 'User'}!</p>
+          <div className={`transform transition-all duration-700 ${animationTrigger ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
+            <h1 className="text-3xl font-bold mb-2">Property Dashboard</h1>
+            <p className="text-blue-100 text-lg">Welcome back, {user?.full_name || 'User'}!</p>
+            <div className="flex items-center mt-2 space-x-4">
+              <div className="flex items-center space-x-1">
+                <Calendar className="h-4 w-4" />
+                <span className="text-sm">{new Date().toLocaleDateString()}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Activity className="h-4 w-4" />
+                <span className="text-sm">System Active</span>
+              </div>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <div className={`flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto transform transition-all duration-700 delay-300 ${animationTrigger ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
             <Link
               to="/tenants"
-              className="btn-secondary flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
+              className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 transition-all duration-300 flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 rounded-lg font-medium"
             >
               <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Manage Tenants</span>
-              <span className="sm:hidden">Tenants</span>
+              <span>Manage Tenants</span>
             </Link>
             <Link
               to="/add-property"
-              className="btn-primary flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
+              className="bg-white text-blue-600 hover:bg-blue-50 transition-all duration-300 flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl"
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden sm:inline">Add Property</span>
-              <span className="sm:hidden">Add Property</span>
+              <span>Add Property</span>
             </Link>
           </div>
         </div>
@@ -210,40 +323,91 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* Dashboard Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <DashboardWidget
-          title="Total Properties"
-          value={userProperties?.length || 0}
-          description="Properties you own"
-          icon={Home}
-          color="blue"
-          link="/properties"
-        />
-        <DashboardWidget
-          title="Active Tenants"
-          value={tenants?.items?.length || 0}
-          description="Current tenants"
-          icon={User}
-          color="green"
-          link="/tenants"
-        />
-        <DashboardWidget
-          title="Pending Maintenance"
-          value={maintenanceList.filter(req => req.status === 'pending').length}
-          description="Requests awaiting action"
-          icon={Wrench}
-          color="yellow"
-          link="/maintenance"
-        />
-        <DashboardWidget
-          title="Outstanding Balances"
-          value={`$${(financialData?.outstandingBalances?.reduce((total, balance) => total + parseFloat(balance.amount), 0) || 0).toFixed(2)}`}
-          description="Total outstanding amounts"
-          icon={DollarSign}
-          color="red"
-          link="/financial"
-        />
+      {/* Enhanced Dashboard Widgets */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className={`transform transition-all duration-500 delay-100 ${animationTrigger ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-100 text-sm font-medium">Total Properties</p>
+                <p className="text-3xl font-bold mt-1">{userProperties?.length || 0}</p>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="text-sm">+12% this month</span>
+                </div>
+              </div>
+              <div className="bg-white/20 p-3 rounded-lg">
+                <Home className="h-8 w-8" />
+              </div>
+            </div>
+            <Link to="/properties" className="block mt-4 text-sm font-medium hover:underline">
+              View all properties →
+            </Link>
+          </div>
+        </div>
+        
+        <div className={`transform transition-all duration-500 delay-200 ${animationTrigger ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm font-medium">Active Tenants</p>
+                <p className="text-3xl font-bold mt-1">{tenants?.items?.length || 0}</p>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="text-sm">95% occupancy</span>
+                </div>
+              </div>
+              <div className="bg-white/20 p-3 rounded-lg">
+                <User className="h-8 w-8" />
+              </div>
+            </div>
+            <Link to="/tenants" className="block mt-4 text-sm font-medium hover:underline">
+              Manage tenants →
+            </Link>
+          </div>
+        </div>
+        
+        <div className={`transform transition-all duration-500 delay-300 ${animationTrigger ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-yellow-100 text-sm font-medium">Maintenance</p>
+                <p className="text-3xl font-bold mt-1">{maintenanceList.filter(req => req.status === 'pending').length}</p>
+                <div className="flex items-center mt-2">
+                  <AlertTriangle className="h-4 w-4 mr-1" />
+                  <span className="text-sm">Requires attention</span>
+                </div>
+              </div>
+              <div className="bg-white/20 p-3 rounded-lg">
+                <Wrench className="h-8 w-8" />
+              </div>
+            </div>
+            <Link to="/maintenance" className="block mt-4 text-sm font-medium hover:underline">
+              View requests →
+            </Link>
+          </div>
+        </div>
+        
+        <div className={`transform transition-all duration-500 delay-400 ${animationTrigger ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-100 text-sm font-medium">Monthly Revenue</p>
+                <p className="text-3xl font-bold mt-1">$5,400</p>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 mr-1" />
+                  <span className="text-sm">+8% this month</span>
+                </div>
+              </div>
+              <div className="bg-white/20 p-3 rounded-lg">
+                <DollarSign className="h-8 w-8" />
+              </div>
+            </div>
+            <Link to="/financial" className="block mt-4 text-sm font-medium hover:underline">
+              View finances →
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Stats */}
@@ -350,24 +514,27 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-md">
-        <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
+      {/* Enhanced Tabs */}
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+          <nav className="flex space-x-1 px-6">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 ${
+                  className={`relative py-4 px-4 font-medium text-sm flex items-center space-x-2 rounded-t-lg transition-all duration-300 ${
                     activeTab === tab.id
-                      ? 'border-primary-500 text-primary-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'bg-white text-blue-600 shadow-lg transform -translate-y-1'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className={`h-4 w-4 transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`} />
                   <span>{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"></div>
+                  )}
                 </button>
               );
             })}
@@ -375,6 +542,103 @@ const Dashboard = () => {
         </div>
 
         <div className="p-6">
+          {/* Overview Tab */}
+          {activeTab === 'overview' && (
+            <div className="space-y-6">
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-xl border border-indigo-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Occupancy Rate</h3>
+                    <PieChart className="h-5 w-5 text-indigo-600" />
+                  </div>
+                  <div className="text-3xl font-bold text-indigo-600 mb-2">95%</div>
+                  <p className="text-sm text-gray-600">3 of 3 properties occupied</p>
+                </div>
+                
+                <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Collection Rate</h3>
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">98%</div>
+                  <p className="text-sm text-gray-600">On-time rent collection</p>
+                </div>
+                
+                <div className="bg-gradient-to-br from-yellow-50 to-white p-6 rounded-xl border border-yellow-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-900">Avg Response Time</h3>
+                    <Activity className="h-5 w-5 text-yellow-600" />
+                  </div>
+                  <div className="text-3xl font-bold text-yellow-600 mb-2">2.4h</div>
+                  <p className="text-sm text-gray-600">For maintenance requests</p>
+                </div>
+              </div>
+              
+              {/* Charts Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-xl shadow-lg border">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
+                  <Line data={revenueChartData} options={chartOptions} />
+                </div>
+                
+                <div className="bg-white p-6 rounded-xl shadow-lg border">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Status</h3>
+                  <Pie data={propertyStatusData} options={pieChartOptions} />
+                </div>
+              </div>
+              
+              {/* Maintenance Chart */}
+              <div className="bg-white p-6 rounded-xl shadow-lg border">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Maintenance Overview</h3>
+                <Bar data={maintenanceStatusData} options={{
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      position: 'top',
+                    },
+                  },
+                }} />
+              </div>
+              
+              {/* Recent Activity */}
+              <div className="bg-white p-6 rounded-xl shadow-lg border">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center p-3 bg-blue-50 rounded-lg">
+                    <div className="bg-blue-100 p-2 rounded-full mr-3">
+                      <User className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">New tenant moved in</p>
+                      <p className="text-sm text-gray-600">John Doe at 123 Main St - 2 hours ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-green-50 rounded-lg">
+                    <div className="bg-green-100 p-2 rounded-full mr-3">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Rent payment received</p>
+                      <p className="text-sm text-gray-600">$1,800 from Sarah Johnson - 1 day ago</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center p-3 bg-yellow-50 rounded-lg">
+                    <div className="bg-yellow-100 p-2 rounded-full mr-3">
+                      <Wrench className="h-4 w-4 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">Maintenance request submitted</p>
+                      <p className="text-sm text-gray-600">HVAC repair at 456 Oak Ave - 2 days ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Properties Tab */}
           {activeTab === 'properties' && (
             <div>
@@ -483,31 +747,104 @@ const Dashboard = () => {
             </div>
           )}
 
-          {/* Favorites Tab */}
-          {activeTab === 'favorites' && (
-            <div>
-              <h2 className="text-xl font-semibold mb-6">My Favorites</h2>
-
-              {favoritesLoading ? (
-                <div className="text-center py-8">
-                  <div className="text-lg">Loading favorites...</div>
+          {/* Analytics Tab */}
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Advanced Analytics</h2>
+              
+              {/* Key Metrics Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-lg text-white">
+                  <div className="text-2xl font-bold">$15,240</div>
+                  <div className="text-blue-100">Total Revenue (YTD)</div>
                 </div>
-              ) : favorites && favorites.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {favorites.map((favorite) => (
-                    <PropertyCard key={favorite.property.id} property={favorite.property} isFavorite={true} />
-                  ))}
+                <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-lg text-white">
+                  <div className="text-2xl font-bold">4.8%</div>
+                  <div className="text-green-100">ROI This Year</div>
                 </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Heart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No favorites yet</h3>
-                  <p className="text-gray-600 mb-4">Start browsing properties and add them to your favorites.</p>
-                  <Link to="/properties" className="btn-primary">
-                    Browse Properties
-                  </Link>
+                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-lg text-white">
+                  <div className="text-2xl font-bold">12</div>
+                  <div className="text-purple-100">Days Avg Vacancy</div>
                 </div>
-              )}
+                <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-lg text-white">
+                  <div className="text-2xl font-bold">$342</div>
+                  <div className="text-orange-100">Avg Maintenance Cost</div>
+                </div>
+              </div>
+              
+              {/* Performance Comparison */}
+              <div className="bg-white p-6 rounded-xl shadow-lg">
+                <h3 className="text-lg font-semibold mb-4">Property Performance Comparison</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">123 Main Street</div>
+                      <div className="text-sm text-gray-600">Single Family Home</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-green-600">ROI: 5.2%</div>
+                      <div className="text-sm text-gray-600">Revenue: $2,400/mo</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">456 Oak Avenue</div>
+                      <div className="text-sm text-gray-600">Apartment Complex</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-green-600">ROI: 4.6%</div>
+                      <div className="text-sm text-gray-600">Revenue: $1,800/mo</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <div className="font-medium">789 Pine Street</div>
+                      <div className="text-sm text-gray-600">Condo</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold text-blue-600">ROI: 4.1%</div>
+                      <div className="text-sm text-gray-600">Revenue: $1,200/mo</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Market Insights */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <h3 className="text-lg font-semibold mb-4">Market Trends</h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Average Rent (Local)</span>
+                      <span className="font-medium">$1,850/mo</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Your Average</span>
+                      <span className="font-medium text-green-600">$1,933/mo</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Market Growth</span>
+                      <span className="font-medium text-green-600">+3.2% YoY</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white p-6 rounded-xl shadow-lg">
+                  <h3 className="text-lg font-semibold mb-4">Recommendations</h3>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="font-medium text-blue-900">Rent Optimization</div>
+                      <div className="text-sm text-blue-700">Consider 4% increase at Oak Ave renewal</div>
+                    </div>
+                    <div className="p-3 bg-green-50 rounded-lg">
+                      <div className="font-medium text-green-900">Energy Efficiency</div>
+                      <div className="text-sm text-green-700">Install smart thermostats to reduce costs</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
