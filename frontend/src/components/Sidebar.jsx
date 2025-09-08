@@ -26,7 +26,9 @@ import {
   UserCheck,
   AlertTriangle,
   ClipboardList,
-  RefreshCw
+  RefreshCw,
+  Building2,
+  AlertOctagon
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -37,6 +39,7 @@ const Sidebar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [rentalsExpanded, setRentalsExpanded] = useState(false);
   const [leasingExpanded, setLeasingExpanded] = useState(false);
+  const [associationsExpanded, setAssociationsExpanded] = useState(false);
 
   const getNavItems = () => {
     if (!user) return [];
@@ -56,6 +59,21 @@ const Sidebar = () => {
     // For OWNER and AGENT roles
     return [
       { name: 'Dashboard', href: '/dashboard', icon: Home },
+      {
+        name: 'Associations',
+        icon: Building2,
+        isExpandable: true,
+        isExpanded: associationsExpanded,
+        toggle: () => setAssociationsExpanded(!associationsExpanded),
+        subItems: [
+          { name: 'Associations', href: '/associations', icon: Building2 },
+          { name: 'Ownership accounts', href: '/associations/ownership-accounts', icon: CreditCard },
+          { name: 'Association owners and tenants', href: '/associations/owners-tenants', icon: Users },
+          { name: 'Outstanding balances', href: '/associations/outstanding-balances', icon: AlertTriangle },
+          { name: 'Violations', href: '/associations/violations', icon: AlertOctagon },
+          { name: 'Architectural requests', href: '/associations/architectural-requests', icon: FileText }
+        ]
+      },
       {
         name: 'Rentals',
         icon: Calendar,
