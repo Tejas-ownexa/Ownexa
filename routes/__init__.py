@@ -8,6 +8,7 @@ from routes.listing_routes import listing_bp
 from routes.association_routes import association_bp
 from routes.financial_routes import financial_bp
 from routes.vendor_routes import vendor_bp
+from routes.work_order_routes import work_order_bp
 from routes.chatbot_routes import chatbot_bp
 from routes.admin_bot_routes import admin_bot_bp
 from routes.rental_routes import rental_bp
@@ -71,6 +72,10 @@ def init_routes(app):
     # Vendor routes
     app.register_blueprint(vendor_bp, url_prefix='/api/vendors')
     print("Vendor routes registered")
+    
+    # Work Order routes
+    app.register_blueprint(work_order_bp, url_prefix='/api/work-orders')
+    print("Work Order routes registered")
     
     # Chatbot routes
     app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
