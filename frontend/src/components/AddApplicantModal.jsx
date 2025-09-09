@@ -15,11 +15,11 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
 
   const [coApplicants, setCoApplicants] = useState([]);
 
-  // Fetch properties from API
+  // Fetch available properties from API
   const { data: properties = [], isLoading: propertiesLoading } = useQuery(
-    ['properties'],
+    ['available-properties'],
     async () => {
-      const response = await api.get('/api/properties/');
+      const response = await api.get('/api/leasing/available-properties');
       return response.data;
     },
     { enabled: isOpen } // Only fetch when modal is open
@@ -125,7 +125,7 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
               </option>
               {properties.map((property) => (
                 <option key={property.id} value={property.id}>
-                  {property.title} - {property.address?.street_1 || property.street_address_1}, {property.address?.city || property.city}
+                  {property.title} - {property.street_address_1}, {property.city}
                 </option>
               ))}
             </select>
