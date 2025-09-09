@@ -458,6 +458,44 @@ def create_property_listing_status(current_user):
 
 # =================== HELPER ENDPOINTS ===================
 
+@leasing_bp.route('/available-properties', methods=['GET'])
+@token_required
+def get_available_properties(current_user):
+    """Get properties that are available for leasing (no active tenants)"""
+    try:
+        # Get properties owned by the current user that don't have active tenants
+        from models.tenant import Tenant
+        from datetime import date
+        
+        # Get all properties owned by the user
+        user_properties = Property.query.filter_by(owner_id=current_user.id).all()
+        
+        available_properties = []
+        for property in user_properties:
+            # Check if property has any active tenants (lease_end is in the future or null)
+            active_tenants = Tenant.query.filter(
+                Tenant.property_id == property.id,
+                (Tenant.lease_end.is_(None)) | (Tenant.lease_end >= date.today())
+            ).count()
+            
+            # If no active tenants, property is available
+            if active_tenants == 0:
+                available_properties.append({
+                    'id': property.id,
+                    'title': property.title,
+                    'street_address_1': property.street_address_1,
+                    'city': property.city,
+                    'state': property.state,
+                    'zip_code': property.zip_code,
+                    'rent_amount': float(property.rent_amount) if property.rent_amount else 0,
+                    'status': property.status
+                })
+        
+        return jsonify(available_properties), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @leasing_bp.route('/dashboard-stats', methods=['GET'])
 @token_required
 def get_leasing_dashboard_stats(current_user):
