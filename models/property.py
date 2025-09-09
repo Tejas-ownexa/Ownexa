@@ -22,11 +22,13 @@ class Property(BaseModel):
     rent_amount = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='available')
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     image_url = db.Column(db.String(500))  # Store image URL/path
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     owner = db.relationship('User', foreign_keys=[owner_id], backref='owned_properties')
+    created_by_user = db.relationship('User', foreign_keys=[created_by_user_id], backref='created_properties')
     tenants = db.relationship('Tenant', back_populates='property')
     maintenance_requests = db.relationship('MaintenanceRequest', back_populates='property')
     listings = db.relationship('Listing', back_populates='property')

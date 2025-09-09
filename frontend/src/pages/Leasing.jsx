@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import toast from 'react-hot-toast';
 import AddApplicantModal from '../components/AddApplicantModal';
 import CreateApplicantGroupModal from '../components/CreateApplicantGroupModal';
+import leasingService from '../services/leasingService';
 import { 
   Plus,
   ClipboardList,
@@ -113,24 +116,48 @@ const Leasing = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('listing');
   const [isAddApplicantModalOpen, setIsAddApplicantModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
 
+  // Mutations for creating applicants and groups
+  const createApplicantMutation = useMutation(
+    leasingService.applicants.createApplicant,
+    {
+      onSuccess: () => {
+        toast.success('Applicant created successfully!');
+        queryClient.invalidateQueries(['leasing-applicants']);
+        setIsAddApplicantModalOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.error || 'Failed to create applicant');
+      }
+    }
+  );
+
+  const createGroupMutation = useMutation(
+    leasingService.groups.createGroup,
+    {
+      onSuccess: () => {
+        toast.success('Applicant group created successfully!');
+        queryClient.invalidateQueries(['applicant-groups']);
+        setIsCreateGroupModalOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.error || 'Failed to create applicant group');
+      }
+    }
+  );
+
   // Handle saving new applicant
   const handleSaveApplicant = (applicantData) => {
-    console.log('Saving applicant:', applicantData);
-    // TODO: Implement API call to save applicant
-    // For now, just close the modal
-    setIsAddApplicantModalOpen(false);
+    createApplicantMutation.mutate(applicantData);
   };
 
   // Handle saving new applicant group
   const handleSaveApplicantGroup = (groupData) => {
-    console.log('Saving applicant group:', groupData);
-    // TODO: Implement API call to save applicant group
-    // For now, just close the modal
-    setIsCreateGroupModalOpen(false);
+    createGroupMutation.mutate(groupData);
   };
 
   // Handle URL parameters to set initial tab

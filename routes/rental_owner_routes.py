@@ -98,13 +98,18 @@ def create_rental_owner(current_user):
             username=data['contact_email'].split('@')[0],  # Use email prefix as username
             email=data['contact_email'],
             full_name=data['company_name'],
-            phone=data.get('contact_phone', ''),
+            phone_number=data.get('contact_phone', ''),
+            street_address_1=data.get('address', 'Not Provided'),
+            city=data.get('city', 'Not Provided'),
+            state=data.get('state', 'Not Provided'),
+            zip_code=data.get('zip_code', '00000'),
             role='OWNER',
-            is_verified=False  # They'll need to verify their email
+            email_verified=False  # They'll need to verify their email
         )
         
-        # Set password
-        new_owner.set_password(temp_password)
+        # Hash the temporary password
+        from werkzeug.security import generate_password_hash
+        new_owner.password = generate_password_hash(temp_password)
         
         db.session.add(new_owner)
         db.session.commit()
