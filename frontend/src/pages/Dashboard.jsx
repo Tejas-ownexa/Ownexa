@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench, TrendingUp, TrendingDown, Calendar, PieChart, BarChart3, Activity } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import DashboardWidget from '../components/DashboardWidget';
+import toast from 'react-hot-toast';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement } from 'chart.js';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 
@@ -24,6 +25,7 @@ ChartJS.register(
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
   const [maintenanceList, setMaintenanceList] = useState([]);
   const [maintenanceLoading, setMaintenanceLoading] = useState(true);
@@ -676,7 +678,25 @@ const Dashboard = () => {
               ) : userProperties && userProperties.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {userProperties.map((property) => (
-                    <PropertyCard key={property.id} property={property} isFavorite={isPropertyFavorited(property.id)} />
+                    <PropertyCard 
+                      key={property.id} 
+                      property={property} 
+                      isFavorite={isPropertyFavorited(property.id)}
+                      onDelete={async (propertyId) => {
+                        if (window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+                          try {
+                            await api.delete(`/api/properties/${propertyId}`);
+                            toast.success('Property deleted successfully!');
+                            // Refresh the properties list
+                            queryClient.invalidateQueries(['user-properties']);
+                          } catch (error) {
+                            console.error('Delete error:', error);
+                            const errorMessage = error.response?.data?.error || 'Failed to delete property. Please try again.';
+                            toast.error(errorMessage);
+                          }
+                        }
+                      }}
+                    />
                   ))}
                 </div>
               ) : (

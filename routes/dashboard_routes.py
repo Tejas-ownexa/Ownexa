@@ -26,7 +26,7 @@ def get_dashboard_stats(current_user):
         
         # Get tenants for these properties
         tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all() if property_ids else []
-        active_tenants = len([t for t in tenants if t.move_out_date is None or t.move_out_date > date.today()])
+        active_tenants = len([t for t in tenants if t.lease_end is None or t.lease_end > date.today()])
         
         # Get maintenance requests
         maintenance_requests = MaintenanceRequest.query.filter(
@@ -39,7 +39,7 @@ def get_dashboard_stats(current_user):
         current_year = datetime.now().year
         
         # Monthly revenue from rent
-        monthly_rent_revenue = sum(float(t.rent_amount or 0) for t in tenants if t.move_out_date is None or t.move_out_date > date.today())
+        monthly_rent_revenue = sum(float(t.rent_amount or 0) for t in tenants if t.lease_end is None or t.lease_end > date.today())
         
         # Get financial transactions for more accurate revenue calculation
         financial_transactions = FinancialTransaction.query.filter(

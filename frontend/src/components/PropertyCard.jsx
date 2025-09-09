@@ -1,20 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, DollarSign, Heart, Home } from 'lucide-react';
+import { MapPin, DollarSign, Heart, Home, Trash2, MoreHorizontal } from 'lucide-react';
 import { useMutation, useQueryClient } from 'react-query';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 
-const PropertyCard = ({ property, isFavorite = false }) => {
+const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [favorite, setFavorite] = useState(isFavorite);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   // Update favorite state when prop changes
   useEffect(() => {
     setFavorite(isFavorite);
   }, [isFavorite]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDropdown && !event.target.closest('.dropdown-container')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
 
   const addToFavoritesMutation = useMutation(
     async (propertyId) => {
@@ -64,6 +79,21 @@ const PropertyCard = ({ property, isFavorite = false }) => {
     } else {
       addToFavoritesMutation.mutate(property.id);
     }
+  };
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDropdown(false);
+    if (onDelete) {
+      onDelete(property.id);
+    }
+  };
+
+  const handleDropdownToggle = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDropdown(!showDropdown);
   };
 
   const formatPrice = (price) => {
@@ -186,20 +216,50 @@ const PropertyCard = ({ property, isFavorite = false }) => {
           </span>
         </div>
 
-        {/* Favorite Button */}
-        <button 
-          onClick={handleFavoriteToggle}
-          className={`absolute top-3 right-3 p-2 rounded-full shadow-md transition-colors ${
-            favorite 
-              ? 'bg-red-500 hover:bg-red-600' 
-              : 'bg-white hover:bg-gray-50'
-          }`}
-          disabled={addToFavoritesMutation.isLoading || removeFromFavoritesMutation.isLoading}
-        >
-          <Heart className={`h-4 w-4 ${
-            favorite ? 'text-white fill-white' : 'text-gray-400'
-          }`} />
-        </button>
+        {/* Action Buttons */}
+        <div className="absolute top-3 right-3 flex space-x-2">
+          {/* Favorite Button */}
+          <button 
+            onClick={handleFavoriteToggle}
+            className={`p-2 rounded-full shadow-md transition-colors ${
+              favorite 
+                ? 'bg-red-500 hover:bg-red-600' 
+                : 'bg-white hover:bg-gray-50'
+            }`}
+            disabled={addToFavoritesMutation.isLoading || removeFromFavoritesMutation.isLoading}
+          >
+            <Heart className={`h-4 w-4 ${
+              favorite ? 'text-white fill-white' : 'text-gray-400'
+            }`} />
+          </button>
+
+          {/* Options Dropdown */}
+          {onDelete && (
+            <div className="relative dropdown-container">
+              <button 
+                onClick={handleDropdownToggle}
+                className="p-2 rounded-full bg-white hover:bg-gray-50 shadow-md transition-colors"
+              >
+                <MoreHorizontal className="h-4 w-4 text-gray-400" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={handleDelete}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
+                    >
+                      <Trash2 className="h-4 w-4 mr-3" />
+                      Delete Property
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Property Details */}
