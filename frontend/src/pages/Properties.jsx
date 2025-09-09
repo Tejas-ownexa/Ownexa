@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { Search, Filter, MapPin, DollarSign, Plus } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
+import toast from 'react-hot-toast';
 
 const Properties = () => {
+  const queryClient = useQueryClient();
   const [filters, setFilters] = useState({
     search: '',
     min_price: '',
@@ -25,6 +27,55 @@ const Properties = () => {
       return response.data;
     }
   );
+
+  // Delete property handler
+  const handleDeleteProperty = async (propertyId) => {
+    console.log('🗑️ Delete requested for property ID:', propertyId);
+    console.log('🔍 Current auth token:', localStorage.getItem('token') ? 'Present' : 'Missing');
+    console.log('🔍 API base URL:', api.defaults.baseURL);
+    
+    if (window.confirm('Are you sure you want to delete this property? This action cannot be undone.')) {
+      try {
+        console.log('🔗 Making API call to delete property...');
+        console.log('🔗 Request URL:', `${api.defaults.baseURL}/api/properties/${propertyId}`);
+        
+        const response = await api.delete(`/api/properties/${propertyId}`);
+        console.log('✅ Delete response status:', response.status);
+        console.log('✅ Delete response data:', response.data);
+        
+        toast.success('Property deleted successfully!');
+        // Refresh the properties list
+        queryClient.invalidateQueries(['properties']);
+      } catch (error) {
+        console.error('❌ Delete error full object:', error);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error code:', error.code);
+        console.error('❌ Error response status:', error.response?.status);
+        console.error('❌ Error response data:', error.response?.data);
+        console.error('❌ Error request:', error.request);
+        
+        let errorMessage = 'Failed to delete property. Please try again.';
+        
+        if (error.response) {
+          // Server responded with error status
+          errorMessage = error.response.data?.error || `Server error: ${error.response.status}`;
+          console.log('📊 Server responded with error:', error.response.status);
+        } else if (error.request) {
+          // Request was made but no response received
+          errorMessage = 'Network error: Could not connect to server';
+          console.log('📊 Network error - no response received');
+        } else {
+          // Something else happened
+          errorMessage = `Request error: ${error.message}`;
+          console.log('📊 Request setup error:', error.message);
+        }
+        
+        toast.error(errorMessage);
+      }
+    } else {
+      console.log('🚫 Delete cancelled by user');
+    }
+  };
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -162,7 +213,11 @@ const Properties = () => {
       {properties && properties.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
+            <PropertyCard 
+              key={property.id} 
+              property={property} 
+              onDelete={handleDeleteProperty}
+            />
           ))}
         </div>
       ) : (
