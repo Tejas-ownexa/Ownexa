@@ -16,6 +16,8 @@ from routes.reporting_routes import reporting_bp
 from routes.accountability_routes import accountability_bp
 
 from routes.rental_owner_routes import rental_owner_bp
+from routes.leasing_routes import leasing_bp
+from routes.dashboard_routes import dashboard_bp
 
 def init_routes(app):
     print("Initializing routes...")
@@ -34,7 +36,12 @@ def init_routes(app):
                 'associations': '/api/associations',
                 'rentals': '/api/rentals',
                 'accountability': '/api/accountability',
-                'chatbot': '/api/chatbot'
+                'chatbot': '/api/chatbot',
+                'vendors': '/api/vendors',
+                'work_orders': '/api/work-orders',
+                'leasing': '/api/leasing',
+                'rental_owners': '/api/rental-owners',
+                'dashboard': '/api/dashboard'
             }
         })
     
@@ -102,6 +109,13 @@ def init_routes(app):
     # Rental owner routes
     app.register_blueprint(rental_owner_bp, url_prefix='/api/rental-owners')
     print("Rental owner routes registered")
+    
+    # Leasing routes
+    app.register_blueprint(leasing_bp, url_prefix='/api/leasing')
+    print("Leasing routes registered")
+    
+    app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
+    print("Dashboard routes registered")
     
     print("All routes registered successfully")
     

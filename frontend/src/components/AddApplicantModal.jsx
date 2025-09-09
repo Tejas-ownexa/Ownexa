@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useQuery } from 'react-query';
 import { X, Plus } from 'lucide-react';
+import api from '../utils/axios';
 
 const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -12,6 +14,16 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   });
 
   const [coApplicants, setCoApplicants] = useState([]);
+
+  // Fetch properties from API
+  const { data: properties = [], isLoading: propertiesLoading } = useQuery(
+    ['properties'],
+    async () => {
+      const response = await api.get('/api/properties/');
+      return response.data;
+    },
+    { enabled: isOpen } // Only fetch when modal is open
+  );
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -42,12 +54,25 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleSave = () => {
+    // Transform form data to match API expectations
     const applicantData = {
-      ...formData,
-      coApplicants
+      property_id: parseInt(formData.property),
+      full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+      email: formData.email,
+      phone_number: formData.phoneNumber,
+      // Add co-applicants as notes for now, or handle separately
+      notes: coApplicants.length > 0 ? 
+        `Co-applicants: ${coApplicants.map(ca => `${ca.firstName} ${ca.lastName} (${ca.email})`).join(', ')}` : 
+        null
     };
-    onSave(applicantData);
-    onClose();
+    
+    // Only save if required fields are present
+    if (applicantData.property_id && applicantData.full_name && applicantData.email) {
+      onSave(applicantData);
+      handleCancel(); // Reset form and close
+    } else {
+      alert('Please fill in all required fields');
+    }
   };
 
   const handleCancel = () => {
@@ -91,11 +116,18 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
               value={formData.property}
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              disabled={propertiesLoading}
             >
-              <option value="">Select a property...</option>
-              <option value="property1">123 Main St, Apt 1A</option>
-              <option value="property2">456 Oak Ave, Unit 2B</option>
-              <option value="property3">789 Pine Rd, Suite 3C</option>
+              <option value="">
+                {propertiesLoading ? 'Loading properties...' : 
+                 properties.length === 0 ? 'No properties available' : 
+                 'Select a property...'}
+              </option>
+              {properties.map((property) => (
+                <option key={property.id} value={property.id}>
+                  {property.title} - {property.address?.street_1 || property.street_address_1}, {property.address?.city || property.city}
+                </option>
+              ))}
             </select>
           </div>
 

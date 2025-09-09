@@ -42,8 +42,7 @@ CREATE TABLE properties (
     description TEXT NOT NULL,
     rent_amount NUMERIC(10, 2) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'available',
-    rental_owner_id INTEGER NOT NULL REFERENCES rental_owners(id) ON DELETE CASCADE,
-    created_by_user_id INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
+    owner_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
     image_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -59,6 +58,7 @@ CREATE TABLE tenants (
     lease_start DATE,
     lease_end DATE,
     rent_amount NUMERIC(10, 2),
+    rent_payment_day INTEGER DEFAULT 1,
     payment_status VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -1030,7 +1030,7 @@ CREATE INDEX idx_lease_roll_owner_id ON lease_roll(owner_id);
 CREATE INDEX idx_rental_owners_company_name ON rental_owners(company_name);
 CREATE INDEX idx_rental_owner_managers_rental_owner_id ON rental_owner_managers(rental_owner_id);
 CREATE INDEX idx_rental_owner_managers_user_id ON rental_owner_managers(user_id);
-CREATE INDEX idx_properties_rental_owner_id ON properties(rental_owner_id);
+CREATE INDEX idx_properties_owner_id ON properties(owner_id);
 CREATE INDEX idx_rental_owner_profiles_user_id ON rental_owner_profiles(user_id);
 CREATE INDEX idx_lease_agreements_property_id ON lease_agreements(property_id);
 CREATE INDEX idx_lease_agreements_tenant_id ON lease_agreements(tenant_id);

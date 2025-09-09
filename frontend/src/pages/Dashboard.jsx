@@ -47,6 +47,16 @@ const Dashboard = () => {
     { enabled: !!user?.id }
   );
 
+  // Fetch dashboard statistics
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery(
+    ['dashboard-stats'],
+    async () => {
+      const response = await api.get('/api/dashboard/stats');
+      return response.data.stats;
+    },
+    { enabled: !!user?.id }
+  );
+
   const { data: favorites, isLoading: favoritesLoading } = useQuery(
     ['user-favorites'],
     async () => {
@@ -155,7 +165,7 @@ const Dashboard = () => {
     datasets: [
       {
         label: 'Monthly Revenue',
-        data: [4200, 4800, 4500, 5200, 4900, 5400],
+        data: dashboardStats?.revenue_chart_data || [0, 0, 0, 0, 0, 0],
         borderColor: 'rgb(59, 130, 246)',
         backgroundColor: 'rgba(59, 130, 246, 0.1)',
         borderWidth: 3,
@@ -393,7 +403,9 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-purple-100 text-sm font-medium">Monthly Revenue</p>
-                <p className="text-3xl font-bold mt-1">$5,400</p>
+                <p className="text-3xl font-bold mt-1">
+                  ${dashboardStats?.monthly_revenue?.toLocaleString() || '0'}
+                </p>
                 <div className="flex items-center mt-2">
                   <TrendingUp className="h-4 w-4 mr-1" />
                   <span className="text-sm">+8% this month</span>
@@ -552,8 +564,12 @@ const Dashboard = () => {
                     <h3 className="text-lg font-semibold text-gray-900">Occupancy Rate</h3>
                     <PieChart className="h-5 w-5 text-indigo-600" />
                   </div>
-                  <div className="text-3xl font-bold text-indigo-600 mb-2">95%</div>
-                  <p className="text-sm text-gray-600">3 of 3 properties occupied</p>
+                  <div className="text-3xl font-bold text-indigo-600 mb-2">
+                    {dashboardStats?.occupancy_rate || 0}%
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {dashboardStats?.active_tenants || 0} of {dashboardStats?.total_properties || 0} properties occupied
+                  </p>
                 </div>
                 
                 <div className="bg-gradient-to-br from-green-50 to-white p-6 rounded-xl border border-green-100">
@@ -561,7 +577,9 @@ const Dashboard = () => {
                     <h3 className="text-lg font-semibold text-gray-900">Collection Rate</h3>
                     <TrendingUp className="h-5 w-5 text-green-600" />
                   </div>
-                  <div className="text-3xl font-bold text-green-600 mb-2">98%</div>
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    {dashboardStats?.collection_rate || 0}%
+                  </div>
                   <p className="text-sm text-gray-600">On-time rent collection</p>
                 </div>
                 
@@ -570,7 +588,9 @@ const Dashboard = () => {
                     <h3 className="text-lg font-semibold text-gray-900">Avg Response Time</h3>
                     <Activity className="h-5 w-5 text-yellow-600" />
                   </div>
-                  <div className="text-3xl font-bold text-yellow-600 mb-2">2.4h</div>
+                  <div className="text-3xl font-bold text-yellow-600 mb-2">
+                    {dashboardStats?.avg_response_time || '0h'}
+                  </div>
                   <p className="text-sm text-gray-600">For maintenance requests</p>
                 </div>
               </div>
@@ -755,19 +775,23 @@ const Dashboard = () => {
               {/* Key Metrics Grid */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-lg text-white">
-                  <div className="text-2xl font-bold">$15,240</div>
+                  <div className="text-2xl font-bold">
+                    ${dashboardStats?.ytd_revenue?.toLocaleString() || '0'}
+                  </div>
                   <div className="text-blue-100">Total Revenue (YTD)</div>
                 </div>
                 <div className="bg-gradient-to-br from-green-500 to-green-600 p-4 rounded-lg text-white">
-                  <div className="text-2xl font-bold">4.8%</div>
+                  <div className="text-2xl font-bold">{dashboardStats?.roi || 0}%</div>
                   <div className="text-green-100">ROI This Year</div>
                 </div>
                 <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-4 rounded-lg text-white">
-                  <div className="text-2xl font-bold">12</div>
+                  <div className="text-2xl font-bold">{dashboardStats?.avg_vacancy_days || 0}</div>
                   <div className="text-purple-100">Days Avg Vacancy</div>
                 </div>
                 <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-4 rounded-lg text-white">
-                  <div className="text-2xl font-bold">$342</div>
+                  <div className="text-2xl font-bold">
+                    ${dashboardStats?.avg_maintenance_cost?.toLocaleString() || '0'}
+                  </div>
                   <div className="text-orange-100">Avg Maintenance Cost</div>
                 </div>
               </div>
