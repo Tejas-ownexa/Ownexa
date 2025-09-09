@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import DashboardRouter from './pages/DashboardRouter';
 
 import PropertyDetail from './pages/PropertyDetail';
+import Properties from './pages/Properties';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
 import Rentals from './pages/Rentals';
@@ -29,6 +30,7 @@ import AddVendor from './pages/AddVendor';
 import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
+// import Associations from './pages/Associations';
 
 // import Accountability from './pages/Accountability';
 // import Reporting from './pages/Reporting';
@@ -87,6 +89,11 @@ const App = () => {
                       </PrivateRoute>
                     } />
 
+                    <Route path="/properties" element={
+                      <PrivateRoute>
+                        <Properties />
+                      </PrivateRoute>
+                    } />
                     <Route path="/properties/:id" element={
                       <PrivateRoute>
                         <PropertyDetail />
