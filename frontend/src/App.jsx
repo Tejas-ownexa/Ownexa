@@ -5,13 +5,14 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import ChatWidget from './components/ChatWidget';
-import ErrorBoundary from './components/ErrorBoundary';
+// import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import DashboardRouter from './pages/DashboardRouter';
 
 import PropertyDetail from './pages/PropertyDetail';
+import Properties from './pages/Properties';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
 import Rentals from './pages/Rentals';
@@ -29,10 +30,22 @@ import AddVendor from './pages/AddVendor';
 import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
+// import Associations from './pages/Associations';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
 import './index.css';
+
+// Temporarily commented out missing association components
+// import OwnershipAccounts from './pages/associations/OwnershipAccounts';
+// import OwnersAndTenants from './pages/associations/OwnersAndTenants';
+// import Violations from './pages/associations/Violations';
+// import ArchitecturalRequests from './pages/associations/ArchitecturalRequests';
+// import PropertyGroups from './pages/associations/PropertyGroups';
+// import ReceivePayment from './pages/associations/ReceivePayment';
+// import UpdateRecurringCharges from './pages/associations/UpdateRecurringCharges';
+// import AddPropertyGroup from './pages/associations/AddPropertyGroup';
+// import AddTenant from './pages/associations/AddTenant';
 
 const queryClient = new QueryClient();
 
@@ -58,7 +71,7 @@ const RootRedirect = () => {
 
 const App = () => {
   return (
-    <ErrorBoundary>
+    // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
@@ -76,6 +89,11 @@ const App = () => {
                       </PrivateRoute>
                     } />
 
+                    <Route path="/properties" element={
+                      <PrivateRoute>
+                        <Properties />
+                      </PrivateRoute>
+                    } />
                     <Route path="/properties/:id" element={
                       <PrivateRoute>
                         <PropertyDetail />
@@ -91,6 +109,34 @@ const App = () => {
                         <Tenants />
                       </PrivateRoute>
                     } />
+                    {/* <Route path="/associations" element={<PrivateRoute><Associations /></PrivateRoute>} /> */}
+                    {/* Temporarily commented out routes for missing association components */}
+                    {/* <Route path="/associations/property-groups" element={<PrivateRoute><PropertyGroups /></PrivateRoute>} /> */}
+                    {/* <Route path="/associations/property-groups/add" element={
+                      <PrivateRoute>
+                        <AddPropertyGroup />
+                      </PrivateRoute>
+                    } /> */}
+                    {/* <Route path="/associations/ownership-accounts" element={<PrivateRoute><OwnershipAccounts /></PrivateRoute>} /> */}
+                    {/* <Route path="/associations/owners-tenants" element={<PrivateRoute><OwnersAndTenants /></PrivateRoute>} /> */}
+                    <Route path="/associations/outstanding-balances" element={<PrivateRoute><OutstandingBalances /></PrivateRoute>} />
+                    {/* <Route path="/associations/violations" element={<PrivateRoute><Violations /></PrivateRoute>} /> */}
+                    {/* <Route path="/associations/architectural-requests" element={<PrivateRoute><ArchitecturalRequests /></PrivateRoute>} /> */}
+                    {/* <Route path="/associations/receive-payment" element={
+                      <PrivateRoute>
+                        <ReceivePayment />
+                      </PrivateRoute>
+                    } /> */}
+                    {/* <Route path="/associations/update-recurring-charges" element={
+                      <PrivateRoute>
+                        <UpdateRecurringCharges />
+                      </PrivateRoute>
+                    } /> */}
+                    {/* <Route path="/associations/add-tenant" element={
+                      <PrivateRoute>
+                        <AddTenant />
+                      </PrivateRoute>
+                    } /> */}
                     <Route path="/rentals" element={
                       <PrivateRoute>
                         <Rentals />
@@ -162,6 +208,7 @@ const App = () => {
                       </PrivateRoute>
                     } />
 
+                    {/* Commented out routes for missing components
                     <Route path="/accountability" element={
                       <PrivateRoute>
                         <Accountability />
@@ -172,6 +219,7 @@ const App = () => {
                         <Reporting />
                       </PrivateRoute>
                     } />
+                    */}
                     <Route path="/" element={
                       <PrivateRoute>
                         <RootRedirect />
@@ -189,7 +237,7 @@ const App = () => {
           </Router>
         </AuthProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
+    // </ErrorBoundary>
   );
 };
 

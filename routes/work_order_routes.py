@@ -29,7 +29,7 @@ def get_work_orders(current_user):
         # Build query - get work orders for properties owned by current user
         query = db.session.query(WorkOrder).join(Property).filter(
             or_(
-                Property.created_by_user_id == current_user.id,
+                Property.owner_id == current_user.id,
                 WorkOrder.created_by_user_id == current_user.id
             )
         )
@@ -183,7 +183,7 @@ def get_work_order(current_user, work_order_id):
         work_order = db.session.query(WorkOrder).join(Property).filter(
             WorkOrder.id == work_order_id,
             or_(
-                Property.created_by_user_id == current_user.id,
+                Property.owner_id == current_user.id,
                 WorkOrder.created_by_user_id == current_user.id
             )
         ).first_or_404()
@@ -262,7 +262,7 @@ def update_work_order(current_user, work_order_id):
         work_order = db.session.query(WorkOrder).join(Property).filter(
             WorkOrder.id == work_order_id,
             or_(
-                Property.created_by_user_id == current_user.id,
+                Property.owner_id == current_user.id,
                 WorkOrder.created_by_user_id == current_user.id
             )
         ).first_or_404()
@@ -334,7 +334,7 @@ def delete_work_order(current_user, work_order_id):
         work_order = db.session.query(WorkOrder).join(Property).filter(
             WorkOrder.id == work_order_id,
             or_(
-                Property.created_by_user_id == current_user.id,
+                Property.owner_id == current_user.id,
                 WorkOrder.created_by_user_id == current_user.id
             )
         ).first_or_404()
@@ -396,7 +396,7 @@ def export_work_orders(current_user):
         # Get work orders for user's properties
         work_orders = db.session.query(WorkOrder).join(Property).filter(
             or_(
-                Property.created_by_user_id == current_user.id,
+                Property.owner_id == current_user.id,
                 WorkOrder.created_by_user_id == current_user.id
             )
         ).order_by(WorkOrder.created_at.desc()).all()
