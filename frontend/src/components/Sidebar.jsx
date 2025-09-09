@@ -81,8 +81,7 @@ const Sidebar = () => {
           { name: 'Listing', href: '/leasing?tab=listing', icon: Building },
           { name: 'Applicants', href: '/leasing?tab=applicants', icon: Users },
           { name: 'Draft Lease', href: '/leasing?tab=draft-lease', icon: FileText },
-          { name: 'Lease Renewals', href: '/leasing?tab=lease-renewals', icon: RefreshCw },
-          { name: 'Leasing Overview', href: '/leasing?tab=leasing', icon: Home }
+          { name: 'Lease Renewals', href: '/leasing?tab=lease-renewals', icon: RefreshCw }
         ]
       },
       {
