@@ -107,14 +107,16 @@ const PropertyGroups = () => {
 
   return (
     <div className="p-6">
-      {/* Update Back Button */}
-      <button 
-        onClick={handleGoBack}
-        className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Go back
-      </button>
+      {/* Back Button */}
+      <div className="mb-6">
+        <button
+          onClick={handleGoBack}
+          className="inline-flex items-center text-blue-600 hover:text-blue-700"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Go back
+        </button>
+      </div>
 
       {/* Header */}
       <div className="flex justify-between items-center mb-6">

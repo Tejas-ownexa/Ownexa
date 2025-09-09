@@ -39,6 +39,7 @@ import ReceivePayment from './pages/associations/ReceivePayment';
 import UpdateRecurringCharges from './pages/associations/UpdateRecurringCharges';
 import AddPropertyGroup from './pages/associations/AddPropertyGroup';
 import AddTenant from './pages/associations/AddTenant';
+import AddAssociation from './pages/associations/AddAssociation';
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,11 @@ const App = () => {
                     <Route path="/associations/add-tenant" element={
                       <PrivateRoute>
                         <AddTenant />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/associations/add" element={
+                      <PrivateRoute>
+                        <AddAssociation />
                       </PrivateRoute>
                     } />
                     <Route path="/rentals" element={

@@ -1,7 +1,62 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ArchitecturalRequests = () => {
+  const navigate = useNavigate();
+  const statusDropdownRef = useRef(null);
+  const [selectedAssociation, setSelectedAssociation] = useState('All associations');
+  const [isAssociationDropdownOpen, setIsAssociationDropdownOpen] = useState(false);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState(['pending', 'approved', 'denied']);
+
+  const statusOptions = [
+    { id: 'pending', label: 'Pending' },
+    { id: 'approved', label: 'Approved' },
+    { id: 'denied', label: 'Denied' }
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(event.target)) {
+        setIsStatusDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleStatusToggle = (statusId) => {
+    setSelectedStatuses(prev => {
+      if (prev.includes(statusId)) {
+        return prev.filter(id => id !== statusId);
+      }
+      return [...prev, statusId];
+    });
+  };
+
+  const getStatusDisplayText = () => {
+    if (selectedStatuses.length === statusOptions.length) {
+      return `(${selectedStatuses.length}) Pending, Approved, Denied`;
+    }
+    return `(${selectedStatuses.length}) ${selectedStatuses
+      .map(id => statusOptions.find(opt => opt.id === id)?.label)
+      .filter(Boolean)
+      .join(', ')}`;
+  };
+
+  const handleManageGroups = () => {
+    navigate('/associations/property-groups', {
+      state: { from: '/associations/architectural-requests' }
+    });
+  };
+
+  const handleAddRequest = () => {
+    // Add your logic for handling new request
+    console.log('Add request clicked');
+  };
+
   return (
     <div className="p-6">
       <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
@@ -17,20 +72,79 @@ const ArchitecturalRequests = () => {
         </div>
       </div>
 
+      {/* Header with Title and Add Button */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold">Architectural requests</h1>
-        <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+        <button
+          onClick={handleAddRequest}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >
           Add request
         </button>
       </div>
 
       <div className="flex gap-4 mb-6">
-        <select className="border border-gray-300 rounded px-3 py-2">
-          <option>All associations</option>
-        </select>
-        <select className="border border-gray-300 rounded px-3 py-2">
-          <option>(3) Pending, Approved, Denied</option>
-        </select>
+        {/* Associations Dropdown */}
+        <div className="relative inline-block">
+          <button
+            className="border border-gray-300 rounded px-4 py-2 flex items-center gap-2 bg-white min-w-[200px]"
+            onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
+          >
+            <span>{selectedAssociation}</span>
+            <ChevronDown className="h-4 w-4 text-gray-500" />
+          </button>
+          {isAssociationDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div
+                className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                onClick={() => {
+                  setSelectedAssociation('All associations');
+                  setIsAssociationDropdownOpen(false);
+                }}
+              >
+                All associations
+              </div>
+              <div
+                className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-blue-600 hover:text-blue-700"
+                onClick={() => {
+                  handleManageGroups();
+                  setIsAssociationDropdownOpen(false);
+                }}
+              >
+                Manage groups...
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Status Dropdown */}
+        <div className="relative inline-block" ref={statusDropdownRef}>
+          <button
+            className="border border-gray-300 rounded px-4 py-2 flex items-center gap-2 bg-white min-w-[200px]"
+            onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+          >
+            <span>{getStatusDisplayText()}</span>
+            <ChevronDown className="h-4 w-4 text-gray-500" />
+          </button>
+          {isStatusDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              {statusOptions.map(option => (
+                <div
+                  key={option.id}
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleStatusToggle(option.id)}
+                >
+                  <div className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center bg-white">
+                    {selectedStatuses.includes(option.id) && (
+                      <Check className="h-4 w-4 text-green-500" />
+                    )}
+                  </div>
+                  <span>{option.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow">
