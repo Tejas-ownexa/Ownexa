@@ -54,9 +54,9 @@ const OwnershipAccounts = () => {
   };
 
   const filterOptions = [
-    { id: 'unit_owner', name: 'Unit or owner' },
+    { id: 'unit_owner', name: 'Unit or Owner' },
     { id: 'start_end', name: 'Start - End' },
-    { id: 'delinquency', name: 'Delinquency status' }
+    { id: 'delinquency', name: 'Delinquency Status' }
   ];
 
   const handleAddFilter = (filterId) => {
@@ -96,10 +96,10 @@ const OwnershipAccounts = () => {
             </div>
             <input
               type="text"
-              placeholder="Unit or owner..."
-              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
+              placeholder="Enter unit or owner..."
               value={unitOwnerValue}
               onChange={(e) => setUnitOwnerValue(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
             />
           </div>
         );
@@ -116,32 +116,19 @@ const OwnershipAccounts = () => {
                 <X className="h-4 w-4 inline" />
               </button>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="m/d/yyyy"
-                  className="border border-gray-300 rounded px-3 py-2 w-[120px] pr-8"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                </span>
-              </div>
-              <span className="text-gray-500">to</span>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="m/d/yyyy"
-                  className="border border-gray-300 rounded px-3 py-2 w-[120px] pr-8"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-                <span className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                </span>
-              </div>
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-2"
+              />
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-2"
+              />
             </div>
           </div>
         );
@@ -187,6 +174,15 @@ const OwnershipAccounts = () => {
                     >
                       Past Due
                     </button>
+                    <button 
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setDelinquencyStatus('Collections');
+                        setIsDelinquencyDropdownOpen(false);
+                      }}
+                    >
+                      Collections
+                    </button>
                   </div>
                 </div>
               )}
@@ -211,135 +207,128 @@ const OwnershipAccounts = () => {
   const [isUpdateChargesModalOpen, setIsUpdateChargesModalOpen] = useState(false);
 
   return (
-    <div className="p-6">
-      {/* Update Back Button */}
-      <button 
-        onClick={() => navigate(-1)}
-        className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-4"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Go back
-      </button>
-
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Ownership accounts</h1>
-        <div className="flex gap-4">
-          <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-            Add account
-          </button>
-          <button 
-            className="border border-gray-300 px-4 py-2 rounded"
-            onClick={handleReceivePayment}
-          >
-            Receive payment
-          </button>
-          <button 
-            className="border border-gray-300 px-4 py-2 rounded"
-            onClick={handleUpdateRecurringCharges}
-          >
-            Update recurring charges
-          </button>
-          <button className="border border-gray-300 px-4 py-2 rounded">
-            •••
-          </button>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Ownership Accounts</h1>
+            <p className="text-gray-600">Manage ownership accounts and recurring charges</p>
+          </div>
+          <div className="flex gap-4">
+            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              Add Account
+            </button>
+            <button 
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              onClick={handleReceivePayment}
+            >
+              Receive Payment
+            </button>
+            <button 
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              onClick={handleUpdateRecurringCharges}
+            >
+              Update Recurring Charges
+            </button>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-4 mb-6">
-        {/* Associations Dropdown */}
-        <div className="relative">
-          <button
-            className="border border-gray-300 rounded px-3 py-2 flex items-center justify-between min-w-[200px]"
-            onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
-          >
-            <span>{selectedAssociation}</span>
-            <ChevronDown className="h-4 w-4 ml-2" />
-          </button>
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex gap-4">
+          {/* Associations Dropdown */}
+          <div className="relative">
+            <button
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[200px] justify-between"
+              onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
+            >
+              <span>{selectedAssociation}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
           
-          {isAssociationDropdownOpen && (
-            <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                <button 
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                  onClick={() => {
-                    setSelectedAssociation('All associations');
-                    setIsAssociationDropdownOpen(false);
-                  }}
-                >
-                  All associations
-                </button>
-                <button 
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-blue-600"
-                  onClick={() => {
-                    setIsAssociationDropdownOpen(false);
-                    handleManageGroups();
-                  }}
-                >
-                  Manage groups...
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Status Dropdown */}
-        <div className="relative">
-          <button
-            className="border border-gray-300 rounded px-3 py-2 flex items-center justify-between min-w-[200px]"
-            onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-          >
-            <span>{getStatusDisplayText()}</span>
-            <ChevronDown className="h-4 w-4 ml-2" />
-          </button>
-
-          {isStatusDropdownOpen && (
-            <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                {statusOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
-                    onClick={() => handleStatusToggle(option.id)}
+            {isAssociationDropdownOpen && (
+              <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                <div className="py-1">
+                  <button 
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    onClick={() => {
+                      setSelectedAssociation('All associations');
+                      setIsAssociationDropdownOpen(false);
+                    }}
                   >
-                    <span>{option.name}</span>
-                    {selectedStatuses.includes(option.id) && (
-                      <span className="text-green-500">✓</span>
-                    )}
+                    All associations
                   </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Add Filter Option Button */}
-        <div className="relative">
-          <button
-            className="text-green-600 hover:text-green-700 px-3 py-2 flex items-center gap-2"
-            onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-          >
-            Add filter option
-            <ChevronDown className="h-4 w-4" />
-          </button>
-
-          {isFilterDropdownOpen && (
-            <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-              <div className="py-1">
-                {filterOptions.map((option) => (
-                  <button
-                    key={option.id}
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
-                    onClick={() => handleAddFilter(option.id)}
+                  <button 
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-blue-600"
+                    onClick={() => {
+                      setIsAssociationDropdownOpen(false);
+                      handleManageGroups();
+                    }}
                   >
-                    <span>{option.name}</span>
-                    {selectedFilters.includes(option.id) && (
-                      <span className="text-green-500">✓</span>
-                    )}
+                    Manage groups...
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Status Dropdown */}
+          <div className="relative">
+            <button
+              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[200px] justify-between"
+              onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+            >
+              <span>{getStatusDisplayText()}</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+
+            {isStatusDropdownOpen && (
+              <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                <div className="py-1">
+                  {statusOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                      onClick={() => handleStatusToggle(option.id)}
+                    >
+                      <span className={`mr-2 ${selectedStatuses.includes(option.id) ? 'text-blue-600' : 'text-gray-400'}`}>
+                        {selectedStatuses.includes(option.id) ? '✓' : '○'}
+                      </span>
+                      {option.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Add Filter Dropdown */}
+          <div className="relative">
+            <button
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
+            >
+              Add Filter Option
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </button>
+            {isFilterDropdownOpen && (
+              <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                <div className="py-1">
+                  {filterOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      onClick={() => handleAddFilter(option.id)}
+                    >
+                      {option.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -355,33 +344,46 @@ const OwnershipAccounts = () => {
         </div>
       )}
 
-      {/* Table */}
-      <div className="bg-white rounded-lg shadow">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left p-4">ACCOUNT</th>
-              <th className="text-left p-4">STATUS</th>
-              <th className="text-left p-4">START - END</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan="3" className="p-4 text-center text-gray-500">
-                We didn't find any accounts. Maybe you don't have any or maybe you need to{' '}
-                <button 
-                  className="text-blue-500 hover:underline"
-                  onClick={() => {
-                    setSelectedAssociation('All associations');
-                    setSelectedStatuses(['active', 'future']);
-                  }}
-                >
-                  clear your filters
-                </button>.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      {/* Accounts Table */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  ACCOUNT
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  STATUS
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  START - END
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              <tr>
+                <td colSpan="3" className="px-6 py-12 text-center">
+                  <div className="text-gray-500">
+                    <p className="text-lg font-medium mb-2">No accounts found</p>
+                    <p className="text-sm">
+                      We didn't find any accounts. Maybe you don't have any or maybe you need to{' '}
+                      <button 
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        onClick={() => {
+                          setSelectedAssociation('All associations');
+                          setSelectedStatuses(['active', 'future']);
+                        }}
+                      >
+                        clear your filters
+                      </button>.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Add the modal */}
@@ -394,6 +396,3 @@ const OwnershipAccounts = () => {
 };
 
 export default OwnershipAccounts;
-
-
-

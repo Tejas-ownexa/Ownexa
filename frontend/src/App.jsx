@@ -6,14 +6,12 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import ChatWidget from './components/ChatWidget';
 // import ErrorBoundary from './components/ErrorBoundary';
-// import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import DashboardRouter from './pages/DashboardRouter';
 
 import PropertyDetail from './pages/PropertyDetail';
-import Properties from './pages/Properties';
 import Properties from './pages/Properties';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
@@ -32,7 +30,7 @@ import AddVendor from './pages/AddVendor';
 import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
-// import Associations from './pages/Associations';
+import Associations from './pages/Associations';
 
 // import Accountability from './pages/Accountability';
 // import Reporting from './pages/Reporting';
@@ -74,7 +72,6 @@ const RootRedirect = () => {
 const App = () => {
   return (
     // <ErrorBoundary>
-    // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
@@ -92,11 +89,6 @@ const App = () => {
                       </PrivateRoute>
                     } />
 
-                    <Route path="/properties" element={
-                      <PrivateRoute>
-                        <Properties />
-                      </PrivateRoute>
-                    } />
                     <Route path="/properties" element={
                       <PrivateRoute>
                         <Properties />
@@ -214,38 +206,12 @@ const App = () => {
                         <AddWorkOrder />
                       </PrivateRoute>
                     } />
-                    <Route path="/maintenance/vendors" element={
-                      <PrivateRoute>
-                        <Vendors />
-                      </PrivateRoute>
-                    } />
-                    <Route path="/maintenance/vendors/add" element={
-                      <PrivateRoute>
-                        <AddVendor />
-                      </PrivateRoute>
-                    } />
-                    <Route path="/maintenance/vendors/categories" element={
-                      <PrivateRoute>
-                        <ManageVendorCategories />
-                      </PrivateRoute>
-                    } />
-                    <Route path="/maintenance/work-orders" element={
-                      <PrivateRoute>
-                        <WorkOrders />
-                      </PrivateRoute>
-                    } />
-                    <Route path="/maintenance/work-orders/add" element={
-                      <PrivateRoute>
-                        <AddWorkOrder />
-                      </PrivateRoute>
-                    } />
                     <Route path="/vendor-profile" element={
                       <PrivateRoute>
                         <VendorProfile />
                       </PrivateRoute>
                     } />
 
-                    {/* Commented out routes for missing components
                     {/* Commented out routes for missing components
                     <Route path="/accountability" element={
                       <PrivateRoute>
@@ -257,7 +223,6 @@ const App = () => {
                         <Reporting />
                       </PrivateRoute>
                     } />
-                    */}
                     */}
                     <Route path="/" element={
                       <PrivateRoute>
@@ -276,7 +241,6 @@ const App = () => {
           </Router>
         </AuthProvider>
       </QueryClientProvider>
-    // </ErrorBoundary>
     // </ErrorBoundary>
   );
 };

@@ -225,25 +225,25 @@ const Violations = () => {
         </div>
         
         <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left p-4">TYPE</th>
-              <th className="text-left p-4">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TYPE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 CATEGORY
                 <button className="ml-1 text-gray-400">▲</button>
               </th>
-              <th className="text-left p-4">ADDRESS</th>
-              <th className="text-left p-4">OWNERS</th>
-              <th className="text-left p-4">ASSOCIATION</th>
-              <th className="text-left p-4">UNIT</th>
-              <th className="text-left p-4">STAGE</th>
-              <th className="text-left p-4">DEADLINE</th>
-              <th className="text-left p-4">VIOLATION DATE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ADDRESS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OWNERS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ASSOCIATION</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UNIT</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STAGE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DEADLINE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VIOLATION DATE</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             <tr>
-              <td colSpan="9" className="p-4 text-center text-gray-600">
+              <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
                 We didn't find any violations. Maybe you don't have any or maybe you need to{' '}
                 <button 
                   onClick={() => {

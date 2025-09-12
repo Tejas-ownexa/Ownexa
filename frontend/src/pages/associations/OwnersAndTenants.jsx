@@ -386,22 +386,22 @@ const OwnersAndTenants = () => {
         </div>
         
         <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left p-4">FIRST NAME</th>
-              <th className="text-left p-4">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FIRST NAME</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 LAST NAME
                 <button className="ml-1 text-gray-400">▲</button>
               </th>
-              <th className="text-left p-4">UNIT NUMBER</th>
-              <th className="text-left p-4">PHONE</th>
-              <th className="text-left p-4">EMAIL</th>
-              <th className="text-left p-4">RESIDENT CENTER STATUS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UNIT NUMBER</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PHONE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EMAIL</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RESIDENT CENTER STATUS</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             <tr>
-              <td colSpan="6" className="p-4 text-center text-gray-600">
+              <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                 We didn't find any association owners or tenants. Maybe you don't have any or maybe you need to{' '}
                 <button 
                   onClick={() => {

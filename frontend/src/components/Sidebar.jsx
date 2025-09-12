@@ -113,20 +113,6 @@ const Sidebar = () => {
           { name: 'Work Orders', href: '/maintenance/work-orders', icon: ClipboardList }
         ]
       },
-          { name: 'Lease Renewals', href: '/leasing?tab=lease-renewals', icon: RefreshCw }
-        ]
-      },
-      {
-        name: 'Maintenance',
-        icon: Wrench,
-        isExpandable: true,
-        isExpanded: maintenanceExpanded,
-        toggle: () => setMaintenanceExpanded(!maintenanceExpanded),
-        subItems: [
-          { name: 'Vendors', href: '/maintenance/vendors', icon: Users },
-          { name: 'Work Orders', href: '/maintenance/work-orders', icon: ClipboardList }
-        ]
-      },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
     ];

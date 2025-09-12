@@ -59,162 +59,153 @@ const PropertyGroups = () => {
 
   const getPrivacyDisplayText = () => {
     const count = selectedPrivacyOptions.length;
-    if (count === 0) return 'Select option';
-    return `(${count}) ${selectedPrivacyOptions.map(opt => 
-      opt.charAt(0).toUpperCase() + opt.slice(1)
+    if (count === 0) return 'Select privacy...';
+    return `(${count}) ${selectedPrivacyOptions.map(option => 
+      option.charAt(0).toUpperCase() + option.slice(1)
     ).join(', ')}`;
   };
 
-  // Modify the table structure based on active tab
-  const renderTable = () => {
-    return (
-      <div className="bg-white rounded-lg shadow">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="w-8 p-4">
-                <input type="checkbox" className="rounded border-gray-300" />
-              </th>
-              <th className="text-left p-4">NAME</th>
-              <th className="text-left p-4">PROPERTIES</th>
-              {activeTab === 'Favorites' && (
-                <th className="text-left p-4">PRIVATE</th>
+  const renderFilter = (filterId) => {
+    switch (filterId) {
+      case 'creator':
+        return (
+          <div>
+            <div className="uppercase text-gray-500 text-sm font-medium mb-2">
+              CREATOR
+              <button 
+                onClick={() => handleRemoveFilter('creator')}
+                className="ml-2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4 inline" />
+              </button>
+            </div>
+            <input
+              type="text"
+              placeholder="Enter creator..."
+              value={creatorValue}
+              onChange={(e) => setCreatorValue(e.target.value)}
+              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
+            />
+          </div>
+        );
+
+      case 'privacy':
+        return (
+          <div>
+            <div className="uppercase text-gray-500 text-sm font-medium mb-2">
+              PRIVACY
+              <button 
+                onClick={() => handleRemoveFilter('privacy')}
+                className="ml-2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4 inline" />
+              </button>
+            </div>
+            <div className="relative">
+              <button
+                className="border border-gray-300 rounded px-3 py-2 w-[200px] text-left flex items-center justify-between"
+                onClick={() => setIsPrivacyDropdownOpen(!isPrivacyDropdownOpen)}
+              >
+                <span>{getPrivacyDisplayText()}</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+              {isPrivacyDropdownOpen && (
+                <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                  <div className="py-1">
+                    {privacyOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                        onClick={() => handlePrivacyOptionToggle(option.id)}
+                      >
+                        <span className={`mr-2 ${selectedPrivacyOptions.includes(option.id) ? 'text-blue-600' : 'text-gray-400'}`}>
+                          {selectedPrivacyOptions.includes(option.id) ? '✓' : '○'}
+                        </span>
+                        {option.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
-              <th className="text-left p-4">CREATOR</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan={activeTab === 'Favorites' ? "5" : "4"} className="p-4 text-center text-gray-500">
-                We didn't find any groups. Maybe you don't have any or maybe you need to{' '}
-                <button 
-                  className="text-blue-500 hover:underline"
-                  onClick={() => {
-                    setActiveFilters([]);
-                    setSearchText('');
-                    setSelectedProperties('All properties');
-                  }}
-                >
-                  clear your filters
-                </button>.
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    );
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   return (
-    <div className="p-6">
-      {/* Back Button */}
-      <div className="mb-6">
-        <button
-          onClick={handleGoBack}
-          className="inline-flex items-center text-blue-600 hover:text-blue-700"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Go back
-        </button>
-      </div>
-
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold">Property groups</h1>
-          <span className="bg-gray-600 text-white text-sm px-3 py-1 rounded">
-            Property groups
-          </span>
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Property Groups</h1>
+            <p className="text-gray-600">Manage and organize your property groups</p>
+          </div>
+          <button 
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            onClick={() => setIsAddGroupModalOpen(true)}
+          >
+            Add group
+          </button>
         </div>
-        <button 
-          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-          onClick={() => navigate('/associations/property-groups/add')}
-        >
-          Add group
-        </button>
       </div>
-
-      {/* Add the modal */}
-      <AddGroupModal 
-        isOpen={isAddGroupModalOpen}
-        onClose={() => setIsAddGroupModalOpen(false)}
-      />
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
-        <div className="flex gap-8">
-          <button
-            className={`pb-4 px-1 ${
-              activeTab === 'Favorites'
-                ? 'border-b-2 border-green-500 text-green-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-            onClick={() => setActiveTab('Favorites')}
-          >
-            Favorites
-          </button>
-          <button
-            className={`pb-4 px-1 ${
-              activeTab === 'All groups'
-                ? 'border-b-2 border-green-500 text-green-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-            onClick={() => setActiveTab('All groups')}
-          >
-            All groups
-          </button>
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8 px-6">
+            {['All groups', 'My groups'].map((tab) => (
+              <button
+                key={tab}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
+          </nav>
         </div>
       </div>
 
-      {/* Description */}
-      <p className="text-gray-600 mb-6">
-        Every property group you've created or been given access to from other staff members.{' '}
-        <span className="font-medium">Tips:</span> Add groups to your "favorites" to quickly run reports, choose recipients, and more!
-      </p>
-
-      {/* Search and Filters */}
-      <div className="space-y-4 mb-6">
-        {/* Search Bar Section */}
-        <div className="flex gap-4 mb-6">
-          <select
-            className="border border-gray-300 rounded px-3 py-2 appearance-none bg-white pr-8 relative min-w-[200px]"
-            value={selectedProperties}
-            onChange={(e) => setSelectedProperties(e.target.value)}
-          >
-            <option>All properties</option>
-          </select>
-          <div className="flex-1 relative">
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex gap-4 items-center">
+          <div className="flex-1">
             <input
               type="text"
-              placeholder="Search for names or descriptions"
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              placeholder="Search groups..."
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
+          
           <div className="relative">
             <button
-              className="text-green-600 hover:text-green-700 px-3 py-2 flex items-center gap-2"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
             >
-              Add filter option
-              <ChevronDown className="h-4 w-4" />
+              Add Filter Option
+              <ChevronDown className="ml-2 h-4 w-4" />
             </button>
-            
-            {/* Filter Dropdown */}
             {isFilterDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                 <div className="py-1">
                   {filterOptions.map((option) => (
                     <button
                       key={option.id}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
                       onClick={() => handleAddFilter(option.id)}
                     >
                       {option.name}
-                      {option.checked && (
-                        <span className="text-green-500">✓</span>
-                      )}
                     </button>
                   ))}
                 </div>
@@ -222,105 +213,70 @@ const PropertyGroups = () => {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Active Filters Row */}
-        {activeFilters.length > 0 && (
-          <div className="bg-white rounded-lg border-l-4 border-green-500 flex flex-col">
-            <div className="flex items-center gap-8 p-4">
-              {/* Creator Filter */}
-              {activeFilters.includes('creator') && (
-                <div className="flex items-center gap-4">
-                  <div className="uppercase text-gray-500 text-sm font-medium w-24">
-                    CREATOR
-                  </div>
-                  <div className="relative">
-                    <select
-                      className="border border-gray-300 rounded px-3 py-2 pr-8 appearance-none bg-white min-w-[200px]"
-                      value={creatorValue}
-                      onChange={(e) => setCreatorValue(e.target.value)}
-                    >
-                      <option>ADRIANA COLMENARES</option>
-                    </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
-                  </div>
-                </div>
-              )}
-
-              {/* Privacy Filter */}
-              {activeFilters.includes('privacy') && (
-                <div className="flex items-center gap-4">
-                  <div className="uppercase text-gray-500 text-sm font-medium w-24">
-                    PRIVACY
-                  </div>
-                  <div className="relative">
-                    <button
-                      className="border border-gray-300 rounded px-3 py-2 pr-8 bg-white min-w-[200px] text-left flex items-center justify-between"
-                      onClick={() => setIsPrivacyDropdownOpen(!isPrivacyDropdownOpen)}
-                    >
-                      <span>{getPrivacyDisplayText()}</span>
-                      <ChevronDown className="h-4 w-4 text-gray-500" />
-                    </button>
-
-                    {/* Privacy Options Dropdown */}
-                    {isPrivacyDropdownOpen && (
-                      <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                        <div className="py-1">
-                          {privacyOptions.map((option) => (
-                            <button
-                              key={option.id}
-                              className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePrivacyOptionToggle(option.id);
-                              }}
-                            >
-                              {option.name}
-                              {selectedPrivacyOptions.includes(option.id) && (
-                                <span className="text-green-500">✓</span>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Apply Filter Button */}
-              <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-gray-700">
-                Apply filter
-              </button>
-
-              {/* Close Button */}
-              <button 
-                onClick={() => setActiveFilters([])}
-                className="ml-auto text-gray-400 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      {/* Active Filters */}
+      {activeFilters.length > 0 && (
+        <div className="bg-white rounded-lg border-l-4 border-green-500 p-4">
+          <div className="flex items-end gap-4">
+            {activeFilters.map((filterId) => renderFilter(filterId))}
+            <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded h-[38px]">
+              Apply filter
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Results Count */}
-      <div className="text-gray-500 mb-4">
-        0 matches
-      </div>
-
-      {/* Table */}
-      {renderTable()}
-
-      {/* Footer */}
-      <div className="mt-8 text-center text-gray-500 text-sm">
-        <span>© 2003-2025 Powered by Buildium, a RealPage Company®. All rights reserved.</span>
-        <div className="mt-2 space-x-4">
-          <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a>
-          <a href="#" className="text-blue-600 hover:underline">Security</a>
-          <a href="#" className="text-blue-600 hover:underline">Terms of Use</a>
+      {/* Groups Table */}
+      <div className="bg-white rounded-lg shadow-md">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  GROUP
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  CREATOR
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PRIVACY
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  PROPERTIES
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              <tr>
+                <td colSpan="4" className="px-6 py-12 text-center">
+                  <div className="text-gray-500">
+                    <p className="text-lg font-medium mb-2">No groups found</p>
+                    <p className="text-sm">
+                      We didn't find any groups. Maybe you don't have any or maybe you need to{' '}
+                      <button 
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        onClick={() => {
+                          setActiveFilters([]);
+                          setSearchText('');
+                        }}
+                      >
+                        clear your filters
+                      </button>.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* Add Group Modal */}
+      <AddGroupModal 
+        isOpen={isAddGroupModalOpen}
+        onClose={() => setIsAddGroupModalOpen(false)}
+      />
     </div>
   );
 };

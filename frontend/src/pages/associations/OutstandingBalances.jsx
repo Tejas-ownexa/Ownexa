@@ -274,27 +274,27 @@ const OutstandingBalances = () => {
         </div>
         
         <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="w-8 p-4">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="w-8 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <input type="checkbox" className="rounded border-gray-300" />
               </th>
-              <th className="w-8 p-4">+</th>
-              <th className="text-left p-4">
+              <th className="w-8 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">+</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 ACCOUNT
                 <button className="ml-1 text-gray-400">▲</button>
               </th>
-              <th className="text-left p-4">PAST DUE EMAIL</th>
-              <th className="text-left p-4">0 - 30 DAYS</th>
-              <th className="text-left p-4">31 - 60 DAYS</th>
-              <th className="text-left p-4">61 - 90 DAYS</th>
-              <th className="text-left p-4">90+ DAYS</th>
-              <th className="text-left p-4">BALANCE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PAST DUE EMAIL</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">0 - 30 DAYS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">31 - 60 DAYS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">61 - 90 DAYS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">90+ DAYS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">BALANCE</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             <tr>
-              <td colSpan="9" className="p-4 text-center text-gray-600">
+              <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
                 We didn't find any ownership accounts with outstanding balances. Maybe you don't have any or maybe you need to{' '}
                 <button 
                   onClick={() => {

@@ -6,7 +6,7 @@ from datetime import datetime
 
 association_bp = Blueprint('association_bp', __name__)
 
-@association_bp.route('/api/associations', methods=['GET'])
+@association_bp.route('/', methods=['GET'])
 def get_associations():
     associations = Association.query.all()
     return jsonify([{
@@ -16,7 +16,7 @@ def get_associations():
         'manager': a.manager
     } for a in associations])
 
-@association_bp.route('/api/associations', methods=['POST'])
+@association_bp.route('/', methods=['POST'])
 def create_association():
     data = request.json
     new_association = Association(

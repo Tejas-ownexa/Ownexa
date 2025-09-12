@@ -149,19 +149,19 @@ const ArchitecturalRequests = () => {
 
       <div className="bg-white rounded-lg shadow">
         <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              <th className="text-left p-4">ADDRESS</th>
-              <th className="text-left p-4">ASSOCIATION</th>
-              <th className="text-left p-4">DATE OF REQUEST</th>
-              <th className="text-left p-4">AGE OF REQUEST</th>
-              <th className="text-left p-4">PROJECT NAME</th>
-              <th className="text-left p-4">DECISION STATUS</th>
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ADDRESS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ASSOCIATION</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DATE OF REQUEST</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AGE OF REQUEST</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PROJECT NAME</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DECISION STATUS</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             <tr>
-              <td colSpan="6" className="p-4 text-center text-gray-500">
+              <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                 We didn't find any architectural requests. Maybe you don't have any or maybe you need to{' '}
                 <button className="text-blue-500 hover:underline">
                   clear your filters
