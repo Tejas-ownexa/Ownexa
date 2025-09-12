@@ -132,11 +132,11 @@ const Sidebar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className={`bg-white shadow-lg h-screen fixed left-0 top-0 z-50 transition-all duration-300 hidden md:block ${
+      <div className={`bg-white shadow-lg h-screen fixed left-0 top-0 z-50 transition-all duration-300 hidden md:flex md:flex-col ${
         isCollapsed ? 'w-16' : 'w-64'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
           {!isCollapsed && (
             <Link 
               to={user?.role === 'VENDOR' ? '/maintenance' : '/dashboard'} 
@@ -159,7 +159,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation Items */}
-        <nav className="mt-4">
+        <nav className="mt-4 flex-1 overflow-y-auto pb-32">
           <div className="px-2 space-y-1">
             {navItems.map((item) => {
               if (item.isExpandable) {
@@ -249,7 +249,7 @@ const Sidebar = () => {
         </nav>
 
         {/* User Section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 flex-shrink-0">
           {!isCollapsed && (
             <div className="mb-3">
               <div className="flex items-center text-sm text-gray-700">
@@ -296,9 +296,9 @@ const Sidebar = () => {
         isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileOpen(false)} />
-        <div className="absolute left-0 top-0 h-full w-80 sm:w-64 bg-white shadow-lg transform transition-transform duration-300">
+        <div className="absolute left-0 top-0 h-full w-80 sm:w-64 bg-white shadow-lg transform transition-transform duration-300 flex flex-col">
           {/* Mobile Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
             <Link 
               to={user?.role === 'VENDOR' ? '/maintenance' : '/dashboard'} 
               className="flex items-center"
@@ -310,7 +310,7 @@ const Sidebar = () => {
           </div>
 
           {/* Mobile Navigation Items */}
-          <nav className="mt-4">
+          <nav className="mt-4 flex-1 overflow-y-auto pb-32">
             <div className="px-2 space-y-1">
               {navItems.map((item) => {
                 if (item.isExpandable) {
@@ -394,7 +394,7 @@ const Sidebar = () => {
           </nav>
 
           {/* Mobile User Section */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 flex-shrink-0">
             <div className="mb-3">
               <div className="flex items-center text-sm text-gray-700">
                 <User className="h-4 w-4 mr-2" />
