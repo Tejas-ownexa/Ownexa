@@ -69,46 +69,59 @@ class LeasingApplicant(BaseModel):
     
     id = db.Column(db.Integer, primary_key=True)
     property_id = db.Column(db.Integer, db.ForeignKey('properties.id', ondelete='CASCADE'), nullable=False)
-    listing_status_id = db.Column(db.Integer, db.ForeignKey('property_listing_status.id', ondelete='CASCADE'))
     
-    # Applicant information
-    full_name = db.Column(db.String(100), nullable=False)
+    # Applicant information (matching actual database schema)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), nullable=False)
     phone_number = db.Column(db.String(20))
     
-    # Unit information
-    unit_number = db.Column(db.String(50))
-    
-    # Application details
-    application_date = db.Column(db.Date, default=datetime.utcnow().date(), nullable=False)
-    application_received = db.Column(db.Date, default=datetime.utcnow().date(), nullable=False)
-    move_in_date = db.Column(db.Date)
-    desired_lease_term = db.Column(db.Integer)  # Months
-    monthly_income = db.Column(db.Numeric(10, 2))
+    # Additional applicant details
+    date_of_birth = db.Column(db.Date)
+    ssn_last_four = db.Column(db.String(4))
+    current_address = db.Column(db.Text)
     employment_status = db.Column(db.String(50))
-    employer_name = db.Column(db.String(100))
+    employer_name = db.Column(db.String(255))
+    monthly_income = db.Column(db.Numeric(10, 2))
+    
+    # Emergency contact
+    emergency_contact_name = db.Column(db.String(255))
+    emergency_contact_phone = db.Column(db.String(20))
+    emergency_contact_relationship = db.Column(db.String(100))
+    
+    # Pet and occupancy information
+    pets = db.Column(db.Boolean, default=False)
+    pet_details = db.Column(db.Text)
+    additional_occupants = db.Column(db.Integer, default=0)
+    previous_rental_history = db.Column(db.Text)
     
     # Application status and workflow
     application_status = db.Column(db.String(50), default='Submitted', nullable=False)
-    stage_in_process = db.Column(db.String(100), default='Application Submitted')
+    application_date = db.Column(db.Date, default=datetime.utcnow().date(), nullable=False)
     background_check_status = db.Column(db.String(50), default='Pending')
-    credit_score = db.Column(db.Integer)
-    references_checked = db.Column(db.Boolean, default=False)
-    
-    # Decision information
-    approved_by = db.Column(db.Integer, db.ForeignKey('user.id'))
-    approval_date = db.Column(db.Date)
-    rejection_reason = db.Column(db.Text)
+    credit_check_status = db.Column(db.String(50), default='Pending')
+    references_verified = db.Column(db.Boolean, default=False)
     notes = db.Column(db.Text)
     
-    # Workflow tracking
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
-    workflow_stage_history = db.Column(db.Text)  # JSON array
+    # Lease information
+    lease_start_date = db.Column(db.Date)
+    lease_end_date = db.Column(db.Date)
+    monthly_rent = db.Column(db.Numeric(10, 2))
+    security_deposit = db.Column(db.Numeric(10, 2))
+    application_fee_paid = db.Column(db.Boolean, default=False)
+    documents_complete = db.Column(db.Boolean, default=False)
     
     # Relationships
     property = db.relationship('Property', backref='leasing_applicants')
-    listing_status = db.relationship('PropertyListingStatus', backref='applicants')
-    approved_by_user = db.relationship('User', backref='approved_applicants')
+    
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
+    
+    def set_full_name(self, value):
+        if value:
+            parts = value.split(' ', 1)
+            self.first_name = parts[0]
+            self.last_name = parts[1] if len(parts) > 1 else ''
 
 class ApplicantGroup(BaseModel):
     """Model for grouped applications with progress tracking"""

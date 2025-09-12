@@ -39,6 +39,8 @@ def get_leasing_applicants(current_user):
         result = []
         for applicant in applicants:
             applicant_data = applicant.to_dict()
+            # Add full_name for compatibility
+            applicant_data['full_name'] = applicant.get_full_name()
             if applicant.property:
                 applicant_data['property'] = {
                     'id': applicant.property.id,
@@ -73,28 +75,35 @@ def create_leasing_applicant(current_user):
         if not property_obj:
             return jsonify({'error': 'Property not found'}), 404
         
+        # Parse full_name into first_name and last_name
+        full_name = data['full_name']
+        name_parts = full_name.split(' ', 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ''
+        
         # Create new applicant
         applicant = LeasingApplicant(
             property_id=data['property_id'],
-            full_name=data['full_name'],
+            first_name=first_name,
+            last_name=last_name,
             email=data['email'],
             phone_number=data.get('phone_number'),
-            unit_number=data.get('unit_number'),
-            move_in_date=datetime.strptime(data['move_in_date'], '%Y-%m-%d').date() if data.get('move_in_date') else None,
-            desired_lease_term=data.get('desired_lease_term'),
-            monthly_income=data.get('monthly_income'),
             employment_status=data.get('employment_status'),
             employer_name=data.get('employer_name'),
+            monthly_income=data.get('monthly_income'),
             notes=data.get('notes')
         )
         
         db.session.add(applicant)
         db.session.commit()
         
+        applicant_data = applicant.to_dict()
+        applicant_data['full_name'] = applicant.get_full_name()
+        
         return jsonify({
             'message': 'Applicant created successfully',
             'applicant_id': applicant.id,
-            'applicant': applicant.to_dict()
+            'applicant': applicant_data
         }), 201
         
     except Exception as e:
@@ -116,25 +125,32 @@ def update_leasing_applicant(current_user, applicant_id):
         
         # Update fields
         updateable_fields = [
-            'full_name', 'email', 'phone_number', 'unit_number', 'move_in_date',
-            'desired_lease_term', 'monthly_income', 'employment_status', 'employer_name',
-            'application_status', 'stage_in_process', 'background_check_status',
-            'credit_score', 'references_checked', 'notes'
+            'email', 'phone_number', 'employment_status', 'employer_name',
+            'monthly_income', 'application_status', 'background_check_status',
+            'credit_check_status', 'references_verified', 'notes'
         ]
         
         for field in updateable_fields:
             if field in data:
-                if field == 'move_in_date' and data[field]:
-                    setattr(applicant, field, datetime.strptime(data[field], '%Y-%m-%d').date())
-                else:
-                    setattr(applicant, field, data[field])
+                setattr(applicant, field, data[field])
         
-        applicant.last_updated = datetime.utcnow()
+        # Handle full_name update
+        if 'full_name' in data:
+            full_name = data['full_name']
+            name_parts = full_name.split(' ', 1)
+            applicant.first_name = name_parts[0]
+            applicant.last_name = name_parts[1] if len(name_parts) > 1 else ''
+        
+        # Update the updated_at timestamp
+        applicant.updated_at = datetime.utcnow()
         db.session.commit()
+        
+        applicant_data = applicant.to_dict()
+        applicant_data['full_name'] = applicant.get_full_name()
         
         return jsonify({
             'message': 'Applicant updated successfully',
-            'applicant': applicant.to_dict()
+            'applicant': applicant_data
         }), 200
         
     except Exception as e:

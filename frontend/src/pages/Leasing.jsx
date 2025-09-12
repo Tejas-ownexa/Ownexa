@@ -314,8 +314,28 @@ const ListingTab = () => {
 const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or 'group'
-  const applicants = []; // Sample data - replace with real data later
-  const applicantGroups = []; // Sample group data - replace with real data later
+  
+  // Fetch applicants from API
+  const { data: applicants = [], isLoading: applicantsLoading, refetch: refetchApplicants } = useQuery(
+    ['leasing-applicants'],
+    () => leasingService.applicants.getApplicants(),
+    {
+      onError: (error) => {
+        console.error('Error fetching applicants:', error);
+      }
+    }
+  );
+  
+  // Fetch applicant groups from API
+  const { data: applicantGroups = [], isLoading: groupsLoading, refetch: refetchGroups } = useQuery(
+    ['applicant-groups'],
+    () => leasingService.groups.getGroups(),
+    {
+      onError: (error) => {
+        console.error('Error fetching applicant groups:', error);
+      }
+    }
+  );
 
   // Filter states - using arrays for multi-select
   const [searchTerm, setSearchTerm] = useState('');
@@ -611,33 +631,42 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {viewMode === 'individual' ? (
-                applicants.length > 0 ? (
+                applicantsLoading ? (
+                  <tr>
+                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                      <div className="text-gray-400 mb-4">
+                        <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
+                      </div>
+                      <p className="text-gray-600">Loading applicants...</p>
+                    </td>
+                  </tr>
+                ) : applicants.length > 0 ? (
                   applicants.map((applicant) => (
                     <tr key={applicant.id} className="hover:bg-gray-50">
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.fullName}
+                        {applicant.full_name}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.unit}
+                        {applicant.unit_number || 'N/A'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          applicant.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                          applicant.status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
-                          applicant.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                          applicant.application_status === 'Approved' ? 'bg-green-100 text-green-800' :
+                          applicant.application_status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
+                          applicant.application_status === 'Rejected' ? 'bg-red-100 text-red-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
-                          {applicant.status}
+                          {applicant.application_status}
                         </span>
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.stageInProcess}
+                        {applicant.stage_in_process || 'Application Submitted'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.lastUpdated}
+                        {applicant.updated_at ? new Date(applicant.updated_at).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {applicant.applicationReceived}
+                        {applicant.application_date ? new Date(applicant.application_date).toLocaleDateString() : 'N/A'}
                       </td>
                     </tr>
                   ))
@@ -657,7 +686,16 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                   </tr>
                 )
               ) : (
-                applicantGroups.length > 0 ? (
+                groupsLoading ? (
+                  <tr>
+                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                      <div className="text-gray-400 mb-4">
+                        <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
+                      </div>
+                      <p className="text-gray-600">Loading applicant groups...</p>
+                    </td>
+                  </tr>
+                ) : applicantGroups.length > 0 ? (
                   applicantGroups.map((group) => (
                     <tr key={group.id} className="hover:bg-gray-50">
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
