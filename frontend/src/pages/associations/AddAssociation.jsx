@@ -6,7 +6,7 @@ const AddAssociation = () => {
   const [formData, setFormData] = useState({
     associationName: '',
     units: '',
-    streetAddress: '',
+    streetAddress: '', 
     city: '',
     state: '',
     zip: '',
