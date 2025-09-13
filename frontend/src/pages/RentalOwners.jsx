@@ -69,10 +69,20 @@ const RentalOwners = () => {
   const handleAddOwner = async (e) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!newOwnerData.company_name || !newOwnerData.contact_email) {
+      toast.error('Please fill in all required fields (Company Name and Contact Email)');
+      return;
+    }
+    
     try {
-      console.log('Sending rental owner data:', newOwnerData);
+      console.log('🔍 Sending rental owner data:', newOwnerData);
+      console.log('🔍 API endpoint: /api/rental-owners/rental-owners');
+      
       const response = await api.post('/api/rental-owners/rental-owners', newOwnerData);
-      console.log('Response received:', response);
+      console.log('✅ Response received:', response);
+      console.log('✅ Response status:', response.status);
+      console.log('✅ Response data:', response.data);
       
       if (response.status === 201 || response.data.success) {
         toast.success('Rental owner added successfully!');
@@ -80,12 +90,25 @@ const RentalOwners = () => {
         setNewOwnerData({ company_name: '', contact_email: '', contact_phone: '', business_type: '', city: '', state: '' });
         queryClient.invalidateQueries(['rental-owners']);
       } else {
+        console.error('❌ Unexpected response:', response);
         toast.error('Failed to add rental owner: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Add owner error:', error);
-      console.error('Error response:', error.response?.data);
-      toast.error('Failed to add rental owner. Please try again.');
+      console.error('❌ Add owner error:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      console.error('❌ Error headers:', error.response?.headers);
+      
+      // More specific error messages
+      if (error.response?.status === 401) {
+        toast.error('Authentication failed. Please log in again.');
+      } else if (error.response?.status === 400) {
+        toast.error('Invalid data: ' + (error.response.data?.error || 'Please check your input'));
+      } else if (error.response?.status === 500) {
+        toast.error('Server error. Please try again later.');
+      } else {
+        toast.error('Failed to add rental owner. Please try again.');
+      }
     }
   };
 
@@ -303,7 +326,7 @@ const RentalOwners = () => {
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            Add owner
+            Add company
           </button>
           
           <div className="relative">
@@ -601,7 +624,7 @@ const RentalOwners = () => {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
                   >
-                    Add Owner
+                    Add Company
                   </button>
                 </div>
               </form>

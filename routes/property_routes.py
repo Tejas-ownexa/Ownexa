@@ -51,8 +51,19 @@ def create_property(current_user):
             else:
                 print("Failed to save image")
         
-        # Use owner_id from request if provided, otherwise use current user
-        owner_id = data.get('owner_id', current_user.id)
+        # Handle rental_owner_id and owner_id
+        rental_owner_id = data.get('owner_id')  # Frontend sends rental owner ID as 'owner_id'
+        owner_id = current_user.id  # Properties are always owned by the current user
+        
+        # Validate rental_owner_id if provided
+        if rental_owner_id:
+            rental_owner = RentalOwner.query.get(rental_owner_id)
+            if not rental_owner:
+                return jsonify({'error': 'Invalid rental owner ID'}), 400
+            print(f"Property will be linked to rental owner: {rental_owner.company_name}")
+        else:
+            rental_owner_id = None
+            print("Property will not be linked to any rental owner")
         
         property = Property(
             title=data['title'],
@@ -66,6 +77,7 @@ def create_property(current_user):
             rent_amount=data['rent_amount'],
             status=data.get('status', 'available'),
             owner_id=owner_id,
+            rental_owner_id=rental_owner_id,
             image_url=image_url
         )
         
@@ -144,10 +156,19 @@ def get_properties(current_user):
             if status and rental_status != status:
                 continue  # Skip this property if it doesn't match the filter
             
-            # Get rental owner information for this user
+            # Get rental owner information using the direct relationship
             rental_owner_info = None
-            if prop.owner:
-                # Use the user's information as rental owner data (matching the rental owner API approach)
+            if prop.rental_owner:
+                # Use the direct rental owner relationship
+                rental_owner_info = {
+                    'id': prop.rental_owner.id,
+                    'company_name': prop.rental_owner.company_name,
+                    'business_type': prop.rental_owner.business_type or 'Property Owner',
+                    'contact_email': prop.rental_owner.contact_email or prop.rental_owner.email,
+                    'contact_phone': prop.rental_owner.contact_phone or prop.rental_owner.phone_number
+                }
+            elif prop.owner:
+                # Fallback to user information if no rental owner linked
                 rental_owner_info = {
                     'id': prop.owner.id,
                     'company_name': prop.owner.full_name or prop.owner.username,
