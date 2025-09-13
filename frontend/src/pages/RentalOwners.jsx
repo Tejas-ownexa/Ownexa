@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -23,8 +24,8 @@ import toast from 'react-hot-toast';
 const RentalOwners = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [owners, setOwners] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showAddOwner, setShowAddOwner] = useState(false);
   const [newOwnerData, setNewOwnerData] = useState({
     company_name: '',
@@ -42,22 +43,27 @@ const RentalOwners = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmData, setDeleteConfirmData] = useState(null);
 
-  // Fetch rental owners
-  const fetchOwners = useCallback(async () => {
-    try {
+  // Fetch rental owners using useQuery
+  const { data: ownersData, isLoading, error } = useQuery(
+    ['rental-owners'],
+    async () => {
       const response = await api.get('/api/rental-owners/rental-owners');
-      setOwners(response.data.rental_owners || []);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching owners:', error);
-      toast.error('Failed to load rental owners');
-      setIsLoading(false);
+      return response.data.rental_owners || [];
+    },
+    {
+      onError: (error) => {
+        console.error('Error fetching owners:', error);
+        toast.error('Failed to load rental owners');
+      }
     }
-  }, []);
+  );
 
+  // Update local state when data changes
   useEffect(() => {
-    fetchOwners();
-  }, [fetchOwners]);
+    if (ownersData) {
+      setOwners(ownersData);
+    }
+  }, [ownersData]);
 
   // Add owner handler
   const handleAddOwner = async (e) => {
@@ -72,8 +78,7 @@ const RentalOwners = () => {
         toast.success('Rental owner added successfully!');
         setShowAddOwner(false);
         setNewOwnerData({ company_name: '', contact_email: '', contact_phone: '', business_type: '', city: '', state: '' });
-        queryClient.invalidateQueries(['owners']);
-        fetchOwners();
+        queryClient.invalidateQueries(['rental-owners']);
       } else {
         toast.error('Failed to add rental owner: ' + (response.data.error || 'Unknown error'));
       }
@@ -89,8 +94,7 @@ const RentalOwners = () => {
     try {
       const response = await api.delete(`/api/rental-owners/rental-owners/${ownerId}`);
       toast.success('Rental owner deleted successfully!');
-      queryClient.invalidateQueries(['owners']);
-      fetchOwners();
+      queryClient.invalidateQueries(['rental-owners']);
     } catch (error) {
       console.error('Delete error:', error);
       
@@ -117,8 +121,7 @@ const RentalOwners = () => {
       toast.success('Rental owner and all properties deleted successfully!');
       setShowDeleteConfirm(false);
       setDeleteConfirmData(null);
-      queryClient.invalidateQueries(['owners']);
-      fetchOwners();
+      queryClient.invalidateQueries(['rental-owners']);
     } catch (error) {
       console.error('Force delete error:', error);
       toast.error('Failed to delete rental owner. Please try again.');
@@ -170,8 +173,7 @@ const RentalOwners = () => {
 
       if (response.data.success) {
         toast.success(`Successfully imported ${response.data.imported_count} rental owners!`);
-        queryClient.invalidateQueries(['owners']);
-        fetchOwners();
+        queryClient.invalidateQueries(['rental-owners']);
         setSelectedFile(null);
       } else {
         toast.error('Import failed: ' + response.data.error);
@@ -475,7 +477,10 @@ const RentalOwners = () => {
               filteredOwners.map((owner) => (
                 <tr key={owner.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer">
+                    <div 
+                      className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+                      onClick={() => navigate(`/rental-owners/${owner.id}`)}
+                    >
                       {owner.company_name || 'N/A'}
                     </div>
                   </td>
