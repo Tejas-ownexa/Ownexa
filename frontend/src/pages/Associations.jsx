@@ -51,7 +51,17 @@ const Associations = () => {
           <div className="flex gap-4">
             <button 
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              onClick={() => {/* Add association handler */}}
+              onClick={() => {
+                console.log('Add Association button clicked');
+                console.log('Current location:', window.location.href);
+                console.log('Navigating to /associations/add');
+                try {
+                  navigate('/associations/add');
+                  console.log('Navigation called successfully');
+                } catch (error) {
+                  console.error('Navigation error:', error);
+                }
+              }}
             >
               Add Association
             </button>
