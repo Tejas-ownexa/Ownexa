@@ -17,6 +17,7 @@ import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
 import Rentals from './pages/Rentals';
 import RentalOwners from './pages/RentalOwners';
+import RentalOwnerDetail from './pages/RentalOwnerDetail';
 import RentRoll from './pages/RentRoll';
 import OutstandingBalances from './pages/associations/OutstandingBalances';
 import Leasing from './pages/Leasing';
@@ -149,6 +150,11 @@ const App = () => {
                     <Route path="/rental-owners" element={
                       <PrivateRoute>
                         <RentalOwners />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/rental-owners/:id" element={
+                      <PrivateRoute>
+                        <RentalOwnerDetail />
                       </PrivateRoute>
                     } />
                     <Route path="/rent-roll" element={
