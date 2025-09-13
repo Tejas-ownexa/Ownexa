@@ -51,6 +51,9 @@ def create_property(current_user):
             else:
                 print("Failed to save image")
         
+        # Use owner_id from request if provided, otherwise use current user
+        owner_id = data.get('owner_id', current_user.id)
+        
         property = Property(
             title=data['title'],
             street_address_1=data['street_address_1'],
@@ -62,7 +65,7 @@ def create_property(current_user):
             description=data['description'],
             rent_amount=data['rent_amount'],
             status=data.get('status', 'available'),
-            owner_id=current_user.id,
+            owner_id=owner_id,
             image_url=image_url
         )
         
@@ -141,6 +144,17 @@ def get_properties(current_user):
             if status and rental_status != status:
                 continue  # Skip this property if it doesn't match the filter
             
+            # Get rental owner information for this user
+            rental_owner_info = None
+            if prop.owner:
+                # Use the user's information as rental owner data (matching the rental owner API approach)
+                rental_owner_info = {
+                    'id': prop.owner.id,
+                    'company_name': prop.owner.full_name or prop.owner.username,
+                    'business_type': 'Property Owner',
+                    'contact_email': prop.owner.email
+                }
+            
             properties_data.append({
                 'id': prop.id,
                 'title': prop.title,
@@ -165,7 +179,8 @@ def get_properties(current_user):
                     'username': prop.owner.username,
                     'full_name': prop.owner.full_name,
                     'email': prop.owner.email
-                } if prop.owner else None
+                } if prop.owner else None,
+                'rental_owner': rental_owner_info
             })
         
         return jsonify(properties_data), 200

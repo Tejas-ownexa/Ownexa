@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, DollarSign, Heart, Home, Trash2, MoreHorizontal } from 'lucide-react';
+import { MapPin, DollarSign, Heart, Home, Trash2, MoreHorizontal, Building2 } from 'lucide-react';
 import { useMutation, useQueryClient } from 'react-query';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
@@ -288,6 +288,23 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
             {property.description || 'No description available'}
           </p>
         </div>
+
+        {/* Rental Owner Information */}
+        {property.rental_owner && (
+          <div className="mb-4">
+            <div className="flex items-center text-xs sm:text-sm text-gray-600">
+              <Building2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-gray-400" />
+              <span className="font-medium text-gray-700">
+                {property.rental_owner.company_name}
+              </span>
+              {property.rental_owner.business_type && (
+                <span className="ml-2 text-gray-500">
+                  ({property.rental_owner.business_type})
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* View Details Button */}
         <Link

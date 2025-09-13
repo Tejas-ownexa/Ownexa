@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from 'react-query';
-import { ArrowLeft, Building2, MapPin, Save, X, User } from 'lucide-react';
-import associationService from '../../services/associationService';
+import { ArrowLeft, Building2, MapPin, Save, X } from 'lucide-react';
+import associationService from '../services/associationService';
 
 const AddAssociation = () => {
   const navigate = useNavigate();
@@ -15,8 +15,7 @@ const AddAssociation = () => {
     apt_number: '',
     city: '',
     state: '',
-    zip_code: '',
-    manager: ''
+    zip_code: ''
   });
   
   const [errors, setErrors] = useState({});
@@ -154,23 +153,6 @@ const AddAssociation = () => {
             {errors.name && (
               <p className="mt-1 text-sm text-red-600">{errors.name}</p>
             )}
-          </div>
-
-          {/* Manager */}
-          <div>
-            <label htmlFor="manager" className="block text-sm font-medium text-gray-700 mb-2">
-              <User className="h-4 w-4 inline mr-2" />
-              Manager (Optional)
-            </label>
-            <input
-              type="text"
-              id="manager"
-              name="manager"
-              value={formData.manager}
-              onChange={handleInputChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Enter manager name"
-            />
           </div>
 
           {/* Address Section */}

@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import { ChevronDown, ArrowLeft } from 'lucide-react';
+import { ChevronDown, ArrowLeft, Plus, Building2, User } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CollectManagementFeesModal from '../components/CollectManagementFeesModal';
 import PayoutManagementModal from '../components/PayoutManagementModal';
+import associationService from '../services/associationService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Associations = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const previousPage = location.state?.from || '/associations';
+  const { user, loading: authLoading } = useAuth();
 
   const handleGoBack = () => {
     navigate(previousPage);
@@ -22,10 +25,17 @@ const Associations = () => {
   const [isManagementFeesModalOpen, setIsManagementFeesModalOpen] = useState(false);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
   
-  // You can implement this in your API client
-  const { data: associations, isLoading } = useQuery('associations', () => 
-    fetch('http://localhost:5002/api/associations').then(res => res.json())
+  // Fetch associations from API
+  const { data: associations = [], isLoading, error } = useQuery(
+    ['associations'],
+    () => associationService.getAssociations(),
+    {
+      onError: (error) => {
+        console.error('Error fetching associations:', error);
+      },
+    }
   );
+
 
   const filterOptions = [
     { name: 'Status', value: 'status' },
@@ -48,65 +58,14 @@ const Associations = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Associations</h1>
             <p className="text-gray-600">Manage and browse your association portfolio</p>
           </div>
-          <div className="flex gap-4">
-            <button 
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => navigate('/associations/add')}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              onClick={() => {
-                console.log('Add Association button clicked');
-                console.log('Current location:', window.location.href);
-                console.log('Navigating to /associations/add');
-                try {
-                  navigate('/associations/add');
-                  console.log('Navigation called successfully');
-                } catch (error) {
-                  console.error('Navigation error:', error);
-                }
-              }}
             >
+              <Plus className="h-4 w-4 mr-2" />
               Add Association
             </button>
-          
-            {/* Management Fees Dropdown */}
-            <div className="relative">
-              <button 
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                onClick={() => setIsManagementFeesOpen(!isManagementFeesOpen)}
-              >
-                Management Fees
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </button>
-              {isManagementFeesOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-                  <div className="py-1">
-                    <button 
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      onClick={() => {
-                        setIsManagementFeesModalOpen(true);
-                        setIsManagementFeesOpen(false);
-                      }}
-                    >
-                      Collect management fees
-                    </button>
-                    <button 
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                      onClick={() => {
-                        setIsPayoutModalOpen(true);
-                        setIsManagementFeesOpen(false);
-                      }}
-                    >
-                      Pay out management income accounts
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Link 
-              to="/associations/property-groups"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Property Groups
-            </Link>
           </div>
         </div>
       </div>
@@ -121,10 +80,10 @@ const Associations = () => {
               onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
             >
               {selectedAssociation}
-              <ChevronDown className="h-4 w-4" />
+              <ChevronDown className="ml-2 h-4 w-4" />
             </button>
             {isAssociationDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                 <div className="py-1">
                   <button 
                     className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -204,17 +163,45 @@ const Associations = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {associations?.length ? (
+                {isLoading ? (
+                  <tr>
+                    <td colSpan="3" className="px-6 py-12 text-center">
+                      <div className="text-gray-500">
+                        <p className="text-lg font-medium mb-2">Loading associations...</p>
+                        <p className="text-sm">Please wait while we fetch your associations.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan="3" className="px-6 py-12 text-center">
+                      <div className="text-red-500">
+                        <p className="text-lg font-medium mb-2">Error loading associations</p>
+                        <p className="text-sm">{error.message || 'An error occurred while fetching associations.'}</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : associations && associations.length > 0 ? (
                   associations.map((association) => (
                     <tr key={association.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {association.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {association.location}
+                        {association.full_address || `${association.city}, ${association.state}`}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {association.manager}
+                        {association.manager && association.manager !== 'None' && association.manager.trim() !== '' ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <User className="h-3 w-3 mr-1" />
+                            {association.manager}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <Building2 className="h-3 w-3 mr-1" />
+                            No Manager
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -235,6 +222,15 @@ const Associations = () => {
                             clear your filters
                           </button>.
                         </p>
+                        <div className="mt-4">
+                          <button
+                            onClick={() => navigate('/associations/add')}
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Your First Association
+                          </button>
+                        </div>
                       </div>
                     </td>
                   </tr>
