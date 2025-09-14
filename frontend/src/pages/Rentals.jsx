@@ -456,14 +456,14 @@ const Rentals = () => {
                 onClick={() => {
                   // Export properties functionality
                   const csvContent = [
-                    ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'OPERATING ACCOUNT', 'DEPOSIT TRUST ACCOUNT'],
+                    ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'STATUS', 'DEPOSIT TRUST ACCOUNT'],
                     ...(properties || []).map(property => [
                       property.title,
                       `${property.address?.city || ''}, ${property.address?.state || ''}`,
                       property.rental_owner?.company_name || 'N/A',
                       'N/A',
                       'Residential',
-                      'EFT ATK ASSOCIATE...',
+                      property.status ? property.status.charAt(0).toUpperCase() + property.status.slice(1) : 'Unknown',
                       'Setup'
                     ])
                   ].map(row => row.join(',')).join('\n');
@@ -618,9 +618,8 @@ const Rentals = () => {
                         {getSortIcon('type')}
                       </div>
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
-                      <span className="hidden 2xl:inline">OPERATING ACCOUNT</span>
-                      <span className="2xl:hidden">OP ACCOUNT</span>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      STATUS
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden 2xl:table-cell">
                       DEPOSIT TRUST ACCOUNT
@@ -655,13 +654,27 @@ const Rentals = () => {
                           <span className="hidden sm:inline">Residential, {property.apt_number ? 'Condo/Townhome' : 'Single-Family'}</span>
                           <span className="sm:hidden">{property.apt_number ? 'Condo' : 'Single'}</span>
                         </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden xl:table-cell">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">EFT</span>
-                            <span className="text-xs bg-green-500 w-2 h-2 rounded-full"></span>
-                            <span className="text-sm text-gray-900 hidden 2xl:inline">ATK ASSOCIATE...</span>
-                            <span className="text-sm text-gray-900 2xl:hidden">ATK...</span>
-                          </div>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                            property.status === 'available' 
+                              ? 'bg-green-100 text-green-800' 
+                              : property.status === 'rented'
+                              ? 'bg-blue-100 text-blue-800'
+                              : property.status === 'maintenance'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            <span className={`w-2 h-2 rounded-full mr-2 ${
+                              property.status === 'available' 
+                                ? 'bg-green-500' 
+                                : property.status === 'rented'
+                                ? 'bg-blue-500'
+                                : property.status === 'maintenance'
+                                ? 'bg-yellow-500'
+                                : 'bg-gray-500'
+                            }`}></span>
+                            {property.status ? property.status.charAt(0).toUpperCase() + property.status.slice(1) : 'Unknown'}
+                          </span>
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden 2xl:table-cell">
                           <Link
@@ -689,7 +702,7 @@ const Rentals = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="px-3 sm:px-6 py-12 text-center">
+                      <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
                         <div className="text-gray-400 mb-4">
                           <Search className="h-16 w-16 mx-auto" />
                         </div>

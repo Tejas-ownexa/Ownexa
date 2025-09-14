@@ -7,21 +7,45 @@ const AdminBot = () => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      message: `👋 **Hello! I'm your AI-powered Admin Assistant.**
+      message: `🤖 **Hello! I'm your AI-powered Admin Assistant.**
 
-I can help you with natural language queries and generate comprehensive reports:
+I can help you with comprehensive property management queries and generate detailed reports:
 
 🎯 **REPORT GENERATION:**
-• **"Generate a tenant report for John Doe"** - Comprehensive tenant analysis
-• **"Create a lease expiration report"** - See upcoming renewals
-• **"Show me a financial performance report"** - Portfolio analysis
+• **"Generate a tenant report"** - Comprehensive tenant analysis
+• **"Create a financial report"** - Portfolio financial analysis
+• **"Show me a property report"** - Property performance overview
+• **"Generate a maintenance report"** - Maintenance request summary
 
-💬 **QUICK QUERIES:**
-• **"Tell me about my tenants"** - Get tenant summaries
+💬 **DATA QUERIES:**
+• **"Show me my tenants"** - List all tenants with details
+• **"List my properties"** - View all properties and status
 • **"What maintenance requests do I have?"** - View repair orders
-• **"Which properties are vacant?"** - See available units
+• **"Show me my vendors"** - List all service providers
+• **"Display work orders"** - View all work orders
+• **"List rental owners"** - Show property owners
+• **"Show associations"** - View HOA/associations
 
-Just ask me anything about your property management in natural language! 🤖`,
+📊 **ANALYTICS & INSIGHTS:**
+• **"Property performance analytics"** - Get performance metrics
+• **"Financial summary"** - View income and expenses
+• **"Occupancy rates"** - Check property occupancy
+• **"Maintenance trends"** - Analyze repair patterns
+
+🔍 **SEARCH & FILTER:**
+• **"Find John Smith"** - Search for specific tenants
+• **"Show active tenants only"** - Filter by status
+• **"Which properties are vacant?"** - Filter vacant units
+• **"Compare properties"** - Compare property performance
+
+💡 **EXAMPLES:**
+• "Show me all tenants with rent over $2000"
+• "Generate a comprehensive financial report"
+• "What's my property performance this month?"
+• "Find all pending maintenance requests"
+• "Compare occupancy rates across properties"
+
+Just ask me anything about your property management in natural language! 🏘️✨`,
       timestamp: new Date().toISOString(),
       type: 'help'
     }
@@ -200,14 +224,20 @@ Just ask me anything about your property management in natural language! 🤖`,
   };
 
   const quickQuestions = [
-    "Tell me about my tenants",
-    "Show me my properties",
-    "What maintenance issues do I have?",
-    "Give me a financial summary",
-    "Tenant report",
-    "Financial report",
-    "Property report",
-    "Maintenance report"
+    "Show me my tenants",
+    "List my properties", 
+    "What maintenance requests do I have?",
+    "Show me my vendors",
+    "Display work orders",
+    "List rental owners",
+    "Show associations",
+    "Property performance analytics",
+    "Financial summary",
+    "Occupancy rates",
+    "Generate tenant report",
+    "Generate financial report",
+    "Generate property report",
+    "Generate maintenance report"
   ];
 
   const handleQuickQuestion = (question) => {

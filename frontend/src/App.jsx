@@ -33,8 +33,8 @@ import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
 import Associations from './pages/Associations';
 
-// import Accountability from './pages/Accountability';
-// import Reporting from './pages/Reporting';
+import Accountability from './pages/Accountability';
+import Reporting from './pages/Reporting';
 import './index.css';
 
 import OwnershipAccounts from './pages/associations/OwnershipAccounts';
@@ -218,7 +218,6 @@ const App = () => {
                       </PrivateRoute>
                     } />
 
-                    {/* Commented out routes for missing components
                     <Route path="/accountability" element={
                       <PrivateRoute>
                         <Accountability />
@@ -229,7 +228,6 @@ const App = () => {
                         <Reporting />
                       </PrivateRoute>
                     } />
-                    */}
                     <Route path="/" element={
                       <PrivateRoute>
                         <RootRedirect />

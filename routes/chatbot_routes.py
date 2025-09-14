@@ -371,29 +371,3 @@ def submit_maintenance_from_chat(current_user):
         print(f"Submit maintenance error: {e}")
         db.session.rollback()
         return jsonify({'error': 'Failed to submit maintenance request'}), 500
-
-@chatbot_bp.route('/ollama-status', methods=['GET'])
-def check_ollama_status():
-    """Check if Ollama service is running"""
-    try:
-        ollama = OllamaService()
-        response = requests.get(f"{ollama.base_url}/api/tags", timeout=5)
-        
-        if response.status_code == 200:
-            models = response.json().get('models', [])
-            llama_available = any('llama3.2' in model.get('name', '') for model in models)
-            
-            return jsonify({
-                'status': 'running',
-                'models_available': len(models),
-                'llama3_2_available': llama_available,
-                'url': ollama.base_url
-            })
-        else:
-            return jsonify({'status': 'error', 'message': 'Ollama API not responding'}), 503
-            
-    except requests.exceptions.RequestException:
-        return jsonify({
-            'status': 'offline', 
-            'message': 'Ollama service is not running. Please start Ollama first.'
-        }), 503 
