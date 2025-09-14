@@ -98,13 +98,16 @@ const EditVendorModal = ({ vendor, isOpen, onClose, onVendorUpdated }) => {
   if (!isOpen || !vendor) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Edit Vendor</h2>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-up">
+      <div className="glass-card p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-scale-in">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gradient">Edit Vendor</h2>
+            <p className="text-sm text-gray-600 mt-1">Update vendor information</p>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110"
           >
             <X className="h-6 w-6" />
           </button>
@@ -310,20 +313,27 @@ const EditVendorModal = ({ vendor, isOpen, onClose, onVendorUpdated }) => {
             />
           </div>
           
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              className="btn-secondary"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={updateVendorMutation.isLoading}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50"
+              className="btn-success flex items-center space-x-2 disabled:opacity-50"
             >
-              {updateVendorMutation.isLoading ? 'Updating...' : 'Update Vendor'}
+              {updateVendorMutation.isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <span>Updating...</span>
+                </>
+              ) : (
+                <span>Update Vendor</span>
+              )}
             </button>
           </div>
         </form>

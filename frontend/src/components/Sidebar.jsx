@@ -132,23 +132,25 @@ const Sidebar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className={`bg-white shadow-lg h-screen fixed left-0 top-0 z-50 transition-all duration-300 hidden md:flex md:flex-col ${
+      <div className={`glass-card h-screen fixed left-0 top-0 z-50 transition-all duration-500 hidden md:flex md:flex-col ${
         isCollapsed ? 'w-16' : 'w-64'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200/50 flex-shrink-0">
           {!isCollapsed && (
             <Link 
               to={user?.role === 'VENDOR' ? '/maintenance' : '/dashboard'} 
-              className="flex items-center"
+              className="flex items-center group"
             >
-              <Home className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Real Estate</span>
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <Home className="h-6 w-6 text-white" />
+              </div>
+              <span className="ml-3 text-xl font-bold text-gradient">Real Estate</span>
             </Link>
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100/50 transition-all duration-300 hover:scale-110 hover:shadow-md"
           >
             {isCollapsed ? (
               <ChevronRight className="h-5 w-5 text-gray-600" />
@@ -175,10 +177,10 @@ const Sidebar = () => {
                   <div key={item.name}>
                     <button
                       onClick={item.toggle}
-                      className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                      className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
                         isActive
-                          ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                          ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
+                          : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
                       }`}
                       title={isCollapsed ? item.name : ''}
                     >
@@ -230,10 +232,10 @@ const Sidebar = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
                       isActive
-                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                        ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
+                        : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
                     }`}
                     title={isCollapsed ? item.name : ''}
                   >

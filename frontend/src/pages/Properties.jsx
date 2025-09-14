@@ -110,18 +110,33 @@ const Properties = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Properties</h1>
-          <p className="text-gray-600">Manage and browse your property portfolio</p>
+      {/* Enhanced Header */}
+      <div className="glass-card p-6 animate-fade-in-up">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <span className="text-white text-xl">🏠</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Properties</h1>
+            </div>
+            <p className="text-gray-600">Manage and browse your property portfolio</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+              <span>Total: {properties?.length || 0}</span>
+              <span>•</span>
+              <span>Available: {properties?.filter(p => p.status === 'available').length || 0}</span>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            <Link
+              to="/add-property"
+              className="btn-success flex items-center justify-center sm:justify-start space-x-2 hover-glow"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Property</span>
+            </Link>
+          </div>
         </div>
-        <Link
-          to="/add-property"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <Plus className="-ml-1 mr-2 h-5 w-5" />
-          Add Property
-        </Link>
       </div>
 
       {/* Search and Filters */}

@@ -55,7 +55,8 @@ const Vendors = () => {
     async () => {
       try {
         const response = await api.get('/api/rental-owners/rental-owners');
-        return response.data.rental_owners || [];
+        const data = response.data?.rental_owners || response.data || [];
+        return Array.isArray(data) ? data : [];
       } catch (error) {
         console.error('Error fetching rental owners:', error);
         return [];
@@ -155,24 +156,37 @@ const Vendors = () => {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      {/* Enhanced Header */}
+      <div className="glass-card p-6 animate-fade-in-up">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Vendors</h1>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <span className="text-white text-xl">🔧</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Vendors</h1>
+            </div>
+            <p className="text-gray-600">Manage your vendor network and service providers</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+              <span>Total: {vendors?.length || 0}</span>
+              <span>•</span>
+              <span>Categories: {categories?.length || 0}</span>
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
             <button 
               onClick={handleAddVendor}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+              className="btn-success flex items-center justify-center sm:justify-start space-x-2 hover-glow"
             >
-              Add vendor
+              <span>+</span>
+              <span>Add Vendor</span>
             </button>
             <button 
               onClick={handleManageCategories}
-              className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium"
+              className="btn-primary flex items-center justify-center sm:justify-start space-x-2"
             >
-              Manage categories
+              <span>⚙️</span>
+              <span>Manage Categories</span>
             </button>
             <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
               Compose email
@@ -208,7 +222,7 @@ const Vendors = () => {
               className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All rental owners</option>
-              {rentalOwners.map((owner) => (
+              {Array.isArray(rentalOwners) && rentalOwners.map((owner) => (
                 <option key={owner.id} value={owner.company_name}>
                   {owner.company_name}
                 </option>

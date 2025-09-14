@@ -320,29 +320,43 @@ const MaintenanceDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Enhanced Header */}
         <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {user?.role === 'VENDOR' ? 'Vendor Dashboard' : 'Maintenance Requests'}
-              </h1>
-              <p className="text-gray-600 mt-1">
-                {user?.role === 'VENDOR' 
-                  ? 'Manage your assigned maintenance requests and track work progress'
-                  : 'Manage and track maintenance issues'
-                }
-              </p>
+          <div className="glass-card p-6 animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+              <div>
+                <div className="flex items-center space-x-3 mb-2">
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                    <Wrench className="h-6 w-6 text-white" />
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-gradient">
+                    {user?.role === 'VENDOR' ? 'Vendor Dashboard' : 'Maintenance Requests'}
+                  </h1>
+                </div>
+                <p className="text-gray-600">
+                  {user?.role === 'VENDOR' 
+                    ? 'Manage your assigned maintenance requests and track work progress'
+                    : 'Manage and track maintenance issues'
+                  }
+                </p>
+                <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                  <span>Total: {maintenanceRequests?.length || 0}</span>
+                  <span>•</span>
+                  <span>Pending: {maintenanceRequests?.filter(r => r.status === 'pending').length || 0}</span>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+                {(user?.role === 'TENANT') && (
+                  <button
+                    onClick={() => navigate('/maintenance/new')}
+                    className="btn-primary flex items-center space-x-2 hover-glow"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>New Request</span>
+                  </button>
+                )}
+              </div>
             </div>
-            {(user?.role === 'TENANT') && (
-              <button
-                onClick={() => navigate('/maintenance/new')}
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Request
-              </button>
-            )}
           </div>
         </div>
 

@@ -158,17 +158,31 @@ const Tenants = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Tenants</h1>
-        <div className="flex space-x-3">
-          {/* Add Tenant Options Dropdown */}
-          <div className="relative group">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-              <Plus className="h-4 w-4" />
-              <span>Add Tenant</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
+      {/* Enhanced Header */}
+      <div className="glass-card p-6 animate-fade-in-up">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <User className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Tenants</h1>
+            </div>
+            <p className="text-gray-600">Manage your tenant relationships and lease agreements</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+              <span>Total: {tenants.length}</span>
+              <span>•</span>
+              <span>Active: {tenants.filter(t => t.status === 'active').length}</span>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            {/* Add Tenant Options Dropdown */}
+            <div className="relative group">
+              <button className="btn-primary flex items-center space-x-2">
+                <Plus className="h-4 w-4" />
+                <span>Add Tenant</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
             
             {/* Dropdown Menu */}
             <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -200,17 +214,18 @@ const Tenants = () => {
                 </button>
               </div>
             </div>
-          </div>
+            </div>
           
-          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-            Receive payment
-          </button>
-          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-            Compose email
-          </button>
-          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
-            Resident Center users
-          </button>
+            <button className="btn-secondary">
+              Receive payment
+            </button>
+            <button className="btn-secondary">
+              Compose email
+            </button>
+            <button className="btn-secondary">
+              Resident Center users
+            </button>
+          </div>
         </div>
       </div>
 

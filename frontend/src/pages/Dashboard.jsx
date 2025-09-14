@@ -272,34 +272,40 @@ const Dashboard = () => {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-700 rounded-xl shadow-xl p-6 text-white transform transition-all duration-300 hover:shadow-2xl">
+      {/* Enhanced Header */}
+      <div className="glass-card p-6 animate-fade-in-up">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
           <div className={`transform transition-all duration-700 ${animationTrigger ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
-            <h1 className="text-3xl font-bold mb-2">Property Dashboard</h1>
-            <p className="text-blue-100 text-lg">Welcome back, {user?.full_name || 'User'}!</p>
-            <div className="flex items-center mt-2 space-x-4">
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <BarChart3 className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Property Dashboard</h1>
+            </div>
+            <p className="text-gray-600">Welcome back, {user?.full_name || 'User'}!</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
               <div className="flex items-center space-x-1">
                 <Calendar className="h-4 w-4" />
-                <span className="text-sm">{new Date().toLocaleDateString()}</span>
+                <span>{new Date().toLocaleDateString()}</span>
               </div>
+              <span>•</span>
               <div className="flex items-center space-x-1">
                 <Activity className="h-4 w-4" />
-                <span className="text-sm">System Active</span>
+                <span>System Active</span>
               </div>
             </div>
           </div>
           <div className={`flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto transform transition-all duration-700 delay-300 ${animationTrigger ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
             <Link
               to="/tenants"
-              className="bg-white/20 backdrop-blur-sm border border-white/30 text-white hover:bg-white/30 transition-all duration-300 flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 rounded-lg font-medium"
+              className="btn-primary flex items-center justify-center sm:justify-start space-x-2"
             >
               <User className="h-4 w-4" />
               <span>Manage Tenants</span>
             </Link>
             <Link
               to="/add-property"
-              className="bg-white text-blue-600 hover:bg-blue-50 transition-all duration-300 flex items-center justify-center sm:justify-start space-x-2 px-4 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl"
+              className="btn-success flex items-center justify-center sm:justify-start space-x-2 hover-glow"
             >
               <Plus className="h-4 w-4" />
               <span>Add Property</span>
