@@ -14,15 +14,19 @@ import {
   Filter,
   Search,
   Upload,
-  Trash2
+  Trash2,
+  User,
+  Building
 } from 'lucide-react';
 import AddTenantModal from '../components/AddTenantModal';
+import AddLeaseModal from '../components/AddLeaseModal';
 import toast from 'react-hot-toast';
 
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddTenant, setShowAddTenant] = useState(false);
+  const [showAddLease, setShowAddLease] = useState(false);
   const [userProperties, setUserProperties] = useState([]);
   const [sortField, setSortField] = useState('last_name');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -158,13 +162,46 @@ const Tenants = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Tenants</h1>
         <div className="flex space-x-3">
-          <button 
-            onClick={() => setShowAddTenant(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-          >
-            <Plus className="h-4 w-4" />
-            <span>Add lease</span>
-          </button>
+          {/* Add Tenant Options Dropdown */}
+          <div className="relative group">
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+              <Plus className="h-4 w-4" />
+              <span>Add Tenant</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+            
+            {/* Dropdown Menu */}
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="py-2">
+                <button
+                  onClick={() => setShowAddTenant(true)}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-3"
+                >
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <User className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Add New Tenant</div>
+                    <div className="text-xs text-gray-500">Create a new tenant manually</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setShowAddLease(true)}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-3"
+                >
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Building className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Create Lease from Application</div>
+                    <div className="text-xs text-gray-500">Convert approved application to lease</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+          
           <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
             Receive payment
           </button>
@@ -487,6 +524,13 @@ const Tenants = () => {
         isOpen={showAddTenant}
         onClose={() => setShowAddTenant(false)}
         properties={userProperties.filter(p => p.status === 'available')}
+        onSuccess={handleAddTenantSuccess}
+      />
+
+      {/* Add Lease Modal */}
+      <AddLeaseModal
+        isOpen={showAddLease}
+        onClose={() => setShowAddLease(false)}
         onSuccess={handleAddTenantSuccess}
       />
     </div>

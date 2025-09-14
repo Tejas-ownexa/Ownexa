@@ -45,7 +45,8 @@ def get_leasing_applicants(current_user):
                 applicant_data['property'] = {
                     'id': applicant.property.id,
                     'title': applicant.property.title,
-                    'address': f"{applicant.property.street_address_1}, {applicant.property.city}, {applicant.property.state}"
+                    'address': f"{applicant.property.street_address_1}, {applicant.property.city}, {applicant.property.state}",
+                    'monthly_rent': float(applicant.property.rent_amount) if applicant.property.rent_amount else None
                 }
             result.append(applicant_data)
         
@@ -157,6 +158,68 @@ def update_leasing_applicant(current_user, applicant_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@leasing_bp.route('/applicants/<int:applicant_id>/status', methods=['PATCH'])
+@token_required
+def update_applicant_status(current_user, applicant_id):
+    """Update applicant application status (approve/reject)"""
+    try:
+        applicant = LeasingApplicant.query.get(applicant_id)
+        if not applicant:
+            return jsonify({'error': 'Applicant not found'}), 404
+        
+        data = request.get_json()
+        if not data or 'status' not in data:
+            return jsonify({'error': 'Status is required'}), 400
+        
+        new_status = data['status']
+        valid_statuses = ['Approved', 'Rejected', 'Under Review', 'Pending']
+        
+        if new_status not in valid_statuses:
+            return jsonify({'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}), 400
+        
+        # Update the status
+        applicant.application_status = new_status
+        applicant.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Application status updated to {new_status}',
+            'applicant_id': applicant.id,
+            'new_status': new_status
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@leasing_bp.route('/applicants/<int:applicant_id>', methods=['DELETE'])
+@token_required
+def delete_applicant(current_user, applicant_id):
+    """Delete a leasing applicant"""
+    try:
+        applicant = LeasingApplicant.query.get(applicant_id)
+        if not applicant:
+            return jsonify({'error': 'Applicant not found'}), 404
+        
+        # Store applicant name for response
+        applicant_name = applicant.get_full_name()
+        
+        # Delete the applicant
+        db.session.delete(applicant)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Application for {applicant_name} deleted successfully',
+            'applicant_id': applicant_id
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 # =================== APPLICANT GROUPS ===================
 
 @leasing_bp.route('/applicant-groups', methods=['GET'])
@@ -185,7 +248,8 @@ def get_applicant_groups(current_user):
                 group_data['property'] = {
                     'id': group.property.id,
                     'title': group.property.title,
-                    'address': f"{group.property.street_address_1}, {group.property.city}, {group.property.state}"
+                    'address': f"{group.property.street_address_1}, {group.property.city}, {group.property.state}",
+                    'monthly_rent': float(group.property.rent_amount) if group.property.rent_amount else None
                 }
             
             # Add member information
@@ -262,6 +326,142 @@ def create_applicant_group(current_user):
             'group': group.to_dict()
         }), 201
         
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@leasing_bp.route('/applicant-groups/<int:group_id>/status', methods=['PATCH'])
+@token_required
+def update_group_status(current_user, group_id):
+    """Update applicant group status (approve/reject)"""
+    try:
+        group = ApplicantGroup.query.get(group_id)
+        if not group:
+            return jsonify({'error': 'Applicant group not found'}), 404
+        
+        data = request.get_json()
+        if not data or 'status' not in data:
+            return jsonify({'error': 'Status is required'}), 400
+        
+        new_status = data['status']
+        valid_statuses = ['Active', 'Inactive', 'Pending']
+        
+        if new_status not in valid_statuses:
+            return jsonify({'error': f'Invalid status. Must be one of: {", ".join(valid_statuses)}'}), 400
+        
+        # Update the status
+        group.status = new_status
+        group.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Group status updated to {new_status}',
+            'group_id': group.id,
+            'new_status': new_status
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@leasing_bp.route('/applicant-groups/<int:group_id>', methods=['DELETE'])
+@token_required
+def delete_applicant_group(current_user, group_id):
+    """Delete an applicant group"""
+    try:
+        group = ApplicantGroup.query.get(group_id)
+        if not group:
+            return jsonify({'error': 'Applicant group not found'}), 404
+        
+        # Store group name for response
+        group_name = group.name
+        
+        # Delete the group (this will also delete associated members due to cascade)
+        db.session.delete(group)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Group "{group_name}" deleted successfully',
+            'group_id': group_id
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@leasing_bp.route('/create-lease-from-applicant', methods=['POST'])
+@token_required
+def create_lease_from_applicant(current_user):
+    """Create a lease from an approved applicant"""
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = [
+            'applicant_id', 'property_id', 'tenant_first_name', 'tenant_last_name',
+            'tenant_email', 'lease_start_date', 'lease_end_date', 'monthly_rent',
+            'security_deposit', 'move_in_date'
+        ]
+        
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({'error': f'{field} is required'}), 400
+        
+        # Get the approved applicant
+        applicant = LeasingApplicant.query.get(data['applicant_id'])
+        if not applicant:
+            return jsonify({'error': 'Applicant not found'}), 404
+        
+        if applicant.application_status != 'Approved':
+            return jsonify({'error': 'Only approved applicants can be converted to leases'}), 400
+        
+        # Get the property
+        from models.property import Property
+        property = Property.query.get(data['property_id'])
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        if property.status != 'available':
+            return jsonify({'error': 'Property is not available for lease'}), 400
+        
+        # Create the tenant record
+        from models.tenant import Tenant
+        tenant = Tenant(
+            full_name=f"{data['tenant_first_name']} {data['tenant_last_name']}".strip(),
+            email=data['tenant_email'],
+            phone_number=data.get('tenant_phone', ''),
+            property_id=data['property_id'],
+            lease_start=datetime.strptime(data['lease_start_date'], '%Y-%m-%d').date(),
+            lease_end=datetime.strptime(data['lease_end_date'], '%Y-%m-%d').date(),
+            rent_amount=float(data['monthly_rent']),
+            rent_payment_day=data.get('rent_payment_day', 1)
+        )
+        
+        db.session.add(tenant)
+        
+        # Update property status to occupied
+        property.status = 'occupied'
+        property.updated_at = datetime.utcnow()
+        
+        # Update applicant status to indicate lease created
+        applicant.application_status = 'Lease Created'
+        applicant.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'Lease created successfully for {tenant.full_name}',
+            'tenant_id': tenant.id,
+            'property_id': property.id
+        }), 201
+        
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({'error': f'Invalid date format: {str(e)}'}), 400
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

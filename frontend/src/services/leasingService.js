@@ -32,6 +32,12 @@ export const leasingApplicantService = {
   deleteApplicant: async (applicantId) => {
     const response = await api.delete(`/api/leasing/applicants/${applicantId}`);
     return response.data;
+  },
+
+  // Update applicant status (approve/reject)
+  updateStatus: async (applicantId, status) => {
+    const response = await api.patch(`/api/leasing/applicants/${applicantId}/status`, { status });
+    return response.data;
   }
 };
 
@@ -66,6 +72,12 @@ export const applicantGroupService = {
   // Delete an applicant group
   deleteGroup: async (groupId) => {
     const response = await api.delete(`/api/leasing/applicant-groups/${groupId}`);
+    return response.data;
+  },
+
+  // Update group status (approve/reject)
+  updateStatus: async (groupId, status) => {
+    const response = await api.patch(`/api/leasing/applicant-groups/${groupId}/status`, { status });
     return response.data;
   }
 };

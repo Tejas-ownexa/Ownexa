@@ -28,7 +28,9 @@ import {
   Calendar,
   ChevronDown,
   X,
-  Check
+  Check,
+  Trash2,
+  MoreVertical
 } from 'lucide-react';
 
 // Custom Multi-Select Dropdown Component
@@ -112,6 +114,153 @@ const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) =
   );
 };
 
+// Action Dropdown Component
+const ActionDropdown = ({ 
+  applicant, 
+  group, 
+  onApprove, 
+  onReject, 
+  onDelete, 
+  isGroup = false 
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const item = isGroup ? group : applicant;
+  const status = isGroup ? item?.status : item?.application_status;
+  const isApproved = isGroup ? status === 'Active' : status === 'Approved';
+  const isLeaseCreated = !isGroup && status === 'Lease Created';
+  
+  // Debug logging
+  console.log('ActionDropdown Debug:', {
+    isGroup,
+    status,
+    isApproved,
+    isLeaseCreated,
+    item: item?.id,
+    fullName: item?.full_name || item?.name
+  });
+
+  // If approved or lease created, show no actions
+  if (isApproved || isLeaseCreated) {
+    const badgeText = isLeaseCreated ? 'Lease Created' : 'Final';
+    const badgeColor = isLeaseCreated ? 'blue' : 'green';
+    
+    return (
+      <span className={`inline-flex items-center px-2 py-1 text-xs font-medium text-${badgeColor}-600 bg-${badgeColor}-50 rounded-md border border-${badgeColor}-200`}>
+        <Check className="h-3 w-3 mr-1" />
+        {badgeText}
+      </span>
+    );
+  }
+
+  const availableActions = [];
+  
+  if (!isGroup) {
+    // Individual applicant actions
+    // Show Approve for any status that is not 'Approved' or 'Lease Created' (case insensitive)
+    if (status && status.toLowerCase() !== 'approved' && status.toLowerCase() !== 'lease created') {
+      availableActions.push({
+        label: 'Approve',
+        icon: Check,
+        onClick: () => onApprove(item.id, 'Approved'),
+        className: 'text-green-700 hover:bg-green-50'
+      });
+    }
+    // Show Reject for any status that is not 'Rejected', 'Approved', or 'Lease Created' (case insensitive)
+    if (status && status.toLowerCase() !== 'rejected' && status.toLowerCase() !== 'approved' && status.toLowerCase() !== 'lease created') {
+      availableActions.push({
+        label: 'Reject',
+        icon: X,
+        onClick: () => onReject(item.id, 'Rejected'),
+        className: 'text-red-700 hover:bg-red-50'
+      });
+    }
+    // Show Delete option only if not 'Lease Created' (lease created applicants should not be deleted)
+    if (status && status.toLowerCase() !== 'lease created') {
+      availableActions.push({
+        label: 'Delete',
+        icon: Trash2,
+        onClick: () => onDelete(item.id, item.full_name),
+        className: 'text-red-700 hover:bg-red-50'
+      });
+    }
+  } else {
+    // Group actions
+    if (status !== 'Active') {
+      availableActions.push({
+        label: 'Approve',
+        icon: Check,
+        onClick: () => onApprove(item.id, 'Active'),
+        className: 'text-green-700 hover:bg-green-50'
+      });
+    }
+    if (status !== 'Inactive' && status !== 'Active') {
+      availableActions.push({
+        label: 'Reject',
+        icon: X,
+        onClick: () => onReject(item.id, 'Inactive'),
+        className: 'text-red-700 hover:bg-red-50'
+      });
+    }
+    availableActions.push({
+      label: 'Delete',
+      icon: Trash2,
+      onClick: () => onDelete(item.id, item.name),
+      className: 'text-red-700 hover:bg-red-50'
+    });
+  }
+
+  if (availableActions.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="relative z-50" ref={dropdownRef}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        title="Actions"
+      >
+        <MoreVertical className="h-3 w-3" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 top-0 mr-8 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+          <div className="py-1">
+            {availableActions.map((action, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  action.onClick();
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 text-xs font-medium flex items-center ${action.className}`}
+              >
+                <action.icon className="h-3 w-3 mr-2" />
+                {action.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Leasing = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -159,6 +308,7 @@ const Leasing = () => {
   const handleSaveApplicantGroup = (groupData) => {
     createGroupMutation.mutate(groupData);
   };
+
 
   // Handle URL parameters to set initial tab
   useEffect(() => {
@@ -343,6 +493,72 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
   const [stageFilter, setStageFilter] = useState([]);
   const [dateFilter, setDateFilter] = useState('all'); // Keep single select for date
   const [showFilters, setShowFilters] = useState(false);
+
+  // Handle status update for individual applicants
+  const handleStatusUpdate = async (applicantId, newStatus) => {
+    try {
+      const response = await leasingService.applicants.updateStatus(applicantId, newStatus);
+      if (response.success) {
+        toast.success(`Application ${newStatus.toLowerCase()} successfully!`);
+        refetchApplicants();
+      } else {
+        toast.error('Failed to update application status');
+      }
+    } catch (error) {
+      console.error('Error updating applicant status:', error);
+      toast.error(error.response?.data?.error || 'Failed to update application status');
+    }
+  };
+
+  // Handle status update for applicant groups
+    const handleGroupStatusUpdate = async (groupId, newStatus) => {
+      try {
+        const response = await leasingService.groups.updateStatus(groupId, newStatus);
+        if (response.success) {
+          toast.success(`Group ${newStatus.toLowerCase()} successfully!`);
+          refetchGroups();
+        } else {
+          toast.error('Failed to update group status');
+        }
+      } catch (error) {
+        console.error('Error updating group status:', error);
+        toast.error(error.response?.data?.error || 'Failed to update group status');
+      }
+    };
+
+    const handleDeleteApplicant = async (applicantId, applicantName) => {
+      if (window.confirm(`Are you sure you want to delete the application for ${applicantName}? This action cannot be undone.`)) {
+        try {
+          const response = await leasingService.applicants.deleteApplicant(applicantId);
+          if (response.success) {
+            toast.success('Application deleted successfully!');
+            refetchApplicants();
+          } else {
+            toast.error('Failed to delete application');
+          }
+        } catch (error) {
+          console.error('Error deleting applicant:', error);
+          toast.error(error.response?.data?.error || 'Failed to delete application');
+        }
+      }
+    };
+
+    const handleDeleteGroup = async (groupId, groupName) => {
+      if (window.confirm(`Are you sure you want to delete the group "${groupName}"? This action cannot be undone.`)) {
+        try {
+          const response = await leasingService.groups.deleteGroup(groupId);
+          if (response.success) {
+            toast.success('Group deleted successfully!');
+            refetchGroups();
+          } else {
+            toast.error('Failed to delete group');
+          }
+        } catch (error) {
+          console.error('Error deleting group:', error);
+          toast.error(error.response?.data?.error || 'Failed to delete group');
+        }
+      }
+    };
 
   // Get active filter count
   const getActiveFilterCount = () => {
@@ -593,6 +809,9 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                       Full name
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Property
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Unit
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -607,11 +826,17 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Application received
                     </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </>
                 ) : (
                   <>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Applicants
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Property
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Unit
@@ -624,6 +849,9 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Percent complete
+                    </th>
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
                     </th>
                   </>
                 )}
@@ -647,6 +875,9 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                         {applicant.full_name}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {applicant.property?.title || 'N/A'}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {applicant.unit_number || 'N/A'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
@@ -668,11 +899,20 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {applicant.application_date ? new Date(applicant.application_date).toLocaleDateString() : 'N/A'}
                       </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <ActionDropdown
+                          applicant={applicant}
+                          onApprove={handleStatusUpdate}
+                          onReject={handleStatusUpdate}
+                          onDelete={handleDeleteApplicant}
+                          isGroup={false}
+                        />
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                    <td colSpan="8" className="px-3 sm:px-6 py-12 text-center">
                       <div className="text-gray-400 mb-4">
                         <Users className="h-16 w-16 mx-auto" />
                       </div>
@@ -688,7 +928,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
               ) : (
                 groupsLoading ? (
                   <tr>
-                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                    <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
                       <div className="text-gray-400 mb-4">
                         <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
                       </div>
@@ -700,6 +940,9 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                     <tr key={group.id} className="hover:bg-gray-50">
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {group.applicants}
+                      </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {group.property || 'N/A'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {group.unit}
@@ -732,11 +975,20 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                           <span className="text-xs text-gray-600">{group.percentComplete}%</span>
                         </div>
                       </td>
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <ActionDropdown
+                          group={group}
+                          onApprove={handleGroupStatusUpdate}
+                          onReject={handleGroupStatusUpdate}
+                          onDelete={handleDeleteGroup}
+                          isGroup={true}
+                        />
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="px-3 sm:px-6 py-12 text-center">
+                    <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
                       <div className="text-gray-400 mb-4">
                         <UsersIcon className="h-16 w-16 mx-auto" />
                       </div>

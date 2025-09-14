@@ -6,8 +6,7 @@ import api from '../utils/axios';
 const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     property: '',
-    firstName: '',
-    lastName: '',
+    fullName: '',
     phoneNumber: '',
     email: '',
     emailApplicationLink: false
@@ -36,8 +35,7 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   const addCoApplicant = () => {
     setCoApplicants(prev => [...prev, {
       id: Date.now(),
-      firstName: '',
-      lastName: '',
+      fullName: '',
       phoneNumber: '',
       email: ''
     }]);
@@ -54,23 +52,38 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   };
 
   const handleSave = () => {
+    console.log('Form data:', formData);
+    console.log('Co-applicants:', coApplicants);
+    
     // Transform form data to match API expectations
     const applicantData = {
       property_id: parseInt(formData.property),
-      full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+      full_name: formData.fullName.trim(),
       email: formData.email,
       phone_number: formData.phoneNumber,
       // Add co-applicants as notes for now, or handle separately
       notes: coApplicants.length > 0 ? 
-        `Co-applicants: ${coApplicants.map(ca => `${ca.firstName} ${ca.lastName} (${ca.email})`).join(', ')}` : 
+        `Co-applicants: ${coApplicants.map(ca => `${ca.fullName} (${ca.email})`).join(', ')}` : 
         null
     };
     
+    console.log('Applicant data to send:', applicantData);
+    console.log('Validation check:', {
+      property_id: applicantData.property_id,
+      full_name: applicantData.full_name,
+      email: applicantData.email,
+      property_id_valid: !!applicantData.property_id,
+      full_name_valid: !!applicantData.full_name,
+      email_valid: !!applicantData.email
+    });
+    
     // Only save if required fields are present
     if (applicantData.property_id && applicantData.full_name && applicantData.email) {
+      console.log('All required fields present, calling onSave');
       onSave(applicantData);
       handleCancel(); // Reset form and close
     } else {
+      console.log('Missing required fields, showing alert');
       alert('Please fill in all required fields');
     }
   };
@@ -78,8 +91,7 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
   const handleCancel = () => {
     setFormData({
       property: '',
-      firstName: '',
-      lastName: '',
+      fullName: '',
       phoneNumber: '',
       email: '',
       emailApplicationLink: false
@@ -138,30 +150,15 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* First Name */}
+              {/* Full Name */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                  FIRST NAME <span className="text-red-500">*</span>
+                  FULL NAME <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                />
-              </div>
-
-              {/* Last Name */}
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                  LAST NAME <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
+                  name="fullName"
+                  value={formData.fullName}
                   onChange={handleInputChange}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
@@ -218,25 +215,12 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                      FIRST NAME <span className="text-red-500">*</span>
+                      FULL NAME <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
-                      value={coApplicant.firstName}
-                      onChange={(e) => updateCoApplicant(coApplicant.id, 'firstName', e.target.value)}
-                      className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1 uppercase tracking-wide">
-                      LAST NAME <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={coApplicant.lastName}
-                      onChange={(e) => updateCoApplicant(coApplicant.id, 'lastName', e.target.value)}
+                      value={coApplicant.fullName}
+                      onChange={(e) => updateCoApplicant(coApplicant.id, 'fullName', e.target.value)}
                       className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
                     />
