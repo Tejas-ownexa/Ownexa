@@ -1,82 +1,147 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ChevronDown, Plus, X } from 'lucide-react';
+import api from '../utils/axios';
+import toast from 'react-hot-toast';
 
 const AddWorkOrder = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const [formData, setFormData] = useState({
-    // Task details
-    addToTask: 'create-new-task',
+    // Property and basic details
     property: '',
-    existingTask: '',
-    taskType: '',
-    category: '',
-    assignedTo: '',
-    collaborators: '',
-    
-    // Work order details
     subject: '',
+    category: '',
     vendor: '',
+    
+    // Work details
+    workToBePerformed: '',
     entryDetails: '',
     entryContact: '',
-    workToBePerformed: '',
-    vendorNotes: '',
     
     // Status and scheduling
     status: 'new',
     priority: 'normal',
     dueDate: '',
     
-    // Parts and labor
-    workHours: '',
-    chargeHoursTo: '',
-    parts: [
-      { qty: '', account: '', description: '', price: '', total: '$0.00' }
-    ]
+    // Cost tracking
+    estimatedCost: '',
+    workHours: ''
   });
+
+  const [selectedRentalOwner, setSelectedRentalOwner] = useState(null);
 
   const [files, setFiles] = useState([]);
 
+  // Fetch properties
+  const { data: properties = [], isLoading: propertiesLoading } = useQuery(
+    'properties',
+    async () => {
+      try {
+        const response = await api.get('/api/properties');
+        return response.data || [];
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+        return [];
+      }
+    }
+  );
+
+  // Fetch vendors
+  const { data: vendors = [], isLoading: vendorsLoading } = useQuery(
+    'vendors',
+    async () => {
+      try {
+        const response = await api.get('/api/vendors');
+        return response.data || [];
+      } catch (error) {
+        console.error('Error fetching vendors:', error);
+        return [];
+      }
+    }
+  );
+
+  // Fetch vendor categories
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery(
+    'vendor-categories',
+    async () => {
+      try {
+        const response = await api.get('/api/vendors/categories');
+        return response.data || [];
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        return [];
+      }
+    }
+  );
+
+  // Create work order mutation
+  const createWorkOrderMutation = useMutation(
+    async (workOrderData) => {
+      const response = await api.post('/api/work-orders', workOrderData);
+      return response.data;
+    },
+    {
+      onSuccess: (data) => {
+        toast.success('Work order created successfully!');
+        queryClient.invalidateQueries('work-orders');
+        navigate('/maintenance/work-orders');
+      },
+      onError: (error) => {
+        console.error('Error creating work order:', error);
+        toast.error(error.response?.data?.error || 'Failed to create work order');
+      }
+    }
+  );
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handlePartChange = (index, field, value) => {
-    const newParts = [...formData.parts];
-    newParts[index] = { ...newParts[index], [field]: value };
-    
-    // Calculate total for this row
-    if (field === 'qty' || field === 'price') {
-      const qty = parseFloat(newParts[index].qty) || 0;
-      const price = parseFloat(newParts[index].price) || 0;
-      newParts[index].total = `$${(qty * price).toFixed(2)}`;
-    }
-    
-    setFormData(prev => ({ ...prev, parts: newParts }));
-  };
-
-  const addPart = () => {
-    setFormData(prev => ({
-      ...prev,
-      parts: [...prev.parts, { qty: '', account: '', description: '', price: '', total: '$0.00' }]
-    }));
-  };
-
-  const removePart = (index) => {
-    if (formData.parts.length > 1) {
-      setFormData(prev => ({
-        ...prev,
-        parts: prev.parts.filter((_, i) => i !== index)
+    if (field === 'property') {
+      // Find the selected property and get its rental owner
+      const selectedProperty = properties.find(p => p.id.toString() === value);
+      if (selectedProperty && selectedProperty.rental_owner) {
+        setSelectedRentalOwner(selectedProperty.rental_owner);
+      } else {
+        setSelectedRentalOwner(null);
+      }
+      // Reset category and vendor when property changes
+      setFormData(prev => ({ 
+        ...prev, 
+        [field]: value, 
+        category: '', 
+        vendor: '' 
       }));
+    } else if (field === 'category') {
+      // Reset vendor when category changes
+      setFormData(prev => ({ 
+        ...prev, 
+        [field]: value, 
+        vendor: '' 
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
 
-  const getTotalAmount = () => {
-    return formData.parts.reduce((total, part) => {
-      const amount = parseFloat(part.total.replace('$', '')) || 0;
-      return total + amount;
-    }, 0).toFixed(2);
+
+  // Filter vendors based on rental owner and category
+  const getFilteredVendors = () => {
+    if (!selectedRentalOwner || !formData.category) {
+      return vendors;
+    }
+    
+    return vendors.filter(vendor => {
+      // Check if vendor is assigned to the selected rental owner
+      const isAssignedToRentalOwner = vendor.rental_owner && 
+        vendor.rental_owner.id.toString() === selectedRentalOwner.id.toString();
+      
+      // Check if vendor belongs to the selected category
+      const isInSelectedCategory = vendor.category && 
+        vendor.category.id.toString() === formData.category;
+      
+      return isAssignedToRentalOwner && isInSelectedCategory;
+    });
   };
 
   const handleAddFile = () => {
@@ -86,8 +151,32 @@ const AddWorkOrder = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement form submission
-    console.log('Work order data:', formData);
+    
+    // Validate required fields
+    if (!formData.property || !formData.subject || !formData.vendor || !formData.workToBePerformed) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    // Prepare work order data
+    const workOrderData = {
+      property_id: parseInt(formData.property),
+      title: formData.subject,
+      description: formData.workToBePerformed,
+      category: formData.category,
+      assigned_vendor_id: parseInt(formData.vendor),
+      priority: formData.priority,
+      status: formData.status,
+      due_date: formData.dueDate || null,
+      estimated_cost: formData.estimatedCost ? parseFloat(formData.estimatedCost) : null,
+      work_hours: formData.workHours ? parseFloat(formData.workHours) : null,
+      entry_details: formData.entryDetails || null,
+      entry_contact: formData.entryContact || null,
+      notes: null // Can be added later if needed
+    };
+
+    // Create the work order
+    createWorkOrderMutation.mutate(workOrderData);
   };
 
   const handleCancel = () => {
@@ -95,8 +184,23 @@ const AddWorkOrder = () => {
   };
 
   const handleAddAnotherWorkOrder = () => {
-    // TODO: Implement add another work order
-    console.log('Add another work order');
+    // Reset form data
+    setFormData({
+      property: '',
+      subject: '',
+      category: '',
+      vendor: '',
+      workToBePerformed: '',
+      entryDetails: '',
+      entryContact: '',
+      status: 'new',
+      priority: 'normal',
+      dueDate: '',
+      estimatedCost: '',
+      workHours: ''
+    });
+    setSelectedRentalOwner(null);
+    toast.success('Form reset. You can create another work order.');
   };
 
   return (
@@ -109,110 +213,67 @@ const AddWorkOrder = () => {
       {/* Form */}
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Task Details Section */}
+          {/* Basic Information Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Task details</h2>
+            <h2 className="text-lg font-medium text-gray-900">Basic Information</h2>
             
-            {/* Add to Task */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ADD TO TASK
-              </label>
-              <div className="flex space-x-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="addToTask"
-                    value="create-new-task"
-                    checked={formData.addToTask === 'create-new-task'}
-                    onChange={(e) => handleInputChange('addToTask', e.target.value)}
-                    className="mr-2"
-                  />
-                  Create new task
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="addToTask"
-                    value="add-to-existing"
-                    checked={formData.addToTask === 'add-to-existing'}
-                    onChange={(e) => handleInputChange('addToTask', e.target.value)}
-                    className="mr-2"
-                  />
-                  Add to existing task
-                </label>
-              </div>
-            </div>
-
-            {/* Additional fields when "Add to existing task" is selected */}
-            {formData.addToTask === 'add-to-existing' && (
-              <div className="space-y-6 bg-gray-50 p-4 rounded-lg">
-                {/* Property Required */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    PROPERTY (REQUIRED)
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.property}
-                      onChange={(e) => handleInputChange('property', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                      required
-                    >
-                      <option value="">Select property</option>
-                      <option value="property1">123 Main Street</option>
-                      <option value="property2">456 Oak Avenue</option>
-                      <option value="property3">789 Pine Road</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Add to Task (Required) */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ADD TO TASK (REQUIRED)
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.existingTask}
-                      onChange={(e) => handleInputChange('existingTask', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                      required
-                    >
-                      <option value="">Select existing task</option>
-                      <option value="task1">Routine Maintenance - Q1</option>
-                      <option value="task2">Emergency Repairs</option>
-                      <option value="task3">Annual Inspections</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Task Type and Category */}
+            {/* Property and Subject */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  TASK TYPE
+                  PROPERTY (REQUIRED)
                 </label>
                 <div className="relative">
                   <select
-                    value={formData.taskType}
-                    onChange={(e) => handleInputChange('taskType', e.target.value)}
+                    value={formData.property}
+                    onChange={(e) => handleInputChange('property', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    required
+                    disabled={propertiesLoading}
                   >
-                    <option value="">Select task type</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="repair">Repair</option>
-                    <option value="inspection">Inspection</option>
-                    <option value="emergency">Emergency</option>
+                    <option value="">{propertiesLoading ? 'Loading properties...' : 'Select property'}</option>
+                    {properties.map((property) => (
+                      <option key={property.id} value={property.id}>
+                        {property.title || property.property_name || property.name || `${property.street_address_1 || property.address}, ${property.city}`}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  SUBJECT (REQUIRED)
+                </label>
+                <input
+                  type="text"
+                  value={formData.subject}
+                  onChange={(e) => handleInputChange('subject', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Brief description of the work needed"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Rental Owner Display */}
+            {selectedRentalOwner && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                  <div>
+                    <h3 className="text-sm font-medium text-blue-900">Rental Owner</h3>
+                    <p className="text-sm text-blue-700">
+                      {selectedRentalOwner.company_name || selectedRentalOwner.contact_person || 'Unknown Owner'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Category and Vendor */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   CATEGORY
@@ -222,81 +283,19 @@ const AddWorkOrder = () => {
                     value={formData.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    disabled={categoriesLoading}
                   >
-                    <option value="">Select category</option>
-                    <option value="plumbing">Plumbing</option>
-                    <option value="electrical">Electrical</option>
-                    <option value="hvac">HVAC</option>
-                    <option value="general">General</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-
-            {/* Assigned To and Collaborators */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ASSIGNED TO (REQUIRED)
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.assignedTo}
-                    onChange={(e) => handleInputChange('assignedTo', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                    required
-                  >
-                    <option value="">Team Owner</option>
-                    <option value="john-doe">John Doe</option>
-                    <option value="jane-smith">Jane Smith</option>
-                    <option value="maintenance-team">Maintenance Team</option>
+                    <option value="">{categoriesLoading ? 'Loading categories...' : 'Select category'}</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  COLLABORATORS
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.collaborators}
-                    onChange={(e) => handleInputChange('collaborators', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                  >
-                    <option value="">Select collaborators</option>
-                    <option value="team-alpha">Team Alpha</option>
-                    <option value="team-beta">Team Beta</option>
-                    <option value="external-contractor">External Contractor</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Work Order Details Section */}
-          <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Work order details</h2>
-            
-            {/* Subject */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                SUBJECT (REQUIRED)
-              </label>
-              <input
-                type="text"
-                value={formData.subject}
-                onChange={(e) => handleInputChange('subject', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            {/* Vendor and Entry Details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   VENDOR (REQUIRED)
@@ -307,16 +306,55 @@ const AddWorkOrder = () => {
                     onChange={(e) => handleInputChange('vendor', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     required
+                    disabled={vendorsLoading || !selectedRentalOwner || !formData.category}
                   >
-                    <option value="">Select or add new...</option>
-                    <option value="abc-plumbing">ABC Plumbing</option>
-                    <option value="xyz-electrical">XYZ Electrical</option>
-                    <option value="pro-maintenance">Pro Maintenance</option>
+                    <option value="">
+                      {vendorsLoading ? 'Loading vendors...' : 
+                       !selectedRentalOwner ? 'Select property first' :
+                       !formData.category ? 'Select category first' :
+                       'Select vendor'}
+                    </option>
+                    {getFilteredVendors().length > 0 ? (
+                      getFilteredVendors().map((vendor) => (
+                        <option key={vendor.id} value={vendor.id}>
+                          {vendor.company_name || `${vendor.first_name} ${vendor.last_name}`}
+                        </option>
+                      ))
+                    ) : (
+                      selectedRentalOwner && formData.category && (
+                        <option value="" disabled>
+                          No vendors found for this rental owner and category
+                        </option>
+                      )
+                    )}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
+            </div>
+          </div>
 
+          {/* Work Details Section */}
+          <div className="space-y-6">
+            <h2 className="text-lg font-medium text-gray-900">Work Details</h2>
+            
+            {/* Work to be performed */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                WORK TO BE PERFORMED (REQUIRED)
+              </label>
+              <textarea
+                value={formData.workToBePerformed}
+                onChange={(e) => handleInputChange('workToBePerformed', e.target.value)}
+                placeholder="Describe the work that needs to be done..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                required
+              />
+            </div>
+
+            {/* Entry Details and Contact */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ENTRY DETAILS
@@ -336,57 +374,33 @@ const AddWorkOrder = () => {
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-            </div>
 
-            {/* Entry Contact */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                ENTRY CONTACT
-              </label>
-              <div className="relative">
-                <select
-                  value={formData.entryContact}
-                  onChange={(e) => handleInputChange('entryContact', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                >
-                  <option value="">Select entry contact...</option>
-                  <option value="property-manager">Property Manager</option>
-                  <option value="tenant">Tenant</option>
-                  <option value="maintenance-staff">Maintenance Staff</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ENTRY CONTACT
+                </label>
+                <div className="relative">
+                  <select
+                    value={formData.entryContact}
+                    onChange={(e) => handleInputChange('entryContact', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                  >
+                    <option value="">Select entry contact</option>
+                    <option value="property-manager">Property Manager</option>
+                    <option value="tenant">Tenant</option>
+                    <option value="maintenance-staff">Maintenance Staff</option>
+                    <option value="landlord">Landlord</option>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                </div>
               </div>
             </div>
+          </div>
 
-            {/* Work to be performed */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                WORK TO BE PERFORMED
-              </label>
-              <textarea
-                value={formData.workToBePerformed}
-                onChange={(e) => handleInputChange('workToBePerformed', e.target.value)}
-                placeholder="Tell the vendor what you need done"
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-            </div>
-
-            {/* Vendor Notes */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                VENDOR NOTES
-              </label>
-              <textarea
-                value={formData.vendorNotes}
-                onChange={(e) => handleInputChange('vendorNotes', e.target.value)}
-                placeholder="Add any notes from vendors here"
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              />
-            </div>
-
-            {/* Status, Priority, Due Date */}
+          {/* Status and Scheduling Section */}
+          <div className="space-y-6">
+            <h2 className="text-lg font-medium text-gray-900">Status & Scheduling</h2>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -399,10 +413,10 @@ const AddWorkOrder = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
                     <option value="new">New</option>
-                    <option value="in-progress">In Progress</option>
+                    <option value="in_progress">In Progress</option>
                     <option value="completed">Completed</option>
-                    <option value="deferred">Deferred</option>
-                    <option value="closed">Closed</option>
+                    <option value="on_hold">On Hold</option>
+                    <option value="cancelled">Cancelled</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
@@ -436,7 +450,46 @@ const AddWorkOrder = () => {
                   value={formData.dueDate}
                   onChange={(e) => handleInputChange('dueDate', e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="mm/dd/yyyy"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Cost Tracking Section */}
+          <div className="space-y-6">
+            <h2 className="text-lg font-medium text-gray-900">Cost Tracking</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ESTIMATED COST
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    value={formData.estimatedCost}
+                    onChange={(e) => handleInputChange('estimatedCost', e.target.value)}
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ESTIMATED HOURS
+                </label>
+                <input
+                  type="number"
+                  value={formData.workHours}
+                  onChange={(e) => handleInputChange('workHours', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="0"
+                  step="0.5"
+                  min="0"
                 />
               </div>
             </div>
@@ -444,166 +497,25 @@ const AddWorkOrder = () => {
 
           {/* Files Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-medium text-gray-900">Files</h2>
+            <h2 className="text-lg font-medium text-gray-900">Attachments</h2>
             <button
               type="button"
               onClick={handleAddFile}
               className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm"
             >
               <Plus className="h-4 w-4" />
-              <span>Add files</span>
+              <span>Add files (photos, documents, etc.)</span>
             </button>
-          </div>
-
-          {/* Work Order Details - Hours and Parts */}
-          <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Work order details</h2>
-            
-            {/* Work Hours */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  WORK HOURS
-                </label>
-                <input
-                  type="number"
-                  value={formData.workHours}
-                  onChange={(e) => handleInputChange('workHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  step="0.5"
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  CHARGE HOURS TO
-                </label>
-                <input
-                  type="text"
-                  value={formData.chargeHoursTo}
-                  onChange={(e) => handleInputChange('chargeHoursTo', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Parts and Labor Section */}
-          <div className="space-y-4">
-            <h2 className="text-lg font-medium text-gray-900">Parts and labor</h2>
-            
-            {/* Table Header */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
-                      QTY
-                    </th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      ACCOUNT
-                    </th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      DESCRIPTION
-                    </th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                      PRICE
-                    </th>
-                    <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                      TOTAL
-                    </th>
-                    <th className="w-12"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {formData.parts.map((part, index) => (
-                    <tr key={index} className="border-b border-gray-100">
-                      <td className="py-3 px-4">
-                        <input
-                          type="number"
-                          value={part.qty}
-                          onChange={(e) => handlePartChange(index, 'qty', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          min="0"
-                          step="1"
-                        />
-                      </td>
-                      <td className="py-3 px-4">
-                        <input
-                          type="text"
-                          value={part.account}
-                          onChange={(e) => handlePartChange(index, 'account', e.target.value)}
-                          placeholder="Type or select an account"
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="py-3 px-4">
-                        <input
-                          type="text"
-                          value={part.description}
-                          onChange={(e) => handlePartChange(index, 'description', e.target.value)}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="relative">
-                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm">$</span>
-                          <input
-                            type="number"
-                            value={part.price}
-                            onChange={(e) => handlePartChange(index, 'price', e.target.value)}
-                            className="w-full pl-6 pr-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-                            min="0"
-                            step="0.01"
-                          />
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-900">{part.total}</span>
-                      </td>
-                      <td className="py-3 px-4">
-                        {formData.parts.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removePart(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Add Row and Total */}
-            <div className="flex justify-between items-center pt-4">
-              <button
-                type="button"
-                onClick={addPart}
-                className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Add row</span>
-              </button>
-              
-              <div className="text-right">
-                <div className="text-sm text-gray-600">Total</div>
-                <div className="text-lg font-semibold">${getTotalAmount()}</div>
-              </div>
-            </div>
           </div>
 
           {/* Form Actions */}
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t">
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              disabled={createWorkOrderMutation.isLoading}
+              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create work order
+              {createWorkOrderMutation.isLoading ? 'Creating...' : 'Create work order'}
             </button>
             <button
               type="button"

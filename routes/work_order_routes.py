@@ -67,7 +67,7 @@ def get_work_orders(current_user):
             'due_date': wo.due_date.isoformat() if wo.due_date else None,
             'bill_total': float(wo.bill_total) if wo.bill_total else None,
             'bill_status': wo.bill_status,
-            'age_days': wo.calculated_age_days,
+            'age_days': wo.get_age_days(),
             'property': {
                 'id': wo.property.id,
                 'title': wo.property.title,
@@ -107,7 +107,7 @@ def create_work_order(current_user):
         # Verify property ownership
         property_obj = Property.query.filter_by(
             id=data['property_id'],
-            created_by_user_id=current_user.id
+            owner_id=current_user.id
         ).first()
         if not property_obj:
             return jsonify({'error': 'Property not found or access denied'}), 404
@@ -211,7 +211,7 @@ def get_work_order(current_user, work_order_id):
             'work_hours': float(work_order.work_hours) if work_order.work_hours else None,
             'charge_hours_to': work_order.charge_hours_to,
             'notes': work_order.notes,
-            'age_days': work_order.calculated_age_days,
+            'age_days': work_order.get_age_days(),
             'property': {
                 'id': work_order.property.id,
                 'title': work_order.property.title,
@@ -421,7 +421,7 @@ def export_work_orders(current_user):
                 wo.assigned_vendor.display_name if wo.assigned_vendor else '',
                 wo.due_date.isoformat() if wo.due_date else '',
                 float(wo.bill_total) if wo.bill_total else 0,
-                wo.calculated_age_days,
+                wo.get_age_days(),
                 wo.created_at.strftime('%Y-%m-%d') if wo.created_at else ''
             ])
         

@@ -12,7 +12,8 @@ import {
   Filter,
   ChevronDown,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Eye
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -46,6 +47,28 @@ const RentalOwnerDetail = () => {
   const ownerData = allOwnersData?.find(owner => owner.id.toString() === id);
   const propertiesData = ownerData?.properties || [];
 
+  // Fetch vendors for this rental owner
+  const { data: vendorsData = [], isLoading: vendorsLoading, error: vendorsError } = useQuery(
+    ['vendors', id],
+    async () => {
+      try {
+        const response = await api.get('/api/vendors');
+        const allVendors = response.data || [];
+        // Filter vendors by rental owner ID
+        return allVendors.filter(vendor => 
+          vendor.rental_owner && vendor.rental_owner.id.toString() === id
+        );
+      } catch (error) {
+        console.error('Error fetching vendors:', error);
+        return [];
+      }
+    },
+    {
+      enabled: !!id, // Only run query when we have an ID
+      retry: 1
+    }
+  );
+
   // Debug logging
   console.log('Looking for owner ID:', id);
   console.log('All owners data:', allOwnersData);
@@ -67,6 +90,7 @@ const RentalOwnerDetail = () => {
     { id: 'summary', label: 'Summary' },
     { id: 'financials', label: 'Financials' },
     { id: 'properties', label: `Properties (${propertiesData?.length || 0})` },
+    { id: 'vendors', label: 'Vendors' },
     { id: 'communications', label: 'Communications' },
     { id: 'files', label: 'Files' },
     { id: 'notes', label: 'Notes' }
@@ -146,9 +170,6 @@ const RentalOwnerDetail = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                Inactivate owner
-              </button>
               <button className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
                 Manage properties
               </button>
@@ -333,6 +354,210 @@ const RentalOwnerDetail = () => {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'vendors' && (
+          <div className="space-y-6">
+            {/* Action Buttons */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <button 
+                  onClick={() => navigate('/maintenance/vendors/add')}
+                  className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
+                >
+                  Add Vendor
+                </button>
+              </div>
+            </div>
+
+            {/* Filter and Results */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <select 
+                    className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="all">All categories</option>
+                    <option value="plumbing">Plumbing</option>
+                    <option value="electrical">Electrical</option>
+                    <option value="hvac">HVAC</option>
+                    <option value="cleaning">Cleaning</option>
+                    <option value="landscaping">Landscaping</option>
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  {vendorsLoading ? 'Loading...' : `${vendorsData?.length || 0} vendors`}
+                </span>
+                <button 
+                  onClick={() => {
+                    // TODO: Implement export functionality
+                    console.log('Export vendors for rental owner:', id);
+                    // Could export to CSV or PDF
+                  }}
+                  className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Export</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Vendors by Category */}
+            {vendorsLoading ? (
+              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-12">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                  <span className="text-gray-600">Loading vendors...</span>
+                </div>
+              </div>
+            ) : vendorsError ? (
+              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-12">
+                <div className="text-center">
+                  <p className="text-red-500">Failed to load vendors. Please try again.</p>
+                </div>
+              </div>
+            ) : vendorsData && vendorsData.length > 0 ? (
+              <div className="space-y-6">
+                {/* Group vendors by category */}
+                {Object.entries(
+                  vendorsData.reduce((acc, vendor) => {
+                    const categoryName = vendor.category?.name || 'Uncategorized';
+                    if (!acc[categoryName]) {
+                      acc[categoryName] = [];
+                    }
+                    acc[categoryName].push(vendor);
+                    return acc;
+                  }, {})
+                ).map(([categoryName, vendors]) => (
+                  <div key={categoryName} className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                    {/* Category Header */}
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                      <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                        <span className="w-3 h-3 bg-blue-500 rounded-full mr-3"></span>
+                        {categoryName}
+                        <span className="ml-2 text-sm text-gray-500">({vendors.length} vendor{vendors.length !== 1 ? 's' : ''})</span>
+                      </h3>
+                    </div>
+                    
+                    {/* Vendors Grid */}
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {vendors.map((vendor) => (
+                          <div key={vendor.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h4 className="font-medium text-gray-900">
+                                  {vendor.company_name || `${vendor.first_name} ${vendor.last_name}`}
+                                </h4>
+                                {vendor.company_name && (
+                                  <p className="text-sm text-gray-600">
+                                    {vendor.first_name} {vendor.last_name}
+                                  </p>
+                                )}
+                              </div>
+                              <button 
+                                onClick={() => {
+                                  // TODO: Add more options menu functionality
+                                  console.log('More options for vendor:', vendor.id);
+                                }}
+                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                title="More options"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </button>
+                            </div>
+                            
+                            <div className="space-y-2 text-sm">
+                              {vendor.primary_email && (
+                                <div className="flex items-center text-gray-600">
+                                  <span className="w-4 h-4 mr-2">📧</span>
+                                  <span className="truncate">{vendor.primary_email}</span>
+                                </div>
+                              )}
+                              {vendor.phone_1 && (
+                                <div className="flex items-center text-gray-600">
+                                  <span className="w-4 h-4 mr-2">📞</span>
+                                  <span>{vendor.phone_1}</span>
+                                </div>
+                              )}
+                              {vendor.website && (
+                                <div className="flex items-center text-gray-600">
+                                  <span className="w-4 h-4 mr-2">🌐</span>
+                                  <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 truncate">
+                                    {vendor.website}
+                                  </a>
+                                </div>
+                              )}
+                            </div>
+                            
+                            <div className="mt-3 flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                  vendor.is_active 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}>
+                                  {vendor.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                                {vendor.is_verified && (
+                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    Verified
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex space-x-1">
+                                <button 
+                                  onClick={() => {
+                                    // TODO: Add view vendor functionality
+                                    console.log('View vendor:', vendor.id);
+                                    // Could open a modal or navigate to vendor detail page
+                                  }}
+                                  className="p-1 text-blue-600 hover:text-blue-800 transition-colors" 
+                                  title="View"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    // TODO: Add edit vendor functionality
+                                    console.log('Edit vendor:', vendor.id);
+                                    // Could open edit modal or navigate to edit page
+                                  }}
+                                  className="p-1 text-green-600 hover:text-green-800 transition-colors" 
+                                  title="Edit"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-12">
+                <div className="text-center">
+                  <p className="text-lg font-medium mb-2">No vendors found</p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    This rental owner doesn't have any vendors assigned yet.
+                  </p>
+                  <button 
+                    onClick={() => navigate('/maintenance/vendors/add')}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition-colors"
+                  >
+                    Add First Vendor
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

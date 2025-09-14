@@ -214,6 +214,12 @@ CREATE TABLE work_orders (
     
     -- Additional Fields
     notes TEXT,
+    vendor_notes TEXT,
+    work_to_be_performed TEXT,
+    entry_details VARCHAR(255),
+    entry_contact VARCHAR(255),
+    work_hours NUMERIC(8, 2),
+    charge_hours_to VARCHAR(255),
     is_emergency BOOLEAN DEFAULT FALSE,
     tenant_notified BOOLEAN DEFAULT FALSE,
     photos_required BOOLEAN DEFAULT FALSE

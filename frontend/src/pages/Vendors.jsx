@@ -100,9 +100,6 @@ const Vendors = () => {
     navigate('/maintenance/vendors/add');
   };
 
-  const handleManageCategories = () => {
-    navigate('/maintenance/vendors/categories');
-  };
 
   const handleViewVendor = (vendor) => {
     setSelectedVendor(vendor);
@@ -180,13 +177,6 @@ const Vendors = () => {
             >
               <span>+</span>
               <span>Add Vendor</span>
-            </button>
-            <button 
-              onClick={handleManageCategories}
-              className="btn-primary flex items-center justify-center sm:justify-start space-x-2"
-            >
-              <span>⚙️</span>
-              <span>Manage Categories</span>
             </button>
             <button className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
               Compose email
