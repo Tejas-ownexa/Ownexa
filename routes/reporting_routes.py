@@ -644,7 +644,7 @@ def generate_comprehensive_report(user, start_date, end_date):
     try:
         print("🔍 Generating property summary report...")
         try:
-    property_summary = generate_property_summary_report(user, start_date, end_date)
+            property_summary = generate_property_summary_report(user, start_date, end_date)
             print("✅ Property summary report generated successfully")
         except Exception as e:
             print(f"⚠️ Property summary report failed: {str(e)}")
@@ -652,7 +652,7 @@ def generate_comprehensive_report(user, start_date, end_date):
         
         print("🔍 Generating tenant report...")
         try:
-    tenant_report = generate_tenant_report(user, start_date, end_date)
+            tenant_report = generate_tenant_report(user, start_date, end_date)
             print("✅ Tenant report generated successfully")
         except Exception as e:
             print(f"⚠️ Tenant report failed: {str(e)}")
@@ -660,7 +660,7 @@ def generate_comprehensive_report(user, start_date, end_date):
         
         print("🔍 Generating maintenance report...")
         try:
-    maintenance_report = generate_maintenance_report(user, start_date, end_date)
+            maintenance_report = generate_maintenance_report(user, start_date, end_date)
             print("✅ Maintenance report generated successfully")
         except Exception as e:
             print(f"⚠️ Maintenance report failed: {str(e)}")
@@ -668,7 +668,7 @@ def generate_comprehensive_report(user, start_date, end_date):
         
         print("🔍 Generating financial report...")
         try:
-    financial_report = generate_financial_report(user, start_date, end_date)
+            financial_report = generate_financial_report(user, start_date, end_date)
             print("✅ Financial report generated successfully")
         except Exception as e:
             print(f"⚠️ Financial report failed: {str(e)}")
@@ -676,7 +676,7 @@ def generate_comprehensive_report(user, start_date, end_date):
         
         print("🔍 Generating rental report...")
         try:
-    rental_report = generate_rental_report(user, start_date, end_date)
+            rental_report = generate_rental_report(user, start_date, end_date)
             print("✅ Rental report generated successfully")
         except Exception as e:
             print(f"⚠️ Rental report failed: {str(e)}")
@@ -684,7 +684,7 @@ def generate_comprehensive_report(user, start_date, end_date):
         
         print("🔍 Generating vendor report...")
         try:
-    vendor_report = generate_vendor_report(user, start_date, end_date)
+            vendor_report = generate_vendor_report(user, start_date, end_date)
             print("✅ Vendor report generated successfully")
         except Exception as e:
             print(f"⚠️ Vendor report failed: {str(e)}")
@@ -692,7 +692,7 @@ def generate_comprehensive_report(user, start_date, end_date):
         
         print("🔍 Generating association report...")
         try:
-    association_report = generate_association_report(user, start_date, end_date)
+            association_report = generate_association_report(user, start_date, end_date)
             print("✅ Association report generated successfully")
         except Exception as e:
             print(f"⚠️ Association report failed: {str(e)}")
@@ -700,31 +700,31 @@ def generate_comprehensive_report(user, start_date, end_date):
     
         print("🔍 Compiling comprehensive report...")
         comprehensive_data = {
-        'report_type': 'Comprehensive Property Management Report',
-        'generated_by': user.full_name,
-        'date_range': {
-            'start_date': start_date.strftime('%Y-%m-%d'),
-            'end_date': end_date.strftime('%Y-%m-%d')
-        },
-        'overview': {
-            'total_properties': property_summary['summary']['total_properties'],
-            'total_tenants': tenant_report['summary']['total_tenants'],
-            'total_maintenance_requests': maintenance_report['summary']['total_requests'],
-            'total_income': financial_report['summary']['total_income'],
-            'total_expenses': financial_report['summary']['total_expenses'],
-            'net_income': financial_report['summary']['net_income'],
-            'occupancy_rate': property_summary['summary']['occupancy_rate']
-        },
-        'sections': {
-            'properties': property_summary,
-            'tenants': tenant_report,
-            'maintenance': maintenance_report,
-            'financial': financial_report,
-            'rentals': rental_report,
-            'vendors': vendor_report,
-            'associations': association_report
+            'report_type': 'Comprehensive Property Management Report',
+            'generated_by': user.full_name,
+            'date_range': {
+                'start_date': start_date.strftime('%Y-%m-%d'),
+                'end_date': end_date.strftime('%Y-%m-%d')
+            },
+            'overview': {
+                'total_properties': property_summary['summary']['total_properties'],
+                'total_tenants': tenant_report['summary']['total_tenants'],
+                'total_maintenance_requests': maintenance_report['summary']['total_requests'],
+                'total_income': financial_report['summary']['total_income'],
+                'total_expenses': financial_report['summary']['total_expenses'],
+                'net_income': financial_report['summary']['net_income'],
+                'occupancy_rate': property_summary['summary']['occupancy_rate']
+            },
+            'sections': {
+                'properties': property_summary,
+                'tenants': tenant_report,
+                'maintenance': maintenance_report,
+                'financial': financial_report,
+                'rentals': rental_report,
+                'vendors': vendor_report,
+                'associations': association_report
+            }
         }
-    }
         print("✅ Comprehensive report compiled successfully")
         return comprehensive_data
         

@@ -12,7 +12,7 @@ from routes.work_order_routes import work_order_bp
 from routes.chatbot_routes import chatbot_bp
 from routes.admin_bot_routes import admin_bot_bp
 from routes.rental_routes import rental_bp
-# from routes.reporting_routes import reporting_bp
+from routes.reporting_routes import reporting_bp
 from routes.accountability_routes import accountability_bp
 
 from routes.rental_owner_routes import rental_owner_bp
@@ -41,7 +41,8 @@ def init_routes(app):
                 'work_orders': '/api/work-orders',
                 'leasing': '/api/leasing',
                 'rental_owners': '/api/rental-owners',
-                'dashboard': '/api/dashboard'
+                'dashboard': '/api/dashboard',
+                'reports': '/api/reports'
             }
         })
     
@@ -97,8 +98,8 @@ def init_routes(app):
     print("Rental routes registered")
     
     # Reporting routes
-    # app.register_blueprint(reporting_bp, url_prefix='/api/reports')
-    # print("Reporting routes registered")
+    app.register_blueprint(reporting_bp, url_prefix='/api/reports')
+    print("Reporting routes registered")
     
     # Accountability routes
     app.register_blueprint(accountability_bp, url_prefix='/api/accountability')
