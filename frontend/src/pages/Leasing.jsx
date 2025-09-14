@@ -29,6 +29,7 @@ import {
   Search,
   Calendar,
   ChevronDown,
+  ChevronUp,
   X,
   XCircle,
   Check,
@@ -1209,9 +1210,12 @@ const DraftLeaseTab = () => {
 
 // Lease Renewals Tab Component
 const LeaseRenewalsTab = () => {
+  const navigate = useNavigate();
   const [activeRenewalTab, setActiveRenewalTab] = useState('renewals');
   const [filterRentals, setFilterRentals] = useState('all-rentals');
   const [filterDays, setFilterDays] = useState([]);
+  const [sortField, setSortField] = useState('daysLeft');
+  const [sortDirection, setSortDirection] = useState('asc');
   
   // Fetch lease renewals data
   const { data: leaseRenewalsData, isLoading, error } = useQuery(
@@ -1237,8 +1241,12 @@ const LeaseRenewalsTab = () => {
   const totalCount = leaseRenewalsData?.total_count || 0;
   const rentalOwners = rentalOwnersData || [];
 
+  // Debug logging
+  console.log('Lease renewals data:', leaseRenewals);
+  console.log('Sample lease data:', leaseRenewals[0]);
+
   const getFilteredLeases = () => {
-    return leaseRenewals.filter(lease => {
+    let filtered = leaseRenewals.filter(lease => {
       // Apply rental owner filter
       if (filterRentals !== 'all-rentals') {
         if (lease.rentalOwners !== filterRentals) {
@@ -1282,9 +1290,63 @@ const LeaseRenewalsTab = () => {
       
       return true;
     });
+
+    // Apply sorting (only for daysLeft)
+    if (sortField === 'daysLeft') {
+      console.log('Sorting by daysLeft, direction:', sortDirection);
+      console.log('Before sort:', filtered.map(lease => ({ 
+        id: lease.id, 
+        daysLeft: lease.daysLeft, 
+        type: typeof lease.daysLeft 
+      })));
+      
+      filtered.sort((a, b) => {
+        const aValue = Number(a.daysLeft) || 0;
+        const bValue = Number(b.daysLeft) || 0;
+        
+        console.log(`Comparing: ${aValue} vs ${bValue}`);
+
+        if (sortDirection === 'asc') {
+          return aValue - bValue; // Simple numerical subtraction
+        } else {
+          return bValue - aValue; // Reverse for descending
+        }
+      });
+      
+      console.log('After sort:', filtered.map(lease => ({ 
+        id: lease.id, 
+        daysLeft: lease.daysLeft 
+      })));
+    }
+
+    return filtered;
   };
 
   const filteredLeases = getFilteredLeases();
+
+  const handleSort = (field) => {
+    console.log('handleSort called with field:', field);
+    console.log('Current sortField:', sortField, 'Current direction:', sortDirection);
+    
+    if (sortField === field) {
+      const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      console.log('Toggling direction to:', newDirection);
+      setSortDirection(newDirection);
+    } else {
+      console.log('Setting new field:', field, 'with direction: asc');
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) {
+      return <ChevronDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortDirection === 'asc' ? 
+      <ChevronDown className="h-4 w-4 text-blue-600" /> : 
+      <ChevronUp className="h-4 w-4 text-blue-600" />;
+  };
 
   return (
     <div className="space-y-6">
@@ -1419,9 +1481,14 @@ const LeaseRenewalsTab = () => {
                 </th>
                 {activeRenewalTab === 'renewals' ? (
                   <>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
-                      DAYS LEFT
-                      <ChevronDown className="inline h-4 w-4 ml-1" />
+                    <th 
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                      onClick={() => handleSort('daysLeft')}
+                    >
+                      <div className="flex items-center">
+                        DAYS LEFT
+                        {getSortIcon('daysLeft')}
+                      </div>
                     </th>
                     <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       LEASE
@@ -1524,7 +1591,16 @@ const LeaseRenewalsTab = () => {
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-sm">
-                        <div className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                        <div 
+                          className="text-blue-600 hover:text-blue-800 cursor-pointer hover:underline"
+                          onClick={() => {
+                            // Find the rental owner ID from the company name
+                            const owner = rentalOwners.find(ro => ro.company_name === lease.rentalOwners);
+                            if (owner) {
+                              navigate(`/rental-owners/${owner.id}`);
+                            }
+                          }}
+                        >
                           {lease.rentalOwners}
                         </div>
                       </td>
