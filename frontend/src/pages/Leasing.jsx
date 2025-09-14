@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import AddApplicantModal from '../components/AddApplicantModal';
 import CreateApplicantGroupModal from '../components/CreateApplicantGroupModal';
 import RejectionReasonModal from '../components/RejectionReasonModal';
+import NotesModal from '../components/NotesModal';
 import leasingService from '../services/leasingService';
 import leaseRenewalService from '../services/leaseRenewalService';
 import rentalOwnerService from '../services/rentalOwnerService';
@@ -126,6 +127,7 @@ const ActionDropdown = ({
   onApprove, 
   onReject, 
   onDelete, 
+  onViewNotes,
   isGroup = false 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -197,6 +199,16 @@ const ActionDropdown = ({
         icon: Trash2,
         onClick: () => onDelete(item.id, item.full_name),
         className: 'text-red-700 hover:bg-red-50'
+      });
+    }
+    
+    // Show Notes option for rejected applicants
+    if (statusLower === 'rejected' && item.rejection_reason) {
+      availableActions.push({
+        label: 'Notes',
+        icon: FileText,
+        onClick: () => onViewNotes(item),
+        className: 'text-blue-700 hover:bg-blue-50'
       });
     }
   } else {
@@ -273,6 +285,8 @@ const Leasing = () => {
   const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
   const [rejectionApplicant, setRejectionApplicant] = useState(null);
   const [isRejecting, setIsRejecting] = useState(false);
+  const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
+  const [notesApplicant, setNotesApplicant] = useState(null);
 
   // Mutations for creating applicants and groups
   const createApplicantMutation = useMutation(
@@ -351,6 +365,17 @@ const Leasing = () => {
     setRejectionApplicant(null);
   };
 
+  // Handle notes modal
+  const handleViewNotes = (applicant) => {
+    setNotesApplicant(applicant);
+    setIsNotesModalOpen(true);
+  };
+
+  const handleCloseNotesModal = () => {
+    setIsNotesModalOpen(false);
+    setNotesApplicant(null);
+  };
+
 
   // Handle URL parameters to set initial tab
   useEffect(() => {
@@ -408,6 +433,7 @@ const Leasing = () => {
           onOpenAddApplicant={() => setIsAddApplicantModalOpen(true)}
           onOpenCreateGroup={() => setIsCreateGroupModalOpen(true)}
           onRejectApplicant={handleRejectApplicant}
+          onViewNotes={handleViewNotes}
         />;
       case 'draft-lease':
         return <DraftLeaseTab />;
@@ -458,6 +484,15 @@ const Leasing = () => {
         onConfirm={handleConfirmRejection}
         applicantName={rejectionApplicant?.full_name || 'Unknown'}
         isLoading={isRejecting}
+      />
+
+      {/* Notes Modal */}
+      <NotesModal
+        isOpen={isNotesModalOpen}
+        onClose={handleCloseNotesModal}
+        title="Rejection Reason"
+        content={notesApplicant?.rejection_reason}
+        applicantName={notesApplicant?.full_name || 'Unknown'}
       />
     </div>
   );
@@ -513,7 +548,7 @@ const ListingTab = () => {
 };
 
 // Applicants Tab Component
-const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplicant }) => {
+const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplicant, onViewNotes }) => {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or 'group'
   
@@ -957,6 +992,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                           onApprove={handleStatusUpdate}
                           onReject={onRejectApplicant}
                           onDelete={handleDeleteApplicant}
+                          onViewNotes={onViewNotes}
                           isGroup={false}
                         />
                       </td>
