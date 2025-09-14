@@ -63,10 +63,8 @@ def get_rental_owners(current_user):
     """Get all rental owner companies"""
     return _get_rental_owners_data(current_user)
 
-@rental_owner_bp.route('/rental-owners', methods=['POST'])
-@token_required
-def create_rental_owner(current_user):
-    """Create a new rental owner company"""
+def _create_rental_owner_data(current_user):
+    """Shared function to create rental owner data"""
     try:
         data = request.get_json()
         
@@ -134,6 +132,18 @@ def create_rental_owner(current_user):
                 return jsonify({'error': 'A user with this information already exists. Please check your details.'}), 400
         else:
             return jsonify({'error': f'Failed to create rental owner: {error_message}'}), 400
+
+@rental_owner_bp.route('/', methods=['POST'])
+@token_required
+def create_rental_owner_root(current_user):
+    """Create a new rental owner company - root endpoint"""
+    return _create_rental_owner_data(current_user)
+
+@rental_owner_bp.route('/rental-owners', methods=['POST'])
+@token_required
+def create_rental_owner(current_user):
+    """Create a new rental owner company"""
+    return _create_rental_owner_data(current_user)
 
 @rental_owner_bp.route('/rental-owners/<int:rental_owner_id>', methods=['PUT'])
 @token_required
