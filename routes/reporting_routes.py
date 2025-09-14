@@ -1131,10 +1131,10 @@ def generate_comprehensive_pdf(report_data, report_type):
     doc = SimpleDocTemplate(
         buffer, 
         pagesize=letter, 
-        topMargin=0.5*inch, 
-        bottomMargin=0.5*inch,
-        leftMargin=0.5*inch,
-        rightMargin=0.5*inch
+        topMargin=0.75*inch, 
+        bottomMargin=0.75*inch,
+        leftMargin=0.75*inch,
+        rightMargin=0.75*inch
     )
     styles = getSampleStyleSheet()
     story = []
@@ -1356,13 +1356,13 @@ def generate_comprehensive_pdf(report_data, report_type):
             
             prop_data.append([
                 prop.get('title', 'N/A'),
-                prop.get('address', 'N/A')[:40] + '...' if len(prop.get('address', '')) > 40 else prop.get('address', 'N/A'),
+                prop.get('address', 'N/A'),
                 status_badge,
                 f"${prop.get('monthly_rent', 0):,.2f}" if prop.get('monthly_rent') else 'N/A',
                 prop.get('tenant_name', 'Vacant')
             ])
         
-        prop_table = Table(prop_data, colWidths=[1.2*inch, 2*inch, 0.8*inch, 0.8*inch, 1*inch])
+        prop_table = Table(prop_data, colWidths=[1.8*inch, 2.8*inch, 1*inch, 1.2*inch, 1.4*inch])
         prop_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e40af')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -1371,20 +1371,20 @@ def generate_comprehensive_pdf(report_data, report_type):
             ('ALIGN', (3, 0), (3, -1), 'RIGHT'),  # Rent column right-aligned
             ('ALIGN', (4, 0), (4, -1), 'LEFT'),  # Tenant column left-aligned
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f8fafc')),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4)
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8)
         ]))
         story.append(prop_table)
-        story.append(Spacer(1, 8))
+        story.append(Spacer(1, 20))
     
     # Tenants Section
     if 'sections' in report_data and 'tenants' in report_data['sections'] and report_data['sections']['tenants'].get('tenants'):
@@ -1403,13 +1403,13 @@ def generate_comprehensive_pdf(report_data, report_type):
             
             tenant_data.append([
                 tenant.get('full_name', 'N/A'),
-                tenant.get('property_title', 'N/A')[:30] + '...' if len(tenant.get('property_title', '')) > 30 else tenant.get('property_title', 'N/A'),
+                tenant.get('property_title', 'N/A'),
                 f"${tenant.get('monthly_rent', 0):,.2f}" if tenant.get('monthly_rent') else 'N/A',
                 tenant.get('lease_end', 'N/A'),
                 status_badge
             ])
         
-        tenant_table = Table(tenant_data, colWidths=[1.8*inch, 2*inch, 1*inch, 1*inch, 1*inch])
+        tenant_table = Table(tenant_data, colWidths=[2*inch, 2.2*inch, 1.2*inch, 1.2*inch, 1.2*inch])
         tenant_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#059669')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
@@ -1418,17 +1418,17 @@ def generate_comprehensive_pdf(report_data, report_type):
             ('ALIGN', (3, 0), (3, -1), 'CENTER'),  # Lease End center-aligned
             ('ALIGN', (4, 0), (4, -1), 'CENTER'),  # Status center-aligned
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0fdf4')),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1fae5')),
-            ('FONTSIZE', (0, 1), (-1, -1), 9),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0fdf4')]),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4)
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8)
         ]))
         story.append(tenant_table)
         story.append(Spacer(1, 25))
