@@ -101,6 +101,7 @@ class LeasingApplicant(BaseModel):
     background_check_status = db.Column(db.String(50), default='Pending')
     credit_check_status = db.Column(db.String(50), default='Pending')
     references_verified = db.Column(db.Boolean, default=False)
+    rejection_reason = db.Column(db.Text)  # Reason for rejection
     notes = db.Column(db.Text)
     
     # Lease information

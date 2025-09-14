@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import toast from 'react-hot-toast';
 import AddApplicantModal from '../components/AddApplicantModal';
 import CreateApplicantGroupModal from '../components/CreateApplicantGroupModal';
+import RejectionReasonModal from '../components/RejectionReasonModal';
 import leasingService from '../services/leasingService';
 import leaseRenewalService from '../services/leaseRenewalService';
 import rentalOwnerService from '../services/rentalOwnerService';
@@ -148,15 +149,7 @@ const ActionDropdown = ({
   const isApproved = isGroup ? status === 'Active' : status === 'Approved';
   const isLeaseCreated = !isGroup && status === 'Lease Created';
   
-  // Debug logging
-  console.log('ActionDropdown Debug:', {
-    isGroup,
-    status,
-    isApproved,
-    isLeaseCreated,
-    item: item?.id,
-    fullName: item?.full_name || item?.name
-  });
+  
 
   // If approved or lease created, show no actions
   if (isApproved || isLeaseCreated) {
@@ -175,8 +168,10 @@ const ActionDropdown = ({
   
   if (!isGroup) {
     // Individual applicant actions
-    // Show Approve for any status that is not 'Approved' or 'Lease Created' (case insensitive)
-    if (status && status.toLowerCase() !== 'approved' && status.toLowerCase() !== 'lease created') {
+    const statusLower = status ? status.toLowerCase().trim() : '';
+    
+    // Show Approve for any status that is not 'Approved', 'Rejected', or 'Lease Created'
+    if (statusLower && !['approved', 'rejected', 'lease created'].includes(statusLower)) {
       availableActions.push({
         label: 'Approve',
         icon: Check,
@@ -184,17 +179,19 @@ const ActionDropdown = ({
         className: 'text-green-700 hover:bg-green-50'
       });
     }
-    // Show Reject for any status that is not 'Rejected', 'Approved', or 'Lease Created' (case insensitive)
-    if (status && status.toLowerCase() !== 'rejected' && status.toLowerCase() !== 'approved' && status.toLowerCase() !== 'lease created') {
+    
+    // Show Reject for any status that is not 'Rejected', 'Approved', or 'Lease Created'
+    if (statusLower && !['rejected', 'approved', 'lease created'].includes(statusLower)) {
       availableActions.push({
         label: 'Reject',
         icon: X,
-        onClick: () => onReject(item.id, 'Rejected'),
+        onClick: () => onReject(item),
         className: 'text-red-700 hover:bg-red-50'
       });
     }
-    // Show Delete option only if not 'Lease Created' (lease created applicants should not be deleted)
-    if (status && status.toLowerCase() !== 'lease created') {
+    
+    // Show Delete option only if not 'Lease Created' and not 'Rejected' (lease created and rejected applicants should not be deleted)
+    if (statusLower && !['lease created', 'rejected'].includes(statusLower)) {
       availableActions.push({
         label: 'Delete',
         icon: Trash2,
@@ -273,6 +270,9 @@ const Leasing = () => {
   const [activeTab, setActiveTab] = useState('listing');
   const [isAddApplicantModalOpen, setIsAddApplicantModalOpen] = useState(false);
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isRejectionModalOpen, setIsRejectionModalOpen] = useState(false);
+  const [rejectionApplicant, setRejectionApplicant] = useState(null);
+  const [isRejecting, setIsRejecting] = useState(false);
 
   // Mutations for creating applicants and groups
   const createApplicantMutation = useMutation(
@@ -311,6 +311,44 @@ const Leasing = () => {
   // Handle saving new applicant group
   const handleSaveApplicantGroup = (groupData) => {
     createGroupMutation.mutate(groupData);
+  };
+
+  // Handle rejection modal
+  const handleRejectApplicant = (applicant) => {
+    setRejectionApplicant(applicant);
+    setIsRejectionModalOpen(true);
+  };
+
+  const handleConfirmRejection = async (rejectionReason) => {
+    if (!rejectionApplicant) return;
+    
+    setIsRejecting(true);
+    try {
+      const response = await leasingService.applicants.updateStatus(
+        rejectionApplicant.id, 
+        'Rejected', 
+        rejectionReason
+      );
+      
+      if (response.success) {
+        toast.success('Application rejected successfully!');
+        queryClient.invalidateQueries(['leasing-applicants']);
+        setIsRejectionModalOpen(false);
+        setRejectionApplicant(null);
+      } else {
+        toast.error('Failed to reject application');
+      }
+    } catch (error) {
+      console.error('Error rejecting applicant:', error);
+      toast.error(error.response?.data?.error || 'Failed to reject application');
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
+  const handleCloseRejectionModal = () => {
+    setIsRejectionModalOpen(false);
+    setRejectionApplicant(null);
   };
 
 
@@ -369,6 +407,7 @@ const Leasing = () => {
         return <ApplicantsTab 
           onOpenAddApplicant={() => setIsAddApplicantModalOpen(true)}
           onOpenCreateGroup={() => setIsCreateGroupModalOpen(true)}
+          onRejectApplicant={handleRejectApplicant}
         />;
       case 'draft-lease':
         return <DraftLeaseTab />;
@@ -410,6 +449,15 @@ const Leasing = () => {
         isOpen={isCreateGroupModalOpen}
         onClose={() => setIsCreateGroupModalOpen(false)}
         onSave={handleSaveApplicantGroup}
+      />
+
+      {/* Rejection Reason Modal */}
+      <RejectionReasonModal
+        isOpen={isRejectionModalOpen}
+        onClose={handleCloseRejectionModal}
+        onConfirm={handleConfirmRejection}
+        applicantName={rejectionApplicant?.full_name || 'Unknown'}
+        isLoading={isRejecting}
       />
     </div>
   );
@@ -465,7 +513,7 @@ const ListingTab = () => {
 };
 
 // Applicants Tab Component
-const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
+const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplicant }) => {
   const [showBurgerMenu, setShowBurgerMenu] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or 'group'
   
@@ -907,7 +955,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup }) => {
                         <ActionDropdown
                           applicant={applicant}
                           onApprove={handleStatusUpdate}
-                          onReject={handleStatusUpdate}
+                          onReject={onRejectApplicant}
                           onDelete={handleDeleteApplicant}
                           isGroup={false}
                         />
@@ -1241,9 +1289,6 @@ const LeaseRenewalsTab = () => {
   const totalCount = leaseRenewalsData?.total_count || 0;
   const rentalOwners = rentalOwnersData || [];
 
-  // Debug logging
-  console.log('Lease renewals data:', leaseRenewals);
-  console.log('Sample lease data:', leaseRenewals[0]);
 
   const getFilteredLeases = () => {
     let filtered = leaseRenewals.filter(lease => {
@@ -1293,18 +1338,9 @@ const LeaseRenewalsTab = () => {
 
     // Apply sorting (only for daysLeft)
     if (sortField === 'daysLeft') {
-      console.log('Sorting by daysLeft, direction:', sortDirection);
-      console.log('Before sort:', filtered.map(lease => ({ 
-        id: lease.id, 
-        daysLeft: lease.daysLeft, 
-        type: typeof lease.daysLeft 
-      })));
-      
       filtered.sort((a, b) => {
         const aValue = Number(a.daysLeft) || 0;
         const bValue = Number(b.daysLeft) || 0;
-        
-        console.log(`Comparing: ${aValue} vs ${bValue}`);
 
         if (sortDirection === 'asc') {
           return aValue - bValue; // Simple numerical subtraction
@@ -1312,11 +1348,6 @@ const LeaseRenewalsTab = () => {
           return bValue - aValue; // Reverse for descending
         }
       });
-      
-      console.log('After sort:', filtered.map(lease => ({ 
-        id: lease.id, 
-        daysLeft: lease.daysLeft 
-      })));
     }
 
     return filtered;
@@ -1325,15 +1356,9 @@ const LeaseRenewalsTab = () => {
   const filteredLeases = getFilteredLeases();
 
   const handleSort = (field) => {
-    console.log('handleSort called with field:', field);
-    console.log('Current sortField:', sortField, 'Current direction:', sortDirection);
-    
     if (sortField === field) {
-      const newDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-      console.log('Toggling direction to:', newDirection);
-      setSortDirection(newDirection);
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      console.log('Setting new field:', field, 'with direction: asc');
       setSortField(field);
       setSortDirection('asc');
     }
@@ -1486,7 +1511,7 @@ const LeaseRenewalsTab = () => {
                       onClick={() => handleSort('daysLeft')}
                     >
                       <div className="flex items-center">
-                        DAYS LEFT
+                      DAYS LEFT
                         {getSortIcon('daysLeft')}
                       </div>
                     </th>

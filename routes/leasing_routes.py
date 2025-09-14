@@ -181,13 +181,24 @@ def update_applicant_status(current_user, applicant_id):
         applicant.application_status = new_status
         applicant.updated_at = datetime.utcnow()
         
+        # Handle rejection reason
+        if new_status == 'Rejected':
+            rejection_reason = data.get('rejection_reason', '')
+            if not rejection_reason:
+                return jsonify({'error': 'Rejection reason is required when rejecting an application'}), 400
+            applicant.rejection_reason = rejection_reason
+        else:
+            # Clear rejection reason if status is not rejected
+            applicant.rejection_reason = None
+        
         db.session.commit()
         
         return jsonify({
             'success': True,
             'message': f'Application status updated to {new_status}',
             'applicant_id': applicant.id,
-            'new_status': new_status
+            'new_status': new_status,
+            'rejection_reason': applicant.rejection_reason if new_status == 'Rejected' else None
         }), 200
         
     except Exception as e:

@@ -35,8 +35,12 @@ export const leasingApplicantService = {
   },
 
   // Update applicant status (approve/reject)
-  updateStatus: async (applicantId, status) => {
-    const response = await api.patch(`/api/leasing/applicants/${applicantId}/status`, { status });
+  updateStatus: async (applicantId, status, rejectionReason = null) => {
+    const data = { status };
+    if (status === 'Rejected' && rejectionReason) {
+      data.rejection_reason = rejectionReason;
+    }
+    const response = await api.patch(`/api/leasing/applicants/${applicantId}/status`, data);
     return response.data;
   }
 };
