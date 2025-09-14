@@ -1,51 +1,156 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { ChevronDown, Phone, Mail, Home } from 'lucide-react';
+import api from '../utils/axios';
 
 const AddVendor = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     companyName: '',
-    isCompany: false,
-    category: 'uncategorized',
-    expenseAccount: '',
-    accountNumber: '',
+    rentalOwnerId: '',
+    category: '', // Will store category ID
     primaryEmail: '',
-    alternateEmail: '',
-    phoneNumbers: ['', '', '', ''],
+    phone1: '',
     streetAddress: '',
     city: '',
     state: '',
     zip: '',
-    country: 'United States',
-    website: '',
-    comments: '',
-    taxIdType: '',
-    taxpayerId: '',
-    useDifferentName: false,
-    useDifferentAddress: false,
-    insuranceProvider: '',
-    policyNumber: '',
-    expirationDate: ''
+    comments: ''
   });
 
+  // Fetch rental owners for company selection
+  const { data: rentalOwnersData, isLoading: loadingRentalOwners, error: rentalOwnersError } = useQuery(
+    'rental-owners',
+    async () => {
+      console.log('🚀 Starting rental owners API call...');
+      console.log('🔑 Token in localStorage:', localStorage.getItem('token'));
+      
+      try {
+        const response = await api.get('/api/rental-owners');
+        console.log('✅ Rental owners API response:', response.data);
+        console.log('📊 Response status:', response.status);
+        return response.data;
+      } catch (error) {
+        console.error('💥 Error fetching rental owners:', error);
+        console.error('📄 Error response:', error.response?.data);
+        console.error('🔢 Error status:', error.response?.status);
+        console.error('📝 Error message:', error.message);
+        throw error;
+      }
+    },
+    { 
+      retry: 1,
+      onError: (error) => {
+        console.error('🚨 useQuery onError:', error);
+        console.error('📄 Error details:', error.response?.data);
+      }
+    }
+  );
+
+  const rentalOwners = Array.isArray(rentalOwnersData?.rental_owners) 
+    ? rentalOwnersData.rental_owners 
+    : Array.isArray(rentalOwnersData) 
+      ? rentalOwnersData 
+      : [];
+
+  // Debug logging
+  console.log('rentalOwnersData:', rentalOwnersData);
+  console.log('rentalOwners (processed):', rentalOwners);
+  console.log('rentalOwners type:', typeof rentalOwners);
+  console.log('rentalOwners isArray:', Array.isArray(rentalOwners));
+  console.log('loadingRentalOwners:', loadingRentalOwners);
+  console.log('rentalOwnersError:', rentalOwnersError);
+
+  // Fetch vendor categories
+  const { data: vendorCategoriesData, isLoading: loadingCategories, error: categoriesError } = useQuery(
+    'vendor-categories',
+    async () => {
+      try {
+        const response = await api.get('/api/vendors/categories');
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching vendor categories:', error);
+        throw error;
+      }
+    },
+    { 
+      retry: 1
+    }
+  );
+
+  const vendorCategories = Array.isArray(vendorCategoriesData) 
+    ? vendorCategoriesData 
+    : [];
+
+  // Create vendor mutation
+  const createVendorMutation = useMutation(
+    async (vendorData) => {
+      const response = await api.post('/api/vendors', vendorData);
+      return response.data;
+    },
+    {
+      onSuccess: (data) => {
+        console.log('Vendor created successfully:', data);
+        queryClient.invalidateQueries('vendors');
+        // Navigate back to vendors list
+        navigate('/maintenance/vendors');
+      },
+      onError: (error) => {
+        console.error('Error creating vendor:', error);
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+        console.error('Error message:', error.message);
+        
+        // Show more specific error message
+        const errorMessage = error.response?.data?.error || error.message || 'Unknown error occurred';
+        alert(`Failed to create vendor: ${errorMessage}`);
+      }
+    }
+  );
+
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    // If rental owner is selected, automatically populate company name
+    if (field === 'rentalOwnerId' && value) {
+      const selectedOwner = rentalOwners.find(owner => owner.id.toString() === value);
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+        companyName: selectedOwner ? selectedOwner.company_name : '',
+        isCompany: true
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
-  const handlePhoneChange = (index, value) => {
-    const newPhones = [...formData.phoneNumbers];
-    newPhones[index] = value;
-    setFormData(prev => ({ ...prev, phoneNumbers: newPhones }));
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // TODO: Implement form submission
-    console.log('Vendor data:', formData);
+    
+    // Prepare vendor data for API
+    const vendorData = {
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      company_name: formData.companyName,
+      is_company: true, // Since we're selecting a rental owner company
+      category_id: formData.category || null, // Send category ID or null
+      primary_email: formData.primaryEmail,
+      phone_1: formData.phone1,
+      street_address: formData.streetAddress,
+      city: formData.city,
+      state: formData.state,
+      zip_code: formData.zip,
+      comments: formData.comments,
+      rental_owner_id: formData.rentalOwnerId
+    };
+
+    console.log('Submitting vendor data:', vendorData);
+    createVendorMutation.mutate(vendorData);
   };
 
   const handleCancel = () => {
@@ -62,7 +167,7 @@ const AddVendor = () => {
       {/* Form */}
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Information - Two Column Layout */}
+          {/* Basic Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-4">
@@ -91,28 +196,45 @@ const AddVendor = () => {
                 </div>
               </div>
 
-              {/* Company Name */}
+              {/* Rental Owner Company */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  COMPANY NAME
+                  RENTAL OWNER COMPANY
                 </label>
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={formData.companyName}
-                    onChange={(e) => handleInputChange('companyName', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.isCompany}
-                      onChange={(e) => handleInputChange('isCompany', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">Company</span>
-                  </label>
-                </div>
+                {loadingRentalOwners ? (
+                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                    Loading rental owners...
+                  </div>
+                ) : rentalOwnersError ? (
+                  <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600">
+                    Failed to load rental owners
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <select
+                      value={formData.rentalOwnerId}
+                      onChange={(e) => handleInputChange('rentalOwnerId', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      required
+                    >
+                      <option value="">Select Rental Owner Company...</option>
+                      {rentalOwners.map((owner) => (
+                        <option key={owner.id} value={owner.id}>
+                          {owner.company_name} ({owner.property_count || owner.properties?.length || 0} properties)
+                        </option>
+                      ))}
+                    </select>
+                    
+                    {/* Show selected company name */}
+                    {formData.companyName && (
+                      <div className="p-2 bg-blue-50 border border-blue-200 rounded-md">
+                        <span className="text-sm text-blue-700">
+                          Selected: <strong>{formData.companyName}</strong>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Category */}
@@ -120,68 +242,37 @@ const AddVendor = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   CATEGORY
                 </label>
-                <div className="relative">
-                  <select
-                    value={formData.category}
-                    onChange={(e) => handleInputChange('category', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                  >
-                    <option value="uncategorized">Uncategorized</option>
-                    <option value="plumbing">Plumbing</option>
-                    <option value="electrical">Electrical</option>
-                    <option value="hvac">HVAC</option>
-                    <option value="landscaping">Landscaping</option>
-                    <option value="cleaning">Cleaning</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
+                {loadingCategories ? (
+                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                    Loading categories...
+                  </div>
+                ) : categoriesError ? (
+                  <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600">
+                    Failed to load categories
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <select
+                      value={formData.category}
+                      onChange={(e) => handleInputChange('category', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    >
+                      <option value="">Select Category...</option>
+                      {vendorCategories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Right Column */}
             <div className="space-y-4">
-              {/* Expense Account */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  EXPENSE ACCOUNT
-                </label>
-                <div className="relative">
-                  <select
-                    value={formData.expenseAccount}
-                    onChange={(e) => handleInputChange('expenseAccount', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                  >
-                    <option value="">Please select</option>
-                    <option value="maintenance">Maintenance & Repairs</option>
-                    <option value="utilities">Utilities</option>
-                    <option value="landscaping">Landscaping</option>
-                    <option value="professional">Professional Services</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Account Number */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ACCOUNT NUMBER
-                </label>
-                <input
-                  type="text"
-                  value={formData.accountNumber}
-                  onChange={(e) => handleInputChange('accountNumber', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Contact Information */}
-          <div className="space-y-6">
-            <h3 className="text-lg font-medium text-gray-900">Contact information</h3>
-            
-            {/* Email Addresses */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Primary Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   PRIMARY EMAIL
@@ -193,47 +284,34 @@ const AddVendor = () => {
                     value={formData.primaryEmail}
                     onChange={(e) => handleInputChange('primaryEmail', e.target.value)}
                     className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
                   />
                 </div>
               </div>
+
+              {/* Phone Number */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ALTERNATE EMAIL
+                  PHONE NUMBER
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
-                    type="email"
-                    value={formData.alternateEmail}
-                    onChange={(e) => handleInputChange('alternateEmail', e.target.value)}
+                    type="tel"
+                    value={formData.phone1}
+                    onChange={(e) => handleInputChange('phone1', e.target.value)}
                     className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Phone number"
                   />
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Phone Numbers */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                PHONE NUMBERS
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {formData.phoneNumbers.map((phone, index) => (
-                  <div key={index} className="relative">
-                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => handlePhoneChange(index, e.target.value)}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Phone number"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Address and Website Grid */}
+          {/* Address Information */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium text-gray-900">Address Information</h3>
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Address */}
               <div className="space-y-4">
@@ -280,6 +358,12 @@ const AddVendor = () => {
                         <option value="NY">New York</option>
                         <option value="TX">Texas</option>
                         <option value="FL">Florida</option>
+                        <option value="IL">Illinois</option>
+                        <option value="PA">Pennsylvania</option>
+                        <option value="OH">Ohio</option>
+                        <option value="GA">Georgia</option>
+                        <option value="NC">North Carolina</option>
+                        <option value="MI">Michigan</option>
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                     </div>
@@ -298,39 +382,8 @@ const AddVendor = () => {
                 </div>
               </div>
 
-              {/* Right Column - Country, Website, Comments */}
+              {/* Right Column - Comments */}
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    COUNTRY
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.country}
-                      onChange={(e) => handleInputChange('country', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                    >
-                      <option value="United States">United States</option>
-                      <option value="Canada">Canada</option>
-                      <option value="Mexico">Mexico</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    WEBSITE
-                  </label>
-                  <input
-                    type="url"
-                    value={formData.website}
-                    onChange={(e) => handleInputChange('website', e.target.value)}
-                    placeholder="http://"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     COMMENTS
@@ -338,115 +391,9 @@ const AddVendor = () => {
                   <textarea
                     value={formData.comments}
                     onChange={(e) => handleInputChange('comments', e.target.value)}
-                    rows={3}
+                    rows={6}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Tax Filing and Insurance - Side by Side */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* 1099-NEC Tax Filing Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">1099-NEC tax filing information</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    TAX IDENTITY TYPE
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.taxIdType}
-                      onChange={(e) => handleInputChange('taxIdType', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                    >
-                      <option value="">Select type...</option>
-                      <option value="ssn">SSN</option>
-                      <option value="ein">EIN</option>
-                      <option value="itin">ITIN</option>
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    TAXPAYER ID
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.taxpayerId}
-                    onChange={(e) => handleInputChange('taxpayerId', e.target.value)}
-                    placeholder="Enter SSN or EIN..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.useDifferentName}
-                      onChange={(e) => handleInputChange('useDifferentName', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">Use a different name</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.useDifferentAddress}
-                      onChange={(e) => handleInputChange('useDifferentAddress', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm text-gray-700">Use a different address</span>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* Insurance */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium text-gray-900">Insurance</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    PROVIDER
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.insuranceProvider}
-                    onChange={(e) => handleInputChange('insuranceProvider', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    POLICY NUMBER
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.policyNumber}
-                    onChange={(e) => handleInputChange('policyNumber', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    EXPIRATION DATE
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.expirationDate}
-                    onChange={(e) => handleInputChange('expirationDate', e.target.value)}
-                    placeholder="m/yyyy"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Additional notes about this vendor..."
                   />
                 </div>
               </div>
@@ -457,14 +404,16 @@ const AddVendor = () => {
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-6">
             <button
               type="submit"
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium"
+              disabled={createVendorMutation.isLoading}
+              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create vendor
+              {createVendorMutation.isLoading ? 'Creating...' : 'Create vendor'}
             </button>
             <button
               type="button"
               onClick={handleCancel}
-              className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              disabled={createVendorMutation.isLoading}
+              className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

@@ -19,7 +19,7 @@ def get_vendor_categories(current_user):
             'id': category.id,
             'name': category.name,
             'description': category.description,
-            'is_deletable': category.is_deletable,
+            'is_active': category.is_active,
             'vendor_count': len(category.vendors) if category.vendors else 0
         } for category in categories]), 200
     except Exception as e:
@@ -106,8 +106,8 @@ def get_vendors(current_user):
         status = request.args.get('status', 'active')
         search = request.args.get('search', '')
         
-        # Build query
-        query = Vendor.query.filter_by(created_by_user_id=current_user.id)
+        # Build query - show all vendors for OWNER/AGENT users
+        query = Vendor.query
         
         if status == 'active':
             query = query.filter_by(is_active=True)
@@ -142,6 +142,11 @@ def get_vendors(current_user):
                 'id': vendor.category.id,
                 'name': vendor.category.name
             } if vendor.category else None,
+            'rental_owner': {
+                'id': vendor.rental_owner.id,
+                'company_name': vendor.rental_owner.company_name,
+                'contact_person': vendor.rental_owner.contact_person
+            } if vendor.rental_owner else None,
             'insurance_provider': vendor.insurance_provider,
             'insurance_expiration_date': vendor.insurance_expiration_date,
             'website': vendor.website,
@@ -168,6 +173,20 @@ def create_vendor(current_user):
         for field in required_fields:
             if not data.get(field):
                 return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Check for duplicate vendor assignment to rental owner
+        rental_owner_id = data.get('rental_owner_id')
+        if rental_owner_id:
+            existing_vendor = Vendor.query.filter_by(
+                rental_owner_id=rental_owner_id,
+                first_name=data['first_name'],
+                last_name=data['last_name']
+            ).first()
+            
+            if existing_vendor:
+                return jsonify({
+                    'error': f'A vendor with the name {data["first_name"]} {data["last_name"]} is already assigned to this rental owner'
+                }), 400
         
         # Create vendor
         vendor = Vendor(
@@ -198,7 +217,8 @@ def create_vendor(current_user):
             use_different_address=data.get('use_different_address', False),
             insurance_provider=data.get('insurance_provider'),
             policy_number=data.get('policy_number'),
-            insurance_expiration_date=data.get('insurance_expiration_date')
+            insurance_expiration_date=data.get('insurance_expiration_date'),
+            rental_owner_id=rental_owner_id
         )
         
         db.session.add(vendor)
@@ -315,23 +335,38 @@ def update_vendor(current_user, vendor_id):
 def delete_vendor(current_user, vendor_id):
     """Delete a vendor"""
     try:
-        vendor = Vendor.query.filter_by(
-            id=vendor_id,
-            created_by_user_id=current_user.id
-        ).first_or_404()
+        # Check if vendor exists using direct SQL to avoid relationship issues
+        from sqlalchemy import text
         
-        # Check if vendor has active work orders
-        from models.work_order import WorkOrder
-        active_work_orders = WorkOrder.query.filter_by(
-            assigned_vendor_id=vendor_id
-        ).filter(WorkOrder.status.in_(['new', 'in_progress'])).count()
+        # Check if vendor exists
+        result = db.session.execute(text("""
+            SELECT id FROM vendors WHERE id = :vendor_id
+        """), {'vendor_id': vendor_id})
+        
+        vendor_exists = result.fetchone()
+        if not vendor_exists:
+            return jsonify({'error': 'Vendor not found'}), 404
+        
+        # Check if vendor has active work orders using direct SQL
+        result = db.session.execute(text("""
+            SELECT COUNT(*) as count 
+            FROM work_orders 
+            WHERE vendor_id = :vendor_id 
+            AND status IN ('new', 'in_progress')
+        """), {'vendor_id': vendor_id})
+        
+        active_work_orders = result.fetchone()[0]
         
         if active_work_orders > 0:
             return jsonify({
                 'error': f'Cannot delete vendor with {active_work_orders} active work orders'
             }), 400
         
-        db.session.delete(vendor)
+        # Delete vendor using direct SQL to avoid relationship issues
+        db.session.execute(text("""
+            DELETE FROM vendors WHERE id = :vendor_id
+        """), {'vendor_id': vendor_id})
+        
         db.session.commit()
         
         return jsonify({'message': 'Vendor deleted successfully'}), 200

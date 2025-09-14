@@ -10,10 +10,8 @@ from datetime import datetime
 
 rental_owner_bp = Blueprint('rental_owner_bp', __name__)
 
-@rental_owner_bp.route('/rental-owners', methods=['GET'])
-@token_required
-def get_rental_owners(current_user):
-    """Get all rental owner companies"""
+def _get_rental_owners_data(current_user):
+    """Shared function to get rental owners data"""
     try:
         # Get all rental owners from the RentalOwner model
         rental_owners = RentalOwner.query.filter_by(is_active=True).all()
@@ -52,6 +50,18 @@ def get_rental_owners(current_user):
     except Exception as e:
         print(f"Error fetching rental owners: {str(e)}")
         return jsonify({'error': str(e)}), 400
+
+@rental_owner_bp.route('/', methods=['GET'])
+@token_required
+def get_rental_owners_root(current_user):
+    """Get all rental owner companies - root endpoint"""
+    return _get_rental_owners_data(current_user)
+
+@rental_owner_bp.route('/rental-owners', methods=['GET'])
+@token_required
+def get_rental_owners(current_user):
+    """Get all rental owner companies"""
+    return _get_rental_owners_data(current_user)
 
 @rental_owner_bp.route('/rental-owners', methods=['POST'])
 @token_required

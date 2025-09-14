@@ -47,7 +47,7 @@ const RentalOwners = () => {
   const { data: ownersData, isLoading, error } = useQuery(
     ['rental-owners'],
     async () => {
-      const response = await api.get('/api/rental-owners/rental-owners');
+      const response = await api.get('/api/rental-owners');
       return response.data.rental_owners || [];
     },
     {
@@ -61,7 +61,9 @@ const RentalOwners = () => {
   // Update local state when data changes
   useEffect(() => {
     if (ownersData) {
-      setOwners(ownersData);
+      setOwners(Array.isArray(ownersData) ? ownersData : []);
+    } else {
+      setOwners([]);
     }
   }, [ownersData]);
 
@@ -77,9 +79,9 @@ const RentalOwners = () => {
     
     try {
       console.log('🔍 Sending rental owner data:', newOwnerData);
-      console.log('🔍 API endpoint: /api/rental-owners/rental-owners');
+      console.log('🔍 API endpoint: /api/rental-owners');
       
-      const response = await api.post('/api/rental-owners/rental-owners', newOwnerData);
+        const response = await api.post('/api/rental-owners', newOwnerData);
       console.log('✅ Response received:', response);
       console.log('✅ Response status:', response.status);
       console.log('✅ Response data:', response.data);
@@ -115,7 +117,7 @@ const RentalOwners = () => {
   // Delete owner handler
   const handleDeleteOwner = async (ownerId) => {
     try {
-      const response = await api.delete(`/api/rental-owners/rental-owners/${ownerId}`);
+        const response = await api.delete(`/api/rental-owners/${ownerId}`);
       toast.success('Rental owner deleted successfully!');
       queryClient.invalidateQueries(['rental-owners']);
     } catch (error) {
@@ -140,7 +142,7 @@ const RentalOwners = () => {
     
     try {
       const rentalOwnerId = deleteConfirmData.rental_owner_id;
-      const response = await api.delete(`/api/rental-owners/rental-owners/${rentalOwnerId}/force-delete`);
+        const response = await api.delete(`/api/rental-owners/${rentalOwnerId}/force-delete`);
       toast.success('Rental owner and all properties deleted successfully!');
       setShowDeleteConfirm(false);
       setDeleteConfirmData(null);
@@ -188,7 +190,7 @@ const RentalOwners = () => {
     formData.append('csv_file', selectedFile);
 
     try {
-      const response = await api.post('/api/rental-owners/rental-owners/import', formData, {
+        const response = await api.post('/api/rental-owners/import', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -229,7 +231,7 @@ const RentalOwners = () => {
 
   // Filter and sort owners
   const filteredOwners = React.useMemo(() => {
-    let filtered = owners;
+    let filtered = Array.isArray(owners) ? owners : [];
 
     // Apply search filter
     if (searchTerm) {

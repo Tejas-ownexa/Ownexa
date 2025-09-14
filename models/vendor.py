@@ -8,11 +8,9 @@ class VendorCategory(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
-    is_deletable = db.Column(db.Boolean, default=True, nullable=False)
-    created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
     
     # Relationships
-    created_by_user = db.relationship('User', backref='created_vendor_categories')
     vendors = db.relationship('Vendor', back_populates='category')
 
 class Vendor(BaseModel):
@@ -61,10 +59,12 @@ class Vendor(BaseModel):
     # System Fields
     is_active = db.Column(db.Boolean, default=True)
     is_verified = db.Column(db.Boolean, default=False)
+    rental_owner_id = db.Column(db.Integer, db.ForeignKey('rental_owners.id', ondelete='SET NULL'), nullable=True)
     
     # Relationships
     created_by_user = db.relationship('User', backref='created_vendors')
     category = db.relationship('VendorCategory', back_populates='vendors')
+    rental_owner = db.relationship('RentalOwner', backref='vendors')
     work_orders = db.relationship('WorkOrder', back_populates='assigned_vendor')
     maintenance_requests = db.relationship('MaintenanceRequest', back_populates='assigned_vendor')
     
