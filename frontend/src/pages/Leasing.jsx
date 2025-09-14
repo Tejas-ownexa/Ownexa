@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 import AddApplicantModal from '../components/AddApplicantModal';
 import CreateApplicantGroupModal from '../components/CreateApplicantGroupModal';
 import leasingService from '../services/leasingService';
+import leaseRenewalService from '../services/leaseRenewalService';
+import rentalOwnerService from '../services/rentalOwnerService';
 import { 
   Plus,
   ClipboardList,
@@ -28,6 +30,7 @@ import {
   Calendar,
   ChevronDown,
   X,
+  XCircle,
   Check,
   Trash2,
   MoreVertical
@@ -1210,13 +1213,74 @@ const LeaseRenewalsTab = () => {
   const [filterRentals, setFilterRentals] = useState('all-rentals');
   const [filterDays, setFilterDays] = useState([]);
   
-  // Lease renewal data - will be populated from backend API
-  const leaseRenewals = [];
+  // Fetch lease renewals data
+  const { data: leaseRenewalsData, isLoading, error } = useQuery(
+    'lease-renewals',
+    () => leaseRenewalService.getLeaseRenewals(),
+    {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  );
+
+  // Fetch rental owners for filter dropdown
+  const { data: rentalOwnersData, isLoading: ownersLoading } = useQuery(
+    'rental-owners',
+    () => rentalOwnerService.getRentalOwners(),
+    {
+      refetchOnWindowFocus: false,
+      retry: 1
+    }
+  );
+
+  const leaseRenewals = leaseRenewalsData?.lease_renewals || [];
+  const totalCount = leaseRenewalsData?.total_count || 0;
+  const rentalOwners = rentalOwnersData || [];
 
   const getFilteredLeases = () => {
     return leaseRenewals.filter(lease => {
-      // Apply filtering logic based on selected filters
-      return true; // For now, return all
+      // Apply rental owner filter
+      if (filterRentals !== 'all-rentals') {
+        if (lease.rentalOwners !== filterRentals) {
+          return false;
+        }
+      }
+      
+      // Apply days filter
+      if (filterDays.length > 0) {
+        const daysLeft = lease.daysLeft;
+        const matchesFilter = filterDays.some(filter => {
+          switch (filter) {
+            case 'expired':
+              return daysLeft < 0;
+            case '0-30':
+              return daysLeft >= 0 && daysLeft <= 30;
+            case '31-60':
+              return daysLeft >= 31 && daysLeft <= 60;
+            case '61-90':
+              return daysLeft >= 61 && daysLeft <= 90;
+            case '91-120':
+              return daysLeft >= 91 && daysLeft <= 120;
+            case '121-180':
+              return daysLeft >= 121 && daysLeft <= 180;
+            case '181-240':
+              return daysLeft >= 181 && daysLeft <= 240;
+            case '241-300':
+              return daysLeft >= 241 && daysLeft <= 300;
+            case '301-360':
+              return daysLeft >= 301 && daysLeft <= 360;
+            case '360-plus':
+              return daysLeft > 360;
+            default:
+              return true;
+          }
+        });
+        if (!matchesFilter) {
+          return false;
+        }
+      }
+      
+      return true;
     });
   };
 
@@ -1260,7 +1324,7 @@ const LeaseRenewalsTab = () => {
         <div className="border-b border-gray-200">
           <nav className="flex space-x-8">
             <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 font-medium text-sm whitespace-nowrap">
-              Not Started (0)
+              Not Started ({filteredLeases.length})
             </button>
             <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
               Renewal offers (0)
@@ -1296,25 +1360,30 @@ const LeaseRenewalsTab = () => {
             value={filterRentals}
             onChange={(e) => setFilterRentals(e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            disabled={ownersLoading}
           >
             <option value="all-rentals">All rentals</option>
-            <option value="atk-associates">ATK Associates</option>
-            <option value="krss-consultants">KRSS Consultants</option>
-            <option value="kt-properties">KT Properties</option>
+            {rentalOwners.map((owner) => (
+              <option key={owner.id} value={owner.company_name}>
+                {owner.company_name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="w-full sm:w-64">
           <MultiSelectDropdown
             label=""
             options={[
-              { value: '241-plus', label: '241+ days' },
-              { value: '181-240', label: '181-240 days' },
-              { value: '121-180', label: '121-180 days' },
-              { value: '91-120', label: '91-120 days' },
-              { value: '61-90', label: '61-90 days' },
+              { value: 'expired', label: 'Expired' },
+              { value: '0-30', label: '0-30 days' },
               { value: '31-60', label: '31-60 days' },
-              { value: '30-fewer', label: '30 days or fewer' },
-              { value: 'expired', label: 'Expired' }
+              { value: '61-90', label: '61-90 days' },
+              { value: '91-120', label: '91-120 days' },
+              { value: '121-180', label: '121-180 days' },
+              { value: '181-240', label: '181-240 days' },
+              { value: '241-300', label: '241-300 days' },
+              { value: '301-360', label: '301-360 days' },
+              { value: '360-plus', label: '360+ days' }
             ]}
             value={filterDays}
             onChange={setFilterDays}
@@ -1397,7 +1466,33 @@ const LeaseRenewalsTab = () => {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {activeRenewalTab === 'renewals' ? (
-                filteredLeases.length > 0 ? (
+                isLoading ? (
+                  <tr>
+                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                      <div className="text-gray-400 mb-4">
+                        <RefreshCw className="h-16 w-16 mx-auto animate-spin" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Loading lease renewals...</h3>
+                      <p className="text-gray-600">Please wait while we fetch your lease data</p>
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
+                      <div className="text-red-400 mb-4">
+                        <XCircle className="h-16 w-16 mx-auto" />
+                      </div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading lease renewals</h3>
+                      <p className="text-gray-600 mb-6">{error.message || 'Failed to fetch lease data'}</p>
+                      <button 
+                        onClick={() => window.location.reload()} 
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Try Again
+                      </button>
+                    </td>
+                  </tr>
+                ) : filteredLeases.length > 0 ? (
                   filteredLeases.map((lease) => (
                     <tr key={lease.id} className="hover:bg-gray-50">
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
@@ -1407,24 +1502,31 @@ const LeaseRenewalsTab = () => {
                         />
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          {lease.daysLeft} DAYS
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          lease.daysLeft < 0 ? 'bg-gray-100 text-gray-800' :
+                          lease.daysLeft <= 30 ? 'bg-red-100 text-red-800' : 
+                          lease.daysLeft <= 60 ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-green-100 text-green-800'
+                        }`}>
+                          {lease.daysLeft < 0 ? 'EXPIRED' : `${lease.daysLeft} DAYS`}
                         </span>
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-sm">
-                        <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
-                          {lease.lease}
-                        </a>
+                        <div className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                          <div className="font-medium">{lease.propertyTitle}</div>
+                          <div className="text-gray-500 text-xs">{lease.tenantName}</div>
+                        </div>
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">
                         <div className="whitespace-pre-line">
-                          {lease.currentTerms}
+                          <div className="font-medium">{lease.currentTerms}</div>
+                          <div className="text-gray-500 text-xs">${lease.rentAmount.toLocaleString()}/month</div>
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-sm">
-                        <a href="#" className="text-blue-600 hover:text-blue-800 hover:underline">
+                        <div className="text-blue-600 hover:text-blue-800 cursor-pointer">
                           {lease.rentalOwners}
-                        </a>
+                        </div>
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm">
                         <div className="flex items-center justify-end space-x-2">

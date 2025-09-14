@@ -749,3 +749,98 @@ def get_leasing_dashboard_stats(current_user):
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@leasing_bp.route('/lease-renewals', methods=['GET'])
+@token_required
+def get_lease_renewals(current_user):
+    """Get lease renewals data for the Not Started section"""
+    try:
+        from datetime import date, timedelta
+        from models.tenant import Tenant
+        from models.property import Property
+        from models.rental_owner import RentalOwner
+        
+        # Get all properties owned by the current user
+        if current_user.role == 'ADMIN' or current_user.username == 'admin':
+            properties = Property.query.all()
+        else:
+            properties = Property.query.filter(Property.owner_id == current_user.id).all()
+        
+        property_ids = [p.id for p in properties]
+        
+        # Get tenants with their lease information and property details
+        tenants_with_leases = db.session.query(
+            Tenant,
+            Property.title.label('property_title'),
+            Property.street_address_1,
+            Property.street_address_2,
+            Property.apt_number,
+            Property.city,
+            Property.state,
+            Property.zip_code,
+            RentalOwner.company_name.label('rental_owner_company')
+        ).join(
+            Property, Tenant.property_id == Property.id
+        ).outerjoin(
+            RentalOwner, Property.rental_owner_id == RentalOwner.id
+        ).filter(
+            Tenant.property_id.in_(property_ids),
+            Tenant.lease_end.isnot(None)  # Only tenants with lease end dates
+        ).all()
+        
+        lease_renewals = []
+        today = date.today()
+        
+        for tenant, property_title, street_address, street_address_2, apt_number, city, state, zip_code, rental_owner_company in tenants_with_leases:
+            if tenant.lease_end:
+                # Calculate days left until lease completion
+                days_left = (tenant.lease_end - today).days
+                
+                # Include all leases (both active and expired)
+                # Format current terms
+                lease_start = tenant.lease_start.strftime('%m/%d/%Y') if tenant.lease_start else 'N/A'
+                lease_end = tenant.lease_end.strftime('%m/%d/%Y') if tenant.lease_end else 'N/A'
+                current_terms = f"{lease_start} - {lease_end}"
+                
+                # Format property address
+                address_parts = [street_address]
+                if street_address_2:
+                    address_parts.append(street_address_2)
+                if apt_number:
+                    address_parts.append(f"Apt {apt_number}")
+                address_parts.extend([city, state, zip_code])
+                full_address = ", ".join(filter(None, address_parts))
+                
+                # Format lease identifier
+                lease_identifier = f"{property_title} - {tenant.full_name}"
+                
+                lease_renewal = {
+                    'id': tenant.id,
+                    'daysLeft': days_left,
+                    'lease': lease_identifier,
+                    'currentTerms': current_terms,
+                    'rentalOwners': rental_owner_company or 'N/A',
+                    'propertyTitle': property_title,
+                    'propertyAddress': full_address,
+                    'tenantName': tenant.full_name,
+                    'rentAmount': float(tenant.rent_amount) if tenant.rent_amount else 0.0,
+                    'leaseStart': lease_start,
+                    'leaseEnd': lease_end,
+                    'status': 'Active' if days_left > 0 else 'Expired'
+                }
+                
+                lease_renewals.append(lease_renewal)
+        
+        # Sort by days left (ascending - closest to expiration first)
+        lease_renewals.sort(key=lambda x: x['daysLeft'])
+        
+        return jsonify({
+            'lease_renewals': lease_renewals,
+            'total_count': len(lease_renewals)
+        }), 200
+        
+    except Exception as e:
+        print(f"Error fetching lease renewals: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
