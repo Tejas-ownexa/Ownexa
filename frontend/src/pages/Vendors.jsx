@@ -32,6 +32,23 @@ const Vendors = () => {
     }
   );
 
+  // Fetch vendor categories
+  const { data: categories = [] } = useQuery(
+    'vendor-categories',
+    async () => {
+      try {
+        const response = await api.get('/api/vendors/categories');
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        return [];
+      }
+    },
+    { 
+      retry: 1
+    }
+  );
+
   // Delete vendor mutation
   const deleteVendorMutation = useMutation(
     async (vendorId) => {
@@ -96,6 +113,49 @@ const Vendors = () => {
     setSelectedVendor(null);
   };
 
+  // Filter vendors based on selected filters
+  const filteredVendors = React.useMemo(() => {
+    if (!vendors) return [];
+    
+    let filtered = vendors;
+    
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(vendor => 
+        vendor.category && vendor.category.name.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+    
+    // Filter by additional filter option
+    if (filterOption) {
+      switch (filterOption) {
+        case 'active':
+          filtered = filtered.filter(vendor => vendor.is_active !== false);
+          break;
+        case 'inactive':
+          filtered = filtered.filter(vendor => vendor.is_active === false);
+          break;
+        case 'insurance-expiring':
+          // Filter vendors with insurance expiring within 30 days
+          const thirtyDaysFromNow = new Date();
+          thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+          filtered = filtered.filter(vendor => {
+            if (!vendor.insurance_expiration_date) return false;
+            const expirationDate = new Date(vendor.insurance_expiration_date);
+            return expirationDate <= thirtyDaysFromNow;
+          });
+          break;
+        case 'high-rated':
+          filtered = filtered.filter(vendor => vendor.rating && vendor.rating >= 4);
+          break;
+        default:
+          break;
+      }
+    }
+    
+    return filtered;
+  }, [vendors, selectedCategory, filterOption]);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
@@ -135,11 +195,11 @@ const Vendors = () => {
               className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All categories</option>
-              <option value="plumbing">Plumbing</option>
-              <option value="electrical">Electrical</option>
-              <option value="hvac">HVAC</option>
-              <option value="landscaping">Landscaping</option>
-              <option value="cleaning">Cleaning</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.name}>
+                  {category.name}
+                </option>
+              ))}
             </select>
             <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
           </div>
@@ -163,7 +223,7 @@ const Vendors = () => {
         {/* Results Count and Export */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 space-y-2 sm:space-y-0">
           <div className="text-sm text-gray-600">
-            0 matches
+            {filteredVendors.length} matches
           </div>
           <button
             onClick={handleExport}
@@ -243,8 +303,24 @@ const Vendors = () => {
                     </div>
                   </td>
                 </tr>
+              ) : filteredVendors.length === 0 ? (
+                <tr>
+                  <td colSpan="10" className="text-center py-12 text-gray-500">
+                    <div className="space-y-2">
+                      <p>No vendors match your current filters. Try{' '}
+                        <button 
+                          onClick={handleClearFilters}
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          clearing your filters
+                        </button>
+                        {' '}to see all vendors.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
               ) : (
-                vendors.map((vendor) => (
+                filteredVendors.map((vendor) => (
                   <tr key={vendor.id} className="border-b border-gray-200 hover:bg-gray-50">
                     <td className="py-3 px-4 text-sm text-gray-900">
                       {vendor.first_name}
