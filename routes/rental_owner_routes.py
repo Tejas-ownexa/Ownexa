@@ -182,10 +182,8 @@ def update_rental_owner(current_user, rental_owner_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
-@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>', methods=['DELETE'])
-@token_required
-def delete_rental_owner(current_user, rental_owner_id):
-    """Delete a rental owner"""
+def _delete_rental_owner_data(current_user, rental_owner_id):
+    """Shared function to delete rental owner data"""
     try:
         rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
         
@@ -210,10 +208,20 @@ def delete_rental_owner(current_user, rental_owner_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
-@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@rental_owner_bp.route('/<int:rental_owner_id>', methods=['DELETE'])
 @token_required
-def force_delete_rental_owner(current_user, rental_owner_id):
-    """Force delete a rental owner and all associated properties"""
+def delete_rental_owner_root(current_user, rental_owner_id):
+    """Delete a rental owner - root endpoint"""
+    return _delete_rental_owner_data(current_user, rental_owner_id)
+
+@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>', methods=['DELETE'])
+@token_required
+def delete_rental_owner(current_user, rental_owner_id):
+    """Delete a rental owner"""
+    return _delete_rental_owner_data(current_user, rental_owner_id)
+
+def _force_delete_rental_owner_data(current_user, rental_owner_id):
+    """Shared function to force delete rental owner data"""
     try:
         rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
         
@@ -234,6 +242,18 @@ def force_delete_rental_owner(current_user, rental_owner_id):
         print(f"Error force deleting rental owner: {str(e)}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
+
+@rental_owner_bp.route('/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@token_required
+def force_delete_rental_owner_root(current_user, rental_owner_id):
+    """Force delete a rental owner and all associated properties - root endpoint"""
+    return _force_delete_rental_owner_data(current_user, rental_owner_id)
+
+@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@token_required
+def force_delete_rental_owner(current_user, rental_owner_id):
+    """Force delete a rental owner and all associated properties"""
+    return _force_delete_rental_owner_data(current_user, rental_owner_id)
 
 @rental_owner_bp.route('/rental-owners/import', methods=['POST'])
 @token_required
