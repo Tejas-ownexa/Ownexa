@@ -43,6 +43,7 @@ CREATE TABLE properties (
     rent_amount NUMERIC(10, 2) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'available',
     owner_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    rental_owner_id INTEGER REFERENCES rental_owners(id) ON DELETE CASCADE,
     image_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -391,6 +392,7 @@ CREATE TABLE associations (
     city VARCHAR(100),
     state VARCHAR(100),
     zip_code VARCHAR(20),
+    manager VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -680,10 +682,10 @@ CREATE TABLE property_listing_status (
 CREATE TABLE leasing_applicants (
     id SERIAL PRIMARY KEY,
     property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
-    listing_status_id INTEGER REFERENCES property_listing_status(id) ON DELETE CASCADE,
     
     -- Applicant information
-    full_name VARCHAR(100) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
     email VARCHAR(120) NOT NULL,
     phone_number VARCHAR(20),
     
@@ -1126,3 +1128,18 @@ COMMENT ON TABLE draft_lease_signatures IS 'Electronic signature tracking and do
 
 -- Success message
 SELECT 'All tables created successfully!' as status;
+
+-- Additional indexes for new tables
+CREATE INDEX idx_property_unit_details_property_id ON property_unit_details(property_id);
+CREATE INDEX idx_property_listing_status_property_id ON property_listing_status(property_id);
+CREATE INDEX idx_applicant_groups_property_id ON applicant_groups(property_id);
+CREATE INDEX idx_applicant_group_members_group_id ON applicant_group_members(group_id);
+CREATE INDEX idx_applicant_group_members_applicant_id ON applicant_group_members(applicant_id);
+CREATE INDEX idx_lease_drafts_property_id ON lease_drafts(property_id);
+CREATE INDEX idx_lease_drafts_applicant_id ON lease_drafts(applicant_id);
+CREATE INDEX idx_draft_lease_approved_applicants_lease_draft_id ON draft_lease_approved_applicants(lease_draft_id);
+CREATE INDEX idx_draft_lease_recurring_charges_lease_draft_id ON draft_lease_recurring_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_one_time_charges_lease_draft_id ON draft_lease_one_time_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_rent_charges_lease_draft_id ON draft_lease_rent_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_move_in_charges_lease_draft_id ON draft_lease_move_in_charges(lease_draft_id);
+CREATE INDEX idx_draft_lease_signatures_lease_draft_id ON draft_lease_signatures(lease_draft_id);
