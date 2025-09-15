@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
-import ChatWidget from './components/ChatWidget';
 // import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -246,9 +245,6 @@ const App = () => {
                         </Routes>
                       </main>
                     </div>
-                    
-                    {/* Floating Chat Widget - Available on all authenticated pages */}
-                    <ChatWidget />
                   </>
                 } />
               </Routes>
