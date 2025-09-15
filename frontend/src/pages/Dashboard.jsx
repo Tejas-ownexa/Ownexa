@@ -3,10 +3,10 @@ import { useQuery, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useAdminBot } from '../contexts/AdminBotContext';
 import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench, TrendingUp, TrendingDown, Calendar, PieChart, BarChart3, Activity, MessageCircle } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import DashboardWidget from '../components/DashboardWidget';
-import AdminBotModal from '../components/AdminBotModal';
 import toast from 'react-hot-toast';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, BarElement } from 'chart.js';
 import { Line, Pie, Bar } from 'react-chartjs-2';
@@ -26,12 +26,12 @@ ChartJS.register(
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { openAdminBot } = useAdminBot();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('overview');
   const [maintenanceList, setMaintenanceList] = useState([]);
   const [maintenanceLoading, setMaintenanceLoading] = useState(true);
   const [animationTrigger, setAnimationTrigger] = useState(false);
-  const [isAdminBotOpen, setIsAdminBotOpen] = useState(false);
   
   useEffect(() => {
     setAnimationTrigger(true);
@@ -299,7 +299,7 @@ const Dashboard = () => {
           </div>
           <div className={`flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto transform transition-all duration-700 delay-300 ${animationTrigger ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
             <button
-              onClick={() => setIsAdminBotOpen(true)}
+              onClick={openAdminBot}
               className="btn-primary flex items-center justify-center sm:justify-start space-x-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
             >
               <MessageCircle className="h-4 w-4" />
@@ -1103,11 +1103,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Admin Bot Modal */}
-      <AdminBotModal 
-        isOpen={isAdminBotOpen} 
-        onClose={() => setIsAdminBotOpen(false)} 
-      />
     </div>
   );
 };

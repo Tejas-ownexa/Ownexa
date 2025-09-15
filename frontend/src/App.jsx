@@ -3,7 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AdminBotProvider, useAdminBot } from './contexts/AdminBotContext';
 import Sidebar from './components/Sidebar';
+import AdminBotModal from './components/AdminBotModal';
 // import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -69,12 +71,24 @@ const RootRedirect = () => {
   return <Navigate to="/dashboard" />;
 };
 
+const AdminBotWrapper = () => {
+  const { isAdminBotOpen, closeAdminBot } = useAdminBot();
+  
+  return (
+    <AdminBotModal 
+      isOpen={isAdminBotOpen} 
+      onClose={closeAdminBot} 
+    />
+  );
+};
+
 const App = () => {
   return (
     // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <Router>
+          <AdminBotProvider>
+            <Router>
             <div className="min-h-screen gradient-bg relative overflow-hidden">
               {/* Animated background elements */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -251,7 +265,11 @@ const App = () => {
               
               <Toaster position="top-right" />
             </div>
+            
+            {/* Admin Bot Modal - Rendered at root level */}
+            <AdminBotWrapper />
           </Router>
+          </AdminBotProvider>
         </AuthProvider>
       </QueryClientProvider>
     // </ErrorBoundary>
