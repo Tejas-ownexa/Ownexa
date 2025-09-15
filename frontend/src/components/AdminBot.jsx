@@ -304,6 +304,24 @@ Just ask me anything about your property management in natural language! 🏘️
 
   const handleQuickQuestion = (question) => {
     setCurrentMessage(question);
+    // Auto-send the question
+    setTimeout(() => {
+      if (question.trim() && !isLoading) {
+        const userMessage = question.trim();
+        setCurrentMessage('');
+        setIsLoading(true);
+
+        // Add user message to chat
+        setMessages(prev => [...prev, {
+          role: 'user',
+          message: userMessage,
+          timestamp: new Date().toISOString()
+        }]);
+
+        // Send to backend
+        sendMessageMutation.mutate(userMessage);
+      }
+    }, 100);
   };
 
   const handlePDFDownload = async (downloadUrl) => {
@@ -342,39 +360,38 @@ Just ask me anything about your property management in natural language! 🏘️
   return (
     <div className="h-full w-full flex flex-col bg-white">
       {/* History and Clear Button */}
-      <div className="flex-shrink-0 bg-gray-50 border-b p-2 sm:p-3 lg:p-4">
+      <div className="flex-shrink-0 bg-gray-50 border-b p-1">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs sm:text-sm text-gray-600">
-              {messages.length > 1 ? `${messages.length - 1} messages saved` : 'No history'}
+            <span className="text-xs text-gray-600">
+              {messages.length > 1 ? `${messages.length - 1} msgs` : 'No history'}
             </span>
           </div>
           <button
             onClick={clearConversationHistory}
-            className="px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-2 text-xs sm:text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-1 sm:gap-2"
+            className="px-1 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors flex items-center gap-1"
             disabled={isLoading || messages.length <= 1}
           >
-            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            <span className="hidden sm:inline">Clear History</span>
-            <span className="sm:hidden">Clear</span>
+            <span>Clear</span>
           </button>
         </div>
       </div>
 
       {/* Quick Questions */}
-      <div className="flex-shrink-0 p-2 sm:p-4 lg:p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-        <div className="flex flex-col sm:flex-row sm:items-center mb-2 sm:mb-3 lg:mb-4">
-          <span className="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 mr-2">💡 Quick Actions</span>
-          <span className="text-xs sm:text-sm text-gray-500">Click any button to ask instantly</span>
+      <div className="flex-shrink-0 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+        <div className="flex items-center mb-1">
+          <span className="text-sm font-semibold text-gray-700 mr-2">💡 Quick</span>
+          <span className="text-sm text-gray-500">Click to ask</span>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
-          {quickQuestions.map((question, index) => (
+        <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
+          {quickQuestions.slice(0, 8).map((question, index) => (
             <button
               key={index}
               onClick={() => handleQuickQuestion(question)}
-              className="px-2 py-2 sm:px-3 sm:py-2 lg:px-4 lg:py-3 text-xs sm:text-sm bg-white text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md border border-gray-200 hover:border-blue-300 text-left"
+              className="px-2 py-1 text-sm bg-white text-gray-700 rounded hover:bg-blue-50 hover:text-blue-700 transition-all duration-200 shadow-sm border border-gray-200 hover:border-blue-300 text-left"
               disabled={isLoading}
             >
               {question}
@@ -384,23 +401,23 @@ Just ask me anything about your property management in natural language! 🏘️
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-2 sm:p-4 lg:p-6 space-y-2 sm:space-y-3 lg:space-y-4 min-h-0 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-2 space-y-1 min-h-0 bg-gray-50">
         {messages.map((message, index) => (
-          <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-3 sm:mb-4 lg:mb-6`}>
-            <div className={`max-w-[85%] sm:max-w-[80%] ${
+          <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-2`}>
+            <div className={`max-w-[90%] ${
               message.role === 'user' 
                 ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white' 
                 : `${getMessageTypeColor(message.type)} text-gray-800`
-            } rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-lg border transition-all duration-200 hover:shadow-xl`}>
+            } rounded-lg p-2 shadow-sm border transition-all duration-200`}>
               {message.role === 'assistant' && (
-                <div className="flex items-center mb-2 sm:mb-3 lg:mb-4 pb-2 sm:pb-3 border-b border-gray-200">
+                <div className="flex items-center mb-1 pb-1 border-b border-gray-200">
                   <div className="relative">
-                    <span className="text-lg sm:text-xl mr-2 sm:mr-3">🤖</span>
-                    <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full"></div>
+                    <span className="text-sm mr-1">🤖</span>
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full"></div>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm sm:text-base font-semibold text-gray-700">AI Assistant</span>
-                    <span className="text-xs sm:text-sm text-gray-500">
+                    <span className="text-sm font-semibold text-gray-700">AI Assistant</span>
+                    <span className="text-xs text-gray-500">
                       {new Date(message.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
@@ -409,16 +426,16 @@ Just ask me anything about your property management in natural language! 🏘️
               
               <div className={`${message.role === 'user' ? 'text-white' : 'text-gray-800'}`}>
                 {message.role === 'user' ? (
-                  <div className="text-sm sm:text-base leading-relaxed">{message.message || 'No message content'}</div>
+                  <div className="text-sm leading-relaxed">{message.message || 'No message content'}</div>
                 ) : (
-                  <div className="prose prose-sm sm:prose-base max-w-none text-sm sm:text-base leading-relaxed">
+                  <div className="prose prose-sm max-w-none text-sm leading-relaxed">
                     {formatMessage(message.message)}
                   </div>
                 )}
               </div>
 
               {message.role === 'user' && (
-                <div className="text-xs sm:text-sm text-blue-100 mt-2 sm:mt-3 text-right">
+                <div className="text-xs text-blue-100 mt-1 text-right">
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
               )}
@@ -427,21 +444,20 @@ Just ask me anything about your property management in natural language! 🏘️
         ))}
 
         {isLoading && (
-          <div className="flex justify-start mb-3 sm:mb-4 lg:mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-6 shadow-lg max-w-[85%] sm:max-w-[80%]">
+          <div className="flex justify-start mb-2">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-2 shadow-sm max-w-[90%]">
               <div className="flex items-center">
                 <div className="relative">
-                  <span className="text-lg sm:text-xl mr-2 sm:mr-3 lg:mr-4">🤖</span>
-                  <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm mr-1">🤖</span>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
-                <div className="flex space-x-1 mr-2 sm:mr-3 lg:mr-4">
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="flex space-x-1 mr-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm sm:text-base font-medium text-gray-700">AI Assistant is thinking...</span>
-                  <span className="text-xs sm:text-sm text-gray-500">Processing your request</span>
+                  <span className="text-sm font-medium text-gray-700">Thinking...</span>
                 </div>
               </div>
             </div>
@@ -452,15 +468,15 @@ Just ask me anything about your property management in natural language! 🏘️
       </div>
 
       {/* Input */}
-      <div className="flex-shrink-0 border-t bg-gradient-to-r from-gray-50 to-blue-50 p-2 sm:p-4 lg:p-6">
-        <form onSubmit={handleSendMessage} className="flex space-x-2 sm:space-x-3 lg:space-x-4">
+      <div className="flex-shrink-0 border-t bg-gradient-to-r from-gray-50 to-blue-50 p-2">
+        <form onSubmit={handleSendMessage} className="flex space-x-2">
           <div className="flex-1 relative">
             <input
               type="text"
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
-              placeholder="Ask me anything about your properties..."
-              className="w-full px-3 py-2 sm:px-4 sm:py-3 lg:px-6 lg:py-4 border border-gray-300 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base shadow-sm transition-all duration-200"
+              placeholder="Ask me anything..."
+              className="w-full px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm shadow-sm transition-all duration-200"
               disabled={isLoading}
               onKeyPress={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -469,60 +485,21 @@ Just ask me anything about your property management in natural language! 🏘️
                 }
               }}
             />
-            {currentMessage && (
-              <div className="absolute right-2 sm:right-3 lg:right-4 top-1/2 transform -translate-y-1/2">
-                <span className="text-xs sm:text-sm text-gray-400">{currentMessage.length}/1000</span>
-              </div>
-            )}
           </div>
           <button
             type="submit"
             disabled={!currentMessage.trim() || isLoading}
-            className="px-3 py-2 sm:px-4 sm:py-3 lg:px-8 lg:py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl sm:rounded-2xl hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-1 sm:gap-2 lg:gap-3"
+            className="px-3 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-1"
           >
             {isLoading ? (
-              <>
-                <div className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-xs sm:text-sm lg:text-base hidden sm:inline">Sending...</span>
-              </>
+              <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             ) : (
-              <>
-                <svg className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                <span className="text-xs sm:text-sm lg:text-base hidden sm:inline">Send</span>
-              </>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
             )}
           </button>
         </form>
-        
-        <div className="mt-2 sm:mt-3 lg:mt-4 flex flex-wrap gap-1 sm:gap-2 lg:gap-3 justify-center">
-          <span className="text-xs sm:text-sm text-gray-500">Try:</span>
-          <button
-            onClick={() => setCurrentMessage("What's the lease end date for tenant John?")}
-            className="text-xs sm:text-sm bg-white px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
-            disabled={isLoading}
-          >
-            <span className="hidden sm:inline">"What's the lease end date for tenant John?"</span>
-            <span className="sm:hidden">"Lease end date?"</span>
-          </button>
-          <button
-            onClick={() => setCurrentMessage("Show me vacant properties")}
-            className="text-xs sm:text-sm bg-white px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
-            disabled={isLoading}
-          >
-            <span className="hidden sm:inline">"Show me vacant properties"</span>
-            <span className="sm:hidden">"Vacant properties"</span>
-          </button>
-          <button
-            onClick={() => setCurrentMessage("Generate a financial report")}
-            className="text-xs sm:text-sm bg-white px-2 py-1 sm:px-3 sm:py-2 lg:px-4 lg:py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
-            disabled={isLoading}
-          >
-            <span className="hidden sm:inline">"Generate a financial report"</span>
-            <span className="sm:hidden">"Financial report"</span>
-          </button>
-        </div>
       </div>
     </div>
   );
