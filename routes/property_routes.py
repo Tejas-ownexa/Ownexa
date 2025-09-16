@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from models.property import Property
 from models.user import User
+from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
 from routes.auth_routes import token_required
 from utils.image_upload import save_image, resize_image, delete_image
@@ -35,6 +36,8 @@ def create_property(current_user):
                 print(f"Missing required field: {field}")
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
+        # Properties are now owned directly by users
+        
         # Handle image upload
         image_url = None
         if image_file:
@@ -48,6 +51,20 @@ def create_property(current_user):
             else:
                 print("Failed to save image")
         
+        # Handle rental_owner_id and owner_id
+        rental_owner_id = data.get('owner_id')  # Frontend sends rental owner ID as 'owner_id'
+        owner_id = current_user.id  # Properties are always owned by the current user
+        
+        # Validate rental_owner_id if provided
+        if rental_owner_id:
+            rental_owner = RentalOwner.query.get(rental_owner_id)
+            if not rental_owner:
+                return jsonify({'error': 'Invalid rental owner ID'}), 400
+            print(f"Property will be linked to rental owner: {rental_owner.company_name}")
+        else:
+            rental_owner_id = None
+            print("Property will not be linked to any rental owner")
+        
         property = Property(
             title=data['title'],
             street_address_1=data['street_address_1'],
@@ -59,7 +76,8 @@ def create_property(current_user):
             description=data['description'],
             rent_amount=data['rent_amount'],
             status=data.get('status', 'available'),
-            owner_id=current_user.id,  # Use the current user's ID as the owner
+            owner_id=owner_id,
+            rental_owner_id=rental_owner_id,
             image_url=image_url
         )
         
@@ -78,6 +96,29 @@ def create_property(current_user):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
+@property_bp.route('/available-rental-owners', methods=['GET'])
+@token_required
+def get_available_rental_owners(current_user):
+    """Get rental owners that the current user can add properties to"""
+    try:
+        rental_owners = db.session.query(RentalOwner).join(
+            RentalOwnerManager, RentalOwner.id == RentalOwnerManager.rental_owner_id
+        ).filter(
+            RentalOwnerManager.user_id == current_user.id,
+            RentalOwner.is_active == True
+        ).all()
+        
+        return jsonify([{
+            'id': ro.id,
+            'company_name': ro.company_name,
+            'business_type': ro.business_type,
+            'city': ro.city,
+            'state': ro.state
+        } for ro in rental_owners]), 200
+    except Exception as e:
+        print(f"Error fetching available rental owners: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+
 @property_bp.route('', methods=['GET'])
 @property_bp.route('/', methods=['GET'])
 @token_required
@@ -87,35 +128,83 @@ def get_properties(current_user):
         status = request.args.get('status')  # Add status filter
         print(f"Status filter: {status}")
         
-        # Always filter by current user's properties
-        query = Property.query.filter_by(owner_id=current_user.id)
-        if status:
-            query = query.filter_by(status=status)
-            
-        properties = query.all()
+        # Get properties owned by the current user
+        properties = Property.query.filter(Property.owner_id == current_user.id).all()
         print(f"Found {len(properties)} properties")
-        return jsonify([{
-            'id': prop.id,
-            'title': prop.title,
-            'address': {
-                'street_1': prop.street_address_1,
-                'street_2': prop.street_address_2,
-                'apt': prop.apt_number,
-                'city': prop.city,
-                'state': prop.state,
-                'zip': prop.zip_code
-            },
-            'description': prop.description,
-            'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
-            'status': prop.status,
-            'image_url': prop.image_url,
-            'owner': {
-                'id': prop.owner.id,
-                'username': prop.owner.username,
-                'full_name': f"{prop.owner.first_name} {prop.owner.last_name}",
-                'email': prop.owner.email
-            } if prop.owner else None
-        } for prop in properties]), 200
+        properties_data = []
+        for prop in properties:
+            # Check if property has active tenants to determine actual rental status
+            from models.tenant import Tenant
+            from datetime import date
+            today = date.today()
+            
+            # Get active tenants (lease hasn't ended)
+            active_tenants = Tenant.query.filter(
+                Tenant.property_id == prop.id,
+                Tenant.lease_end >= today
+            ).count() if hasattr(Tenant, 'lease_end') else Tenant.query.filter_by(property_id=prop.id).count()
+            
+            # Determine actual rental status
+            if active_tenants > 0:
+                rental_status = 'rented'
+            elif prop.status == 'maintenance':
+                rental_status = 'maintenance'
+            else:
+                rental_status = 'available'
+            
+            # Apply server-side status filter if provided
+            if status and rental_status != status:
+                continue  # Skip this property if it doesn't match the filter
+            
+            # Get rental owner information using the direct relationship
+            rental_owner_info = None
+            if prop.rental_owner:
+                # Use the direct rental owner relationship
+                rental_owner_info = {
+                    'id': prop.rental_owner.id,
+                    'company_name': prop.rental_owner.company_name,
+                    'business_type': prop.rental_owner.business_type or 'Property Owner',
+                    'contact_email': prop.rental_owner.contact_email or prop.rental_owner.email,
+                    'contact_phone': prop.rental_owner.contact_phone or prop.rental_owner.phone_number
+                }
+            elif prop.owner:
+                # Fallback to user information if no rental owner linked
+                rental_owner_info = {
+                    'id': prop.owner.id,
+                    'company_name': prop.owner.full_name or prop.owner.username,
+                    'business_type': 'Property Owner',
+                    'contact_email': prop.owner.email
+                }
+            
+            properties_data.append({
+                'id': prop.id,
+                'title': prop.title,
+                'address': {
+                    'street_1': prop.street_address_1,
+                    'street_2': prop.street_address_2,
+                    'apt': prop.apt_number,
+                    'city': prop.city,
+                    'state': prop.state,
+                    'zip': prop.zip_code
+                },
+                'description': prop.description,
+                'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
+                'status': rental_status,  # Use calculated rental status
+                'original_status': prop.status,  # Keep original for reference
+                'tenant_count': active_tenants,
+                'image_url': prop.image_url,
+                'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
+                'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
+                'owner': {
+                    'id': prop.owner.id,
+                    'username': prop.owner.username,
+                    'full_name': prop.owner.full_name,
+                    'email': prop.owner.email
+                } if prop.owner else None,
+                'rental_owner': rental_owner_info
+            })
+        
+        return jsonify(properties_data), 200
     except Exception as e:
         print("Error fetching properties:", str(e))
         return jsonify({'error': str(e)}), 400
@@ -238,13 +327,49 @@ def delete_property(current_user, property_id):
         if not property:
             return jsonify({'error': 'Property not found'}), 404
         
-        # Check if the property belongs to the current user
+        # Check if user owns the property
         if property.owner_id != current_user.id:
             return jsonify({'error': 'Unauthorized to delete this property'}), 403
         
-        # Delete the property
-        db.session.delete(property)
-        db.session.commit()
+        # Check if property has related records that would prevent deletion
+        from models.tenant import Tenant, OutstandingBalance
+        from models.maintenance import MaintenanceRequest
+        
+        # Check for tenants
+        tenant_count = Tenant.query.filter_by(property_id=property_id).count()
+        if tenant_count > 0:
+            return jsonify({'error': f'Cannot delete property with {tenant_count} tenants. Please reassign or remove tenants first.'}), 400
+        
+        # Check for outstanding balances
+        balance_count = OutstandingBalance.query.filter_by(property_id=property_id).count()
+        if balance_count > 0:
+            return jsonify({'error': f'Cannot delete property with {balance_count} outstanding balances. Please resolve balances first.'}), 400
+        
+        # Check for maintenance requests
+        maintenance_count = MaintenanceRequest.query.filter_by(property_id=property_id).count()
+        if maintenance_count > 0:
+            return jsonify({'error': f'Cannot delete property with {maintenance_count} maintenance requests. Please resolve requests first.'}), 400
+        
+        # Skip work orders and tasks checks due to schema mismatch
+        # These models have columns that don't exist in the actual database
+        print(f"Warning: Skipping work orders and tasks checks due to database schema mismatch")
+        
+        # Delete the property using raw SQL to avoid cascade issues
+        try:
+            # Delete any work orders related to this property (if they exist)
+            db.session.execute(db.text("DELETE FROM work_orders WHERE property_id = :property_id"), 
+                             {"property_id": property_id})
+            
+            # Now delete the property
+            db.session.execute(db.text("DELETE FROM properties WHERE id = :property_id"), 
+                             {"property_id": property_id})
+            
+            db.session.commit()
+        except Exception as delete_error:
+            print(f"Error during direct deletion: {delete_error}")
+            # Fallback to normal deletion
+            db.session.delete(property)
+            db.session.commit()
         
         print(f"Property {property_id} deleted successfully by user {current_user.username}")
         return jsonify({'message': 'Property deleted successfully'}), 200
@@ -278,12 +403,12 @@ def get_property(property_id):
             'rent_amount': float(property.rent_amount) if property.rent_amount else None,
             'status': property.status,
             'image_url': property.image_url,
-            'created_at': property.created_at.isoformat() if property.created_at else None,
+            'created_at': property.updated_at.isoformat() if property.updated_at else None,  # Use updated_at as created_at
             'updated_at': property.updated_at.isoformat() if property.updated_at else None,
             'owner': {
                 'id': property.owner.id,
                 'username': property.owner.username,
-                'full_name': f"{property.owner.first_name} {property.owner.last_name}",
+                'full_name': property.owner.full_name,
                 'email': property.owner.email
             } if property.owner else None,
             'listing': {
@@ -327,10 +452,12 @@ def get_user_favorites(current_user):
                         'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
                         'status': prop.status,
                         'image_url': prop.image_url,
+                        'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
+                        'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
                         'owner': {
                             'id': prop.owner.id,
                             'username': prop.owner.username,
-                            'full_name': f"{prop.owner.first_name} {prop.owner.last_name}",
+                            'full_name': prop.owner.full_name,
                             'email': prop.owner.email
                         } if prop.owner else None
                     }

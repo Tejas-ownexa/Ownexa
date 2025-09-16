@@ -8,11 +8,16 @@ from routes.listing_routes import listing_bp
 from routes.association_routes import association_bp
 from routes.financial_routes import financial_bp
 from routes.vendor_routes import vendor_bp
+from routes.work_order_routes import work_order_bp
 from routes.chatbot_routes import chatbot_bp
 from routes.admin_bot_routes import admin_bot_bp
 from routes.rental_routes import rental_bp
 from routes.reporting_routes import reporting_bp
 from routes.accountability_routes import accountability_bp
+
+from routes.rental_owner_routes import rental_owner_bp
+from routes.leasing_routes import leasing_bp
+from routes.dashboard_routes import dashboard_bp
 
 def init_routes(app):
     print("Initializing routes...")
@@ -31,7 +36,13 @@ def init_routes(app):
                 'associations': '/api/associations',
                 'rentals': '/api/rentals',
                 'accountability': '/api/accountability',
-                'chatbot': '/api/chatbot'
+                'chatbot': '/api/chatbot',
+                'vendors': '/api/vendors',
+                'work_orders': '/api/work-orders',
+                'leasing': '/api/leasing',
+                'rental_owners': '/api/rental-owners',
+                'dashboard': '/api/dashboard',
+                'reports': '/api/reports'
             }
         })
     
@@ -70,6 +81,10 @@ def init_routes(app):
     app.register_blueprint(vendor_bp, url_prefix='/api/vendors')
     print("Vendor routes registered")
     
+    # Work Order routes
+    app.register_blueprint(work_order_bp, url_prefix='/api/work-orders')
+    print("Work Order routes registered")
+    
     # Chatbot routes
     app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
     print("Chatbot routes registered")
@@ -89,6 +104,19 @@ def init_routes(app):
     # Accountability routes
     app.register_blueprint(accountability_bp, url_prefix='/api/accountability')
     print("Accountability routes registered")
+    
+
+    
+    # Rental owner routes
+    app.register_blueprint(rental_owner_bp, url_prefix='/api/rental-owners')
+    print("Rental owner routes registered")
+    
+    # Leasing routes
+    app.register_blueprint(leasing_bp, url_prefix='/api/leasing')
+    print("Leasing routes registered")
+    
+    app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
+    print("Dashboard routes registered")
     
     print("All routes registered successfully")
     

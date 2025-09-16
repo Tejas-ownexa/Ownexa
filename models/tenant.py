@@ -16,6 +16,7 @@ class Tenant(BaseModel):
     lease_start = db.Column(db.Date)
     lease_end = db.Column(db.Date)
     rent_amount = db.Column(db.Numeric(10, 2))
+    rent_payment_day = db.Column(db.Integer, default=1)  # Day of month when rent is due (1-31)
     payment_status = db.Column(db.String(50))
     
     # Relationships
@@ -24,7 +25,7 @@ class Tenant(BaseModel):
     maintenance_requests = db.relationship('MaintenanceRequest', back_populates='tenant')
     outstanding_balances = db.relationship('OutstandingBalance', back_populates='tenant')
     draft_leases = db.relationship('DraftLease', back_populates='tenant')
-    lease_renewals = db.relationship('LeaseRenewal', back_populates='tenant')
+
     association_memberships = db.relationship('AssociationMembership', back_populates='tenant')
 
 class RentRoll(BaseModel):
@@ -79,14 +80,16 @@ class LeaseRenewal(BaseModel):
     __tablename__ = 'lease_renewals'
     
     id = db.Column(db.Integer, primary_key=True)
-    tenant_id = db.Column(db.Integer, db.ForeignKey('tenants.id'))
-    property_id = db.Column(db.Integer, db.ForeignKey('properties.id'))
-    old_end_date = db.Column(db.Date)
-    new_end_date = db.Column(db.Date)
-    rent_change = db.Column(db.Numeric(10, 2))
-    status = db.Column(db.String(50))
-    requested_at = db.Column(db.DateTime)
+    original_lease_id = db.Column(db.Integer, db.ForeignKey('lease_agreements.id', ondelete='CASCADE'))
+    new_lease_id = db.Column(db.Integer, db.ForeignKey('lease_agreements.id', ondelete='CASCADE'))
+    renewal_date = db.Column(db.Date, nullable=False)
+    rent_change_amount = db.Column(db.Numeric(10, 2), default=0.00)
+    rent_change_percentage = db.Column(db.Numeric(5, 2), default=0.00)
+    renewal_terms = db.Column(db.Text)
+    status = db.Column(db.String(50), nullable=False, default='Pending')
+    approved_by_tenant = db.Column(db.Boolean, default=False)
+    approved_by_owner = db.Column(db.Boolean, default=False)
     
     # Relationships
-    tenant = db.relationship('Tenant', back_populates='lease_renewals')
-    property = db.relationship('Property')
+    original_lease = db.relationship('LeaseAgreement', foreign_keys=[original_lease_id])
+    new_lease = db.relationship('LeaseAgreement', foreign_keys=[new_lease_id])

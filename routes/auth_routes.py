@@ -43,10 +43,14 @@ def register():
             print("Form data received:", data)
         
         # Validate required fields
-        required_fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role']
+        required_fields = ['username', 'email', 'password', 'role']
         for field in required_fields:
             if not data.get(field):
                 return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Validate full_name field
+        if not data.get('full_name'):
+            return jsonify({'error': 'Missing required field: full_name'}), 400
         
         # Check if username or email already exists
         existing_user = User.query.filter(
@@ -64,8 +68,7 @@ def register():
             username=data['username'],
             email=data['email'],
             password=hashed_password,
-            first_name=data['first_name'],
-            last_name=data['last_name'],
+            full_name=data['full_name'],
             phone_number=data.get('phone_number', ''),
             street_address_1=data.get('street_address_1', ''),
             street_address_2=data.get('street_address_2', ''),
@@ -89,7 +92,7 @@ def register():
             vendor = Vendor(
                 user_id=user.id,
                 vendor_type=data['vendor_type'],
-                business_name=data.get('business_name', f"{data['first_name']} {data['last_name']} Services"),
+                business_name=data.get('business_name', f"{data['full_name']} Services"),
                 phone_number=data.get('phone_number', ''),
                 email=data['email'],
                 address=f"{data.get('street_address_1', '')}, {data.get('city', '')}, {data.get('state', '')} {data.get('zip_code', '')}",
@@ -176,8 +179,7 @@ def login():
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
-                'first_name': user.first_name,
-                'last_name': user.last_name,
+                            'full_name': user.full_name,
                 'role': user.role,
                 'email_verified': user.email_verified
             }
@@ -195,8 +197,7 @@ def get_current_user(current_user):
         'id': current_user.id,
         'username': current_user.username,
         'email': current_user.email,
-        'first_name': current_user.first_name,
-        'last_name': current_user.last_name,
+                    'full_name': current_user.full_name,
         'phone_number': current_user.phone_number,
         'role': current_user.role,
         'street_address_1': current_user.street_address_1,

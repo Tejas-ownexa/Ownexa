@@ -11,6 +11,7 @@ class Association(BaseModel):
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     zip_code = db.Column(db.String(20))
+    manager = db.Column(db.String(255))
     
     # Relationships
     memberships = db.relationship('AssociationMembership', back_populates='association')

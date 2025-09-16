@@ -24,7 +24,11 @@ import {
   ChevronUp,
   Receipt,
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  ClipboardList,
+  RefreshCw,
+  Building2,
+  AlertOctagon
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -34,6 +38,9 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [rentalsExpanded, setRentalsExpanded] = useState(false);
+  const [leasingExpanded, setLeasingExpanded] = useState(false);
+  const [associationsExpanded, setAssociationsExpanded] = useState(false);
+  const [maintenanceExpanded, setMaintenanceExpanded] = useState(false);
 
   const getNavItems = () => {
     if (!user) return [];
@@ -54,6 +61,21 @@ const Sidebar = () => {
     return [
       { name: 'Dashboard', href: '/dashboard', icon: Home },
       {
+        name: 'Associations',
+        icon: Building2,
+        isExpandable: true,
+        isExpanded: associationsExpanded,
+        toggle: () => setAssociationsExpanded(!associationsExpanded),
+        subItems: [
+          { name: 'Associations', href: '/associations', icon: Building2 },
+          { name: 'Ownership accounts', href: '/associations/ownership-accounts', icon: CreditCard },
+          { name: 'Association owners and tenants', href: '/associations/owners-tenants', icon: Users },
+          { name: 'Outstanding balances', href: '/associations/outstanding-balances', icon: AlertTriangle },
+          { name: 'Violations', href: '/associations/violations', icon: AlertOctagon },
+          { name: 'Architectural requests', href: '/associations/architectural-requests', icon: FileText }
+        ]
+      },
+      {
         name: 'Rentals',
         icon: Calendar,
         isExpandable: true,
@@ -61,13 +83,36 @@ const Sidebar = () => {
         toggle: () => setRentalsExpanded(!rentalsExpanded),
         subItems: [
           { name: 'Properties', href: '/rentals?tab=properties', icon: Building },
-          { name: 'Rentroll', href: '/rentals?tab=payments', icon: Receipt },
-          { name: 'Rental Owners', href: '/rentals?tab=leases', icon: UserCheck },
+          { name: 'Rentroll', href: '/rent-roll', icon: Receipt },
+          { name: 'Rental Owners', href: '/rental-owners', icon: UserCheck },
           { name: 'Tenants', href: '/tenants', icon: Users },
-          { name: 'Outstanding Balance', href: '/rentals?tab=balances', icon: AlertTriangle }
+          { name: 'Outstanding Balance', href: '/outstanding-balances', icon: AlertTriangle }
         ]
       },
-      { name: 'Maintenance', href: '/maintenance', icon: Wrench },
+      {
+        name: 'Leasing',
+        icon: ClipboardList,
+        isExpandable: true,
+        isExpanded: leasingExpanded,
+        toggle: () => setLeasingExpanded(!leasingExpanded),
+        subItems: [
+          { name: 'Listing', href: '/leasing?tab=listing', icon: Building },
+          { name: 'Applicants', href: '/leasing?tab=applicants', icon: Users },
+          { name: 'Draft Lease', href: '/leasing?tab=draft-lease', icon: FileText },
+          { name: 'Lease Renewals', href: '/leasing?tab=lease-renewals', icon: RefreshCw }
+        ]
+      },
+      {
+        name: 'Maintenance',
+        icon: Wrench,
+        isExpandable: true,
+        isExpanded: maintenanceExpanded,
+        toggle: () => setMaintenanceExpanded(!maintenanceExpanded),
+        subItems: [
+          { name: 'Vendors', href: '/maintenance/vendors', icon: Users },
+          { name: 'Work Orders', href: '/maintenance/work-orders', icon: ClipboardList }
+        ]
+      },
       { name: 'Accountability', href: '/accountability', icon: BookOpen },
       { name: 'Reports', href: '/reports', icon: FileText },
     ];
@@ -87,23 +132,25 @@ const Sidebar = () => {
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className={`bg-white shadow-lg h-screen fixed left-0 top-0 z-50 transition-all duration-300 hidden md:block ${
+      <div className={`glass-card h-screen fixed left-0 top-0 z-50 transition-all duration-500 hidden md:flex md:flex-col ${
         isCollapsed ? 'w-16' : 'w-64'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200/50 flex-shrink-0">
           {!isCollapsed && (
             <Link 
               to={user?.role === 'VENDOR' ? '/maintenance' : '/dashboard'} 
-              className="flex items-center"
+              className="flex items-center group"
             >
-              <Home className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Real Estate</span>
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
+                <Home className="h-6 w-6 text-white" />
+              </div>
+              <span className="ml-3 text-xl font-bold text-gradient">Real Estate</span>
             </Link>
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg hover:bg-gray-100/50 transition-all duration-300 hover:scale-110 hover:shadow-md"
           >
             {isCollapsed ? (
               <ChevronRight className="h-5 w-5 text-gray-600" />
@@ -114,7 +161,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation Items */}
-        <nav className="mt-4">
+        <nav className="mt-4 flex-1 overflow-y-auto pb-32">
           <div className="px-2 space-y-1">
             {navItems.map((item) => {
               if (item.isExpandable) {
@@ -130,10 +177,10 @@ const Sidebar = () => {
                   <div key={item.name}>
                     <button
                       onClick={item.toggle}
-                      className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                      className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
                         isActive
-                          ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                          ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
+                          : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
                       }`}
                       title={isCollapsed ? item.name : ''}
                     >
@@ -185,10 +232,10 @@ const Sidebar = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
+                    className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
                       isActive
-                        ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                        ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
+                        : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
                     }`}
                     title={isCollapsed ? item.name : ''}
                   >
@@ -204,7 +251,7 @@ const Sidebar = () => {
         </nav>
 
         {/* User Section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 flex-shrink-0">
           {!isCollapsed && (
             <div className="mb-3">
               <div className="flex items-center text-sm text-gray-700">
@@ -233,15 +280,15 @@ const Sidebar = () => {
       </div>
 
       {/* Mobile Menu Button */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      <div className="md:hidden fixed top-2 left-2 z-50">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-2 bg-white rounded-md shadow-lg"
+          className="p-2 bg-white rounded-md shadow-lg border border-gray-200"
         >
           {isMobileOpen ? (
-            <X className="h-6 w-6 text-gray-600" />
+            <X className="h-5 w-5 text-gray-600" />
           ) : (
-            <Menu className="h-6 w-6 text-gray-600" />
+            <Menu className="h-5 w-5 text-gray-600" />
           )}
         </button>
       </div>
@@ -251,9 +298,9 @@ const Sidebar = () => {
         isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileOpen(false)} />
-        <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300">
+        <div className="absolute left-0 top-0 h-full w-80 sm:w-64 bg-white shadow-lg transform transition-transform duration-300 flex flex-col">
           {/* Mobile Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
             <Link 
               to={user?.role === 'VENDOR' ? '/maintenance' : '/dashboard'} 
               className="flex items-center"
@@ -265,7 +312,7 @@ const Sidebar = () => {
           </div>
 
           {/* Mobile Navigation Items */}
-          <nav className="mt-4">
+          <nav className="mt-4 flex-1 overflow-y-auto pb-32">
             <div className="px-2 space-y-1">
               {navItems.map((item) => {
                 if (item.isExpandable) {
@@ -349,7 +396,7 @@ const Sidebar = () => {
           </nav>
 
           {/* Mobile User Section */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 flex-shrink-0">
             <div className="mb-3">
               <div className="flex items-center text-sm text-gray-700">
                 <User className="h-4 w-4 mr-2" />

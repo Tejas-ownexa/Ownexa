@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from 'react-query';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
-import { Upload, X, Calculator, DollarSign, Home, CreditCard } from 'lucide-react';
+import { Upload, X, Calculator, DollarSign, Home, CreditCard, Building2 } from 'lucide-react';
+import rentalOwnerService from '../services/rentalOwnerService';
 
 const AddProperty = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +14,17 @@ const AddProperty = () => {
   const [showFinancialDetails, setShowFinancialDetails] = useState(false);
   const [calculatedPayment, setCalculatedPayment] = useState(null);
   const navigate = useNavigate();
+
+  // Fetch rental owners for dropdown
+  const { data: rentalOwners = [], isLoading: ownersLoading } = useQuery(
+    ['rental-owners'],
+    () => rentalOwnerService.getRentalOwners(),
+    {
+      onError: (error) => {
+        console.error('Error fetching rental owners:', error);
+      }
+    }
+  );
 
   const {
     register,
@@ -82,6 +95,7 @@ const AddProperty = () => {
           formData.append(key, data[key]);
         }
       });
+      
       
       // Add image if selected
       if (selectedImage) {
@@ -190,6 +204,30 @@ const AddProperty = () => {
               </select>
               {errors.status && (
                 <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Building2 className="h-4 w-4 inline mr-1" />
+                Rental Owner *
+              </label>
+              <select
+                {...register('owner_id', { required: 'Rental owner is required' })}
+                className="input-field"
+                disabled={ownersLoading}
+              >
+                <option value="">
+                  {ownersLoading ? 'Loading rental owners...' : 'Select rental owner'}
+                </option>
+                {rentalOwners.map((owner) => (
+                  <option key={owner.id} value={owner.id}>
+                    {owner.company_name} {owner.contact_email && `(${owner.contact_email})`}
+                  </option>
+                ))}
+              </select>
+              {errors.owner_id && (
+                <p className="mt-1 text-sm text-red-600">{errors.owner_id.message}</p>
               )}
             </div>
 
