@@ -27,7 +27,14 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from '../../utils/axios';
-import { RevenueExpenseTrendChart, ExpenseBreakdownChart } from '../../components/charts/AccountabilityCharts';
+import { 
+  MortgagePaymentBreakdownChart, 
+  MonthlyExpenseBreakdownChart, 
+  PropertyValueEquityChart, 
+  MonthlyCashFlowChart, 
+  ROIAnalysisChart, 
+  PropertyPerformanceTimelineChart 
+} from '../../components/charts/PropertyFinancialCharts';
 
 const AccountabilityFinancials = () => {
   const { user } = useAuth();
@@ -369,18 +376,105 @@ const AccountabilityFinancials = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue & Expense Trend</h3>
-          <div className="h-64">
-            <RevenueExpenseTrendChart data={chartData.revenueExpense} />
+
+      {/* Property Financial Analysis Section */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Property Financial Analysis</h3>
+          <p className="text-sm text-gray-600">Detailed financial breakdown and performance metrics for individual properties</p>
+        </div>
+        
+        {/* Sample Property Financial Data */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h4 className="text-base font-semibold text-gray-900 mb-4">Mortgage Payment Breakdown</h4>
+            <div className="h-64">
+              <MortgagePaymentBreakdownChart 
+                data={{
+                  monthlyPayment: 1896.20,
+                  apr: 6.50,
+                  loanTerm: 30,
+                  loanAmount: 300000
+                }} 
+              />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h4 className="text-base font-semibold text-gray-900 mb-4">Monthly Expense Breakdown</h4>
+            <div className="h-64">
+              <MonthlyExpenseBreakdownChart 
+                data={{
+                  monthlyPayment: 1896.20,
+                  annualTaxes: 6000.00,
+                  annualInsurance: 1800.00,
+                  hoaFees: 100.00
+                }} 
+              />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h4 className="text-base font-semibold text-gray-900 mb-4">Property Value & Equity</h4>
+            <div className="h-64">
+              <PropertyValueEquityChart 
+                data={{
+                  totalValue: 430000.00,
+                  purchasePrice: 430000.00,
+                  downPayment: 130000.00
+                }} 
+              />
+            </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
-          <div className="h-64">
-            <ExpenseBreakdownChart data={chartData.expenseBreakdown} />
+        
+        {/* Second Row of Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h4 className="text-base font-semibold text-gray-900 mb-4">Monthly Cash Flow Analysis</h4>
+            <div className="h-64">
+              <MonthlyCashFlowChart 
+                data={{
+                  monthlyRent: 2500.00,
+                  monthlyPayment: 1896.20,
+                  annualTaxes: 6000.00,
+                  annualInsurance: 1800.00,
+                  hoaFees: 100.00
+                }} 
+              />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h4 className="text-base font-semibold text-gray-900 mb-4">ROI Analysis</h4>
+            <div className="h-64">
+              <ROIAnalysisChart 
+                data={{
+                  monthlyRent: 2500.00,
+                  downPayment: 130000.00,
+                  totalValue: 430000.00,
+                  annualTaxes: 6000.00,
+                  annualInsurance: 1800.00,
+                  hoaFees: 100.00,
+                  monthlyPayment: 1896.20
+                }} 
+              />
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h4 className="text-base font-semibold text-gray-900 mb-4">12-Month Performance</h4>
+            <div className="h-64">
+              <PropertyPerformanceTimelineChart 
+                data={{
+                  monthlyRent: 2500.00,
+                  monthlyPayment: 1896.20,
+                  annualTaxes: 6000.00,
+                  annualInsurance: 1800.00,
+                  hoaFees: 100.00
+                }} 
+              />
+            </div>
           </div>
         </div>
       </div>
