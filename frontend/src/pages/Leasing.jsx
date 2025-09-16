@@ -10,6 +10,7 @@ import NotesModal from '../components/NotesModal';
 import leasingService from '../services/leasingService';
 import leaseRenewalService from '../services/leaseRenewalService';
 import rentalOwnerService from '../services/rentalOwnerService';
+import api from '../utils/axios';
 import { 
   Plus,
   ClipboardList,
@@ -1734,8 +1735,22 @@ const LeasingTab = () => {
 
 // Listed Units Tab Component
 const ListedUnitsTab = () => {
-  // Sample data for listed units (replace with real data later)
-  const listedUnits = [];
+  // Fetch available properties (status = 'available')
+  const { data: availableProperties = [], isLoading: propertiesLoading, refetch: refetchProperties } = useQuery(
+    ['properties', 'available'],
+    async () => {
+      const response = await api.get('/api/properties', {
+        params: { status: 'available' }
+      });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        console.error('Error fetching available properties:', error);
+        toast.error('Failed to load available properties');
+      }
+    }
+  );
 
   return (
     <div className="space-y-6">
@@ -1743,26 +1758,26 @@ const ListedUnitsTab = () => {
       <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
         <button 
           onClick={() => {
-            // Export listed units functionality
-            const csvHeaders = ['Listed', 'Available', 'Unit', 'Beds', 'Baths', 'Size', 'Listing Rent'];
-            const csvData = listedUnits.length > 0 
-              ? listedUnits.map(unit => [
-                  unit.listed || 'N/A',
-                  unit.available || 'N/A', 
-                  unit.unit || 'N/A',
-                  unit.beds || 'N/A',
-                  unit.baths || 'N/A',
-                  unit.size || 'N/A',
-                  unit.listingRent || 'N/A'
+            // Export available properties functionality
+            const csvHeaders = ['Property Title', 'Address', 'City', 'State', 'Rent Amount', 'Status', 'Listed Date'];
+            const csvData = availableProperties.length > 0 
+              ? availableProperties.map(property => [
+                  property.title || 'N/A',
+                  property.address?.street_1 || 'N/A', 
+                  property.address?.city || 'N/A',
+                  property.address?.state || 'N/A',
+                  property.rent_amount || 'N/A',
+                  property.status || 'N/A',
+                  property.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A'
                 ])
-              : [['No listed units available']];
+              : [['No available properties']];
             
             const csvContent = [csvHeaders, ...csvData].map(row => row.join(',')).join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', `listed_units_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute('download', `available_properties_${new Date().toISOString().split('T')[0]}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -1782,52 +1797,79 @@ const ListedUnitsTab = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Listed
+                  Property Title
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Available
+                  Address
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit
+                  City
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Beds
+                  State
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Baths
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                  Size
+                  Rent Amount
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Listing Rent
+                  Status
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Listed Date
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {listedUnits.length > 0 ? (
-                listedUnits.map((unit) => (
-                  <tr key={unit.id} className="hover:bg-gray-50">
+              {propertiesLoading ? (
+                <tr>
+                  <td colSpan="7" className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
+                    <div className="flex items-center justify-center py-8">
+                      <RefreshCw className="h-6 w-6 animate-spin text-blue-600 mr-2" />
+                      <span>Loading available properties...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : availableProperties.length > 0 ? (
+                availableProperties.map((property) => (
+                  <tr key={property.id} className="hover:bg-gray-50">
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.listed}
+                      <div className="flex items-center">
+                        {property.image_url ? (
+                          <img
+                            className="h-8 w-8 rounded-lg object-cover mr-3"
+                            src={`http://localhost:5002/uploads/${property.image_url}`}
+                            alt={property.title}
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
+                            <Home className="h-4 w-4 text-gray-400" />
+                          </div>
+                        )}
+                        <span className="font-medium">{property.title}</span>
+                      </div>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.available}
+                      {property.address?.street_1 || 'N/A'}
+                      {property.address?.apt && `, Apt ${property.address.apt}`}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.unit}
+                      {property.address?.city || 'N/A'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.beds}
+                      {property.address?.state || 'N/A'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.baths}
+                      <span className="font-medium text-green-600">
+                        ${property.rent_amount ? parseFloat(property.rent_amount).toLocaleString() : '0'}
+                      </span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden sm:table-cell">
-                      {unit.size}
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Available
+                      </span>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.listingRent}
+                      {property.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
                 ))
@@ -1837,9 +1879,9 @@ const ListedUnitsTab = () => {
                     <div className="text-gray-400 mb-4">
                       <Building className="h-16 w-16 mx-auto" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No listed units found</h3>
-                    <p className="text-gray-600 mb-6">Get started by adding your first property listing</p>
-                    <p className="text-sm text-gray-500">Use the Export button above to download an empty template or add listings through the properties section.</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No available properties</h3>
+                    <p className="text-gray-600 mb-6">All your properties are currently occupied or under maintenance.</p>
+                    <p className="text-sm text-gray-500">Add new properties through the Properties section to see them listed here.</p>
                   </td>
                 </tr>
               )}
@@ -1853,8 +1895,22 @@ const ListedUnitsTab = () => {
 
 // Unlisted Units Tab Component
 const UnlistedUnitsTab = () => {
-  // Sample data for unlisted units (replace with real data later)
-  const unlistedUnits = [];
+  // Fetch occupied properties (status = 'rented')
+  const { data: occupiedProperties = [], isLoading: occupiedLoading, refetch: refetchOccupied } = useQuery(
+    ['properties', 'rented'],
+    async () => {
+      const response = await api.get('/api/properties', {
+        params: { status: 'rented' }
+      });
+      return response.data;
+    },
+    {
+      onError: (error) => {
+        console.error('Error fetching occupied properties:', error);
+        toast.error('Failed to load occupied properties');
+      }
+    }
+  );
 
   return (
     <div className="space-y-6">
@@ -1862,24 +1918,26 @@ const UnlistedUnitsTab = () => {
       <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
         <button 
           onClick={() => {
-            // Export unlisted units functionality
-            const csvHeaders = ['Status', 'Lease End', 'Next Lease', 'Unit', 'Tenants'];
-            const csvData = unlistedUnits.length > 0 
-              ? unlistedUnits.map(unit => [
-                  unit.status || 'N/A',
-                  unit.leaseEnd || 'N/A', 
-                  unit.nextLease || 'N/A',
-                  unit.unit || 'N/A',
-                  unit.tenants || 'N/A'
+            // Export rented properties functionality
+            const csvHeaders = ['Property Title', 'Address', 'City', 'State', 'Rent Amount', 'Status', 'Rented Date'];
+            const csvData = occupiedProperties.length > 0 
+              ? occupiedProperties.map(property => [
+                  property.title || 'N/A',
+                  property.address?.street_1 || 'N/A', 
+                  property.address?.city || 'N/A',
+                  property.address?.state || 'N/A',
+                  property.rent_amount || 'N/A',
+                  'Rented',
+                  property.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'
                 ])
-              : [['No unlisted units available']];
+              : [['No rented properties']];
             
             const csvContent = [csvHeaders, ...csvData].map(row => row.join(',')).join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', `unlisted_units_${new Date().toISOString().split('T')[0]}.csv`);
+            link.setAttribute('download', `rented_properties_${new Date().toISOString().split('T')[0]}.csv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -1899,52 +1957,91 @@ const UnlistedUnitsTab = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Property Title
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Address
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  City
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  State
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Rent Amount
+                </th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Lease End
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Next Lease
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Unit
-                </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tenants
+                  Rented Date
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {unlistedUnits.length > 0 ? (
-                unlistedUnits.map((unit) => (
-                  <tr key={unit.id} className="hover:bg-gray-50">
+              {occupiedLoading ? (
+                <tr>
+                  <td colSpan="7" className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
+                    <div className="flex items-center justify-center py-8">
+                      <RefreshCw className="h-6 w-6 animate-spin text-blue-600 mr-2" />
+                      <span>Loading occupied properties...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : occupiedProperties.length > 0 ? (
+                occupiedProperties.map((property) => (
+                  <tr key={property.id} className="hover:bg-gray-50">
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.status}
+                      <div className="flex items-center">
+                        {property.image_url ? (
+                          <img
+                            className="h-8 w-8 rounded-lg object-cover mr-3"
+                            src={`http://localhost:5002/uploads/${property.image_url}`}
+                            alt={property.title}
+                          />
+                        ) : (
+                          <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
+                            <Home className="h-4 w-4 text-gray-400" />
+                          </div>
+                        )}
+                        <span className="font-medium">{property.title}</span>
+                      </div>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.leaseEnd}
+                      {property.address?.street_1 || 'N/A'}
+                      {property.address?.apt && `, Apt ${property.address.apt}`}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.nextLease}
+                      {property.address?.city || 'N/A'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.unit}
+                      {property.address?.state || 'N/A'}
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {unit.tenants}
+                      <span className="font-medium text-blue-600">
+                        ${property.rent_amount ? parseFloat(property.rent_amount).toLocaleString() : '0'}
+                      </span>
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Rented
+                      </span>
+                    </td>
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {property.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-3 sm:px-6 py-12 text-center">
+                  <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
                     <div className="text-gray-400 mb-4">
                       <Building className="h-16 w-16 mx-auto" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No unlisted units found</h3>
-                    <p className="text-gray-600 mb-6">All your properties are either listed or need to be added to the system</p>
-                    <p className="text-sm text-gray-500">Use the Export button above to download an empty template or manage units through the properties section.</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No rented properties</h3>
+                    <p className="text-gray-600 mb-6">All your properties are currently available for rent.</p>
+                    <p className="text-sm text-gray-500">Properties will appear here once they are rented to tenants.</p>
                   </td>
                 </tr>
               )}
