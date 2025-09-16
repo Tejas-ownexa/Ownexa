@@ -145,7 +145,7 @@ const Sidebar = () => {
               <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
                 <Home className="h-6 w-6 text-white" />
               </div>
-              <span className="ml-3 text-xl font-bold text-gradient">Real Estate</span>
+              <span className="ml-3 text-xl font-bold text-gradient">OWNEXA</span>
             </Link>
           )}
           <button
@@ -307,7 +307,7 @@ const Sidebar = () => {
               onClick={() => setIsMobileOpen(false)}
             >
               <Home className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">Real Estate</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">OWNEXA</span>
             </Link>
           </div>
 
