@@ -27,13 +27,13 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from '../../utils/axios';
-import { 
-  MortgagePaymentBreakdownChart, 
-  MonthlyExpenseBreakdownChart, 
-  PropertyValueEquityChart, 
-  MonthlyCashFlowChart, 
-  ROIAnalysisChart, 
-  PropertyPerformanceTimelineChart 
+// Charts
+import {
+  MonthlyCashFlowChart,
+  MonthlyExpenseBreakdownChart,
+  ROIAnalysisChart,
+  PropertyValueEquityChart,
+  MortgagePaymentBreakdownChart
 } from '../../components/charts/PropertyFinancialCharts';
 
 const AccountabilityFinancials = () => {
@@ -151,6 +151,13 @@ const AccountabilityFinancials = () => {
     fetchDashboardData();
     fetchFinancials();
   }, [filters]);
+
+  // Default selected property when data loads
+  useEffect(() => {
+    if (!selectedProperty && financialData && financialData.length > 0) {
+      setSelectedProperty(financialData[0].property.id);
+    }
+  }, [financialData, selectedProperty]);
 
   const fetchFinancials = async () => {
     try {
@@ -396,100 +403,87 @@ const AccountabilityFinancials = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Property Financial Analysis</h3>
           <p className="text-sm text-gray-600">Detailed financial breakdown and performance metrics for individual properties</p>
         </div>
-        
-        {/* Sample Property Financial Data */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="text-base font-semibold text-gray-900 mb-4">Mortgage Payment Breakdown</h4>
-            <div className="h-64">
-              <MortgagePaymentBreakdownChart 
-                data={{
-                  monthlyPayment: 1896.20,
-                  apr: 6.50,
-                  loanTerm: 30,
-                  loanAmount: 300000
-                }} 
-              />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="text-base font-semibold text-gray-900 mb-4">Monthly Expense Breakdown</h4>
-            <div className="h-64">
-              <MonthlyExpenseBreakdownChart 
-                data={{
-                  monthlyPayment: 1896.20,
-                  annualTaxes: 6000.00,
-                  annualInsurance: 1800.00,
-                  hoaFees: 100.00
-                }} 
-              />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="text-base font-semibold text-gray-900 mb-4">Property Value & Equity</h4>
-            <div className="h-64">
-              <PropertyValueEquityChart 
-                data={{
-                  totalValue: 430000.00,
-                  purchasePrice: 430000.00,
-                  downPayment: 130000.00
-                }} 
-              />
-            </div>
-          </div>
+        {/* Property selector */}
+        <div className="mb-6 flex items-center gap-3">
+          <label className="text-sm text-gray-700">Select property</label>
+          <select
+            className="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            value={selectedProperty || ''}
+            onChange={(e) => setSelectedProperty(Number(e.target.value))}
+          >
+            {financialData?.map(d => (
+              <option key={d.property.id} value={d.property.id}>{d.property.title}</option>
+            ))}
+          </select>
         </div>
-        
-        {/* Second Row of Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="text-base font-semibold text-gray-900 mb-4">Monthly Cash Flow Analysis</h4>
-            <div className="h-64">
-              <MonthlyCashFlowChart 
-                data={{
-                  monthlyRent: 2500.00,
-                  monthlyPayment: 1896.20,
-                  annualTaxes: 6000.00,
-                  annualInsurance: 1800.00,
-                  hoaFees: 100.00
-                }} 
-              />
+
+        {/* Build chart-friendly data from the selected property */}
+        {(() => {
+          const record = financialData?.find(d => d.property.id === selectedProperty);
+          if (!record) {
+            return (
+              <div className="text-gray-500">No property selected.</div>
+            );
+          }
+
+          const monthlyRent = Number(record.property?.rent_amount) || 0;
+          const monthlyPayment = Number(record.financial?.monthly_loan_payment) || 0;
+          const annualTaxes = Number(record.financial?.property_tax_annual) || 0;
+          const annualInsurance = Number(record.financial?.insurance_annual) || 0;
+          const hoaFees = Number(record.financial?.hoa_fees_monthly) || 0;
+          const totalValue = Number(record.financial?.total_value) || 0;
+          const purchasePrice = Number(record.financial?.purchase_price) || 0;
+          const downPayment = Number(record.financial?.down_payment) || 0;
+          const loanTerm = Number(record.financial?.loan_term_years) || 0;
+          const apr = Number(record.financial?.current_apr) || 0;
+          const loanAmount = Math.max(purchasePrice - downPayment, 0);
+
+          const chartsData = {
+            common: {
+              monthlyRent,
+              monthlyPayment,
+              annualTaxes,
+              annualInsurance,
+              hoaFees,
+              totalValue,
+              purchasePrice,
+              downPayment,
+              loanAmount,
+              loanTerm,
+              apr
+            }
+          };
+
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="h-72 p-4 rounded-lg border">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Monthly Cash Flow</h4>
+                <MonthlyCashFlowChart data={chartsData.common} />
+              </div>
+              <div className="h-72 p-4 rounded-lg border">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Expense Breakdown</h4>
+                <MonthlyExpenseBreakdownChart data={chartsData.common} />
+              </div>
+              <div className="h-72 p-4 rounded-lg border">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">ROI & Profitability</h4>
+                <ROIAnalysisChart data={chartsData.common} />
+              </div>
+              <div className="h-72 p-4 rounded-lg border">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Property Value vs Equity</h4>
+                <PropertyValueEquityChart data={chartsData.common} />
+              </div>
+              <div className="h-72 p-4 rounded-lg border lg:col-span-2">
+                <h4 className="text-sm font-medium text-gray-900 mb-3">Mortgage Payment Breakdown</h4>
+                <MortgagePaymentBreakdownChart data={{
+                  monthlyPayment,
+                  apr,
+                  loanTerm,
+                  loanAmount
+                }} />
+              </div>
             </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="text-base font-semibold text-gray-900 mb-4">ROI Analysis</h4>
-            <div className="h-64">
-              <ROIAnalysisChart 
-                data={{
-                  monthlyRent: 2500.00,
-                  downPayment: 130000.00,
-                  totalValue: 430000.00,
-                  annualTaxes: 6000.00,
-                  annualInsurance: 1800.00,
-                  hoaFees: 100.00,
-                  monthlyPayment: 1896.20
-                }} 
-              />
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h4 className="text-base font-semibold text-gray-900 mb-4">12-Month Performance</h4>
-            <div className="h-64">
-              <PropertyPerformanceTimelineChart 
-                data={{
-                  monthlyRent: 2500.00,
-                  monthlyPayment: 1896.20,
-                  annualTaxes: 6000.00,
-                  annualInsurance: 1800.00,
-                  hoaFees: 100.00
-                }} 
-              />
-            </div>
-          </div>
-        </div>
+          );
+        })()}
       </div>
 
       {/* Ledger Table */}
