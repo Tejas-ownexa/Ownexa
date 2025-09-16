@@ -197,12 +197,27 @@ const AccountabilityFinancials = () => {
     return `${parseFloat(value).toFixed(2)}%`;
   };
 
+  // Derive monthly expenses deterministically when summary is missing
+  const getDerivedMonthlyExpenses = (record) => {
+    if (!record) return 0;
+    const fromSummary = Number(record.summary?.total_monthly_expenses) || 0;
+    if (fromSummary > 0) return fromSummary;
+
+    const monthlyLoan = Number(record.summary?.monthly_loan_payment || record.financial?.monthly_loan_payment) || 0;
+    const taxAnnual = Number(record.summary?.property_tax_annual || record.financial?.property_tax_annual) || 0;
+    const insuranceAnnual = Number(record.summary?.insurance_annual || record.financial?.insurance_annual) || 0;
+    const hoaMonthly = Number(record.summary?.hoa_fees_monthly || record.financial?.hoa_fees_monthly) || 0;
+
+    const monthlyTaxes = taxAnnual / 12;
+    const monthlyInsurance = insuranceAnnual / 12;
+    const total = monthlyLoan + monthlyTaxes + monthlyInsurance + hoaMonthly;
+    return Number.isFinite(total) ? total : 0;
+  };
+
   const calculateNetProfit = (propertyData) => {
     if (!propertyData) return 0;
-    
-    const monthlyRent = propertyData.property?.rent_amount || 0;
-    const monthlyExpenses = propertyData.summary?.total_monthly_expenses || 0;
-    
+    const monthlyRent = Number(propertyData.property?.rent_amount) || 0;
+    const monthlyExpenses = getDerivedMonthlyExpenses(propertyData);
     return monthlyRent - monthlyExpenses;
   };
 
@@ -219,9 +234,7 @@ const AccountabilityFinancials = () => {
 
   const getTotalExpenses = () => {
     if (!financialData) return 0;
-    return financialData.reduce((total, data) => {
-      return total + (data.summary?.total_monthly_expenses || 0);
-    }, 0);
+    return financialData.reduce((total, data) => total + getDerivedMonthlyExpenses(data), 0);
   };
 
   const getTotalNetProfit = () => {
