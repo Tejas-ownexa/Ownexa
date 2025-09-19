@@ -1,0 +1,8 @@
+Flask
+Flask-Cors
+python-dotenv
+pypdf
+SQLAlchemy
+Flask-SQLAlchemy
+werkzeug
+reportlab
