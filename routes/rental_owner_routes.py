@@ -13,8 +13,24 @@ rental_owner_bp = Blueprint('rental_owner_bp', __name__)
 def _get_rental_owners_data(current_user):
     """Shared function to get rental owners data"""
     try:
-        # Get all rental owners from the RentalOwner model
-        rental_owners = RentalOwner.query.filter_by(is_active=True).all()
+        # Get rental owners managed by the current user
+        # First, get rental owner IDs that this user manages
+        managed_rental_owner_ids = db.session.query(RentalOwnerManager.rental_owner_id).filter(
+            RentalOwnerManager.user_id == current_user.id
+        ).all()
+        
+        # Extract the IDs from the query result
+        rental_owner_ids = [row[0] for row in managed_rental_owner_ids]
+        
+        # Get rental owners that this user manages
+        if rental_owner_ids:
+            rental_owners = RentalOwner.query.filter(
+                RentalOwner.id.in_(rental_owner_ids),
+                RentalOwner.is_active == True
+            ).all()
+        else:
+            # If user doesn't manage any rental owners, return empty list
+            rental_owners = []
         
         rental_owners_data = []
         for owner in rental_owners:
@@ -94,6 +110,16 @@ def _create_rental_owner_data(current_user):
         )
         
         db.session.add(new_owner)
+        db.session.flush()  # Flush to get the ID
+        
+        # Create manager relationship - make the current user the primary manager
+        manager_relationship = RentalOwnerManager(
+            rental_owner_id=new_owner.id,
+            user_id=current_user.id,
+            role='MANAGER',
+            is_primary=True
+        )
+        db.session.add(manager_relationship)
         db.session.commit()
         
         print(f"New rental owner created: {data['company_name']} ({data['contact_email']}) by user {current_user.username}")
@@ -187,6 +213,17 @@ def _delete_rental_owner_data(current_user, rental_owner_id):
     try:
         rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
         
+        # Check if current user is authorized to delete this rental owner
+        manager_relationship = RentalOwnerManager.query.filter_by(
+            rental_owner_id=rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager_relationship:
+            return jsonify({
+                'error': 'You are not authorized to delete this rental owner.'
+            }), 403
+        
         # Check if rental owner has properties
         if rental_owner.properties:
             return jsonify({
@@ -195,8 +232,14 @@ def _delete_rental_owner_data(current_user, rental_owner_id):
                 'property_count': len(rental_owner.properties)
             }), 400
         
+        # Delete manager relationships first
+        RentalOwnerManager.query.filter_by(rental_owner_id=rental_owner_id).delete()
+        
+        # Delete the rental owner
         db.session.delete(rental_owner)
         db.session.commit()
+        
+        print(f"Rental owner deleted: {rental_owner.company_name} by user {current_user.username}")
         
         return jsonify({
             'success': True,
@@ -206,7 +249,7 @@ def _delete_rental_owner_data(current_user, rental_owner_id):
     except Exception as e:
         print(f"Error deleting rental owner: {str(e)}")
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': f'Failed to delete rental owner: {str(e)}'}), 400
 
 @rental_owner_bp.route('/<int:rental_owner_id>', methods=['DELETE'])
 @token_required
@@ -225,13 +268,29 @@ def _force_delete_rental_owner_data(current_user, rental_owner_id):
     try:
         rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
         
+        # Check if current user is authorized to delete this rental owner
+        manager_relationship = RentalOwnerManager.query.filter_by(
+            rental_owner_id=rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager_relationship:
+            return jsonify({
+                'error': 'You are not authorized to delete this rental owner.'
+            }), 403
+        
         # Delete all associated properties
         for property in rental_owner.properties:
             db.session.delete(property)
         
+        # Delete manager relationships
+        RentalOwnerManager.query.filter_by(rental_owner_id=rental_owner_id).delete()
+        
         # Delete the rental owner
         db.session.delete(rental_owner)
         db.session.commit()
+        
+        print(f"Rental owner force deleted: {rental_owner.company_name} by user {current_user.username}")
         
         return jsonify({
             'success': True,
@@ -241,7 +300,7 @@ def _force_delete_rental_owner_data(current_user, rental_owner_id):
     except Exception as e:
         print(f"Error force deleting rental owner: {str(e)}")
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': f'Failed to force delete rental owner: {str(e)}'}), 400
 
 @rental_owner_bp.route('/<int:rental_owner_id>/force-delete', methods=['DELETE'])
 @token_required
@@ -305,6 +364,16 @@ def import_rental_owners(current_user):
                 )
                 
                 db.session.add(rental_owner)
+                db.session.flush()  # Flush to get the ID
+                
+                # Create manager relationship for imported rental owner
+                manager_relationship = RentalOwnerManager(
+                    rental_owner_id=rental_owner.id,
+                    user_id=current_user.id,
+                    role='MANAGER',
+                    is_primary=True
+                )
+                db.session.add(manager_relationship)
                 imported_count += 1
                 
             except Exception as e:

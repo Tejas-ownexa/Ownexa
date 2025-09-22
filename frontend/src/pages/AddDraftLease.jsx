@@ -279,7 +279,7 @@ const AddDraftLease = () => {
               <select
                 value={selectedTemplate}
                 onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300"
+                className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300"
               >
                 <option value="">Select a template...</option>
                 {templates.map((template) => (
@@ -299,7 +299,7 @@ const AddDraftLease = () => {
                   accept=".pdf"
                   onChange={handleTemplateUpload}
                   disabled={isUploadingTemplate}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                  className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-base file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                 />
                 {isUploadingTemplate && (
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -337,7 +337,7 @@ const AddDraftLease = () => {
                     name="landlordFullName" 
                     value={formData.landlordFullName} 
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="Enter landlord's full name"
                     required
                   />
@@ -349,7 +349,7 @@ const AddDraftLease = () => {
                     name="tenantFullName" 
                     value={formData.tenantFullName} 
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="Enter tenant's full name"
                     required
                   />
@@ -361,7 +361,7 @@ const AddDraftLease = () => {
                       name="landlordEmail"
                       value={formData.landlordEmail}
                       onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="landlord@example.com"
                     />
                   </div>
@@ -372,7 +372,7 @@ const AddDraftLease = () => {
                       name="landlordPhone"
                       value={formData.landlordPhone}
                       onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="(555) 123-4567"
                     />
                 </div>
@@ -383,7 +383,7 @@ const AddDraftLease = () => {
                       name="tenantEmail"
                       value={formData.tenantEmail}
                       onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="tenant@example.com"
                     />
                   </div>
@@ -394,7 +394,7 @@ const AddDraftLease = () => {
                       name="tenantPhone"
                       value={formData.tenantPhone}
                       onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="(555) 123-4567"
                     />
                 </div>
@@ -526,14 +526,14 @@ const AddDraftLease = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Pets Policy</label>
-                  <select name="petsPolicy" value={formData.petsPolicy} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  <select name="petsPolicy" value={formData.petsPolicy} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
                     <option value="not_allowed">Not Allowed</option>
                     <option value="allowed">Allowed</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Smoking Policy</label>
-                  <select name="smokingPolicy" value={formData.smokingPolicy} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  <select name="smokingPolicy" value={formData.smokingPolicy} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
                     <option value="not_permitted">Not Permitted</option>
                     <option value="permitted">Permitted</option>
                   </select>
@@ -552,7 +552,7 @@ const AddDraftLease = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Early Termination Agreement</label>
-                  <select name="earlyTerminationFee" value={formData.earlyTerminationFee} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  <select name="earlyTerminationFee" value={formData.earlyTerminationFee} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 bg-white/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
                     <option value="disagrees">Does Not Agree</option>
                     <option value="agrees">Agrees</option>
                   </select>
