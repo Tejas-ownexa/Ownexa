@@ -89,38 +89,26 @@ const App = () => {
     // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-<<<<<<< HEAD
-          <Router>
-            <div className="min-h-screen bg-gray-50">
-              <Sidebar />
-              {/* Main content area - responsive padding */}
-              <div className="lg:ml-64 transition-all duration-300">
-                <main className="p-4 md:px-6 md:py-2">
-                  <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-=======
           <AdminBotProvider>
             <Router>
-            <div className="min-h-screen gradient-bg relative overflow-hidden">
-              {/* Animated background elements */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full filter blur-xl opacity-10 animate-float"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
-                <div className="absolute top-40 left-1/2 w-80 h-80 bg-cyan-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '4s'}}></div>
-              </div>
-              
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="*" element={
-                  <>
-                    <Sidebar />
-                    {/* Main content area - responsive padding */}
-                    <div className="md:ml-64 transition-all duration-500 relative z-10">
-                      <main className="p-2 sm:p-4 md:p-6 lg:p-8">
-                        <Routes>
->>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112
+              <div className="min-h-screen gradient-bg relative overflow-hidden">
+                {/* Animated background elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full filter blur-xl opacity-10 animate-float"></div>
+                  <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
+                  <div className="absolute top-40 left-1/2 w-80 h-80 bg-cyan-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '4s'}}></div>
+                </div>
+                
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="*" element={
+                    <>
+                      <Sidebar />
+                      {/* Main content area - responsive padding */}
+                      <div className="md:ml-64 transition-all duration-500 relative z-10">
+                        <main className="p-2 sm:p-4 md:p-6 lg:p-8">
+                          <Routes>
                     <Route path="/dashboard" element={
                       <PrivateRoute>
                         <DashboardRouter />
@@ -288,10 +276,10 @@ const App = () => {
               </Routes>
               
               <Toaster position="top-right" />
+              
+              {/* Admin Bot Modal - Rendered at root level */}
+              <AdminBotWrapper />
             </div>
-            
-            {/* Admin Bot Modal - Rendered at root level */}
-            <AdminBotWrapper />
           </Router>
           </AdminBotProvider>
         </AuthProvider>

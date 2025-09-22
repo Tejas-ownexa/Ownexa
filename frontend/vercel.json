@@ -20,6 +20,6 @@
     }
   ],
   "env": {
-    "REACT_APP_API_BASE_URL": "https://ownexa-test.vercel.app"
+    "REACT_APP_API_BASE_URL": "https://deploy-5x3t2blo7-tejas-1588s-projects.vercel.app"
   }
 }
