@@ -15,22 +15,8 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 src_dir = os.path.join(current_dir, 'src')
 sys.path.insert(0, src_dir)
 
-<<<<<<< HEAD
 # Import and run the main application
 from core.app import app
-=======
-# Disable automatic trailing slash redirects to prevent CORS issues
-app.url_map.strict_slashes = False
-
-# Serve uploaded files
-@app.route('/uploads/<path:filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-# Initialize routes
-init_routes(app)
->>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5001))

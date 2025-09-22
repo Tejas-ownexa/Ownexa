@@ -1,0 +1,57 @@
+# Development files
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large data files
+*.xlsx
+*.csv
+uploads/
+logs/
+
+# Docker files (not needed for Vercel)
+Dockerfile*
+docker-compose*
+nginx.conf
+
+# Deployment scripts
+deploy*.sh
+start-local.sh
+stop-local.sh
+
+# Documentation
+*.md
+CODEBASE_STRUCTURE.md
+CLEANUP_SUMMARY.md
+
+# Frontend (deploy separately)
+frontend/
