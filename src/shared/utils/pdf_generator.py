@@ -610,7 +610,7 @@ class PropertyReportPDFGenerator:
     def generate_comprehensive_report_pdf(self, report_data):
         """Generate a comprehensive property management report PDF"""
         buffer = io.BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=1*inch, bottomMargin=1*inch)
+        doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.75*inch, bottomMargin=0.75*inch, leftMargin=0.75*inch, rightMargin=0.75*inch)
         story = []
         
         # Title
@@ -672,22 +672,34 @@ class PropertyReportPDFGenerator:
                 for prop in properties[:10]:  # Limit to first 10 properties
                     prop_data.append([
                         prop.get('title', 'N/A'),
-                        prop.get('address', 'N/A')[:30] + '...' if len(prop.get('address', '')) > 30 else prop.get('address', 'N/A'),
+                        prop.get('address', 'N/A'),
                         prop.get('property_type', 'N/A'),
                         prop.get('status', 'N/A'),
                         f"${prop.get('monthly_rent', 0):,.2f}",
                         prop.get('tenant_name', 'Vacant')
                     ])
                 
-                prop_table = Table(prop_data, colWidths=[1.5*inch, 1.5*inch, 1*inch, 1*inch, 1*inch, 1*inch])
+                prop_table = Table(prop_data, colWidths=[1.8*inch, 2.8*inch, 1*inch, 1*inch, 1.2*inch, 1.4*inch])
                 prop_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f3f4f6')),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e40af')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('ALIGN', (0, 0), (1, -1), 'LEFT'),
+                    ('ALIGN', (2, 0), (2, -1), 'CENTER'),
+                    ('ALIGN', (3, 0), (3, -1), 'CENTER'),
+                    ('ALIGN', (4, 0), (4, -1), 'RIGHT'),
+                    ('ALIGN', (5, 0), (5, -1), 'LEFT'),
                     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 8),
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb'))
+                    ('FONTSIZE', (0, 0), (-1, 0), 12),
+                    ('FONTSIZE', (0, 1), (-1, -1), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f8fafc')),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e2e8f0')),
+                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8fafc')]),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 10),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+                    ('TOPPADDING', (0, 0), (-1, -1), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 8)
                 ]))
                 story.append(prop_table)
             else:
@@ -705,21 +717,32 @@ class PropertyReportPDFGenerator:
                 for tenant in tenants[:10]:  # Limit to first 10 tenants
                     tenant_data.append([
                         tenant.get('full_name', 'N/A'),
-                        tenant.get('property_title', 'N/A')[:20] + '...' if len(tenant.get('property_title', '')) > 20 else tenant.get('property_title', 'N/A'),
+                        tenant.get('property_title', 'N/A'),
                         f"${tenant.get('monthly_rent', 0):,.2f}",
                         tenant.get('lease_end', 'N/A'),
                         'Active' if tenant.get('is_active') else 'Inactive'
                     ])
                 
-                tenant_table = Table(tenant_data, colWidths=[1.5*inch, 1.5*inch, 1.2*inch, 1.2*inch, 1*inch])
+                tenant_table = Table(tenant_data, colWidths=[2*inch, 2.2*inch, 1.2*inch, 1.2*inch, 1.2*inch])
                 tenant_table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f3f4f6')),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#059669')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('ALIGN', (0, 0), (1, -1), 'LEFT'),
+                    ('ALIGN', (2, 0), (2, -1), 'RIGHT'),
+                    ('ALIGN', (3, 0), (3, -1), 'CENTER'),
+                    ('ALIGN', (4, 0), (4, -1), 'CENTER'),
                     ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 8),
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb'))
+                    ('FONTSIZE', (0, 0), (-1, 0), 12),
+                    ('FONTSIZE', (0, 1), (-1, -1), 10),
+                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f0fdf4')),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1fae5')),
+                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0fdf4')]),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 10),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+                    ('TOPPADDING', (0, 0), (-1, -1), 8),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 8)
                 ]))
                 story.append(tenant_table)
             else:

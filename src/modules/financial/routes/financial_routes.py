@@ -9,6 +9,114 @@ import calendar
 
 financial_bp = Blueprint('financial', __name__)
 
+@financial_bp.route('/rent-roll', methods=['GET'])
+@token_required
+def get_financial_rent_roll(current_user):
+    """Get rent roll data for financial dashboard"""
+    try:
+        from models.tenant import Tenant, RentRoll
+        from datetime import date
+        
+        # Get all properties owned by the current user
+        properties = Property.query.filter(Property.owner_id == current_user.id).all()
+        property_ids = [p.id for p in properties]
+        
+        if not property_ids:
+            return jsonify([]), 200
+        
+        # Get rent roll data
+        rent_payments = RentRoll.query.filter(
+            RentRoll.property_id.in_(property_ids)
+        ).order_by(RentRoll.payment_date.desc()).all()
+        
+        result = []
+        for payment in rent_payments:
+            payment_dict = {
+                'id': payment.id,
+                'tenant_id': payment.tenant_id,
+                'property_id': payment.property_id,
+                'payment_date': payment.payment_date.isoformat() if payment.payment_date else None,
+                'amount_paid': float(payment.amount_paid) if payment.amount_paid else 0,
+                'payment_method': payment.payment_method,
+                'status': payment.status,
+                'remarks': payment.remarks,
+                'created_at': payment.created_at.isoformat() if payment.created_at else None
+            }
+            
+            # Add tenant and property information
+            if payment.tenant:
+                payment_dict['tenant_name'] = payment.tenant.full_name
+                payment_dict['tenant_email'] = payment.tenant.email
+            
+            if payment.property:
+                payment_dict['property_title'] = payment.property.title
+                payment_dict['property_address'] = f"{payment.property.street_address_1}, {payment.property.city}"
+            
+            result.append(payment_dict)
+        
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error fetching financial rent roll: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+
+@financial_bp.route('/outstanding-balances', methods=['GET'])
+@token_required
+def get_financial_outstanding_balances(current_user):
+    """Get outstanding balances for financial dashboard"""
+    try:
+        from models.tenant import OutstandingBalance
+        from datetime import date
+        
+        # Get all properties owned by the current user
+        properties = Property.query.filter(Property.owner_id == current_user.id).all()
+        property_ids = [p.id for p in properties]
+        
+        if not property_ids:
+            return jsonify([]), 200
+        
+        # Get outstanding balances
+        balances = OutstandingBalance.query.filter(
+            OutstandingBalance.property_id.in_(property_ids),
+            OutstandingBalance.is_resolved == False
+        ).order_by(OutstandingBalance.due_date.asc()).all()
+        
+        result = []
+        today = date.today()
+        
+        for balance in balances:
+            balance_dict = {
+                'id': balance.id,
+                'tenant_id': balance.tenant_id,
+                'property_id': balance.property_id,
+                'due_amount': float(balance.due_amount) if balance.due_amount else 0,
+                'due_date': balance.due_date.isoformat() if balance.due_date else None,
+                'is_resolved': balance.is_resolved,
+                'created_at': balance.created_at.isoformat() if balance.created_at else None
+            }
+            
+            # Calculate days overdue
+            if balance.due_date:
+                days_overdue = (today - balance.due_date).days
+                balance_dict['days_overdue'] = days_overdue if days_overdue > 0 else 0
+            else:
+                balance_dict['days_overdue'] = 0
+            
+            # Add tenant and property information
+            if balance.tenant:
+                balance_dict['tenant_name'] = balance.tenant.full_name
+                balance_dict['tenant_email'] = balance.tenant.email
+            
+            if balance.property:
+                balance_dict['property_title'] = balance.property.title
+                balance_dict['property_address'] = f"{balance.property.street_address_1}, {balance.property.city}"
+            
+            result.append(balance_dict)
+        
+        return jsonify(result), 200
+    except Exception as e:
+        print(f"Error fetching financial outstanding balances: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+
 @financial_bp.route('/property/<int:property_id>/financial', methods=['POST'])
 @token_required
 def create_property_financial(current_user, property_id):

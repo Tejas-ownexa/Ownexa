@@ -64,15 +64,11 @@ def get_rent_roll(current_user):
     try:
         from datetime import date, datetime
         
-        # Get all properties managed by the current user through rental owners
+        # Get all properties owned by the current user
         if current_user.role == 'ADMIN' or current_user.username == 'admin':
             properties = Property.query.all()
         else:
-            properties = Property.query.join(
-                RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-            ).filter(
-                RentalOwnerManager.user_id == current_user.id
-            ).all()
+            properties = Property.query.filter(Property.owner_id == current_user.id).all()
         
         property_ids = [p.id for p in properties]
         
@@ -104,24 +100,135 @@ def get_rent_roll(current_user):
             else:
                 status = 'No Lease'
             
-            # Calculate days left
-            days_left = 0
-            if tenant.lease_end and tenant.lease_end > today:
-                days_left = (tenant.lease_end - today).days
+            # Calculate next payment date based on rent_payment_day
+            from datetime import datetime, timedelta
+            from calendar import monthrange
             
-            # Format days left for frontend
-            if days_left > 0:
-                days_left_formatted = f"{days_left} DAYS"
-            elif days_left == 0:
-                days_left_formatted = "EXPIRED"
+            next_payment_date = None
+            next_payment_formatted = "N/A"
+            
+            if hasattr(tenant, 'rent_payment_day') and tenant.rent_payment_day:
+                payment_day = tenant.rent_payment_day
+                current_month = today.month
+                current_year = today.year
+                
+                # Try to create the payment date for current month
+                try:
+                    # Get the last day of current month to avoid invalid dates
+                    _, last_day_of_month = monthrange(current_year, current_month)
+                    actual_payment_day = min(payment_day, last_day_of_month)
+                    
+                    current_month_payment = today.replace(day=actual_payment_day)
+                    
+                    if current_month_payment >= today:
+                        # Payment is due this month
+                        next_payment_date = current_month_payment
+                    else:
+                        # Payment is due next month
+                        if current_month == 12:
+                            next_month = 1
+                            next_year = current_year + 1
+                        else:
+                            next_month = current_month + 1
+                            next_year = current_year
+                        
+                        # Get last day of next month
+                        _, last_day_of_next_month = monthrange(next_year, next_month)
+                        actual_payment_day = min(payment_day, last_day_of_next_month)
+                        
+                        next_payment_date = today.replace(year=next_year, month=next_month, day=actual_payment_day)
+                    
+                    # Format the next payment date
+                    days_until_payment = (next_payment_date - today).days
+                    if days_until_payment == 0:
+                        next_payment_formatted = "DUE TODAY"
+                    elif days_until_payment == 1:
+                        next_payment_formatted = "DUE TOMORROW"
+                    else:
+                        next_payment_formatted = f"DUE IN {days_until_payment} DAYS"
+                        
+                except ValueError:
+                    # Fallback if date calculation fails
+                    next_payment_formatted = "PAYMENT DATE ERROR"
             else:
-                days_left_formatted = "EXPIRED"
+                # Fallback to old lease-based calculation if no payment day set
+                days_left = 0
+                if tenant.lease_end and tenant.lease_end > today:
+                    days_left = (tenant.lease_end - today).days
+                
+                if days_left > 0:
+                    next_payment_formatted = f"{days_left} DAYS LEFT"
+                else:
+                    next_payment_formatted = "LEASE EXPIRED"
             
             # Format lease dates
             lease_dates = f"{tenant.lease_start.strftime('%m/%d/%Y') if tenant.lease_start else 'N/A'} - {tenant.lease_end.strftime('%m/%d/%Y') if tenant.lease_end else 'N/A'}"
             
             # Format address
             address = f"{street_address}, {city}, {state}" if street_address and city and state else "Address not available"
+            
+            # Calculate next payment amount (could be prorated or full)
+            next_payment_amount = float(tenant.rent_amount) if tenant.rent_amount else 0
+            
+            # Check if we need to calculate prorated amount for next payment
+            if next_payment_date and tenant.lease_start:
+                from routes.tenant_routes import calculate_prorated_rent
+                from decimal import Decimal
+                
+                # Check if the next payment date is within the first billing cycle
+                # This handles cases where tenant joined mid-month
+                lease_start = tenant.lease_start
+                rent_payment_day = getattr(tenant, 'rent_payment_day', 1)
+                
+                # If lease started this month or next month, check if we need prorated calculation
+                next_payment_month = next_payment_date.month
+                next_payment_year = next_payment_date.year
+                lease_start_month = lease_start.month
+                lease_start_year = lease_start.year
+                
+                # Calculate prorated amount if:
+                # 1. Next payment is in the same month as lease start, OR
+                # 2. Next payment is in the month after lease start AND lease started after payment day
+                needs_proration = False
+                
+                if (lease_start_year == next_payment_year and lease_start_month == next_payment_month):
+                    # Same month - always need to check proration
+                    needs_proration = True
+                elif (lease_start_year == next_payment_year and lease_start_month == next_payment_month - 1):
+                    # Next month - check if lease started after payment day
+                    if lease_start.day > rent_payment_day:
+                        needs_proration = True
+                elif (lease_start_year == next_payment_year - 1 and lease_start_month == 12 and next_payment_month == 1):
+                    # Year boundary case
+                    if lease_start.day > rent_payment_day:
+                        needs_proration = True
+                
+                if needs_proration:
+                    try:
+                        prorated_info = calculate_prorated_rent(
+                            Decimal(str(tenant.rent_amount)), 
+                            lease_start, 
+                            rent_payment_day
+                        )
+                        
+                        # Use prorated amount for the next payment
+                        calculated_amount = float(prorated_info['prorated_amount'])
+                        
+                        # Only use prorated amount if it's actually different from monthly rent
+                        # This prevents showing "prorated" for full-month calculations
+                        if calculated_amount != float(tenant.rent_amount):
+                            next_payment_amount = calculated_amount
+                            # Update the payment status to show it's prorated
+                            if next_payment_formatted.startswith('DUE'):
+                                next_payment_formatted = f"{next_payment_formatted} (Prorated)"
+                        else:
+                            # Same amount means full month - don't mark as prorated
+                            next_payment_amount = float(tenant.rent_amount)
+                        
+                    except Exception as e:
+                        print(f"Error calculating prorated amount for tenant {tenant.id}: {e}")
+                        # Fall back to regular rent amount
+                        pass
             
             rent_roll_data.append({
                 'id': tenant.id,
@@ -130,8 +237,11 @@ def get_rent_roll(current_user):
                 'status': status,
                 'type': 'Residential',
                 'leaseDates': lease_dates,
-                'daysLeft': days_left_formatted,
-                'rent': float(tenant.rent_amount) if tenant.rent_amount else 0,
+                'daysLeft': next_payment_formatted,  # Shows next payment date with proration note
+                'nextPaymentDate': next_payment_date.strftime('%Y-%m-%d') if next_payment_date else None,
+                'rentPaymentDay': getattr(tenant, 'rent_payment_day', 1),
+                'rent': next_payment_amount,  # Now shows actual next payment amount (prorated or full)
+                'monthlyRent': float(tenant.rent_amount) if tenant.rent_amount else 0,  # Keep original for reference
                 'tenant_name': tenant.full_name,
                 'property_title': property_title,
                 'address': address,
@@ -149,12 +259,8 @@ def get_rent_roll(current_user):
 def get_outstanding_balances(current_user):
     """Get outstanding balances for all properties"""
     try:
-        # Get all properties managed by the current user through rental owners
-        properties = Property.query.join(
-            RentalOwnerManager, Property.rental_owner_id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == current_user.id
-        ).all()
+        # Get all properties owned by the current user
+        properties = Property.query.filter(Property.owner_id == current_user.id).all()
         property_ids = [p.id for p in properties]
         
         # Get outstanding balances with tenant and property information
@@ -162,6 +268,8 @@ def get_outstanding_balances(current_user):
             OutstandingBalance,
             Tenant.full_name.label('tenant_name'),
             Tenant.email.label('tenant_email'),
+            Tenant.lease_start.label('lease_start'),
+            Tenant.lease_end.label('lease_end'),
             Property.title.label('property_title')
         ).join(
             Tenant, OutstandingBalance.tenant_id == Tenant.id
@@ -172,7 +280,9 @@ def get_outstanding_balances(current_user):
         ).order_by(OutstandingBalance.due_date.asc()).all()
         
         result = []
-        for balance, tenant_name, tenant_email, property_title in balances:
+        today = date.today()
+        
+        for balance, tenant_name, tenant_email, lease_start, lease_end, property_title in balances:
             balance_dict = balance.to_dict()
             balance_dict['tenant_name'] = tenant_name
             balance_dict['tenant_email'] = tenant_email
@@ -180,12 +290,30 @@ def get_outstanding_balances(current_user):
             
             # Calculate days overdue
             if balance.due_date:
-                from datetime import date
-                today = date.today()
                 days_overdue = (today - balance.due_date).days
                 balance_dict['days_overdue'] = days_overdue if days_overdue > 0 else 0
             else:
                 balance_dict['days_overdue'] = 0
+            
+            # Determine lease status for filtering
+            lease_status = 'unknown'
+            rental_type = 'unknown'
+            
+            if lease_start and lease_end:
+                if lease_start <= today <= lease_end:
+                    lease_status = 'active'
+                    rental_type = 'active'
+                elif lease_start > today:
+                    lease_status = 'future'
+                    rental_type = 'future'
+                else:
+                    lease_status = 'expired'
+                    rental_type = 'expired'
+            
+            balance_dict['lease_status'] = lease_status
+            balance_dict['rental_type'] = rental_type
+            balance_dict['lease_start'] = lease_start.isoformat() if lease_start else None
+            balance_dict['lease_end'] = lease_end.isoformat() if lease_end else None
                 
             result.append(balance_dict)
         
@@ -431,6 +559,120 @@ def update_outstanding_balance(current_user, balance_id):
         }), 200
     except Exception as e:
         db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@rental_bp.route('/outstanding-balances/<int:balance_id>', methods=['DELETE'])
+@token_required
+def delete_outstanding_balance(current_user, balance_id):
+    """Delete an outstanding balance record"""
+    try:
+        balance = OutstandingBalance.query.get(balance_id)
+        if not balance:
+            return jsonify({'error': 'Outstanding balance not found'}), 404
+        
+        # Verify the property belongs to the current user
+        property = Property.query.get(balance.property_id)
+        if not property or property.owner_id != current_user.id:
+            return jsonify({'error': 'Not authorized to delete this balance'}), 403
+        
+        db.session.delete(balance)
+        db.session.commit()
+        
+        return jsonify({'message': 'Outstanding balance deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@rental_bp.route('/outstanding-balances/<int:balance_id>/resolve', methods=['PUT'])
+@token_required
+def resolve_outstanding_balance(current_user, balance_id):
+    """Mark an outstanding balance as resolved"""
+    try:
+        balance = OutstandingBalance.query.get(balance_id)
+        if not balance:
+            return jsonify({'error': 'Outstanding balance not found'}), 404
+        
+        # Verify the property belongs to the current user
+        property = Property.query.get(balance.property_id)
+        if not property or property.owner_id != current_user.id:
+            return jsonify({'error': 'Not authorized to modify this balance'}), 403
+        
+        # Mark as resolved
+        balance.is_resolved = True
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Outstanding balance marked as resolved',
+            'balance': balance.to_dict()
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@rental_bp.route('/outstanding-balances/export', methods=['GET'])
+@token_required
+def export_outstanding_balances(current_user):
+    """Export outstanding balances to CSV"""
+    try:
+        from flask import make_response
+        import csv
+        import io
+        
+        # Get all properties owned by the current user
+        properties = Property.query.filter(Property.owner_id == current_user.id).all()
+        property_ids = [p.id for p in properties]
+        
+        if not property_ids:
+            return jsonify({'error': 'No properties found'}), 404
+        
+        # Get outstanding balances with tenant and property information
+        balances = db.session.query(
+            OutstandingBalance,
+            Tenant.full_name.label('tenant_name'),
+            Tenant.email.label('tenant_email'),
+            Property.title.label('property_title')
+        ).join(
+            Tenant, OutstandingBalance.tenant_id == Tenant.id
+        ).join(
+            Property, OutstandingBalance.property_id == Property.id
+        ).filter(
+            OutstandingBalance.property_id.in_(property_ids)
+        ).order_by(OutstandingBalance.due_date.asc()).all()
+        
+        # Create CSV data
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write headers
+        writer.writerow([
+            'Balance ID', 'Property', 'Tenant', 'Tenant Email', 
+            'Due Amount', 'Due Date', 'Days Overdue', 'Status'
+        ])
+        
+        # Write data rows
+        today = date.today()
+        for balance, tenant_name, tenant_email, property_title in balances:
+            days_overdue = (today - balance.due_date).days if balance.due_date else 0
+            status = 'Resolved' if balance.is_resolved else 'Outstanding'
+            
+            writer.writerow([
+                balance.id,
+                property_title,
+                tenant_name,
+                tenant_email,
+                float(balance.due_amount) if balance.due_amount else 0,
+                balance.due_date.strftime('%Y-%m-%d') if balance.due_date else '',
+                max(0, days_overdue),
+                status
+            ])
+        
+        # Create response
+        response = make_response(output.getvalue())
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = f'attachment; filename=outstanding_balances_{date.today().strftime("%Y%m%d")}.csv'
+        
+        return response
+    except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 @rental_bp.route('/lease-expirations', methods=['GET'])

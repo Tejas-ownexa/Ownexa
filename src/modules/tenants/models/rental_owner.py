@@ -28,7 +28,6 @@ class RentalOwner(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
-    properties = db.relationship('Property', back_populates='rental_owner')
     managers = db.relationship('RentalOwnerManager', back_populates='rental_owner')
     
     def to_dict(self):

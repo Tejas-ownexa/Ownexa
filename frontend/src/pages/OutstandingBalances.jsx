@@ -40,6 +40,9 @@ const OutstandingBalances = () => {
         days61_90: balance.days_overdue > 60 && balance.days_overdue <= 90 ? balance.due_amount : 0,
         days90_plus: balance.days_overdue > 90 ? balance.due_amount : 0,
         balance: balance.due_amount,
+        daysOverdue: balance.days_overdue, // Preserve the actual days overdue
+        leaseStatus: balance.lease_status, // Preserve lease status for filtering
+        rentalType: balance.rental_type, // Preserve rental type for filtering
         tenantEmail: balance.tenant_email,
         propertyTitle: balance.property_title,
         tenantName: balance.tenant_name,
@@ -97,9 +100,55 @@ const OutstandingBalances = () => {
   };
 
   const filteredBalances = balances.filter(balance => {
-    if (searchTerm) {
-      return balance.lease.toLowerCase().includes(searchTerm.toLowerCase());
+    // Apply search filter
+    if (searchTerm && !balance.lease.toLowerCase().includes(searchTerm.toLowerCase())) {
+      return false;
     }
+
+    // Apply balance filter (days overdue)
+    if (filters.balanceFilter && filters.balanceFilter !== 'Apply filter') {
+      const daysOverdue = balance.daysOverdue || 0;
+      
+      switch (filters.balanceFilter) {
+        case '0 - 30 days':
+          if (daysOverdue > 30) return false;
+          break;
+        case '31 - 60 days':
+          if (daysOverdue <= 30 || daysOverdue > 60) return false;
+          break;
+        case '61 - 90 days':
+          if (daysOverdue <= 60 || daysOverdue > 90) return false;
+          break;
+        case '90+ days':
+          if (daysOverdue <= 90) return false;
+          break;
+      }
+    }
+
+    // Apply rental type filter
+    if (filters.rentalType !== 'All rentals') {
+      switch (filters.rentalType) {
+        case 'Active rentals':
+          if (balance.rentalType !== 'active') return false;
+          break;
+        case 'Future rentals':
+          if (balance.rentalType !== 'future') return false;
+          break;
+      }
+    }
+
+    // Apply status filter
+    if (filters.status !== '(2) Future, Active') {
+      switch (filters.status) {
+        case '(1) Active':
+          if (balance.leaseStatus !== 'active') return false;
+          break;
+        case '(1) Future':
+          if (balance.leaseStatus !== 'future') return false;
+          break;
+      }
+    }
+
     return true;
   });
 
@@ -153,11 +202,21 @@ const OutstandingBalances = () => {
 
           {/* Add filter option */}
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-              <option>Add filter option</option>
-              <option>Property</option>
-              <option>Tenant</option>
-              <option>Amount</option>
+            <select 
+              value=""
+              onChange={(e) => {
+                if (e.target.value === 'Balance') {
+                  handleFilterChange('balanceFilter', '61 - 90 days');
+                }
+                // Reset the dropdown
+                e.target.value = '';
+              }}
+              className="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Add filter option</option>
+              <option value="Balance">Balance (Days Overdue)</option>
+              <option value="Property">Property</option>
+              <option value="Tenant">Tenant</option>
             </select>
             <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-gray-400 pointer-events-none" />
           </div>

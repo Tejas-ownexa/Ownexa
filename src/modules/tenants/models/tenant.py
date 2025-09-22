@@ -16,6 +16,7 @@ class Tenant(BaseModel):
     lease_start = db.Column(db.Date)
     lease_end = db.Column(db.Date)
     rent_amount = db.Column(db.Numeric(10, 2))
+    rent_payment_day = db.Column(db.Integer, default=1)  # Day of month when rent is due (1-31)
     payment_status = db.Column(db.String(50))
     
     # Relationships

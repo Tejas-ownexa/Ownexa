@@ -14,15 +14,19 @@ import {
   Filter,
   Search,
   Upload,
-  Trash2
+  Trash2,
+  User,
+  Building
 } from 'lucide-react';
 import AddTenantModal from '../components/AddTenantModal';
+import AddLeaseModal from '../components/AddLeaseModal';
 import toast from 'react-hot-toast';
 
 const Tenants = () => {
   const [tenants, setTenants] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddTenant, setShowAddTenant] = useState(false);
+  const [showAddLease, setShowAddLease] = useState(false);
   const [userProperties, setUserProperties] = useState([]);
   const [sortField, setSortField] = useState('last_name');
   const [sortDirection, setSortDirection] = useState('asc');
@@ -133,6 +137,7 @@ const Tenants = () => {
   });
 
   return (
+<<<<<<< HEAD
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex justify-between items-center">
@@ -144,6 +149,89 @@ const Tenants = () => {
             <button
               onClick={handleExport}
               className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+=======
+    <div className="space-y-6">
+      {/* Enhanced Header */}
+      <div className="glass-card p-6 animate-fade-in-up">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+          <div>
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <User className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Tenants</h1>
+            </div>
+            <p className="text-gray-600">Manage your tenant relationships and lease agreements</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+              <span>Total: {tenants.length}</span>
+              <span>•</span>
+              <span>Active: {tenants.filter(t => t.status === 'active').length}</span>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            {/* Add Tenant Options Dropdown */}
+            <div className="relative group">
+              <button className="btn-primary flex items-center space-x-2">
+                <Plus className="h-4 w-4" />
+                <span>Add Tenant</span>
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            
+            {/* Dropdown Menu */}
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+              <div className="py-2">
+                <button
+                  onClick={() => setShowAddTenant(true)}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-3"
+                >
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <User className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Add New Tenant</div>
+                    <div className="text-xs text-gray-500">Create a new tenant manually</div>
+                  </div>
+                </button>
+                
+                <button
+                  onClick={() => setShowAddLease(true)}
+                  className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 flex items-center space-x-3"
+                >
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Building className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Create Lease from Application</div>
+                    <div className="text-xs text-gray-500">Convert approved application to lease</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+            </div>
+          
+            <button className="btn-secondary">
+              Receive payment
+            </button>
+            <button className="btn-secondary">
+              Compose email
+            </button>
+            <button className="btn-secondary">
+              Resident Center users
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <span className="text-sm text-gray-600">{filteredTenants.length} matches</span>
+          <div className="flex space-x-2">
+            <select 
+              value={filterStatus} 
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+>>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112
             >
               <Download className="-ml-1 mr-2 h-5 w-5" />
               Export
@@ -310,6 +398,13 @@ const Tenants = () => {
         isOpen={showAddTenant}
         onClose={() => setShowAddTenant(false)}
         properties={userProperties.filter(p => p.status === 'available')}
+        onSuccess={handleAddTenantSuccess}
+      />
+
+      {/* Add Lease Modal */}
+      <AddLeaseModal
+        isOpen={showAddLease}
+        onClose={() => setShowAddLease(false)}
         onSuccess={handleAddTenantSuccess}
       />
     </div>

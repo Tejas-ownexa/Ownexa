@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -23,8 +24,8 @@ import toast from 'react-hot-toast';
 const RentalOwners = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [owners, setOwners] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [showAddOwner, setShowAddOwner] = useState(false);
   const [newOwnerData, setNewOwnerData] = useState({
     company_name: '',
@@ -42,55 +43,83 @@ const RentalOwners = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmData, setDeleteConfirmData] = useState(null);
 
-  // Fetch rental owners
-  const fetchOwners = useCallback(async () => {
-    try {
-      const response = await api.get('/api/rental-owners/rental-owners');
-      setOwners(response.data.rental_owners || []);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error fetching owners:', error);
-      toast.error('Failed to load rental owners');
-      setIsLoading(false);
+  // Fetch rental owners using useQuery
+  const { data: ownersData, isLoading, error } = useQuery(
+    ['rental-owners'],
+    async () => {
+      const response = await api.get('/api/rental-owners');
+      return response.data.rental_owners || [];
+    },
+    {
+      onError: (error) => {
+        console.error('Error fetching owners:', error);
+        toast.error('Failed to load rental owners');
+      }
     }
-  }, []);
+  );
 
+  // Update local state when data changes
   useEffect(() => {
-    fetchOwners();
-  }, [fetchOwners]);
+    if (ownersData) {
+      setOwners(Array.isArray(ownersData) ? ownersData : []);
+    } else {
+      setOwners([]);
+    }
+  }, [ownersData]);
 
   // Add owner handler
   const handleAddOwner = async (e) => {
     e.preventDefault();
     
+    // Validate required fields
+    if (!newOwnerData.company_name || !newOwnerData.contact_email) {
+      toast.error('Please fill in all required fields (Company Name and Contact Email)');
+      return;
+    }
+    
     try {
-      console.log('Sending rental owner data:', newOwnerData);
-      const response = await api.post('/api/rental-owners/rental-owners', newOwnerData);
-      console.log('Response received:', response);
+      console.log('🔍 Sending rental owner data:', newOwnerData);
+      console.log('🔍 API endpoint: /api/rental-owners');
+      
+        const response = await api.post('/api/rental-owners', newOwnerData);
+      console.log('✅ Response received:', response);
+      console.log('✅ Response status:', response.status);
+      console.log('✅ Response data:', response.data);
       
       if (response.status === 201 || response.data.success) {
         toast.success('Rental owner added successfully!');
         setShowAddOwner(false);
         setNewOwnerData({ company_name: '', contact_email: '', contact_phone: '', business_type: '', city: '', state: '' });
-        queryClient.invalidateQueries(['owners']);
-        fetchOwners();
+        queryClient.invalidateQueries(['rental-owners']);
       } else {
+        console.error('❌ Unexpected response:', response);
         toast.error('Failed to add rental owner: ' + (response.data.error || 'Unknown error'));
       }
     } catch (error) {
-      console.error('Add owner error:', error);
-      console.error('Error response:', error.response?.data);
-      toast.error('Failed to add rental owner. Please try again.');
+      console.error('❌ Add owner error:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+      console.error('❌ Error headers:', error.response?.headers);
+      
+      // More specific error messages
+      if (error.response?.status === 401) {
+        toast.error('Authentication failed. Please log in again.');
+      } else if (error.response?.status === 400) {
+        toast.error('Invalid data: ' + (error.response.data?.error || 'Please check your input'));
+      } else if (error.response?.status === 500) {
+        toast.error('Server error. Please try again later.');
+      } else {
+        toast.error('Failed to add rental owner. Please try again.');
+      }
     }
   };
 
   // Delete owner handler
   const handleDeleteOwner = async (ownerId) => {
     try {
-      const response = await api.delete(`/api/rental-owners/rental-owners/${ownerId}`);
+        const response = await api.delete(`/api/rental-owners/${ownerId}`);
       toast.success('Rental owner deleted successfully!');
-      queryClient.invalidateQueries(['owners']);
-      fetchOwners();
+      queryClient.invalidateQueries(['rental-owners']);
     } catch (error) {
       console.error('Delete error:', error);
       
@@ -113,12 +142,11 @@ const RentalOwners = () => {
     
     try {
       const rentalOwnerId = deleteConfirmData.rental_owner_id;
-      const response = await api.delete(`/api/rental-owners/rental-owners/${rentalOwnerId}/force-delete`);
+        const response = await api.delete(`/api/rental-owners/${rentalOwnerId}/force-delete`);
       toast.success('Rental owner and all properties deleted successfully!');
       setShowDeleteConfirm(false);
       setDeleteConfirmData(null);
-      queryClient.invalidateQueries(['owners']);
-      fetchOwners();
+      queryClient.invalidateQueries(['rental-owners']);
     } catch (error) {
       console.error('Force delete error:', error);
       toast.error('Failed to delete rental owner. Please try again.');
@@ -162,7 +190,7 @@ const RentalOwners = () => {
     formData.append('csv_file', selectedFile);
 
     try {
-      const response = await api.post('/api/rental-owners/rental-owners/import', formData, {
+        const response = await api.post('/api/rental-owners/import', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -170,8 +198,7 @@ const RentalOwners = () => {
 
       if (response.data.success) {
         toast.success(`Successfully imported ${response.data.imported_count} rental owners!`);
-        queryClient.invalidateQueries(['owners']);
-        fetchOwners();
+        queryClient.invalidateQueries(['rental-owners']);
         setSelectedFile(null);
       } else {
         toast.error('Import failed: ' + response.data.error);
@@ -204,7 +231,7 @@ const RentalOwners = () => {
 
   // Filter and sort owners
   const filteredOwners = React.useMemo(() => {
-    let filtered = owners;
+    let filtered = Array.isArray(owners) ? owners : [];
 
     // Apply search filter
     if (searchTerm) {
@@ -301,7 +328,7 @@ const RentalOwners = () => {
             className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           >
             <UserPlus className="h-4 w-4 mr-2" />
-            Add owner
+            Add company
           </button>
           
           <div className="relative">
@@ -475,7 +502,10 @@ const RentalOwners = () => {
               filteredOwners.map((owner) => (
                 <tr key={owner.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer">
+                    <div 
+                      className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+                      onClick={() => navigate(`/rental-owners/${owner.id}`)}
+                    >
                       {owner.company_name || 'N/A'}
                     </div>
                   </td>
@@ -596,7 +626,7 @@ const RentalOwners = () => {
                     type="submit"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"
                   >
-                    Add Owner
+                    Add Company
                   </button>
                 </div>
               </form>

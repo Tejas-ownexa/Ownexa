@@ -27,7 +27,33 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axios from '../../utils/axios';
-import { RevenueExpenseTrendChart, ExpenseBreakdownChart } from '../../components/charts/AccountabilityCharts';
+// Removed all charts
+// Portfolio charts (inline, using chart.js already in project)
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line, Bar, Pie, Scatter, Bubble } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const AccountabilityFinancials = () => {
   const { user } = useAuth();
@@ -190,17 +216,159 @@ const AccountabilityFinancials = () => {
     return `${parseFloat(value).toFixed(2)}%`;
   };
 
+  // Derive monthly expenses deterministically when summary is missing
+  const getDerivedMonthlyExpenses = (record) => {
+    if (!record) return 0;
+    const fromSummary = Number(record.summary?.total_monthly_expenses) || 0;
+    if (fromSummary > 0) return fromSummary;
+
+    const monthlyLoan = Number(record.summary?.monthly_loan_payment || record.financial?.monthly_loan_payment) || 0;
+    const taxAnnual = Number(record.summary?.property_tax_annual || record.financial?.property_tax_annual) || 0;
+    const insuranceAnnual = Number(record.summary?.insurance_annual || record.financial?.insurance_annual) || 0;
+    const hoaMonthly = Number(record.summary?.hoa_fees_monthly || record.financial?.hoa_fees_monthly) || 0;
+
+    const monthlyTaxes = taxAnnual / 12;
+    const monthlyInsurance = insuranceAnnual / 12;
+    const total = monthlyLoan + monthlyTaxes + monthlyInsurance + hoaMonthly;
+    return Number.isFinite(total) ? total : 0;
+  };
+
   const calculateNetProfit = (propertyData) => {
     if (!propertyData) return 0;
-    
-    const monthlyRent = propertyData.property?.rent_amount || 0;
-    const monthlyExpenses = propertyData.summary?.total_monthly_expenses || 0;
-    
+    const monthlyRent = Number(propertyData.property?.rent_amount) || 0;
+    const monthlyExpenses = getDerivedMonthlyExpenses(propertyData);
     return monthlyRent - monthlyExpenses;
   };
 
   const calculateAnnualNetProfit = (propertyData) => {
     return calculateNetProfit(propertyData) * 12;
+  };
+
+  // ===== Portfolio-level derived datasets =====
+  const portfolioMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const getActiveData = () => {
+    if (!financialData || financialData.length === 0) return [];
+    if (!selectedProperty) return financialData;
+    return financialData.filter(d => d.property?.id === selectedProperty);
+  };
+
+  const portfolioNetProfitMonthly = () => {
+    const active = getActiveData();
+    if (active.length === 0) return new Array(12).fill(0);
+    const monthlyTotals = new Array(12).fill(0);
+    active.forEach((d) => {
+      const monthlyNet = calculateNetProfit(d);
+      for (let i = 0; i < 12; i++) monthlyTotals[i] += monthlyNet;
+    });
+    return monthlyTotals;
+  };
+
+  const roiValues = () => (getActiveData()).map(d => Number(d.summary?.annual_roi || 0)).filter(v => Number.isFinite(v));
+
+  const roiHistogram = () => {
+    const values = roiValues();
+    const binSize = 2; // 2% bins
+    const bins = new Array(26).fill(0); // 0%..50%+
+    values.forEach(v => {
+      const idx = Math.max(0, Math.min(bins.length - 1, Math.floor(v / binSize)));
+      bins[idx] += 1;
+    });
+    const labels = bins.map((_, i) => `${i * binSize}-${(i + 1) * binSize}%`);
+    return { labels, values: bins };
+  };
+
+  const netProfitByProperty = () => {
+    const items = (getActiveData()).map(d => ({
+      name: d.property?.title || `Property ${d.property?.id}`,
+      value: calculateAnnualNetProfit(d)
+    }));
+    items.sort((a, b) => b.value - a.value);
+    return items;
+  };
+
+  const rentVsExpensesPoints = () => {
+    return (getActiveData()).map(d => ({
+      x: Number(d.property?.rent_amount) || 0,
+      y: getDerivedMonthlyExpenses(d),
+      label: d.property?.title
+    }));
+  };
+
+  // Build histogram bins for rent vs expenses
+  const buildRentExpenseHistogram = () => {
+    const pts = rentVsExpensesPoints();
+    const rents = pts.map(p => p.x);
+    const exps = pts.map(p => p.y);
+    const maxVal = Math.max(1, ...rents, ...exps);
+    // Choose a reasonable bin size (nearest 250) and up to ~12 bins
+    const approxBinCount = 12;
+    const rawSize = Math.ceil(maxVal / approxBinCount);
+    const step = Math.max(250, Math.ceil(rawSize / 250) * 250);
+    const binCount = Math.max(1, Math.ceil(maxVal / step));
+
+    const labels = Array.from({ length: binCount }, (_, i) => `${i * step}-${(i + 1) * step}`);
+    const rentBins = new Array(binCount).fill(0);
+    const expBins = new Array(binCount).fill(0);
+
+    rents.forEach(v => {
+      const idx = Math.min(binCount - 1, Math.floor(v / step));
+      rentBins[idx] += 1;
+    });
+    exps.forEach(v => {
+      const idx = Math.min(binCount - 1, Math.floor(v / step));
+      expBins[idx] += 1;
+    });
+
+    return { labels, rentBins, expBins, step };
+  };
+
+  const propertyValueAllocation = () => {
+    const items = (getActiveData()).map(d => ({
+      name: d.property?.title || `Property ${d.property?.id}`,
+      value: Number(d.financial?.total_value) || 0
+    })).filter(i => i.value > 0);
+    return items;
+  };
+
+  // Bubble dataset: total_value (x), total_annual_cost (y), current_apr (r)
+  const valueCostAprBubbles = () => {
+    let excluded = 0;
+    const points = [];
+    (getActiveData()).forEach(d => {
+      const totalValue = Number(
+        d.financial?.total_value ?? d.summary?.total_value ?? 0
+      );
+      const taxes = Number(
+        d.financial?.property_tax_annual ?? d.summary?.property_tax_annual ?? 0
+      );
+      const insurance = Number(
+        d.financial?.insurance_annual ?? d.summary?.insurance_annual ?? 0
+      );
+      const hoaMonthly = Number(
+        d.financial?.hoa_fees_monthly ?? d.summary?.hoa_fees_monthly ?? 0
+      );
+      const totalAnnualCost = taxes + insurance + (hoaMonthly * 12);
+      const apr = Number(
+        d.financial?.current_apr ?? d.summary?.current_apr ?? 0
+      );
+
+      // Exclude completely missing points to avoid overlapping at (0,0)
+      if (!totalValue && !totalAnnualCost && !apr) {
+        excluded += 1;
+        return;
+      }
+
+      const radius = Math.max(4, Math.min(22, apr));
+      points.push({
+        x: totalValue,
+        y: totalAnnualCost,
+        r: radius,
+        label: d.property?.title || `Property ${d.property?.id}`,
+        apr
+      });
+    });
+    return { points, excluded };
   };
 
   const getTotalIncome = () => {
@@ -212,9 +380,7 @@ const AccountabilityFinancials = () => {
 
   const getTotalExpenses = () => {
     if (!financialData) return 0;
-    return financialData.reduce((total, data) => {
-      return total + (data.summary?.total_monthly_expenses || 0);
-    }, 0);
+    return financialData.reduce((total, data) => total + getDerivedMonthlyExpenses(data), 0);
   };
 
   const getTotalNetProfit = () => {
@@ -369,20 +535,256 @@ const AccountabilityFinancials = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue & Expense Trend</h3>
-          <div className="h-64">
-            <RevenueExpenseTrendChart data={chartData.revenueExpense} />
+
+      {/* Property Financial Analysis Section */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Property Financial Analysis</h3>
+          <p className="text-sm text-gray-600">Detailed financial breakdown and performance metrics for individual properties</p>
+        </div>
+        
+        {/* Charts removed as requested */}
+      </div>
+
+      {/* Portfolio Analytics */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio Analytics</h3>
+          <p className="text-sm text-gray-600">High-level performance across all properties</p>
+        </div>
+
+        {/* Selector: All properties or single property */}
+        <div className="mb-6 flex items-center gap-3">
+          <label className="text-sm text-gray-700">Scope</label>
+          <select
+            className="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            value={selectedProperty || ''}
+            onChange={(e) => setSelectedProperty(e.target.value ? Number(e.target.value) : null)}
+          >
+            <option value="">All Properties</option>
+            {financialData?.map(d => (
+              <option key={d.property.id} value={d.property.id}>{d.property.title}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Bubble: Value vs Annual Cost vs APR */}
+          <div className="h-96 p-4 rounded-lg border lg:col-span-2">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Value, Cost, and Interest Rate Analysis</h4>
+            {(() => {
+              const bubble = valueCostAprBubbles();
+              return (
+                <Bubble
+                  data={{
+                    datasets: [{
+                      label: 'Properties',
+                      data: bubble.points,
+                      backgroundColor: 'rgba(99, 102, 241, 0.35)',
+                      borderColor: 'rgba(99, 102, 241, 1)',
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    parsing: false,
+                    scales: {
+                      x: {
+                        title: { display: true, text: 'Total Value ($)' },
+                        ticks: { callback: (v) => '$' + Number(v).toLocaleString() }
+                      },
+                      y: {
+                        title: { display: true, text: 'Total Annual Cost ($)' },
+                        ticks: { callback: (v) => '$' + Number(v).toLocaleString() },
+                        beginAtZero: true
+                      }
+                    },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          label: (ctx) => {
+                            const p = ctx.raw || {};
+                            return `${p.label}: Value $${Number(p.x).toLocaleString()}, Cost $${Number(p.y).toLocaleString()}, APR ${Number(p.apr).toFixed(2)}%`;
+                          }
+                        }
+                      },
+                      legend: { display: false }
+                    }
+                  }}
+                />
+              );
+            })()}
+            {(() => { const excl = valueCostAprBubbles().excluded; return excl > 0 ? (
+              <p className="mt-2 text-xs text-gray-500">{excl} properties omitted due to missing value/cost/APR data.</p>
+            ) : null; })()}
+            <p className="mt-2 text-xs text-gray-500">
+              X: total_value, Y: property_tax_annual + insurance_annual + (hoa_fees_monthly × 12), bubble size: current_apr.
+              Look for large bubbles high on the Y-axis—high annual carrying costs and higher APR may indicate refinancing opportunities.
+            </p>
+          </div>
+
+          {/* ROI Distribution */}
+          <div className="h-72 p-4 rounded-lg border">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">ROI Distribution</h4>
+            {(() => {
+              const hist = roiHistogram();
+              return (
+                <Bar
+                  data={{
+                    labels: hist.labels,
+                    datasets: [{
+                      label: 'Property Count',
+                      data: hist.values,
+                      backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                      borderColor: 'rgba(59, 130, 246, 1)',
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                  }}
+                />
+              );
+            })()}
+          </div>
+
+          {/* Net Profit by Property */}
+          <div className="h-72 p-4 rounded-lg border lg:col-span-2">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Net Profit by Property (Annual)</h4>
+            {(() => {
+              const items = netProfitByProperty();
+              return (
+                <Bar
+                  data={{
+                    labels: items.map(i => i.name),
+                    datasets: [{
+                      label: 'Annual Net Profit',
+                      data: items.map(i => i.value),
+                      backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                      borderColor: 'rgba(16, 185, 129, 1)',
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                      y: { beginAtZero: true, ticks: { callback: (v) => '$' + Number(v).toLocaleString() } },
+                      x: { ticks: { callback: (v, i, ticks) => ticks[i]?.label?.slice(0, 12) } }
+                    }
+                  }}
+                />
+              );
+            })()}
+          </div>
+
+          {/* Monthly Rent vs Expenses Histogram */}
+          <div className="h-72 p-4 rounded-lg border">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Monthly Rent vs Expenses</h4>
+            {(() => {
+              const hist = buildRentExpenseHistogram();
+              return (
+                <Bar
+                  data={{
+                    labels: hist.labels,
+                    datasets: [
+                      {
+                        label: 'Rent count',
+                        data: hist.rentBins,
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                      },
+                      {
+                        label: 'Expense count',
+                        data: hist.expBins,
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                      }
+                    ]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: { beginAtZero: true, ticks: { precision: 0 } },
+                      x: { ticks: { autoSkip: false, maxRotation: 0, minRotation: 0 } }
+                    },
+                    plugins: {
+                      tooltip: {
+                        callbacks: {
+                          title: (items) => {
+                            const label = items?.[0]?.label || '';
+                            return `$${label} (bin)`;
+                          },
+                          label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y}`
+                        }
+                      }
+                    }
+                  }}
+                />
+              );
+            })()}
+          </div>
+
+          {/* Property Value Allocation (Top-N Pie with Others) */}
+          <div className="h-96 p-4 rounded-lg border lg:col-span-2">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Property Value Allocation</h4>
+            {(() => {
+              const items = propertyValueAllocation();
+              const sorted = [...items].sort((a, b) => b.value - a.value);
+              const topN = 12; // keep labels readable
+              const top = sorted.slice(0, topN);
+              const othersValue = sorted.slice(topN).reduce((s, i) => s + i.value, 0);
+              const withOthers = othersValue > 0 ? [...top, { name: 'Others', value: othersValue }] : top;
+              const total = withOthers.reduce((s, i) => s + i.value, 0) || 1;
+
+              return (
+                <Pie
+                  data={{
+                    labels: withOthers.map(i => i.name),
+                    datasets: [{
+                      data: withOthers.map(i => i.value),
+                      backgroundColor: withOthers.map((_, idx) => idx === withOthers.length - 1 && othersValue > 0
+                        ? 'rgba(107, 114, 128, 0.8)'
+                        : `hsla(${(idx * 47) % 360}, 70%, 55%, 0.85)`),
+                      borderColor: withOthers.map((_, idx) => idx === withOthers.length - 1 && othersValue > 0
+                        ? 'rgba(75, 85, 99, 1)'
+                        : `hsla(${(idx * 47) % 360}, 70%, 35%, 1)`),
+                      borderWidth: 1
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: { position: 'right', labels: { boxWidth: 16 } },
+                      tooltip: {
+                        callbacks: {
+                          label: (ctx) => {
+                            const label = ctx.label || '';
+                            const value = ctx.parsed || 0;
+                            const pct = ((value / total) * 100).toFixed(1);
+                            return `${label}: $${Number(value).toLocaleString()} (${pct}%)`;
+                          }
+                        }
+                      }
+                    }
+                  }}
+                />
+              );
+            })()}
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Expense Breakdown</h3>
-          <div className="h-64">
-            <ExpenseBreakdownChart data={chartData.expenseBreakdown} />
-          </div>
-        </div>
+
+        {/* Note: Geographic map can be added with a mapping lib (Leaflet/Mapbox). */}
       </div>
 
       {/* Ledger Table */}

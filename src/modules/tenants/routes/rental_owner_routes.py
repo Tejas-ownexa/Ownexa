@@ -10,40 +10,56 @@ from datetime import datetime
 
 rental_owner_bp = Blueprint('rental_owner_bp', __name__)
 
-@rental_owner_bp.route('/rental-owners', methods=['GET'])
-@token_required
-def get_rental_owners(current_user):
-    """Get all rental owners that the current user can manage"""
+def _get_rental_owners_data(current_user):
+    """Shared function to get rental owners data"""
     try:
-        # Get rental owners that the current user manages
-        rental_owners = db.session.query(RentalOwner).join(
-            RentalOwnerManager, RentalOwner.id == RentalOwnerManager.rental_owner_id
-        ).filter(
+        # Get rental owners managed by the current user
+        # First, get rental owner IDs that this user manages
+        managed_rental_owner_ids = db.session.query(RentalOwnerManager.rental_owner_id).filter(
             RentalOwnerManager.user_id == current_user.id
         ).all()
         
-        rental_owners_data = []
-        for rental_owner in rental_owners:
-            # Get property count for this rental owner
-            property_count = Property.query.filter_by(rental_owner_id=rental_owner.id).count()
-            
-            # Get managers for this rental owner
-            managers = db.session.query(User).join(
-                RentalOwnerManager, User.id == RentalOwnerManager.user_id
-            ).filter(
-                RentalOwnerManager.rental_owner_id == rental_owner.id
+        # Extract the IDs from the query result
+        rental_owner_ids = [row[0] for row in managed_rental_owner_ids]
+        
+        # Get rental owners that this user manages
+        if rental_owner_ids:
+            rental_owners = RentalOwner.query.filter(
+                RentalOwner.id.in_(rental_owner_ids),
+                RentalOwner.is_active == True
             ).all()
+        else:
+            # If user doesn't manage any rental owners, return empty list
+            rental_owners = []
+        
+        rental_owners_data = []
+        for owner in rental_owners:
+            # Get properties directly linked to this rental owner
+            linked_properties = []
+            for prop in owner.properties:
+                linked_properties.append({
+                    'id': prop.id,
+                    'title': prop.title,
+                    'address': f"{prop.street_address_1}, {prop.city}, {prop.state}",
+                    'rent_amount': float(prop.rent_amount) if prop.rent_amount else 0,
+                    'status': prop.status,
+                    'city': prop.city,
+                    'state': prop.state
+                })
             
-            managers_data = [{
-                'id': manager.id,
-                'username': manager.username,
-                'full_name': manager.full_name,
-                'email': manager.email
-            } for manager in managers]
-            
-            rental_owner_dict = rental_owner.to_dict()
-            rental_owner_dict['property_count'] = property_count
-            rental_owner_dict['managers'] = managers_data
+            # Create rental owner data structure to match frontend expectations
+            rental_owner_dict = {
+                'id': owner.id,
+                'company_name': owner.company_name,
+                'business_type': owner.business_type or 'Property Owner',
+                'contact_email': owner.contact_email or owner.email,
+                'contact_phone': owner.contact_phone or owner.phone_number,
+                'city': owner.city or '',
+                'state': owner.state or '',
+                'property_count': len(linked_properties),
+                'created_at': owner.created_at.isoformat() if owner.created_at else None,
+                'properties': linked_properties
+            }
             rental_owners_data.append(rental_owner_dict)
         
         return jsonify({'rental_owners': rental_owners_data}), 200
@@ -51,84 +67,116 @@ def get_rental_owners(current_user):
         print(f"Error fetching rental owners: {str(e)}")
         return jsonify({'error': str(e)}), 400
 
-@rental_owner_bp.route('/rental-owners', methods=['POST'])
+@rental_owner_bp.route('/', methods=['GET'])
 @token_required
-def create_rental_owner(current_user):
-    """Create a new rental owner"""
+def get_rental_owners_root(current_user):
+    """Get all rental owner companies - root endpoint"""
+    return _get_rental_owners_data(current_user)
+
+@rental_owner_bp.route('/rental-owners', methods=['GET'])
+@token_required
+def get_rental_owners(current_user):
+    """Get all rental owner companies"""
+    return _get_rental_owners_data(current_user)
+
+def _create_rental_owner_data(current_user):
+    """Shared function to create rental owner data"""
     try:
         data = request.get_json()
         
         # Validate required fields
-        required_fields = ['company_name']
+        required_fields = ['company_name', 'contact_email']
         for field in required_fields:
             if not data.get(field):
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
-        # Create rental owner
-        rental_owner = RentalOwner(
+        # Check if rental owner with this email already exists
+        existing_owner = RentalOwner.query.filter_by(contact_email=data['contact_email']).first()
+        if existing_owner:
+            return jsonify({'error': 'A rental owner with this email already exists'}), 400
+        
+        # Create new rental owner
+        new_owner = RentalOwner(
             company_name=data['company_name'],
-            business_type=data.get('business_type'),
-            tax_id=data.get('tax_id'),
-            business_address=data.get('business_address'),
-            city=data.get('city'),
-            state=data.get('state'),
-            zip_code=data.get('zip_code'),
-            phone_number=data.get('phone_number'),
-            email=data.get('email'),
-            website=data.get('website'),
-            contact_person=data.get('contact_person'),
-            contact_phone=data.get('contact_phone'),
-            contact_email=data.get('contact_email'),
-            bank_account_info=data.get('bank_account_info'),
-            insurance_info=data.get('insurance_info'),
-            management_fee_percentage=data.get('management_fee_percentage', 0.00),
-            notes=data.get('notes')
+            business_type=data.get('business_type', 'Property Owner'),
+            contact_email=data['contact_email'],
+            contact_phone=data.get('contact_phone', ''),
+            email=data.get('contact_email', ''),  # Also store in email field for compatibility
+            phone_number=data.get('contact_phone', ''),  # Also store in phone_number field
+            city=data.get('city', ''),
+            state=data.get('state', ''),
+            zip_code=data.get('zip_code', ''),
+            is_active=True
         )
         
-        db.session.add(rental_owner)
-        db.session.flush()  # Get the ID
+        db.session.add(new_owner)
+        db.session.flush()  # Flush to get the ID
         
-        # Create manager relationship (current user becomes primary manager)
-        manager = RentalOwnerManager(
-            rental_owner_id=rental_owner.id,
+        # Create manager relationship - make the current user the primary manager
+        manager_relationship = RentalOwnerManager(
+            rental_owner_id=new_owner.id,
             user_id=current_user.id,
             role='MANAGER',
             is_primary=True
         )
-        
-        db.session.add(manager)
+        db.session.add(manager_relationship)
         db.session.commit()
         
-        print(f"New rental owner created: {rental_owner.company_name} by user {current_user.username}")
+        print(f"New rental owner created: {data['company_name']} ({data['contact_email']}) by user {current_user.username}")
+        
+        # Return data in format expected by frontend
+        owner_data = {
+            'id': new_owner.id,
+            'company_name': new_owner.company_name,
+            'business_type': new_owner.business_type,
+            'contact_email': new_owner.contact_email,
+            'contact_phone': new_owner.contact_phone,
+            'city': new_owner.city,
+            'state': new_owner.state,
+            'property_count': 0,
+            'created_at': new_owner.created_at.isoformat() if new_owner.created_at else None
+        }
+        
         return jsonify({
             'success': True,
             'message': 'Rental owner created successfully',
-            'rental_owner': rental_owner.to_dict()
+            'rental_owner': owner_data
         }), 201
         
     except Exception as e:
-        print(f"Error creating rental owner: {str(e)}")
+        print(f"Error creating property owner: {str(e)}")
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        
+        # Provide more user-friendly error messages
+        error_message = str(e)
+        if 'duplicate key value violates unique constraint' in error_message:
+            if 'user_username_key' in error_message:
+                return jsonify({'error': 'A user with this username already exists. Please try a different email address.'}), 400
+            elif 'user_email_key' in error_message:
+                return jsonify({'error': 'A user with this email already exists.'}), 400
+            else:
+                return jsonify({'error': 'A user with this information already exists. Please check your details.'}), 400
+        else:
+            return jsonify({'error': f'Failed to create rental owner: {error_message}'}), 400
+
+@rental_owner_bp.route('/', methods=['POST'])
+@token_required
+def create_rental_owner_root(current_user):
+    """Create a new rental owner company - root endpoint"""
+    return _create_rental_owner_data(current_user)
+
+@rental_owner_bp.route('/rental-owners', methods=['POST'])
+@token_required
+def create_rental_owner(current_user):
+    """Create a new rental owner company"""
+    return _create_rental_owner_data(current_user)
 
 @rental_owner_bp.route('/rental-owners/<int:rental_owner_id>', methods=['PUT'])
 @token_required
 def update_rental_owner(current_user, rental_owner_id):
-    """Update a rental owner"""
+    """Update a property owner"""
     try:
-        # Check if user can manage this rental owner
-        manager = RentalOwnerManager.query.filter_by(
-            rental_owner_id=rental_owner_id,
-            user_id=current_user.id
-        ).first()
-        
-        if not manager:
-            return jsonify({'error': 'Unauthorized to update this rental owner'}), 403
-        
-        rental_owner = RentalOwner.query.get(rental_owner_id)
-        if not rental_owner:
-            return jsonify({'error': 'Rental owner not found'}), 404
-        
+        rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
         data = request.get_json()
         
         # Update fields
@@ -136,38 +184,16 @@ def update_rental_owner(current_user, rental_owner_id):
             rental_owner.company_name = data['company_name']
         if 'business_type' in data:
             rental_owner.business_type = data['business_type']
-        if 'tax_id' in data:
-            rental_owner.tax_id = data['tax_id']
-        if 'business_address' in data:
-            rental_owner.business_address = data['business_address']
+        if 'contact_email' in data:
+            rental_owner.contact_email = data['contact_email']
+        if 'contact_phone' in data:
+            rental_owner.contact_phone = data['contact_phone']
         if 'city' in data:
             rental_owner.city = data['city']
         if 'state' in data:
             rental_owner.state = data['state']
         if 'zip_code' in data:
             rental_owner.zip_code = data['zip_code']
-        if 'phone_number' in data:
-            rental_owner.phone_number = data['phone_number']
-        if 'email' in data:
-            rental_owner.email = data['email']
-        if 'website' in data:
-            rental_owner.website = data['website']
-        if 'contact_person' in data:
-            rental_owner.contact_person = data['contact_person']
-        if 'contact_phone' in data:
-            rental_owner.contact_phone = data['contact_phone']
-        if 'contact_email' in data:
-            rental_owner.contact_email = data['contact_email']
-        if 'bank_account_info' in data:
-            rental_owner.bank_account_info = data['bank_account_info']
-        if 'insurance_info' in data:
-            rental_owner.insurance_info = data['insurance_info']
-        if 'management_fee_percentage' in data:
-            rental_owner.management_fee_percentage = data['management_fee_percentage']
-        if 'notes' in data:
-            rental_owner.notes = data['notes']
-        if 'is_active' in data:
-            rental_owner.is_active = data['is_active']
         
         db.session.commit()
         
@@ -182,54 +208,38 @@ def update_rental_owner(current_user, rental_owner_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
-@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>', methods=['DELETE'])
-@token_required
-def delete_rental_owner(current_user, rental_owner_id):
-    """Delete a rental owner"""
+def _delete_rental_owner_data(current_user, rental_owner_id):
+    """Shared function to delete rental owner data"""
     try:
-        # Check if user can manage this rental owner
-        manager = RentalOwnerManager.query.filter_by(
+        rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
+        
+        # Check if current user is authorized to delete this rental owner
+        manager_relationship = RentalOwnerManager.query.filter_by(
             rental_owner_id=rental_owner_id,
             user_id=current_user.id
         ).first()
         
-        if not manager:
-            return jsonify({'error': 'Unauthorized to delete this rental owner'}), 403
-        
-        rental_owner = RentalOwner.query.get(rental_owner_id)
-        if not rental_owner:
-            return jsonify({'error': 'Rental owner not found'}), 404
+        if not manager_relationship:
+            return jsonify({
+                'error': 'You are not authorized to delete this rental owner.'
+            }), 403
         
         # Check if rental owner has properties
-        properties = Property.query.filter_by(rental_owner_id=rental_owner_id).all()
-        property_count = len(properties)
-        
-        # If properties exist, return property information for confirmation
-        if property_count > 0:
-            property_info = []
-            for prop in properties:
-                property_info.append({
-                    'id': prop.id,
-                    'title': prop.title,
-                    'address': f"{prop.street_address_1}, {prop.city}, {prop.state}",
-                    'status': prop.status
-                })
-            
+        if rental_owner.properties:
             return jsonify({
-                'error': 'confirmation_required',
-                'message': f'This rental owner has {property_count} properties. Do you wish to delete it?',
-                'property_count': property_count,
-                'properties': property_info,
-                'rental_owner_name': rental_owner.company_name
+                'error': 'Cannot delete rental owner with properties. Please transfer or delete properties first.',
+                'confirmation_required': True,
+                'property_count': len(rental_owner.properties)
             }), 400
         
-        # Manually delete related records to avoid cascade issues
-        # Delete rental owner managers first
+        # Delete manager relationships first
         RentalOwnerManager.query.filter_by(rental_owner_id=rental_owner_id).delete()
         
-        # Then delete the rental owner
+        # Delete the rental owner
         db.session.delete(rental_owner)
         db.session.commit()
+        
+        print(f"Rental owner deleted: {rental_owner.company_name} by user {current_user.username}")
         
         return jsonify({
             'success': True,
@@ -239,64 +249,70 @@ def delete_rental_owner(current_user, rental_owner_id):
     except Exception as e:
         print(f"Error deleting rental owner: {str(e)}")
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': f'Failed to delete rental owner: {str(e)}'}), 400
 
-@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@rental_owner_bp.route('/<int:rental_owner_id>', methods=['DELETE'])
 @token_required
-def force_delete_rental_owner(current_user, rental_owner_id):
-    """Force delete a rental owner and all its properties"""
+def delete_rental_owner_root(current_user, rental_owner_id):
+    """Delete a rental owner - root endpoint"""
+    return _delete_rental_owner_data(current_user, rental_owner_id)
+
+@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>', methods=['DELETE'])
+@token_required
+def delete_rental_owner(current_user, rental_owner_id):
+    """Delete a rental owner"""
+    return _delete_rental_owner_data(current_user, rental_owner_id)
+
+def _force_delete_rental_owner_data(current_user, rental_owner_id):
+    """Shared function to force delete rental owner data"""
     try:
-        # Check if user can manage this rental owner
-        manager = RentalOwnerManager.query.filter_by(
+        rental_owner = RentalOwner.query.get_or_404(rental_owner_id)
+        
+        # Check if current user is authorized to delete this rental owner
+        manager_relationship = RentalOwnerManager.query.filter_by(
             rental_owner_id=rental_owner_id,
             user_id=current_user.id
         ).first()
         
-        if not manager:
-            return jsonify({'error': 'Unauthorized to delete this rental owner'}), 403
+        if not manager_relationship:
+            return jsonify({
+                'error': 'You are not authorized to delete this rental owner.'
+            }), 403
         
-        rental_owner = RentalOwner.query.get(rental_owner_id)
-        if not rental_owner:
-            return jsonify({'error': 'Rental owner not found'}), 404
-        
-        # Get all properties for this rental owner
-        properties = Property.query.filter_by(rental_owner_id=rental_owner_id).all()
-        
-        # Delete all properties and their related data
-        for property in properties:
-            # Delete tenants for this property
-            from models.tenant import Tenant, OutstandingBalance
-            from models.maintenance import MaintenanceRequest
-            
-            # Delete tenants
-            Tenant.query.filter_by(property_id=property.id).delete()
-            
-            # Delete outstanding balances
-            OutstandingBalance.query.filter_by(property_id=property.id).delete()
-            
-            # Delete maintenance requests
-            MaintenanceRequest.query.filter_by(property_id=property.id).delete()
-            
-            # Delete the property
+        # Delete all associated properties
+        for property in rental_owner.properties:
             db.session.delete(property)
         
-        # Manually delete related records to avoid cascade issues
-        # Delete rental owner managers first
+        # Delete manager relationships
         RentalOwnerManager.query.filter_by(rental_owner_id=rental_owner_id).delete()
         
-        # Then delete the rental owner
+        # Delete the rental owner
         db.session.delete(rental_owner)
         db.session.commit()
         
+        print(f"Rental owner force deleted: {rental_owner.company_name} by user {current_user.username}")
+        
         return jsonify({
             'success': True,
-            'message': f'Rental owner "{rental_owner.company_name}" and {len(properties)} properties deleted successfully'
+            'message': 'Rental owner and all associated properties deleted successfully'
         }), 200
         
     except Exception as e:
         print(f"Error force deleting rental owner: {str(e)}")
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': f'Failed to force delete rental owner: {str(e)}'}), 400
+
+@rental_owner_bp.route('/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@token_required
+def force_delete_rental_owner_root(current_user, rental_owner_id):
+    """Force delete a rental owner and all associated properties - root endpoint"""
+    return _force_delete_rental_owner_data(current_user, rental_owner_id)
+
+@rental_owner_bp.route('/rental-owners/<int:rental_owner_id>/force-delete', methods=['DELETE'])
+@token_required
+def force_delete_rental_owner(current_user, rental_owner_id):
+    """Force delete a rental owner and all associated properties"""
+    return _force_delete_rental_owner_data(current_user, rental_owner_id)
 
 @rental_owner_bp.route('/rental-owners/import', methods=['POST'])
 @token_required
@@ -311,80 +327,65 @@ def import_rental_owners(current_user):
             return jsonify({'error': 'No file selected'}), 400
         
         if not csv_file.filename.endswith('.csv'):
-            return jsonify({'error': 'File must be a CSV'}), 400
+            return jsonify({'error': 'Please upload a CSV file'}), 400
         
+        # Read CSV content
         csv_content = csv_file.read().decode('utf-8')
         csv_reader = csv.DictReader(io.StringIO(csv_content))
         
         imported_count = 0
         errors = []
         
-        for row_num, row in enumerate(csv_reader, start=2):
+        for row_num, row in enumerate(csv_reader, start=2):  # Start at 2 because row 1 is header
             try:
-                company_name = row.get('COMPANY_NAME', '').strip()
-                if not company_name:
-                    errors.append(f"Row {row_num}: Company name is required")
+                # Validate required fields
+                if not row.get('company_name') or not row.get('contact_email'):
+                    errors.append(f"Row {row_num}: Missing required fields (company_name, contact_email)")
                     continue
                 
                 # Check if rental owner already exists
-                existing_rental_owner = RentalOwner.query.filter_by(company_name=company_name).first()
-                if existing_rental_owner:
-                    errors.append(f"Row {row_num}: Rental owner with company name '{company_name}' already exists")
+                existing_owner = RentalOwner.query.filter_by(contact_email=row['contact_email']).first()
+                if existing_owner:
+                    errors.append(f"Row {row_num}: Rental owner with email {row['contact_email']} already exists")
                     continue
                 
+                # Create new rental owner
                 rental_owner = RentalOwner(
-                    company_name=company_name,
-                    business_type=row.get('BUSINESS_TYPE', '').strip(),
-                    tax_id=row.get('TAX_ID', '').strip(),
-                    business_address=row.get('BUSINESS_ADDRESS', '').strip(),
-                    city=row.get('CITY', '').strip(),
-                    state=row.get('STATE', '').strip(),
-                    zip_code=row.get('ZIP_CODE', '').strip(),
-                    phone_number=row.get('PHONE_NUMBER', '').strip(),
-                    email=row.get('EMAIL', '').strip(),
-                    website=row.get('WEBSITE', '').strip(),
-                    contact_person=row.get('CONTACT_PERSON', '').strip(),
-                    contact_phone=row.get('CONTACT_PHONE', '').strip(),
-                    contact_email=row.get('CONTACT_EMAIL', '').strip(),
-                    bank_account_info=row.get('BANK_ACCOUNT_INFO', '').strip(),
-                    insurance_info=row.get('INSURANCE_INFO', '').strip(),
-                    management_fee_percentage=float(row.get('MANAGEMENT_FEE_PERCENTAGE', 0)),
-                    notes=row.get('NOTES', '').strip()
+                    company_name=row['company_name'],
+                    business_type=row.get('business_type', 'Property Owner'),
+                    contact_email=row['contact_email'],
+                    contact_phone=row.get('contact_phone', ''),
+                    email=row['contact_email'],
+                    phone_number=row.get('contact_phone', ''),
+                    city=row.get('city', ''),
+                    state=row.get('state', ''),
+                    zip_code=row.get('zip_code', ''),
+                    is_active=True
                 )
                 
                 db.session.add(rental_owner)
-                db.session.flush()  # Get the ID
+                db.session.flush()  # Flush to get the ID
                 
-                # Create manager relationship
-                manager = RentalOwnerManager(
+                # Create manager relationship for imported rental owner
+                manager_relationship = RentalOwnerManager(
                     rental_owner_id=rental_owner.id,
                     user_id=current_user.id,
                     role='MANAGER',
                     is_primary=True
                 )
-                
-                db.session.add(manager)
+                db.session.add(manager_relationship)
                 imported_count += 1
                 
             except Exception as e:
                 errors.append(f"Row {row_num}: {str(e)}")
-                continue
-        
-        if errors:
-            db.session.rollback()
-            return jsonify({
-                'success': False,
-                'error': 'Import failed due to validation errors',
-                'errors': errors
-            }), 400
         
         db.session.commit()
         
-        print(f"Successfully imported {imported_count} rental owners")
         return jsonify({
             'success': True,
+            'message': f'Successfully imported {imported_count} rental owners',
             'imported_count': imported_count,
-            'message': f'Successfully imported {imported_count} rental owners'
+            'errors': errors
         }), 200
         
     except Exception as e:
@@ -397,47 +398,32 @@ def import_rental_owners(current_user):
 def export_rental_owners(current_user):
     """Export rental owners to CSV"""
     try:
-        # Get rental owners that the current user manages
-        rental_owners = db.session.query(RentalOwner).join(
-            RentalOwnerManager, RentalOwner.id == RentalOwnerManager.rental_owner_id
-        ).filter(
-            RentalOwnerManager.user_id == current_user.id
-        ).all()
+        rental_owners = RentalOwner.query.filter_by(is_active=True).all()
         
         # Create CSV content
-        csv_content = [
-            ['COMPANY_NAME', 'BUSINESS_TYPE', 'TAX_ID', 'BUSINESS_ADDRESS', 'CITY', 'STATE', 'ZIP_CODE', 
-             'PHONE_NUMBER', 'EMAIL', 'WEBSITE', 'CONTACT_PERSON', 'CONTACT_PHONE', 'CONTACT_EMAIL', 
-             'BANK_ACCOUNT_INFO', 'INSURANCE_INFO', 'MANAGEMENT_FEE_PERCENTAGE', 'NOTES']
-        ]
+        output = io.StringIO()
+        fieldnames = ['company_name', 'business_type', 'contact_email', 'contact_phone', 'city', 'state', 'zip_code']
+        writer = csv.DictWriter(output, fieldnames=fieldnames)
         
-        for rental_owner in rental_owners:
-            csv_content.append([
-                rental_owner.company_name or '',
-                rental_owner.business_type or '',
-                rental_owner.tax_id or '',
-                rental_owner.business_address or '',
-                rental_owner.city or '',
-                rental_owner.state or '',
-                rental_owner.zip_code or '',
-                rental_owner.phone_number or '',
-                rental_owner.email or '',
-                rental_owner.website or '',
-                rental_owner.contact_person or '',
-                rental_owner.contact_phone or '',
-                rental_owner.contact_email or '',
-                rental_owner.bank_account_info or '',
-                rental_owner.insurance_info or '',
-                rental_owner.management_fee_percentage or 0,
-                rental_owner.notes or ''
-            ])
+        writer.writeheader()
+        for owner in rental_owners:
+            writer.writerow({
+                'company_name': owner.company_name,
+                'business_type': owner.business_type,
+                'contact_email': owner.contact_email,
+                'contact_phone': owner.contact_phone,
+                'city': owner.city,
+                'state': owner.state,
+                'zip_code': owner.zip_code
+            })
         
-        csv_string = '\n'.join([','.join([f'"{cell}"' for cell in row]) for row in csv_content])
+        csv_content = output.getvalue()
+        output.close()
         
         return jsonify({
             'success': True,
-            'csv_data': csv_string,
-            'filename': f'rental_owners_export_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            'csv_content': csv_content,
+            'filename': f'rental_owners_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
         }), 200
         
     except Exception as e:

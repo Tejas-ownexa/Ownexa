@@ -22,14 +22,21 @@ class Property(BaseModel):
     rent_amount = db.Column(db.Numeric(10, 2), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='available')
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+<<<<<<< HEAD:src/modules/properties/models/property.py
+=======
+    rental_owner_id = db.Column(db.Integer, db.ForeignKey('rental_owners.id', ondelete='CASCADE'), nullable=True)
+>>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112:models/property.py
     image_url = db.Column(db.String(500))  # Store image URL/path
-    
-    # Explicitly add the timestamp columns
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
+<<<<<<< HEAD:src/modules/properties/models/property.py
     owner = db.relationship('User', backref='properties')
+=======
+    owner = db.relationship('User', foreign_keys=[owner_id], backref='owned_properties')
+    rental_owner = db.relationship('RentalOwner', foreign_keys=[rental_owner_id], backref='properties')
+>>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112:models/property.py
     tenants = db.relationship('Tenant', back_populates='property')
     maintenance_requests = db.relationship('MaintenanceRequest', back_populates='property')
     listings = db.relationship('Listing', back_populates='property')

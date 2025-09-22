@@ -49,13 +49,14 @@ const RentRoll = () => {
   // Export rent roll to CSV
   const handleExport = () => {
     const csvContent = [
-      ['LEASE', 'STATUS', 'TYPE', 'DAYS LEFT', 'RENT'],
+      ['LEASE', 'STATUS', 'TYPE', 'NEXT PAYMENT', 'NEXT AMOUNT', 'MONTHLY RENT'],
       ...leases.map(lease => [
         lease.lease || '',
         lease.status || '',
         lease.type || '',
         lease.daysLeft || '',
-        lease.rent || ''
+        lease.rent || '',
+        lease.monthlyRent || lease.rent || ''
       ])
     ].map(row => row.join(',')).join('\n');
 
@@ -79,14 +80,38 @@ const RentRoll = () => {
     if (searchTerm) {
       filtered = filtered.filter(lease => 
         lease.lease?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lease.tenant?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lease.property?.toLowerCase().includes(searchTerm.toLowerCase())
+        lease.tenant_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lease.property_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        lease.address?.toLowerCase().includes(searchTerm.toLowerCase())
       );
+    }
+
+    // Apply rental type filter (active/future/all)
+    if (filterRentals !== 'all') {
+      filtered = filtered.filter(lease => {
+        const status = lease.status?.toLowerCase();
+        if (filterRentals === 'active') {
+          return status === 'active';
+        } else if (filterRentals === 'future') {
+          return status === 'future';
+        }
+        return true;
+      });
     }
 
     // Apply status filter
     if (filterStatus !== 'all') {
-      filtered = filtered.filter(lease => lease.status === filterStatus);
+      filtered = filtered.filter(lease => {
+        const status = lease.status?.toLowerCase();
+        if (filterStatus === 'active') {
+          return status === 'active';
+        } else if (filterStatus === 'future') {
+          return status === 'future';
+        } else if (filterStatus === 'expired') {
+          return status === 'expired';
+        }
+        return true;
+      });
     }
 
     // Apply sorting
@@ -132,7 +157,7 @@ const RentRoll = () => {
     });
 
     return filtered;
-  }, [leases, searchTerm, filterStatus, sortField, sortDirection]);
+  }, [leases, searchTerm, filterRentals, filterStatus, sortField, sortDirection]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -155,9 +180,34 @@ const RentRoll = () => {
   const getDaysLeftBadge = (daysLeft) => {
     if (!daysLeft) return null;
     
-    if (daysLeft === 'EXPIRED') {
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">EXPIRED</span>;
+    // Handle payment due statuses
+    if (daysLeft === 'DUE TODAY') {
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">DUE TODAY</span>;
+    } else if (daysLeft === 'DUE TOMORROW') {
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">DUE TOMORROW</span>;
+    } else if (daysLeft.includes('DUE IN') && daysLeft.includes('DAYS')) {
+      const days = parseInt(daysLeft.match(/\d+/)[0]);
+      if (days <= 3) {
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{daysLeft}</span>;
+      } else if (days <= 7) {
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{daysLeft}</span>;
+      } else {
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{daysLeft}</span>;
+      }
+    }
+    
+    // Handle legacy lease expiration statuses
+    else if (daysLeft === 'EXPIRED' || daysLeft === 'LEASE EXPIRED') {
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">LEASE EXPIRED</span>;
+    } else if (daysLeft.includes('DAYS LEFT')) {
+      const days = parseInt(daysLeft);
+      if (days <= 30) {
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{daysLeft}</span>;
+      } else {
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{daysLeft}</span>;
+      }
     } else if (daysLeft.includes('DAYS')) {
+      // Legacy format for backwards compatibility
       const days = parseInt(daysLeft);
       if (days <= 30) {
         return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{daysLeft}</span>;
@@ -266,23 +316,34 @@ const RentRoll = () => {
                   onChange={(e) => setFilterStatus(e.target.value)}
                   className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="all">(2) Active, Future</option>
-                  <option value="active">Active</option>
-                  <option value="future">Future</option>
-                  <option value="expired">Expired</option>
+                  <option value="all">All Status</option>
+                  <option value="active">Active Leases</option>
+                  <option value="future">Future Leases</option>
+                  <option value="expired">Expired Leases</option>
                 </select>
                 <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
               
-              <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <Filter className="h-4 w-4 mr-2" />
-                Add filter option
-                <ChevronDown className="h-4 w-4 ml-2" />
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterRentals('all');
+                  setFilterStatus('all');
+                }}
+                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Clear Filters
               </button>
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">{filteredLeases.length} matches</span>
+              <span className="text-sm text-gray-600">
+                {filteredLeases.length} of {leases.length} leases
+                {(searchTerm || filterRentals !== 'all' || filterStatus !== 'all') && (
+                  <span className="text-blue-600 font-medium"> (filtered)</span>
+                )}
+              </span>
               <button
                 onClick={handleExport}
                 className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -342,7 +403,7 @@ const RentRoll = () => {
                     onClick={() => handleSort('daysLeft')}
                   >
                     <div className="flex items-center space-x-1">
-                      <span>DAYS LEFT</span>
+                      <span>NEXT PAYMENT</span>
                       {getSortIcon('daysLeft')}
                     </div>
                   </th>
@@ -390,7 +451,19 @@ const RentRoll = () => {
                         {getDaysLeftBadge(lease.daysLeft)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {formatCurrency(lease.rent)}
+                        <div>
+                          <div className="font-medium">
+                            {formatCurrency(lease.rent)}
+                            {lease.monthlyRent && lease.rent !== lease.monthlyRent && (
+                              <span className="text-xs text-blue-600 ml-1">(Next)</span>
+                            )}
+                          </div>
+                          {lease.monthlyRent && lease.rent !== lease.monthlyRent && (
+                            <div className="text-xs text-gray-500">
+                              Monthly: {formatCurrency(lease.monthlyRent)}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button className="text-gray-400 hover:text-gray-600">

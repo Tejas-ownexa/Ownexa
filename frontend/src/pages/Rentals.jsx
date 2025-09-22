@@ -350,10 +350,10 @@ const Rentals = () => {
 
       {/* Navigation Tabs */}
       <div className="border-b border-gray-200">
-        <nav className="flex space-x-8">
+        <nav className="flex flex-wrap space-x-4 sm:space-x-8">
           <button
             onClick={() => setActiveTab('properties')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'properties'
                 ? 'border-green-500 text-green-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -363,7 +363,7 @@ const Rentals = () => {
           </button>
           <button
             onClick={() => setActiveTab('rentroll')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'rentroll'
                 ? 'border-green-500 text-green-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -373,7 +373,7 @@ const Rentals = () => {
           </button>
           <button
             onClick={() => setActiveTab('liability')}
-            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+            className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'liability'
                 ? 'border-green-500 text-green-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -388,78 +388,82 @@ const Rentals = () => {
       {activeTab === 'properties' && (
         <div className="space-y-6">
           {/* Properties Header */}
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
-            <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Properties</h1>
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <Link
                 to="/add-property"
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2 text-sm sm:text-base"
               >
                 <Plus className="h-4 w-4" />
-                <span>Add property</span>
+                <span className="hidden sm:inline">Add property</span>
+                <span className="sm:hidden">Add</span>
               </Link>
-              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2">
-                <span>Management fees</span>
+              <button className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2 text-sm sm:text-base">
+                <span className="hidden sm:inline">Management fees</span>
+                <span className="sm:hidden">Fees</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              <button className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm sm:text-base hidden sm:block">
                 Manage bank accounts
               </button>
-              <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              <button className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                 <MoreHorizontal className="h-4 w-4" />
               </button>
             </div>
           </div>
 
           {/* Filters and Search Bar */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
+              <div className="relative w-full sm:w-auto">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Search properties..."
                   value={propertySearchTerm}
                   onChange={(e) => setPropertySearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
                 />
               </div>
               <select 
                 value={propertyFilterStatus} 
                 onChange={(e) => setPropertyFilterStatus(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full sm:w-auto"
               >
                 <option value="all">All rentals</option>
                 <option value="available">Available</option>
                 <option value="rented">Rented</option>
                 <option value="maintenance">Maintenance</option>
               </select>
-              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
+              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
                 <Filter className="h-4 w-4" />
-                <span>Add filter option</span>
+                <span className="hidden sm:inline">Add filter option</span>
+                <span className="sm:hidden">Filters</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">Show bank accounts</span>
+              <div className="flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
+                <span className="text-sm text-gray-600 hidden sm:inline">Show bank accounts</span>
+                <span className="text-sm text-gray-600 sm:hidden">Bank accounts</span>
                 <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
                   <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
                   <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                 </div>
               </div>
             </div>
-            <div className="flex space-x-2">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full lg:w-auto">
               <button 
                 onClick={() => {
                   // Export properties functionality
                   const csvContent = [
-                    ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'OPERATING ACCOUNT', 'DEPOSIT TRUST ACCOUNT'],
+                    ['PROPERTY', 'LOCATION', 'RENTAL OWNERS', 'MANAGER', 'TYPE', 'STATUS', 'DEPOSIT TRUST ACCOUNT'],
                     ...(properties || []).map(property => [
                       property.title,
                       `${property.address?.city || ''}, ${property.address?.state || ''}`,
-                      property.owner?.full_name || 'N/A',
+                      property.rental_owner?.company_name || 'N/A',
                       'N/A',
                       'Residential',
-                      'EFT ATK ASSOCIATE...',
+                      property.status ? property.status.charAt(0).toUpperCase() + property.status.slice(1) : 'Unknown',
                       'Setup'
                     ])
                   ].map(row => row.join(',')).join('\n');
@@ -477,7 +481,7 @@ const Rentals = () => {
                   document.body.removeChild(link);
                   toast.success('Properties exported successfully!');
                 }}
-                className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+                className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
               >
                 <Download className="h-4 w-4" />
                 <span>Export</span>
@@ -553,7 +557,7 @@ const Rentals = () => {
                   document.body.appendChild(fileInput);
                   fileInput.click();
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
               >
                 <Upload className="h-4 w-4" />
                 <span>Import</span>
@@ -573,37 +577,40 @@ const Rentals = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('property')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>PROPERTY</span>
+                        <span className="hidden sm:inline">PROPERTY</span>
+                        <span className="sm:hidden">PROP</span>
                         {getSortIcon('property')}
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('location')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>LOCATION</span>
+                        <span className="hidden sm:inline">LOCATION</span>
+                        <span className="sm:hidden">LOC</span>
                         {getSortIcon('location')}
                       </div>
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden md:table-cell"
                       onClick={() => handleSort('owner')}
                     >
                       <div className="flex items-center space-x-1">
-                        <span>RENTAL OWNERS</span>
+                        <span className="hidden lg:inline">RENTAL OWNERS</span>
+                        <span className="lg:hidden">OWNERS</span>
                         {getSortIcon('owner')}
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                       MANAGER
                     </th>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                       onClick={() => handleSort('type')}
                     >
                       <div className="flex items-center space-x-1">
@@ -611,13 +618,13 @@ const Rentals = () => {
                         {getSortIcon('type')}
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      OPERATING ACCOUNT
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      STATUS
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden 2xl:table-cell">
                       DEPOSIT TRUST ACCOUNT
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       ACTIONS
                     </th>
                   </tr>
@@ -626,7 +633,7 @@ const Rentals = () => {
                   {filteredProperties.length > 0 ? (
                     filteredProperties.map((property) => (
                       <tr key={property.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <Link
                             to={`/properties/${property.id}`}
                             className="text-sm font-medium text-blue-600 hover:text-blue-800"
@@ -634,26 +641,42 @@ const Rentals = () => {
                             {property.title}
                           </Link>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {property.address?.city || 'N/A'}, {property.address?.state || 'N/A'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
                           {property.rental_owner?.company_name || 'N/A'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
                           -
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          Residential, {property.apt_number ? 'Condo/Townhome' : 'Single-Family'}
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <span className="hidden sm:inline">Residential, {property.apt_number ? 'Condo/Townhome' : 'Single-Family'}</span>
+                          <span className="sm:hidden">{property.apt_number ? 'Condo' : 'Single'}</span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">EFT</span>
-                            <span className="text-xs bg-green-500 w-2 h-2 rounded-full"></span>
-                            <span className="text-sm text-gray-900">ATK ASSOCIATE...</span>
-                          </div>
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                            property.status === 'available' 
+                              ? 'bg-green-100 text-green-800' 
+                              : property.status === 'rented'
+                              ? 'bg-blue-100 text-blue-800'
+                              : property.status === 'maintenance'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            <span className={`w-2 h-2 rounded-full mr-2 ${
+                              property.status === 'available' 
+                                ? 'bg-green-500' 
+                                : property.status === 'rented'
+                                ? 'bg-blue-500'
+                                : property.status === 'maintenance'
+                                ? 'bg-yellow-500'
+                                : 'bg-gray-500'
+                            }`}></span>
+                            {property.status ? property.status.charAt(0).toUpperCase() + property.status.slice(1) : 'Unknown'}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden 2xl:table-cell">
                           <Link
                             to="#"
                             className="text-sm text-blue-600 hover:text-blue-800"
@@ -661,7 +684,7 @@ const Rentals = () => {
                             Setup
                           </Link>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex items-center space-x-2">
                             <button 
                               onClick={() => handleDeleteProperty(property.id)}
@@ -679,7 +702,7 @@ const Rentals = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="px-6 py-12 text-center">
+                      <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
                         <div className="text-gray-400 mb-4">
                           <Search className="h-16 w-16 mx-auto" />
                         </div>

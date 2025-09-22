@@ -3,31 +3,53 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AdminBotProvider, useAdminBot } from './contexts/AdminBotContext';
 import Sidebar from './components/Sidebar';
-import ChatWidget from './components/ChatWidget';
-import ErrorBoundary from './components/ErrorBoundary';
+import AdminBotModal from './components/AdminBotModal';
+// import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import DashboardRouter from './pages/DashboardRouter';
 
 import PropertyDetail from './pages/PropertyDetail';
+import Properties from './pages/Properties';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
 import Rentals from './pages/Rentals';
 import RentalOwners from './pages/RentalOwners';
+import RentalOwnerDetail from './pages/RentalOwnerDetail';
 import RentRoll from './pages/RentRoll';
-import OutstandingBalances from './pages/OutstandingBalances';
+import OutstandingBalances from './pages/associations/OutstandingBalances';
+import Leasing from './pages/Leasing';
+import AddDraftLease from './pages/AddDraftLease';
 import MaintenanceRequests from './pages/MaintenanceRequests';
 import MaintenanceDashboard from './pages/MaintenanceDashboard';
 import MaintenanceRequest from './pages/MaintenanceRequest';
 import VendorProfile from './pages/VendorProfile';
+import Vendors from './pages/Vendors';
+import AddVendor from './pages/AddVendor';
+import ManageVendorCategories from './pages/ManageVendorCategories';
+import WorkOrders from './pages/WorkOrders';
+import AddWorkOrder from './pages/AddWorkOrder';
+import Associations from './pages/Associations';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
 import ExcelImportPage from './pages/ExcelImportPage';
 // import DataImport from './pages/DataImport';
 import './index.css';
+
+import OwnershipAccounts from './pages/associations/OwnershipAccounts';
+import OwnersAndTenants from './pages/associations/OwnersAndTenants';
+import Violations from './pages/associations/Violations';
+import ArchitecturalRequests from './pages/associations/ArchitecturalRequests';
+import PropertyGroups from './pages/associations/PropertyGroups';
+import ReceivePayment from './pages/associations/ReceivePayment';
+import UpdateRecurringCharges from './pages/associations/UpdateRecurringCharges';
+import AddPropertyGroup from './pages/associations/AddPropertyGroup';
+import AddTenant from './pages/associations/AddTenant';
+import AddAssociation from './pages/associations/AddAssociation';
 
 const queryClient = new QueryClient();
 
@@ -51,11 +73,23 @@ const RootRedirect = () => {
   return <Navigate to="/dashboard" />;
 };
 
+const AdminBotWrapper = () => {
+  const { isAdminBotOpen, closeAdminBot } = useAdminBot();
+  
+  return (
+    <AdminBotModal 
+      isOpen={isAdminBotOpen} 
+      onClose={closeAdminBot} 
+    />
+  );
+};
+
 const App = () => {
   return (
-    <ErrorBoundary>
+    // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
+<<<<<<< HEAD
           <Router>
             <div className="min-h-screen bg-gray-50">
               <Sidebar />
@@ -65,12 +99,39 @@ const App = () => {
                   <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+=======
+          <AdminBotProvider>
+            <Router>
+            <div className="min-h-screen gradient-bg relative overflow-hidden">
+              {/* Animated background elements */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full filter blur-xl opacity-10 animate-float"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
+                <div className="absolute top-40 left-1/2 w-80 h-80 bg-cyan-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '4s'}}></div>
+              </div>
+              
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="*" element={
+                  <>
+                    <Sidebar />
+                    {/* Main content area - responsive padding */}
+                    <div className="md:ml-64 transition-all duration-500 relative z-10">
+                      <main className="p-2 sm:p-4 md:p-6 lg:p-8">
+                        <Routes>
+>>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112
                     <Route path="/dashboard" element={
                       <PrivateRoute>
                         <DashboardRouter />
                       </PrivateRoute>
                     } />
 
+                    <Route path="/properties" element={
+                      <PrivateRoute>
+                        <Properties />
+                      </PrivateRoute>
+                    } />
                     <Route path="/properties/:id" element={
                       <PrivateRoute>
                         <PropertyDetail />
@@ -86,6 +147,38 @@ const App = () => {
                         <Tenants />
                       </PrivateRoute>
                     } />
+                    <Route path="/associations" element={<PrivateRoute><Associations /></PrivateRoute>} />
+                    <Route path="/associations/property-groups" element={<PrivateRoute><PropertyGroups /></PrivateRoute>} />
+                    <Route path="/associations/property-groups/add" element={
+                      <PrivateRoute>
+                        <AddPropertyGroup />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/associations/ownership-accounts" element={<PrivateRoute><OwnershipAccounts /></PrivateRoute>} />
+                    <Route path="/associations/owners-tenants" element={<PrivateRoute><OwnersAndTenants /></PrivateRoute>} />
+                    <Route path="/associations/outstanding-balances" element={<PrivateRoute><OutstandingBalances /></PrivateRoute>} />
+                    <Route path="/associations/violations" element={<PrivateRoute><Violations /></PrivateRoute>} />
+                    <Route path="/associations/architectural-requests" element={<PrivateRoute><ArchitecturalRequests /></PrivateRoute>} />
+                    <Route path="/associations/receive-payment" element={
+                      <PrivateRoute>
+                        <ReceivePayment />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/associations/update-recurring-charges" element={
+                      <PrivateRoute>
+                        <UpdateRecurringCharges />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/associations/add-tenant" element={
+                      <PrivateRoute>
+                        <AddTenant />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/associations/add" element={
+                      <PrivateRoute>
+                        <AddAssociation />
+                      </PrivateRoute>
+                    } />
                     <Route path="/rentals" element={
                       <PrivateRoute>
                         <Rentals />
@@ -94,6 +187,11 @@ const App = () => {
                     <Route path="/rental-owners" element={
                       <PrivateRoute>
                         <RentalOwners />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/rental-owners/:id" element={
+                      <PrivateRoute>
+                        <RentalOwnerDetail />
                       </PrivateRoute>
                     } />
                     <Route path="/rent-roll" element={
@@ -106,6 +204,16 @@ const App = () => {
                         <OutstandingBalances />
                       </PrivateRoute>
                     } />
+                    <Route path="/leasing" element={
+                      <PrivateRoute>
+                        <Leasing />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/leasing/add-draft-lease" element={
+                      <PrivateRoute>
+                        <AddDraftLease />
+                      </PrivateRoute>
+                    } />
                     <Route path="/maintenance" element={
                       <PrivateRoute>
                         <MaintenanceDashboard />
@@ -114,6 +222,31 @@ const App = () => {
                     <Route path="/maintenance/new" element={
                       <PrivateRoute>
                         <MaintenanceRequest />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/vendors" element={
+                      <PrivateRoute>
+                        <Vendors />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/vendors/add" element={
+                      <PrivateRoute>
+                        <AddVendor />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/vendors/categories" element={
+                      <PrivateRoute>
+                        <ManageVendorCategories />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/work-orders" element={
+                      <PrivateRoute>
+                        <WorkOrders />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/maintenance/work-orders/add" element={
+                      <PrivateRoute>
+                        <AddWorkOrder />
                       </PrivateRoute>
                     } />
                     <Route path="/vendor-profile" element={
@@ -147,19 +280,23 @@ const App = () => {
                         <RootRedirect />
                       </PrivateRoute>
                     } />
-                  </Routes>
-                </main>
-              </div>
-              
-              {/* Floating Chat Widget - Available on all authenticated pages */}
-              <ChatWidget />
+                        </Routes>
+                      </main>
+                    </div>
+                  </>
+                } />
+              </Routes>
               
               <Toaster position="top-right" />
             </div>
+            
+            {/* Admin Bot Modal - Rendered at root level */}
+            <AdminBotWrapper />
           </Router>
+          </AdminBotProvider>
         </AuthProvider>
       </QueryClientProvider>
-    </ErrorBoundary>
+    // </ErrorBoundary>
   );
 };
 

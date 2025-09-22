@@ -17,6 +17,10 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    console.log('📡 Axios Request:', config.url);
+    console.log('📡 Token present:', token ? 'Yes' : 'No');
+    console.log('📡 Request timestamp:', new Date().toISOString());
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,19 +33,29 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.log('📡 Axios Request Error:', error);
     return Promise.reject(error);
   }
 );
 
 // Add a response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('📡 Axios Response:', response.config.url, response.status);
+    return response;
+  },
   (error) => {
+    console.log('📡 Axios Error:', error.config?.url, error.response?.status);
+    console.log('📡 Axios Error details:', error.response?.data);
+    console.log('📡 Axios Error timestamp:', new Date().toISOString());
+    
     if (error.response?.status === 401) {
+      console.log('🚨 401 Unauthorized - removing token and redirecting');
       // Token expired or invalid, redirect to login
       localStorage.removeItem('token');
       // Use a more reliable redirect method
       if (window.location.pathname !== '/login') {
+        console.log('🚨 Redirecting to login page');
         window.location.href = '/login';
       }
     }
