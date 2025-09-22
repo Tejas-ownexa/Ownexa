@@ -1,5 +1,6 @@
-# Development files
+# Virtual environments (MAJOR SIZE ISSUE - 400MB+)
 venv/
+.venv/
 __pycache__/
 *.pyc
 *.pyo
@@ -32,7 +33,7 @@ coverage.xml
 .DS_Store
 Thumbs.db
 
-# Large data files
+# Large data files (12MB+)
 *.xlsx
 *.csv
 uploads/
@@ -55,3 +56,13 @@ CLEANUP_SUMMARY.md
 
 # Frontend (deploy separately)
 frontend/
+
+# Large Excel files
+1 ATK PROPERTIES OCT 30  2024  (1) (1).xlsx
+1 KT PROPERTIES 2025  (1) (1).xlsx
+1 RAS PROPERTIES 2025.xlsx
+PROPIEDADES COMPRA FECHAS.xlsx
+
+# SQL files
+insert_properties.sql
+insert_property_financials.sql
