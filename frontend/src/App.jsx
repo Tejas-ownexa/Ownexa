@@ -33,6 +33,8 @@ import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
 import Associations from './pages/Associations';
+import AssociationDetail from './pages/AssociationDetail';
+import AssignProperty from './pages/associations/AssignProperty';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
@@ -134,6 +136,8 @@ const App = () => {
                       </PrivateRoute>
                     } />
                     <Route path="/associations" element={<PrivateRoute><Associations /></PrivateRoute>} />
+                    <Route path="/associations/:id" element={<PrivateRoute><AssociationDetail /></PrivateRoute>} />
+                    <Route path="/associations/:id/assign-property" element={<PrivateRoute><AssignProperty /></PrivateRoute>} />
                     <Route path="/associations/property-groups" element={<PrivateRoute><PropertyGroups /></PrivateRoute>} />
                     <Route path="/associations/property-groups/add" element={
                       <PrivateRoute>

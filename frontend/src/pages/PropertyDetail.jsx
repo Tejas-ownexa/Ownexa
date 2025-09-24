@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/axios';
-import { MapPin, DollarSign, Calendar, User, Heart, Share2, Home, Edit, X } from 'lucide-react';
+import { MapPin, DollarSign, Calendar, User, Heart, Share2, Home, Edit, X, Building2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const PropertyDetail = () => {
@@ -242,128 +242,319 @@ const PropertyDetail = () => {
       </div>
 
       {/* Property Info Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           {/* Price and Status */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <div className="text-3xl font-bold text-primary-600">
-                {formatPrice(property.rent_amount)}
-                <span className="text-lg text-gray-600">/month</span>
+          <div className="bg-gradient-to-r from-slate-50 to-gray-50 rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-600 to-gray-600 px-6 py-4">
+              <div className="flex items-center">
+                <div className="bg-white/20 p-2 rounded-lg mr-3">
+                  <DollarSign className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Property Overview</h3>
               </div>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(property.status)}`}>
-                {getStatusText(property.status)}
-              </span>
             </div>
+            
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <div className="text-3xl font-bold text-slate-700">
+                  {formatPrice(property.rent_amount)}
+                  <span className="text-lg text-gray-600">/month</span>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(property.status)}`}>
+                  {getStatusText(property.status)}
+                </span>
+              </div>
 
-            {/* Property Description */}
-            <div className="text-center">
-              <div className="text-lg font-semibold text-gray-700 mb-2">Property Description</div>
-              <div className="text-sm text-gray-600">{property.description || 'No description available'}</div>
+              {/* Property Description */}
+              <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                <div className="flex items-center mb-2">
+                  <div className="w-2 h-2 bg-slate-500 rounded-full mr-2"></div>
+                  <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Property Description</p>
+                </div>
+                <p className="text-gray-900 font-medium text-sm">{property.description || 'No description available'}</p>
+              </div>
             </div>
           </div>
 
           {/* Description */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">Description</h2>
-            <p className="text-gray-700 leading-relaxed">{property.description || 'No description available'}</p>
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl shadow-lg border border-indigo-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-4">
+              <div className="flex items-center">
+                <div className="bg-white/20 p-2 rounded-lg mr-3">
+                  <Home className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Description</h3>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                <p className="text-gray-900 leading-relaxed">{property.description || 'No description available'}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Property Details - Horizontal Layout */}
+          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg border border-purple-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+              <div className="flex items-center">
+                <div className="bg-white/20 p-2 rounded-lg mr-3">
+                  <Home className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Property Details</h3>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Address</p>
+                  </div>
+                  <p className="text-gray-900 font-medium text-sm leading-relaxed">
+                    {formatAddress(property)}
+                  </p>
+                </div>
+
+                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Monthly Rent</p>
+                  </div>
+                  <p className="text-green-600 font-bold text-lg">{formatPrice(property.rent_amount)}</p>
+                </div>
+
+                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Status</p>
+                  </div>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(property.status)}`}>
+                    {getStatusText(property.status)}
+                  </span>
+                </div>
+
+                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Added</p>
+                  </div>
+                  <p className="text-gray-900 font-medium text-sm">
+                    {property.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+
+                <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Updated</p>
+                  </div>
+                  <p className="text-gray-900 font-medium text-sm">
+                    {property.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+
+                {property.case_number && (
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Case Number</p>
+                    </div>
+                    <p className="text-gray-900 font-medium text-sm">{property.case_number}</p>
+                  </div>
+                )}
+
+                {property.folio && (
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Folio</p>
+                    </div>
+                    <p className="text-gray-900 font-medium text-sm">{property.folio}</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Contact Info */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
-            <div className="space-y-3">
-              <div className="flex items-center">
-                <User className="h-5 w-5 text-gray-600 mr-3" />
-                <div>
-                  <div className="font-medium">{property.rental_owner?.company_name || property.created_by_user?.full_name || 'Owner Name'}</div>
-                  <div className="text-sm text-gray-600">{property.rental_owner?.contact_email || property.created_by_user?.email || 'owner@email.com'}</div>
+          {/* Association Details */}
+          {property.association_assignment && (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-lg border border-blue-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                <div className="flex items-center">
+                  <div className="bg-white/20 p-2 rounded-lg mr-3">
+                    <Building2 className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Association Details</h3>
                 </div>
               </div>
-              {property.rental_owner?.contact_phone && (
-                <div className="text-sm text-gray-600">
-                  Phone: {property.rental_owner.contact_phone}
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 gap-4 mb-6">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Association</p>
+                    </div>
+                    <p className="text-gray-900 font-semibold text-sm">{property.association_assignment.association?.name || 'N/A'}</p>
+                  </div>
+                  
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">HOA Fees</p>
+                    </div>
+                    <p className="text-gray-900 font-semibold text-sm">
+                      {property.association_assignment.hoa_fees ? (
+                        <span className="text-green-600">${property.association_assignment.hoa_fees}/month</span>
+                      ) : (
+                        <span className="text-gray-400">Not specified</span>
+                      )}
+                    </p>
+                  </div>
+                  
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Special Assessment</p>
+                    </div>
+                    <p className="text-gray-900 font-semibold text-sm">
+                      {property.association_assignment.special_assessment ? (
+                        <span className="text-orange-600">${property.association_assignment.special_assessment}</span>
+                      ) : (
+                        <span className="text-gray-400">Not specified</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
-              )}
+
+                {(property.association_assignment.shipping_address?.street_1 || property.association_assignment.shipping_address?.city) && (
+                  <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                    <div className="flex items-center mb-3">
+                      <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                        <MapPin className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Shipping Address for Payments</p>
+                    </div>
+                    <div className="bg-white/50 rounded-lg p-3 border border-white/30">
+                      <p className="text-gray-900 text-sm leading-relaxed">
+                        {property.association_assignment.shipping_address.street_1}
+                        {property.association_assignment.shipping_address.street_2 && `, ${property.association_assignment.shipping_address.street_2}`}
+                        {property.association_assignment.shipping_address.city && (
+                          <>
+                            <br />
+                            {property.association_assignment.shipping_address.city}
+                            {property.association_assignment.shipping_address.state && `, ${property.association_assignment.shipping_address.state}`}
+                            {property.association_assignment.shipping_address.zip && ` ${property.association_assignment.shipping_address.zip}`}
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Contact Info */}
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl shadow-lg border border-emerald-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
+              <div className="flex items-center">
+                <div className="bg-white/20 p-2 rounded-lg mr-3">
+                  <User className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-white">Contact Information</h3>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                <div className="flex items-center mb-3">
+                  <div className="bg-emerald-100 p-2 rounded-lg mr-3">
+                    <User className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-900">{property.rental_owner?.company_name || property.created_by_user?.full_name || 'Owner Name'}</div>
+                    <div className="text-sm text-gray-600">{property.rental_owner?.contact_email || property.created_by_user?.email || 'owner@email.com'}</div>
+                  </div>
+                </div>
+                {property.rental_owner?.contact_phone && (
+                  <div className="bg-white/50 rounded-lg p-3 border border-white/30">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
+                      <span className="text-sm text-gray-700">Phone: {property.rental_owner.contact_phone}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Property Details */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold mb-4">Property Details</h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Address:</span>
-                <span className="font-medium text-right max-w-xs">
-                  {formatAddress(property)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Monthly Rent:</span>
-                <span className="font-medium">{formatPrice(property.rent_amount)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Status:</span>
-                <span className="font-medium capitalize">{property.status}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Property Added:</span>
-                <span className="font-medium">
-                  {property.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Last Updated:</span>
-                <span className="font-medium">
-                  {property.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
-              {property.case_number && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Case Number:</span>
-                  <span className="font-medium">{property.case_number}</span>
-                </div>
-              )}
-              {property.folio && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Folio:</span>
-                  <span className="font-medium">{property.folio}</span>
-                </div>
-              )}
-            </div>
-          </div>
 
           {/* Listing Information */}
           {property.listing && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold mb-4">Listing Information</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Listing Date:</span>
-                  <span className="font-medium">
-                    {property.listing.listing_date ? new Date(property.listing.listing_date).toLocaleDateString() : 'N/A'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Listing Status:</span>
-                  <span className="font-medium capitalize">{property.listing.status || 'N/A'}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Listed Price:</span>
-                  <span className="font-medium">
-                    {property.listing.rent_price ? formatPrice(property.listing.rent_price) : 'N/A'}
-                  </span>
-                </div>
-                {property.listing.notes && (
-                  <div className="pt-2 border-t">
-                    <span className="text-gray-600">Notes:</span>
-                    <p className="text-sm text-gray-700 mt-1">{property.listing.notes}</p>
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl shadow-lg border border-amber-100 overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-600 to-orange-600 px-6 py-4">
+                <div className="flex items-center">
+                  <div className="bg-white/20 p-2 rounded-lg mr-3">
+                    <Calendar className="h-5 w-5 text-white" />
                   </div>
-                )}
+                  <h3 className="text-lg font-semibold text-white">Listing Information</h3>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="space-y-3">
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-amber-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Listing Date</p>
+                    </div>
+                    <p className="text-gray-900 font-medium text-sm">
+                      {property.listing.listing_date ? new Date(property.listing.listing_date).toLocaleDateString() : 'N/A'}
+                    </p>
+                  </div>
+
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Listing Status</p>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                      {property.listing.status || 'N/A'}
+                    </span>
+                  </div>
+
+                  <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                    <div className="flex items-center mb-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Listed Price</p>
+                    </div>
+                    <p className="text-green-600 font-bold text-lg">
+                      {property.listing.rent_price ? formatPrice(property.listing.rent_price) : 'N/A'}
+                    </p>
+                  </div>
+
+                  {property.listing.notes && (
+                    <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                      <div className="flex items-center mb-3">
+                        <div className="bg-amber-100 p-2 rounded-lg mr-3">
+                          <DollarSign className="h-4 w-4 text-amber-600" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-700">Listing Notes</p>
+                      </div>
+                      <div className="bg-white/50 rounded-lg p-3 border border-white/30">
+                        <p className="text-gray-900 text-sm leading-relaxed">{property.listing.notes}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
-import { ChevronDown, ArrowLeft, Plus, Building2, User } from 'lucide-react';
+import { ChevronDown, ArrowLeft, Plus, Building2, User, MapPin } from 'lucide-react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import CollectManagementFeesModal from '../components/CollectManagementFeesModal';
 import PayoutManagementModal from '../components/PayoutManagementModal';
@@ -183,12 +183,22 @@ const Associations = () => {
                   </tr>
                 ) : associations && associations.length > 0 ? (
                   associations.map((association) => (
-                    <tr key={association.id} className="hover:bg-gray-50">
+                    <tr 
+                      key={association.id} 
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => navigate(`/associations/${association.id}`)}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {association.name}
+                        <div className="flex items-center">
+                          <Building2 className="h-4 w-4 mr-2 text-blue-600" />
+                          {association.name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {association.full_address || `${association.city}, ${association.state}`}
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                          {association.full_address || `${association.city}, ${association.state}`}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {association.manager && association.manager !== 'None' && association.manager.trim() !== '' ? (

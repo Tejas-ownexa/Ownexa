@@ -175,27 +175,34 @@ const Sidebar = () => {
 
                 return (
                   <div key={item.name}>
-                    <button
-                      onClick={item.toggle}
-                      className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
-                        isActive
-                          ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
-                          : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
-                      }`}
-                      title={isCollapsed ? item.name : ''}
-                    >
-                      <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                    <div className="flex items-center">
+                      <Link
+                        to={item.name === 'Associations' ? '/associations' : item.name === 'Rentals' ? '/rentals' : item.name === 'Leasing' ? '/leasing' : item.name === 'Maintenance' ? '/maintenance' : '#'}
+                        className={`flex items-center flex-1 px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
+                          isActive
+                            ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
+                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
+                        }`}
+                        title={isCollapsed ? item.name : ''}
+                      >
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                        {!isCollapsed && (
+                          <span className="ml-3 flex-1 text-left">{item.name}</span>
+                        )}
+                      </Link>
                       {!isCollapsed && (
-                        <span className="ml-3 flex-1 text-left">{item.name}</span>
+                        <button
+                          onClick={item.toggle}
+                          className="p-1 hover:bg-gray-100 rounded transition-colors"
+                        >
+                          {item.isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </button>
                       )}
-                      {!isCollapsed && (
-                        item.isExpanded ? (
-                          <ChevronUp className="h-4 w-4 ml-2" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 ml-2" />
-                        )
-                      )}
-                    </button>
+                    </div>
 
                     {/* Sub-items */}
                     {item.isExpanded && !isCollapsed && (

@@ -391,6 +391,31 @@ def get_property(property_id):
         # Get the latest listing for this property
         from models.listing import Listing
         listing = Listing.query.filter_by(property_id=property_id).order_by(Listing.listing_date.desc()).first()
+
+        # Association assignment (if any)
+        try:
+            from models.association import AssociationPropertyAssignment, Association
+            assignment = AssociationPropertyAssignment.query.filter_by(property_id=property_id).first()
+            association_info = None
+            if assignment:
+                assoc = Association.query.get(assignment.association_id)
+                association_info = {
+                    'association': {
+                        'id': assoc.id if assoc else assignment.association_id,
+                        'name': assoc.name if assoc else None,
+                    },
+                    'hoa_fees': float(assignment.hoa_fees) if assignment.hoa_fees is not None else None,
+                    'special_assessment': float(assignment.special_assessment) if assignment.special_assessment is not None else None,
+                    'shipping_address': {
+                        'street_1': assignment.ship_street_address_1,
+                        'street_2': assignment.ship_street_address_2,
+                        'city': assignment.ship_city,
+                        'state': assignment.ship_state,
+                        'zip': assignment.ship_zip_code,
+                    }
+                }
+        except Exception:
+            association_info = None
         
         return jsonify({
             'id': property.id,
@@ -411,6 +436,7 @@ def get_property(property_id):
             'image_url': property.image_url,
             'created_at': property.updated_at.isoformat() if property.updated_at else None,  # Use updated_at as created_at
             'updated_at': property.updated_at.isoformat() if property.updated_at else None,
+            'association_assignment': association_info,
             'owner': {
                 'id': property.owner.id,
                 'username': property.owner.username,
