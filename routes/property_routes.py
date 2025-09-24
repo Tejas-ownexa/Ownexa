@@ -78,7 +78,9 @@ def create_property(current_user):
             status=data.get('status', 'available'),
             owner_id=owner_id,
             rental_owner_id=rental_owner_id,
-            image_url=image_url
+            image_url=image_url,
+            case_number=data.get('case_number'),
+            folio=data.get('folio')
         )
         
         print("Attempting to save property to database")
@@ -179,6 +181,8 @@ def get_properties(current_user):
             properties_data.append({
                 'id': prop.id,
                 'title': prop.title,
+                'case_number': prop.case_number,
+                'folio': prop.folio,
                 'address': {
                     'street_1': prop.street_address_1,
                     'street_2': prop.street_address_2,
@@ -391,6 +395,8 @@ def get_property(property_id):
         return jsonify({
             'id': property.id,
             'title': property.title,
+            'case_number': property.case_number,
+            'folio': property.folio,
             'address': {
                 'street_1': property.street_address_1,
                 'street_2': property.street_address_2,
@@ -421,6 +427,66 @@ def get_property(property_id):
         }), 200
     except Exception as e:
         print("Error fetching property:", str(e))
+        return jsonify({'error': str(e)}), 400
+
+@property_bp.route('/<int:property_id>', methods=['PUT'])
+@token_required
+def update_property(current_user, property_id):
+    try:
+        property = Property.query.get_or_404(property_id)
+        
+        # Check if user owns the property
+        if property.owner_id != current_user.id:
+            return jsonify({'error': 'Unauthorized to update this property'}), 403
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Update property fields
+        if 'title' in data:
+            property.title = data['title']
+        if 'description' in data:
+            property.description = data['description']
+        if 'rent_amount' in data:
+            property.rent_amount = data['rent_amount']
+        if 'status' in data:
+            property.status = data['status']
+        if 'case_number' in data:
+            property.case_number = data['case_number']
+        if 'folio' in data:
+            property.folio = data['folio']
+        if 'street_address_1' in data:
+            property.street_address_1 = data['street_address_1']
+        if 'street_address_2' in data:
+            property.street_address_2 = data['street_address_2']
+        if 'apt_number' in data:
+            property.apt_number = data['apt_number']
+        if 'city' in data:
+            property.city = data['city']
+        if 'state' in data:
+            property.state = data['state']
+        if 'zip_code' in data:
+            property.zip_code = data['zip_code']
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Property updated successfully',
+            'property': {
+                'id': property.id,
+                'title': property.title,
+                'case_number': property.case_number,
+                'folio': property.folio,
+                'description': property.description,
+                'rent_amount': float(property.rent_amount) if property.rent_amount else None,
+                'status': property.status
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        print("Error updating property:", str(e))
         return jsonify({'error': str(e)}), 400
 
 # Add a test route to verify the blueprint is working

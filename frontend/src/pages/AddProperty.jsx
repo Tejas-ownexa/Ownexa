@@ -246,6 +246,30 @@ const AddProperty = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.rent_amount.message}</p>
               )}
             </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Case Number
+              </label>
+              <input
+                type="text"
+                {...register('case_number')}
+                className="input-field"
+                placeholder="Enter case number (optional)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Folio
+              </label>
+              <input
+                type="text"
+                {...register('folio')}
+                className="input-field"
+                placeholder="Enter folio (optional)"
+              />
+            </div>
           </div>
         </div>
 

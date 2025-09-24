@@ -289,6 +289,24 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
           </p>
         </div>
 
+        {/* Case Number and Folio */}
+        {(property.case_number || property.folio) && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-2 text-xs">
+              {property.case_number && (
+                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                  Case: {property.case_number}
+                </span>
+              )}
+              {property.folio && (
+                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                  Folio: {property.folio}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Rental Owner Information */}
         {property.rental_owner && (
           <div className="mb-4">

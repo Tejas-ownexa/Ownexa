@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from 'react-query';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/axios';
-import { MapPin, DollarSign, Calendar, User, Heart, Share2, Home } from 'lucide-react';
+import { MapPin, DollarSign, Calendar, User, Heart, Share2, Home, Edit, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const PropertyDetail = () => {
   const { id } = useParams();
+  const queryClient = useQueryClient();
   const [activeImage, setActiveImage] = useState(0);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
 
   const { data: property, isLoading, error } = useQuery(
     ['property', id],
@@ -102,6 +105,55 @@ const PropertyDetail = () => {
     }
   };
 
+  // Edit functionality
+  const handleEditClick = () => {
+    if (property) {
+      setEditFormData({
+        title: property.title,
+        description: property.description,
+        rent_amount: property.rent_amount,
+        status: property.status,
+        case_number: property.case_number || '',
+        folio: property.folio || '',
+        street_address_1: property.address?.street_1 || property.street_address_1,
+        street_address_2: property.address?.street_2 || property.street_address_2,
+        apt_number: property.address?.apt || property.apt_number,
+        city: property.address?.city || property.city,
+        state: property.address?.state || property.state,
+        zip_code: property.address?.zip || property.zip_code
+      });
+      setIsEditModalOpen(true);
+    }
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const updatePropertyMutation = useMutation(
+    async (data) => {
+      const response = await api.put(`/api/properties/${id}`, data);
+      return response.data;
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['property', id]);
+        toast.success('Property updated successfully');
+        setIsEditModalOpen(false);
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.error || 'Failed to update property');
+      }
+    }
+  );
+
+  const handleSave = () => {
+    updatePropertyMutation.mutate(editFormData);
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -140,6 +192,13 @@ const PropertyDetail = () => {
           </div>
         </div>
         <div className="flex space-x-2">
+          <button
+            onClick={handleEditClick}
+            className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            title="Edit Property"
+          >
+            <Edit className="h-5 w-5" />
+          </button>
           <button
             onClick={handleFavorite}
             className="p-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -263,6 +322,18 @@ const PropertyDetail = () => {
                   {property.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'}
                 </span>
               </div>
+              {property.case_number && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Case Number:</span>
+                  <span className="font-medium">{property.case_number}</span>
+                </div>
+              )}
+              {property.folio && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Folio:</span>
+                  <span className="font-medium">{property.folio}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -298,6 +369,207 @@ const PropertyDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Property Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Edit Property</h2>
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Basic Information */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Property Title *
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.title || ''}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Monthly Rent *
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={editFormData.rent_amount || ''}
+                  onChange={(e) => handleInputChange('rent_amount', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status *
+                </label>
+                <select
+                  value={editFormData.status || ''}
+                  onChange={(e) => handleInputChange('status', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="available">Available</option>
+                  <option value="rented">Rented</option>
+                  <option value="maintenance">Maintenance</option>
+                  <option value="unavailable">Unavailable</option>
+                </select>
+              </div>
+
+              {/* Case Number and Folio */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Case Number
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.case_number || ''}
+                    onChange={(e) => handleInputChange('case_number', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter case number"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Folio
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.folio || ''}
+                    onChange={(e) => handleInputChange('folio', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Enter folio"
+                  />
+                </div>
+              </div>
+
+              {/* Address Information */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Street Address 1 *
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.street_address_1 || ''}
+                  onChange={(e) => handleInputChange('street_address_1', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Street Address 2
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.street_address_2 || ''}
+                  onChange={(e) => handleInputChange('street_address_2', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Apartment/Unit Number
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.apt_number || ''}
+                  onChange={(e) => handleInputChange('apt_number', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    City *
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.city || ''}
+                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    State *
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.state || ''}
+                    onChange={(e) => handleInputChange('state', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ZIP Code *
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.zip_code || ''}
+                    onChange={(e) => handleInputChange('zip_code', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Description *
+                </label>
+                <textarea
+                  value={editFormData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows="4"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={updatePropertyMutation.isLoading}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50"
+              >
+                {updatePropertyMutation.isLoading ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
