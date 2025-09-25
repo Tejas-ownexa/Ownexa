@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminBotProvider, useAdminBot } from './contexts/AdminBotContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import AdminBotModal from './components/AdminBotModal';
 // import ErrorBoundary from './components/ErrorBoundary';
@@ -16,6 +17,7 @@ import PropertyDetail from './pages/PropertyDetail';
 import Properties from './pages/Properties';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
+import TenantDetail from './pages/TenantDetail';
 import Rentals from './pages/Rentals';
 import RentalOwners from './pages/RentalOwners';
 import RentalOwnerDetail from './pages/RentalOwnerDetail';
@@ -88,8 +90,9 @@ const App = () => {
   return (
     // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AdminBotProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <AdminBotProvider>
             <Router>
             <div className="min-h-screen gradient-bg relative overflow-hidden">
               {/* Animated background elements */}
@@ -106,8 +109,8 @@ const App = () => {
                   <>
                     <Sidebar />
                     {/* Main content area - responsive padding */}
-                    <div className="md:ml-64 transition-all duration-500 relative z-10">
-                      <main className="p-2 sm:p-4 md:p-6 lg:p-8">
+                    <div className="md:ml-64 transition-all duration-500 relative z-10 min-h-screen">
+                      <main className="p-2 sm:p-4 md:p-6 lg:p-8 max-w-full overflow-x-hidden">
                         <Routes>
                     <Route path="/dashboard" element={
                       <PrivateRoute>
@@ -133,6 +136,11 @@ const App = () => {
                     <Route path="/tenants" element={
                       <PrivateRoute>
                         <Tenants />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/tenants/:id" element={
+                      <PrivateRoute>
+                        <TenantDetail />
                       </PrivateRoute>
                     } />
                     <Route path="/associations" element={<PrivateRoute><Associations /></PrivateRoute>} />
@@ -273,8 +281,9 @@ const App = () => {
             {/* Admin Bot Modal - Rendered at root level */}
             <AdminBotWrapper />
           </Router>
-          </AdminBotProvider>
-        </AuthProvider>
+            </AdminBotProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     // </ErrorBoundary>
   );

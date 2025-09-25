@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 import api from '../utils/axios';
+import { invalidatePropertyCaches } from '../utils/cacheUtils';
 import { Search, Filter, MapPin, DollarSign, Plus } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import toast from 'react-hot-toast';
@@ -44,8 +45,8 @@ const Properties = () => {
         console.log('✅ Delete response data:', response.data);
         
         toast.success('Property deleted successfully!');
-        // Refresh the properties list
-        queryClient.invalidateQueries(['properties']);
+        // Refresh all property-related data
+        invalidatePropertyCaches(queryClient);
       } catch (error) {
         console.error('❌ Delete error full object:', error);
         console.error('❌ Error message:', error.message);

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import ThemeToggle from './ThemeToggle';
 import {
   Home,
   Search,
@@ -258,14 +259,14 @@ const Sidebar = () => {
         </nav>
 
         {/* User Section */}
-        <div className="p-4 border-t border-gray-200 flex-shrink-0">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
           {!isCollapsed && (
             <div className="mb-3">
-              <div className="flex items-center text-sm text-gray-700">
+              <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
                 <User className="h-4 w-4 mr-2" />
                 <div className="truncate">
                   <div className="font-medium">{user.full_name || user.username}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {user.role === 'TENANT' ? '🏠 Tenant' : 
                      user.role === 'VENDOR' ? '🔧 Vendor' : '👤 Owner'}
                   </div>
@@ -273,16 +274,19 @@ const Sidebar = () => {
               </div>
             </div>
           )}
-          <button
-            onClick={handleLogout}
-            className={`flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-md transition-colors ${
-              isCollapsed ? 'justify-center' : ''
-            }`}
-            title={isCollapsed ? 'Logout' : ''}
-          >
-            <LogOut className="h-4 w-4" />
-            {!isCollapsed && <span className="ml-2">Logout</span>}
-          </button>
+          <div className="flex items-center space-x-2">
+            <ThemeToggle size="small" />
+            <button
+              onClick={handleLogout}
+              className={`flex items-center flex-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors ${
+                isCollapsed ? 'justify-center' : ''
+              }`}
+              title={isCollapsed ? 'Logout' : ''}
+            >
+              <LogOut className="h-4 w-4" />
+              {!isCollapsed && <span className="ml-2">Logout</span>}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -403,29 +407,32 @@ const Sidebar = () => {
           </nav>
 
           {/* Mobile User Section */}
-          <div className="p-4 border-t border-gray-200 flex-shrink-0">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex-shrink-0">
             <div className="mb-3">
-              <div className="flex items-center text-sm text-gray-700">
+              <div className="flex items-center text-sm text-gray-700 dark:text-gray-300">
                 <User className="h-4 w-4 mr-2" />
                 <div>
                   <div className="font-medium">{user.full_name || user.username}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
                     {user.role === 'TENANT' ? '🏠 Tenant' : 
                      user.role === 'VENDOR' ? '🔧 Vendor' : '👤 Owner'}
                   </div>
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => {
-                handleLogout();
-                setIsMobileOpen(false);
-              }}
-              className="flex items-center w-full px-3 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-gray-50 rounded-md transition-colors"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="ml-2">Logout</span>
-            </button>
+            <div className="flex items-center space-x-2">
+              <ThemeToggle size="small" />
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileOpen(false);
+                }}
+                className="flex items-center flex-1 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="ml-2">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

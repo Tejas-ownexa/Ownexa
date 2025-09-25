@@ -163,19 +163,19 @@ def get_properties(current_user):
             if prop.rental_owner:
                 # Use the direct rental owner relationship
                 rental_owner_info = {
-                    'id': prop.rental_owner.id,
-                    'company_name': prop.rental_owner.company_name,
-                    'business_type': prop.rental_owner.business_type or 'Property Owner',
-                    'contact_email': prop.rental_owner.contact_email or prop.rental_owner.email,
-                    'contact_phone': prop.rental_owner.contact_phone or prop.rental_owner.phone_number
+                   'id': prop.rental_owner.id,
+                   'company_name': prop.rental_owner.company_name,
+                   'business_type': prop.rental_owner.business_type or 'Property Owner',
+                   'contact_email': prop.rental_owner.contact_email or prop.rental_owner.email,
+                   'contact_phone': prop.rental_owner.contact_phone or prop.rental_owner.phone_number
                 }
             elif prop.owner:
                 # Fallback to user information if no rental owner linked
                 rental_owner_info = {
-                    'id': prop.owner.id,
-                    'company_name': prop.owner.full_name or prop.owner.username,
-                    'business_type': 'Property Owner',
-                    'contact_email': prop.owner.email
+                   'id': prop.owner.id,
+                   'company_name': prop.owner.full_name or prop.owner.username,
+                   'business_type': 'Property Owner',
+                   'contact_email': prop.owner.email
                 }
             
             properties_data.append({
@@ -184,12 +184,12 @@ def get_properties(current_user):
                 'case_number': prop.case_number,
                 'folio': prop.folio,
                 'address': {
-                    'street_1': prop.street_address_1,
-                    'street_2': prop.street_address_2,
-                    'apt': prop.apt_number,
-                    'city': prop.city,
-                    'state': prop.state,
-                    'zip': prop.zip_code
+                   'street_1': prop.street_address_1,
+                   'street_2': prop.street_address_2,
+                   'apt': prop.apt_number,
+                   'city': prop.city,
+                   'state': prop.state,
+                   'zip': prop.zip_code
                 },
                 'description': prop.description,
                 'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
@@ -200,10 +200,10 @@ def get_properties(current_user):
                 'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
                 'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
                 'owner': {
-                    'id': prop.owner.id,
-                    'username': prop.owner.username,
-                    'full_name': prop.owner.full_name,
-                    'email': prop.owner.email
+                   'id': prop.owner.id,
+                   'username': prop.owner.username,
+                   'full_name': prop.owner.full_name,
+                   'email': prop.owner.email
                 } if prop.owner else None,
                 'rental_owner': rental_owner_info
             })
@@ -258,42 +258,42 @@ def import_properties(current_user):
                 city = ''
                 state = ''
                 if location and ',' in location:
-                    parts = location.split(',')
-                    city = parts[0].strip()
-                    state = parts[1].strip() if len(parts) > 1 else ''
+                   parts = location.split(',')
+                   city = parts[0].strip()
+                   state = parts[1].strip() if len(parts) > 1 else ''
                 
                 # Validate required fields
                 if not title:
-                    errors.append(f"Row {row_num}: Property title is required")
-                    continue
+                   errors.append(f"Row {row_num}: Property title is required")
+                   continue
                 
                 if not city:
-                    errors.append(f"Row {row_num}: City is required")
-                    continue
+                   errors.append(f"Row {row_num}: City is required")
+                   continue
                 
                 if not state:
-                    errors.append(f"Row {row_num}: State is required")
-                    continue
+                   errors.append(f"Row {row_num}: State is required")
+                   continue
                 
                 # Convert rent_amount to float
                 try:
-                    rent_amount_float = float(rent_amount) if rent_amount else 0.0
+                   rent_amount_float = float(rent_amount) if rent_amount else 0.0
                 except ValueError:
-                    rent_amount_float = 0.0
+                   rent_amount_float = 0.0
                 
                 # Create property
                 property = Property(
-                    title=title,
-                    street_address_1=street_address,
-                    street_address_2=street_address_2,
-                    apt_number=apt_number,
-                    city=city,
-                    state=state,
-                    zip_code=zip_code,
-                    description=description,
-                    rent_amount=rent_amount_float,
-                    status=status,
-                    owner_id=current_user.id
+                   title=title,
+                   street_address_1=street_address,
+                   street_address_2=street_address_2,
+                   apt_number=apt_number,
+                   city=city,
+                   state=state,
+                   zip_code=zip_code,
+                   description=description,
+                   rent_amount=rent_amount_float,
+                   status=status,
+                   owner_id=current_user.id
                 )
                 
                 db.session.add(property)
@@ -362,11 +362,11 @@ def delete_property(current_user, property_id):
         try:
             # Delete any work orders related to this property (if they exist)
             db.session.execute(db.text("DELETE FROM work_orders WHERE property_id = :property_id"), 
-                             {"property_id": property_id})
+                            {"property_id": property_id})
             
             # Now delete the property
             db.session.execute(db.text("DELETE FROM properties WHERE id = :property_id"), 
-                             {"property_id": property_id})
+                            {"property_id": property_id})
             
             db.session.commit()
         except Exception as delete_error:
@@ -400,23 +400,47 @@ def get_property(property_id):
             if assignment:
                 assoc = Association.query.get(assignment.association_id)
                 association_info = {
-                    'association': {
-                        'id': assoc.id if assoc else assignment.association_id,
-                        'name': assoc.name if assoc else None,
-                    },
-                    'hoa_fees': float(assignment.hoa_fees) if assignment.hoa_fees is not None else None,
-                    'special_assessment': float(assignment.special_assessment) if assignment.special_assessment is not None else None,
-                    'shipping_address': {
-                        'street_1': assignment.ship_street_address_1,
-                        'street_2': assignment.ship_street_address_2,
-                        'city': assignment.ship_city,
-                        'state': assignment.ship_state,
-                        'zip': assignment.ship_zip_code,
-                    }
+                   'association': {
+                       'id': assoc.id if assoc else assignment.association_id,
+                       'name': assoc.name if assoc else None,
+                   },
+                   'hoa_fees': float(assignment.hoa_fees) if assignment.hoa_fees is not None else None,
+                   'special_assessment': float(assignment.special_assessment) if assignment.special_assessment is not None else None,
+                   'shipping_address': {
+                       'street_1': assignment.ship_street_address_1,
+                       'street_2': assignment.ship_street_address_2,
+                       'city': assignment.ship_city,
+                       'state': assignment.ship_state,
+                       'zip': assignment.ship_zip_code,
+                   }
                 }
         except Exception:
             association_info = None
-        
+
+        # Financial information (if any)
+        financial_info = None
+        if property.financial_details:
+            financial = property.financial_details
+            financial_info = {
+                'total_value': float(financial.total_value) if financial.total_value else None,
+                'purchase_price': float(financial.purchase_price) if financial.purchase_price else None,
+                'purchase_date': financial.purchase_date.isoformat() if financial.purchase_date else None,
+                'purchase_price_per_sqft': float(financial.purchase_price_per_sqft) if financial.purchase_price_per_sqft else None,
+                'mortgage_amount': float(financial.mortgage_amount) if financial.mortgage_amount else None,
+                'down_payment': float(financial.down_payment) if financial.down_payment else None,
+                'current_apr': float(financial.current_apr) if financial.current_apr else None,
+                'loan_term_years': financial.loan_term_years,
+                'monthly_loan_payment': float(financial.monthly_loan_payment) if financial.monthly_loan_payment else None,
+                'loan_payment_date': financial.loan_payment_date,
+                'property_tax_annual': float(financial.property_tax_annual) if financial.property_tax_annual else None,
+                'insurance_annual': float(financial.insurance_annual) if financial.insurance_annual else None,
+                'hoa_fees_monthly': float(financial.hoa_fees_monthly) if financial.hoa_fees_monthly else None,
+                'maintenance_reserve_monthly': float(financial.maintenance_reserve_monthly) if financial.maintenance_reserve_monthly else None,
+                'total_monthly_expenses': float(financial.calculate_total_monthly_expenses()) if financial else None,
+                'monthly_cash_flow': float(financial.calculate_cash_flow(property.rent_amount)) if financial and property.rent_amount else None,
+                'roi_percentage': float(financial.calculate_roi(property.rent_amount)) if financial and property.rent_amount else None
+            }
+         
         return jsonify({
             'id': property.id,
             'title': property.title,
@@ -434,9 +458,10 @@ def get_property(property_id):
             'rent_amount': float(property.rent_amount) if property.rent_amount else None,
             'status': property.status,
             'image_url': property.image_url,
-            'created_at': property.updated_at.isoformat() if property.updated_at else None,  # Use updated_at as created_at
-            'updated_at': property.updated_at.isoformat() if property.updated_at else None,
-            'association_assignment': association_info,
+             'created_at': property.updated_at.isoformat() if property.updated_at else None,  # Use updated_at as created_at
+             'updated_at': property.updated_at.isoformat() if property.updated_at else None,
+             'association_assignment': association_info,
+             'financial_details': financial_info,
             'owner': {
                 'id': property.owner.id,
                 'username': property.owner.username,
@@ -475,7 +500,17 @@ def update_property(current_user, property_id):
         if 'description' in data:
             property.description = data['description']
         if 'rent_amount' in data:
-            property.rent_amount = data['rent_amount']
+            old_rent = property.rent_amount
+            new_rent = data['rent_amount']
+            property.rent_amount = new_rent
+            
+            # Update all tenant rent amounts for this property to keep them in sync
+            if old_rent != new_rent:
+                from models.tenant import Tenant
+                tenants = Tenant.query.filter_by(property_id=property_id).all()
+                for tenant in tenants:
+                    tenant.rent_amount = new_rent
+                print(f"Updated rent amount for {len(tenants)} tenants from ${old_rent} to ${new_rent}")
         if 'status' in data:
             property.status = data['status']
         if 'case_number' in data:
@@ -529,30 +564,30 @@ def get_user_favorites(current_user):
             prop = favorite.property
             if prop:
                 favorite_properties.append({
-                    'property': {
-                        'id': prop.id,
-                        'title': prop.title,
-                        'address': {
-                            'street_1': prop.street_address_1,
-                            'street_2': prop.street_address_2,
-                            'apt': prop.apt_number,
-                            'city': prop.city,
-                            'state': prop.state,
-                            'zip': prop.zip_code
-                        },
-                        'description': prop.description,
-                        'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
-                        'status': prop.status,
-                        'image_url': prop.image_url,
-                        'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
-                        'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
-                        'owner': {
-                            'id': prop.owner.id,
-                            'username': prop.owner.username,
-                            'full_name': prop.owner.full_name,
-                            'email': prop.owner.email
-                        } if prop.owner else None
-                    }
+                   'property': {
+                       'id': prop.id,
+                       'title': prop.title,
+                       'address': {
+                           'street_1': prop.street_address_1,
+                           'street_2': prop.street_address_2,
+                           'apt': prop.apt_number,
+                           'city': prop.city,
+                           'state': prop.state,
+                           'zip': prop.zip_code
+                       },
+                       'description': prop.description,
+                       'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
+                       'status': prop.status,
+                       'image_url': prop.image_url,
+                       'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
+                       'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
+                       'owner': {
+                           'id': prop.owner.id,
+                           'username': prop.owner.username,
+                           'full_name': prop.owner.full_name,
+                           'email': prop.owner.email
+                       } if prop.owner else None
+                   }
                 })
         
         return jsonify(favorite_properties), 200
@@ -658,16 +693,16 @@ def adjust_property_rents(current_user):
                 # Update all tenants' rent amounts for this property
                 tenants = Tenant.query.filter_by(property_id=property.id).all()
                 for tenant in tenants:
-                    tenant.rent_amount = new_rent
+                   tenant.rent_amount = new_rent
                 
                 updated_properties.append({
-                    'property_id': property.id,
-                    'property_title': property.title,
-                    'old_rent': float(property.rent_amount),
-                    'new_rent': float(new_rent),
-                    'monthly_expenses': float(total_monthly_expenses),
-                    'cash_flow': float(new_rent - total_monthly_expenses),
-                    'tenants_updated': len(tenants)
+                   'property_id': property.id,
+                   'property_title': property.title,
+                   'old_rent': float(property.rent_amount),
+                   'new_rent': float(new_rent),
+                   'monthly_expenses': float(total_monthly_expenses),
+                   'cash_flow': float(new_rent - total_monthly_expenses),
+                   'tenants_updated': len(tenants)
                 })
         
         db.session.commit()

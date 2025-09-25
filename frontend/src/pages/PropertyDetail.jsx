@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import api from '../utils/axios';
-import { MapPin, DollarSign, Calendar, User, Heart, Share2, Home, Edit, X, Building2 } from 'lucide-react';
+import { invalidatePropertyAndRelatedCaches } from '../utils/cacheUtils';
+import { MapPin, DollarSign, Calendar, User, Heart, Share2, Home, Edit, X, Building2, TrendingUp, CreditCard, Calculator } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const PropertyDetail = () => {
@@ -140,7 +141,9 @@ const PropertyDetail = () => {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(['property', id]);
+        // Invalidate all property-related queries to ensure data consistency
+        invalidatePropertyAndRelatedCaches(queryClient, id);
+        
         toast.success('Property updated successfully');
         setIsEditModalOpen(false);
       },
@@ -377,11 +380,202 @@ const PropertyDetail = () => {
                   </div>
                 )}
               </div>
-            </div>
-          </div>
-        </div>
+             </div>
+           </div>
 
-        {/* Sidebar */}
+           {/* Financial Information */}
+           {property.financial_details && (
+             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl shadow-lg border border-green-100 overflow-hidden">
+               <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                 <div className="flex items-center">
+                   <div className="bg-white/20 p-2 rounded-lg mr-3">
+                     <TrendingUp className="h-5 w-5 text-white" />
+                   </div>
+                   <h3 className="text-lg font-semibold text-white">Financial Information</h3>
+                 </div>
+               </div>
+               
+               <div className="p-6">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+                   {/* Property Value */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Total Value</p>
+                     </div>
+                     <p className="text-green-600 font-bold text-lg">
+                       {property.financial_details.total_value ? `$${property.financial_details.total_value.toLocaleString()}` : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* Purchase Price */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Purchase Price</p>
+                     </div>
+                     <p className="text-blue-600 font-bold text-lg">
+                       {property.financial_details.purchase_price ? `$${property.financial_details.purchase_price.toLocaleString()}` : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* Purchase Date */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Purchase Date</p>
+                     </div>
+                     <p className="text-gray-900 font-medium text-sm">
+                       {property.financial_details.purchase_date ? new Date(property.financial_details.purchase_date).toLocaleDateString() : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* Down Payment */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Down Payment</p>
+                     </div>
+                     <p className="text-orange-600 font-bold text-lg">
+                       {property.financial_details.down_payment ? `$${property.financial_details.down_payment.toLocaleString()}` : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* Mortgage Amount */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Mortgage Amount</p>
+                     </div>
+                     <p className="text-red-600 font-bold text-lg">
+                       {property.financial_details.mortgage_amount ? `$${property.financial_details.mortgage_amount.toLocaleString()}` : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* Monthly Loan Payment */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Monthly Payment</p>
+                     </div>
+                     <p className="text-indigo-600 font-bold text-lg">
+                       {property.financial_details.monthly_loan_payment ? `$${property.financial_details.monthly_loan_payment.toLocaleString()}` : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* APR */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-teal-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Interest Rate</p>
+                     </div>
+                     <p className="text-teal-600 font-bold text-lg">
+                       {property.financial_details.current_apr ? `${property.financial_details.current_apr}%` : 'N/A'}
+                     </p>
+                   </div>
+
+                   {/* Loan Term */}
+                   <div className="bg-white/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white/80 transition-all duration-200">
+                     <div className="flex items-center mb-2">
+                       <div className="w-2 h-2 bg-pink-500 rounded-full mr-2"></div>
+                       <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Loan Term</p>
+                     </div>
+                     <p className="text-pink-600 font-bold text-lg">
+                       {property.financial_details.loan_term_years ? `${property.financial_details.loan_term_years} years` : 'N/A'}
+                     </p>
+                   </div>
+                 </div>
+
+                 {/* Monthly Expenses Breakdown */}
+                 <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/50 mb-4">
+                   <div className="flex items-center mb-3">
+                     <div className="bg-green-100 p-2 rounded-lg mr-3">
+                       <Calculator className="h-4 w-4 text-green-600" />
+                     </div>
+                     <p className="text-sm font-medium text-gray-700">Monthly Expenses Breakdown</p>
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <div className="flex justify-between text-sm">
+                         <span className="text-gray-600">Mortgage Payment:</span>
+                         <span className="font-medium">
+                           {property.financial_details.monthly_loan_payment ? `$${property.financial_details.monthly_loan_payment.toLocaleString()}` : '$0'}
+                         </span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span className="text-gray-600">Property Tax:</span>
+                         <span className="font-medium">
+                           {property.financial_details.property_tax_annual ? `$${(property.financial_details.property_tax_annual / 12).toLocaleString()}` : '$0'}
+                         </span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span className="text-gray-600">Insurance:</span>
+                         <span className="font-medium">
+                           {property.financial_details.insurance_annual ? `$${(property.financial_details.insurance_annual / 12).toLocaleString()}` : '$0'}
+                         </span>
+                       </div>
+                     </div>
+                     <div className="space-y-2">
+                       <div className="flex justify-between text-sm">
+                         <span className="text-gray-600">HOA Fees:</span>
+                         <span className="font-medium">
+                           {property.financial_details.hoa_fees_monthly ? `$${property.financial_details.hoa_fees_monthly.toLocaleString()}` : '$0'}
+                         </span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span className="text-gray-600">Maintenance Reserve:</span>
+                         <span className="font-medium">
+                           {property.financial_details.maintenance_reserve_monthly ? `$${property.financial_details.maintenance_reserve_monthly.toLocaleString()}` : '$0'}
+                         </span>
+                       </div>
+                       <div className="flex justify-between text-sm font-semibold border-t pt-2">
+                         <span className="text-gray-700">Total Monthly Expenses:</span>
+                         <span className="text-red-600">
+                           {property.financial_details.total_monthly_expenses ? `$${property.financial_details.total_monthly_expenses.toLocaleString()}` : '$0'}
+                         </span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
+                 {/* Cash Flow and ROI */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                   <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                     <div className="flex items-center mb-3">
+                       <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                         <DollarSign className="h-4 w-4 text-blue-600" />
+                       </div>
+                       <p className="text-sm font-medium text-gray-700">Monthly Cash Flow</p>
+                     </div>
+                     <p className={`text-2xl font-bold ${property.financial_details.monthly_cash_flow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                       {property.financial_details.monthly_cash_flow ? `$${property.financial_details.monthly_cash_flow.toLocaleString()}` : '$0'}
+                     </p>
+                     <p className="text-xs text-gray-500 mt-1">
+                       Rent: ${property.rent_amount ? property.rent_amount.toLocaleString() : '0'} - Expenses: ${property.financial_details.total_monthly_expenses ? property.financial_details.total_monthly_expenses.toLocaleString() : '0'}
+                     </p>
+                   </div>
+
+                   <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 border border-white/50">
+                     <div className="flex items-center mb-3">
+                       <div className="bg-purple-100 p-2 rounded-lg mr-3">
+                         <TrendingUp className="h-4 w-4 text-purple-600" />
+                       </div>
+                       <p className="text-sm font-medium text-gray-700">Return on Investment</p>
+                     </div>
+                     <p className={`text-2xl font-bold ${property.financial_details.roi_percentage >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                       {property.financial_details.roi_percentage ? `${property.financial_details.roi_percentage}%` : '0%'}
+                     </p>
+                     <p className="text-xs text-gray-500 mt-1">
+                       Annual cash flow / Down payment
+                     </p>
+                   </div>
+                 </div>
+               </div>
+             </div>
+           )}
+         </div>
+
+         {/* Sidebar */}
         <div className="space-y-6">
           {/* Association Details */}
           {property.association_assignment && (

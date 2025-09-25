@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useQueryClient } from 'react-query';
+import { invalidateTenantCaches } from '../utils/cacheUtils';
 import { 
   Plus, 
   Download, 
@@ -42,8 +43,9 @@ const Tenants = () => {
       try {
         await api.delete(`/api/tenants/${tenantId}`);
         toast.success('Tenant deleted successfully!');
-        // Refresh the tenants list
-        queryClient.invalidateQueries(['tenants']);
+        // Invalidate all tenant and property related caches since removing a tenant
+        // changes property status from occupied back to available
+        invalidateTenantCaches(queryClient);
         fetchTenants();
       } catch (error) {
         console.error('Delete error:', error);
@@ -91,7 +93,11 @@ const Tenants = () => {
   }, [fetchUserProperties, fetchTenants]);
 
   const handleAddTenantSuccess = () => {
+    // Invalidate all tenant and property related caches since assigning a tenant
+    // changes property status from available to occupied
+    invalidateTenantCaches(queryClient);
     fetchTenants();
+    fetchUserProperties();
   };
 
   const handleExport = () => {

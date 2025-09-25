@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import { useSearchParams } from 'react-router-dom';
 import api from '../utils/axios';
+import { invalidatePropertyCaches } from '../utils/cacheUtils';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Plus,
@@ -31,8 +32,8 @@ const Rentals = () => {
       try {
         await api.delete(`/api/properties/${propertyId}`);
         toast.success('Property deleted successfully!');
-        // Refresh the properties list
-        queryClient.invalidateQueries(['properties']);
+        // Refresh all property-related data
+        invalidatePropertyCaches(queryClient);
       } catch (error) {
         console.error('Delete error:', error);
         toast.error('Failed to delete property. Please try again.');
@@ -540,8 +541,8 @@ const Rentals = () => {
                       
                       if (response.data.success) {
                         toast.success(`Successfully imported ${response.data.imported_count} properties!`);
-                        // Refresh the properties list using React Query
-                        queryClient.invalidateQueries(['properties']);
+                        // Refresh all property-related data
+                        invalidatePropertyCaches(queryClient);
                       } else {
                         toast.error('Import failed: ' + response.data.error);
                       }
