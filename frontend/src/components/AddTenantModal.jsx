@@ -400,10 +400,10 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                   <p className="text-red-500 text-sm mt-1">{errors.tenantId.message}</p>
                 )}
                 {tenantsLoading && (
-                  <p className="text-gray-500 text-sm mt-1">Loading available tenants...</p>
+                  <p className="text-gray-500 dark:text-gray-300 text-sm mt-1">Loading available tenants...</p>
                 )}
                 {!tenantsLoading && availableTenants.length === 0 && (
-                  <p className="text-gray-500 text-sm mt-1">No available tenants found. All registered tenants are already assigned to properties.</p>
+                  <p className="text-gray-500 dark:text-gray-300 text-sm mt-1">No available tenants found. All registered tenants are already assigned to properties.</p>
                 )}
               </div>
             ) : (
@@ -467,7 +467,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                </label>
                <div className="relative property-search-container">
                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                   <Search className="h-5 w-5 text-gray-400" />
+                   <Search className="h-5 w-5 text-gray-400 dark:text-gray-300" />
                  </div>
                  <input
                    type="text"
@@ -491,7 +491,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                      }}
                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
                    >
-                     <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                     <X className="h-5 w-5 text-gray-400 dark:text-gray-300 hover:text-gray-600" />
                    </button>
                  )}
                  
@@ -512,7 +512,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                              {property.street_address_1}
                              {property.apt_number && `, Unit ${property.apt_number}`}
                            </div>
-                           <div className="text-sm text-gray-500">
+                           <div className="text-sm text-gray-500 dark:text-gray-300">
                              {property.city}, {property.state} {property.zip_code}
                            </div>
                            <div className="text-sm font-medium text-green-600">
@@ -521,7 +521,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                          </div>
                        ))
                      ) : (
-                       <div className="px-4 py-3 text-sm text-gray-500">
+                       <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-300">
                          No properties found matching "{propertySearchTerm}"
                        </div>
                      )}
@@ -548,7 +548,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                  <p className="text-red-500 text-sm mt-1">{errors.propertyId.message}</p>
                )}
                
-               <p className="text-xs text-gray-500 mt-1">
+               <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                  Search across property name, address, city, state, zip code, case number, and folio
                </p>
              </div>
@@ -609,7 +609,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 {errors.rentPaymentDay && (
                   <p className="text-red-500 text-sm mt-1">{errors.rentPaymentDay.message}</p>
                 )}
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   Select the day of each month when rent payment is due
                 </p>
               </div>
@@ -630,7 +630,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                   className="input-field w-full bg-gray-100"
                   disabled
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   {selectedProperty 
                     ? 'Rent amount is set by the property\'s listing'
                     : selectedTenant && selectedTenant.rent_amount && selectedTenant.rent_amount !== 'N/A'
@@ -653,7 +653,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 <div>
                   <p className="text-sm text-gray-600">First Month Amount</p>
                   <p className="text-xl font-bold text-blue-600">${proratedRent.first_month_amount}</p>
-                  <p className="text-xs text-gray-500">Instead of ${proratedRent.monthly_rent}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Instead of ${proratedRent.monthly_rent}</p>
                 </div>
                 
                 <div>
@@ -661,7 +661,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                   <p className={`text-xl font-bold ${proratedRent.savings > 0 ? 'text-green-600' : 'text-gray-600'}`}>
                     ${proratedRent.savings.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     {proratedRent.savings > 0 ? 'For partial month' : 'Full month billing'}
                   </p>
                 </div>
@@ -669,13 +669,13 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 <div>
                   <p className="text-sm text-gray-600">Days Prorated</p>
                   <p className="text-lg font-semibold">{proratedRent.days_prorated} days</p>
-                  <p className="text-xs text-gray-500">Out of {proratedRent.days_in_month} days</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Out of {proratedRent.days_in_month} days</p>
                 </div>
                 
                 <div>
                   <p className="text-sm text-gray-600">Daily Rate</p>
                   <p className="text-lg font-semibold">${proratedRent.daily_rate}/day</p>
-                  <p className="text-xs text-gray-500">Next full payment: {new Date(proratedRent.next_full_payment_date).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Next full payment: {new Date(proratedRent.next_full_payment_date).toLocaleDateString()}</p>
                 </div>
               </div>
               
@@ -706,7 +706,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                     setCalculatingProration(false);
                     setProrationError('Calculation cancelled by user');
                   }}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                  className="text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700 underline"
                 >
                   Cancel calculation
                 </button>
@@ -731,7 +731,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
               <div className="flex items-center">
                 <div className="text-red-600 mr-3">⚠️</div>
                 <div>
-                  <p className="text-red-800 font-medium">Error calculating prorated rent</p>
+                  <p className="text-red-800 dark:text-red-200 font-medium">Error calculating prorated rent</p>
                   <p className="text-red-600 text-sm">{prorationError}</p>
                 </div>
               </div>

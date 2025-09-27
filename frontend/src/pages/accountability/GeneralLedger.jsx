@@ -202,11 +202,11 @@ const GeneralLedger = () => {
   };
 
   const KPICard = ({ title, value, trend, trendValue, icon: Icon, iconColor, trendColor }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mb-2">{value}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{value}</p>
           <div className={`flex items-center text-sm ${trendColor}`}>
             {trend === 'up' ? (
               <ArrowUp className="h-4 w-4 mr-1" />
@@ -230,8 +230,8 @@ const GeneralLedger = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">General ledger</h1>
-          <p className="text-gray-600 mt-1">Comprehensive account activity and balance analysis</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">General ledger</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Comprehensive account activity and balance analysis</p>
         </div>
         <div className="flex space-x-3">
           <button className="btn-secondary flex items-center space-x-2">
@@ -257,7 +257,7 @@ const GeneralLedger = () => {
           trendValue={`+${dashboardData.assetsTrend}% vs last period`}
           icon={DollarSign}
           iconColor="text-green-500"
-          trendColor="text-green-600"
+          trendColor="text-green-600 dark:text-green-400"
         />
         <KPICard
           title="Net Worth"
@@ -266,7 +266,7 @@ const GeneralLedger = () => {
           trendValue={`+${dashboardData.netWorthTrend}% vs last period`}
           icon={DollarSign}
           iconColor="text-blue-500"
-          trendColor="text-blue-600"
+          trendColor="text-blue-600 dark:text-blue-400"
         />
         <KPICard
           title="Monthly Activity"
@@ -284,17 +284,17 @@ const GeneralLedger = () => {
           trendValue={`${dashboardData.unreconciledTrend} vs last period`}
           icon={AlertTriangle}
           iconColor="text-yellow-500"
-          trendColor="text-orange-600"
+          trendColor="text-orange-600 dark:text-orange-400"
         />
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Account Category Balances Chart */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Account Category Balances</h3>
-            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Account Category Balances</h3>
+            <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 rounded-md">
               <BarChart3 className="h-5 w-5" />
             </button>
           </div>
@@ -304,10 +304,10 @@ const GeneralLedger = () => {
         </div>
 
         {/* Monthly Debit/Credit Activity Chart */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Monthly Debit/Credit Activity</h3>
-            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Monthly Debit/Credit Activity</h3>
+            <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 rounded-md">
               <RefreshCw className="h-5 w-5" />
             </button>
           </div>
@@ -318,10 +318,10 @@ const GeneralLedger = () => {
       </div>
 
       {/* Ledger Entries Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-6 border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-600">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Ledger Entries</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Recent Ledger Entries</h3>
             <div className="flex space-x-2">
               <button className="btn-secondary flex items-center space-x-2">
                 <Filter className="h-4 w-4" />
@@ -337,48 +337,48 @@ const GeneralLedger = () => {
         <div className="p-6">
           {loading ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-2 text-gray-600">Loading ledger entries...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+              <p className="mt-2 text-gray-600 dark:text-gray-300">Loading ledger entries...</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Property
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Type
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Account
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Description
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Amount
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Balance
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                   {ledgerEntries.map((entry) => (
-                    <tr key={entry.id} className="hover:bg-gray-50">
+                    <tr key={entry.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{entry.transaction_date}</div>
+                        <div className="text-sm text-gray-900 dark:text-white">{entry.transaction_date}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{entry.property_title}</div>
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">{entry.property_title}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -388,41 +388,41 @@ const GeneralLedger = () => {
                             <ArrowUp className="h-4 w-4 text-green-500 mr-1" />
                           )}
                           <span className={`text-sm font-medium ${
-                            entry.transaction_type === 'debit' ? 'text-red-600' : 'text-green-600'
+                            entry.transaction_type === 'debit' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
                           }`}>
                             {entry.transaction_type.toUpperCase()}
                           </span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 dark:text-white">
                           <div className="font-medium">{entry.account_category}</div>
-                          <div className="text-gray-500">{entry.account_subcategory}</div>
+                          <div className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">{entry.account_subcategory}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate">
+                        <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
                           {entry.description}
                         </div>
                         {entry.reference_number && (
-                          <div className="text-xs text-gray-500">Ref: {entry.reference_number}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Ref: {entry.reference_number}</div>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className={`text-sm font-medium ${
-                          entry.transaction_type === 'debit' ? 'text-red-600' : 'text-green-600'
+                          entry.transaction_type === 'debit' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'
                         }`}>
                           ${entry.amount.toLocaleString()}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm text-gray-900 dark:text-white">
                           ${entry.running_balance.toLocaleString()}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
+                          <button className="text-blue-600 dark:text-blue-400 hover:text-blue-900">
                             <Eye className="h-4 w-4" />
                           </button>
                           <button className="text-indigo-600 hover:text-indigo-900">
@@ -436,11 +436,11 @@ const GeneralLedger = () => {
               </table>
               {ledgerEntries.length === 0 && (
                 <div className="text-center py-8">
-                  <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No ledger entries found</p>
+                  <BookOpen className="h-12 w-12 text-gray-400 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">No ledger entries found</p>
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="mt-2 text-blue-600 hover:text-blue-800 font-medium"
+                    className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 font-medium"
                   >
                     Create your first ledger entry
                   </button>
@@ -454,12 +454,12 @@ const GeneralLedger = () => {
       {/* Create Ledger Entry Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-900">Create Ledger Entry</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Create Ledger Entry</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <span className="sr-only">Close</span>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -471,13 +471,13 @@ const GeneralLedger = () => {
             <form onSubmit={handleCreateLedgerEntry} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Property</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property</label>
                   <select
                     name="property_id"
                     value={formData.property_id}
                     onChange={handleInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Property</option>
                     {properties.map(property => (
@@ -487,25 +487,25 @@ const GeneralLedger = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Transaction Date</label>
                   <input
                     type="date"
                     name="transaction_date"
                     value={formData.transaction_date}
                     onChange={handleInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Transaction Type</label>
                   <select
                     name="transaction_type"
                     value={formData.transaction_type}
                     onChange={handleInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="debit">Debit</option>
                     <option value="credit">Credit</option>
@@ -513,7 +513,7 @@ const GeneralLedger = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
                   <input
                     type="number"
                     name="amount"
@@ -521,18 +521,18 @@ const GeneralLedger = () => {
                     onChange={handleNumberInputChange}
                     step="0.01"
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Category</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Category</label>
                   <select
                     name="account_category"
                     value={formData.account_category}
                     onChange={handleInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {accountCategories.map(category => (
                       <option key={category.value} value={category.value}>{category.label}</option>
@@ -541,13 +541,13 @@ const GeneralLedger = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Subcategory</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Subcategory</label>
                   <select
                     name="account_subcategory"
                     value={formData.account_subcategory}
                     onChange={handleInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Subcategory</option>
                     {getSubcategories().map(subcategory => (
@@ -558,38 +558,38 @@ const GeneralLedger = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Reference Number</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reference Number</label>
                 <input
                   type="text"
                   name="reference_number"
                   value={formData.reference_number}
                   onChange={handleInputChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Invoice number, check number, etc."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   required
                   rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Detailed description of the transaction..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                 <textarea
                   name="notes"
                   value={formData.notes}
                   onChange={handleInputChange}
                   rows={2}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Additional notes..."
                 />
               </div>

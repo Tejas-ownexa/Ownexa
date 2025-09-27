@@ -12,19 +12,19 @@ const ReceivePayment = () => {
 
       <div className="max-w-3xl">
         <div className="mb-6">
-          <label className="block text-sm text-gray-600 mb-2">
+          <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">
             CHOOSE RESIDENT ACCOUNT
           </label>
           <div className="relative">
             <select
-              className="w-full border border-gray-300 rounded px-3 py-2 appearance-none bg-white"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 appearance-none bg-white dark:bg-gray-800"
               value={selectedAccount}
               onChange={(e) => setSelectedAccount(e.target.value)}
             >
               <option value="">Select resident account...</option>
               {/* Add your account options here */}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
           </div>
         </div>
       </div>

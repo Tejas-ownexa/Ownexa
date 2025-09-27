@@ -269,11 +269,11 @@ const Banking = () => {
   ];
 
   const KPICard = ({ title, value, trend, trendValue, icon: Icon, iconColor, trendColor }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mb-2">{value}</p>
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{value}</p>
           <div className={`flex items-center text-sm ${trendColor}`}>
             {trend === 'up' ? (
               <ArrowUp className="h-4 w-4 mr-1" />
@@ -297,8 +297,8 @@ const Banking = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Banking</h1>
-          <p className="text-gray-600 mt-1">Bank account management and transaction tracking</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Banking</h1>
+          <p className="text-gray-600 dark:text-gray-300 mt-1">Bank account management and transaction tracking</p>
         </div>
         <div className="flex space-x-3">
           <button className="btn-secondary flex items-center space-x-2">
@@ -328,7 +328,7 @@ const Banking = () => {
           trendValue={`+${dashboardData.balanceTrend}% vs last period`}
           icon={DollarSign}
           iconColor="text-green-500"
-          trendColor="text-green-600"
+          trendColor="text-green-600 dark:text-green-400"
         />
         <KPICard
           title="Total Deposits"
@@ -337,7 +337,7 @@ const Banking = () => {
           trendValue={`+${dashboardData.depositsTrend}% vs last period`}
           icon={ArrowUp}
           iconColor="text-blue-500"
-          trendColor="text-blue-600"
+          trendColor="text-blue-600 dark:text-blue-400"
         />
         <KPICard
           title="Total Withdrawals"
@@ -346,7 +346,7 @@ const Banking = () => {
           trendValue={`+${dashboardData.withdrawalsTrend}% vs last period`}
           icon={ArrowDown}
           iconColor="text-red-500"
-          trendColor="text-red-600"
+          trendColor="text-red-600 dark:text-red-400"
         />
         <KPICard
           title="Pending Transactions"
@@ -355,17 +355,17 @@ const Banking = () => {
           trendValue={`${dashboardData.pendingTrend} vs last period`}
           icon={AlertTriangle}
           iconColor="text-yellow-500"
-          trendColor="text-orange-600"
+          trendColor="text-orange-600 dark:text-orange-400"
         />
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Account Balances Chart */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Account Balances</h3>
-            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Account Balances</h3>
+            <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 rounded-md">
               <BarChart3 className="h-5 w-5" />
             </button>
           </div>
@@ -375,10 +375,10 @@ const Banking = () => {
         </div>
 
         {/* Transaction Activity Chart */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Transaction Activity</h3>
-            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Transaction Activity</h3>
+            <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 rounded-md">
               <RefreshCw className="h-5 w-5" />
             </button>
           </div>
@@ -392,11 +392,11 @@ const Banking = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Banking Accounts List */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">Bank Accounts</h3>
-                <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Accounts</h3>
+                <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 rounded-md">
                   <Settings className="h-5 w-5" />
                 </button>
               </div>
@@ -404,8 +404,8 @@ const Banking = () => {
             <div className="p-6">
               {loading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="mt-2 text-gray-600">Loading accounts...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+                  <p className="mt-2 text-gray-600 dark:text-gray-300">Loading accounts...</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -416,21 +416,21 @@ const Banking = () => {
                       className={`p-4 rounded-lg border cursor-pointer transition-colors ${
                         selectedAccount?.id === account.id
                           ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:border-gray-600'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-medium text-gray-900">{account.bank_name}</h4>
+                        <h4 className="font-medium text-gray-900 dark:text-white">{account.bank_name}</h4>
                         <span className={`px-2 py-1 text-xs rounded-full ${
-                          account.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          account.is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                         }`}>
                           {account.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-2">{account.account_name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{account.account_name}</p>
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-500">{account.account_type}</span>
-                        <span className="font-medium text-gray-900">
+                        <span className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">{account.account_type}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
                           ${account.current_balance.toLocaleString()}
                         </span>
                       </div>
@@ -438,11 +438,11 @@ const Banking = () => {
                   ))}
                   {bankingAccounts.length === 0 && (
                     <div className="text-center py-8">
-                      <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No bank accounts found</p>
+                      <CreditCard className="h-12 w-12 text-gray-400 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">No bank accounts found</p>
                       <button
                         onClick={() => setShowCreateAccountModal(true)}
-                        className="mt-2 text-blue-600 hover:text-blue-800 font-medium"
+                        className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 font-medium"
                       >
                         Add your first bank account
                       </button>
@@ -456,15 +456,15 @@ const Banking = () => {
 
         {/* Transactions List */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-600">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {selectedAccount ? `${selectedAccount.bank_name} - Transactions` : 'Transactions'}
                   </h3>
                   {selectedAccount && (
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                       Balance: ${selectedAccount.current_balance.toLocaleString()}
                     </p>
                   )}
@@ -488,42 +488,42 @@ const Banking = () => {
             <div className="p-6">
               {!selectedAccount ? (
                 <div className="text-center py-8">
-                  <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Select a bank account to view transactions</p>
+                  <CreditCard className="h-12 w-12 text-gray-400 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Select a bank account to view transactions</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Date
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Type
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Description
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Amount
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Balance
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Status
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                           Actions
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {transactions.map((transaction) => (
-                        <tr key={transaction.id} className="hover:bg-gray-50">
+                        <tr key={transaction.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{transaction.transaction_date}</div>
+                            <div className="text-sm text-gray-900 dark:text-white">{transaction.transaction_date}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
@@ -533,46 +533,46 @@ const Banking = () => {
                                 <ArrowDown className="h-4 w-4 text-red-500 mr-1" />
                               )}
                               <span className={`text-sm font-medium ${
-                                transaction.transaction_type === 'deposit' ? 'text-green-600' : 'text-red-600'
+                                transaction.transaction_type === 'deposit' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                               }`}>
                                 {transaction.transaction_type.toUpperCase()}
                               </span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900 max-w-xs truncate">
+                            <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
                               {transaction.description}
                             </div>
                             {transaction.payee && (
-                              <div className="text-xs text-gray-500">Payee: {transaction.payee}</div>
+                              <div className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Payee: {transaction.payee}</div>
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className={`text-sm font-medium ${
-                              transaction.transaction_type === 'deposit' ? 'text-green-600' : 'text-red-600'
+                              transaction.transaction_type === 'deposit' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                             }`}>
                               ${transaction.amount.toLocaleString()}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
+                            <div className="text-sm text-gray-900 dark:text-white">
                               ${transaction.balance_after.toLocaleString()}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 py-1 text-xs rounded-full ${
                               transaction.status === 'cleared' 
-                                ? 'bg-green-100 text-green-800'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                                 : transaction.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-gray-100 text-gray-800'
+                                ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                             }`}>
                               {transaction.status}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div className="flex space-x-2">
-                              <button className="text-blue-600 hover:text-blue-900">
+                              <button className="text-blue-600 dark:text-blue-400 hover:text-blue-900">
                                 <Eye className="h-4 w-4" />
                               </button>
                               <button className="text-indigo-600 hover:text-indigo-900">
@@ -586,11 +586,11 @@ const Banking = () => {
                   </table>
                   {transactions.length === 0 && (
                     <div className="text-center py-8">
-                      <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No transactions found</p>
+                      <FileText className="h-12 w-12 text-gray-400 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                      <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">No transactions found</p>
                       <button
                         onClick={() => setShowCreateTransactionModal(true)}
-                        className="mt-2 text-blue-600 hover:text-blue-800 font-medium"
+                        className="mt-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 font-medium"
                       >
                         Add your first transaction
                       </button>
@@ -606,12 +606,12 @@ const Banking = () => {
       {/* Create Bank Account Modal */}
       {showCreateAccountModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-900">Add Bank Account</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Add Bank Account</h3>
               <button
                 onClick={() => setShowCreateAccountModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <span className="sr-only">Close</span>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -623,13 +623,13 @@ const Banking = () => {
             <form onSubmit={handleCreateAccount} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Property</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Property</label>
                   <select
                     name="property_id"
                     value={accountFormData.property_id}
                     onChange={handleAccountInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Property</option>
                     {properties.map(property => (
@@ -639,52 +639,52 @@ const Banking = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bank Name</label>
                   <input
                     type="text"
                     name="bank_name"
                     value={accountFormData.bank_name}
                     onChange={handleAccountInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Chase Bank"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Name</label>
                   <input
                     type="text"
                     name="account_name"
                     value={accountFormData.account_name}
                     onChange={handleAccountInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="e.g., Main Checking"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Number</label>
                   <input
                     type="text"
                     name="account_number"
                     value={accountFormData.account_number}
                     onChange={handleAccountInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Last 4 digits"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Account Type</label>
                   <select
                     name="account_type"
                     value={accountFormData.account_type}
                     onChange={handleAccountInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {accountTypes.map(type => (
                       <option key={type.value} value={type.value}>{type.label}</option>
@@ -693,19 +693,19 @@ const Banking = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Routing Number</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Routing Number</label>
                   <input
                     type="text"
                     name="routing_number"
                     value={accountFormData.routing_number}
                     onChange={handleAccountInputChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Optional"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Current Balance</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Balance</label>
                   <input
                     type="number"
                     name="current_balance"
@@ -713,12 +713,12 @@ const Banking = () => {
                     onChange={handleAccountNumberInputChange}
                     step="0.01"
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Available Balance</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Available Balance</label>
                   <input
                     type="number"
                     name="available_balance"
@@ -726,43 +726,43 @@ const Banking = () => {
                     onChange={handleAccountNumberInputChange}
                     step="0.01"
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Interest Rate (%)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Interest Rate (%)</label>
                   <input
                     type="number"
                     name="interest_rate"
                     value={accountFormData.interest_rate}
                     onChange={handleAccountNumberInputChange}
                     step="0.01"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Monthly Fee</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Monthly Fee</label>
                   <input
                     type="number"
                     name="monthly_fee"
                     value={accountFormData.monthly_fee}
                     onChange={handleAccountNumberInputChange}
                     step="0.01"
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                 <textarea
                   name="notes"
                   value={accountFormData.notes}
                   onChange={handleAccountInputChange}
                   rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Additional notes about this account..."
                 />
               </div>
@@ -791,12 +791,12 @@ const Banking = () => {
       {/* Create Transaction Modal */}
       {showCreateTransactionModal && selectedAccount && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-900">Add Transaction</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Add Transaction</h3>
               <button
                 onClick={() => setShowCreateTransactionModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <span className="sr-only">Close</span>
                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -808,37 +808,37 @@ const Banking = () => {
             <form onSubmit={handleCreateTransaction} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Transaction Date</label>
                   <input
                     type="date"
                     name="transaction_date"
                     value={transactionFormData.transaction_date}
                     onChange={handleTransactionInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Posted Date</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Posted Date</label>
                   <input
                     type="date"
                     name="posted_date"
                     value={transactionFormData.posted_date}
                     onChange={handleTransactionInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Transaction Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Transaction Type</label>
                   <select
                     name="transaction_type"
                     value={transactionFormData.transaction_type}
                     onChange={handleTransactionInputChange}
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     {transactionTypes.map(type => (
                       <option key={type.value} value={type.value}>{type.label}</option>
@@ -847,7 +847,7 @@ const Banking = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
                   <input
                     type="number"
                     name="amount"
@@ -855,17 +855,17 @@ const Banking = () => {
                     onChange={handleTransactionNumberInputChange}
                     step="0.01"
                     required
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                   <select
                     name="category"
                     value={transactionFormData.category}
                     onChange={handleTransactionInputChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select Category</option>
                     {transactionCategories.map(category => (
@@ -875,51 +875,51 @@ const Banking = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Reference Number</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reference Number</label>
                   <input
                     type="text"
                     name="reference_number"
                     value={transactionFormData.reference_number}
                     onChange={handleTransactionInputChange}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="Check number, invoice number, etc."
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
                 <textarea
                   name="description"
                   value={transactionFormData.description}
                   onChange={handleTransactionInputChange}
                   required
                   rows={3}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Detailed description of the transaction..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Payee</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payee</label>
                 <input
                   type="text"
                   name="payee"
                   value={transactionFormData.payee}
                   onChange={handleTransactionInputChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Who was paid or who made the payment"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                 <textarea
                   name="notes"
                   value={transactionFormData.notes}
                   onChange={handleTransactionInputChange}
                   rows={2}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Additional notes..."
                 />
               </div>

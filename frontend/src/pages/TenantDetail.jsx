@@ -114,10 +114,10 @@ const TenantDetail = () => {
 
   const getMaintenanceStatusColor = (status) => {
     switch (status?.toLowerCase()) {
-      case 'completed': return 'text-green-600 bg-green-100';
-      case 'in_progress': return 'text-blue-600 bg-blue-100';
+      case 'completed': return 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30';
+      case 'in_progress': return 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30';
       case 'pending': return 'text-yellow-600 bg-yellow-100';
-      default: return 'text-gray-600 bg-gray-100';
+      default: return 'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700';
     }
   };
 
@@ -131,7 +131,7 @@ const TenantDetail = () => {
 
   if (error) {
     return (
-      <div className="text-center text-red-600">
+      <div className="text-center text-red-600 dark:text-red-400">
         <div className="text-lg">Error loading tenant: {error.message}</div>
         <button 
           onClick={() => navigate('/tenants')}
@@ -166,12 +166,12 @@ const TenantDetail = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={() => navigate('/tenants')}
-            className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white transition-colors"
           >
             <ArrowLeft className="h-5 w-5 mr-2" />
             Back to Tenants
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             {tenant.name || tenant.full_name}
           </h1>
         </div>
@@ -189,23 +189,23 @@ const TenantDetail = () => {
         {/* Left Column - Tenant Info */}
         <div className="lg:col-span-2 space-y-6">
           {/* Basic Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <User className="h-5 w-5 mr-2 text-blue-600" />
+              <User className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
               Contact Information
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-gray-400" />
+                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                 <div>
-                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Email</p>
                   <p className="font-medium">{tenant.email || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-gray-400" />
+                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                 <div>
-                  <p className="text-sm text-gray-500">Phone</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Phone</p>
                   <p className="font-medium">{tenant.phone || tenant.phone_number || 'N/A'}</p>
                 </div>
               </div>
@@ -214,23 +214,23 @@ const TenantDetail = () => {
 
           {/* Property Information */}
           {tenant.property && (
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <Home className="h-5 w-5 mr-2 text-blue-600" />
+                <Home className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
                 Property Details
               </h2>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <Building2 className="h-5 w-5 text-gray-400 mt-1" />
+                  <Building2 className="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-300 mt-1" />
                   <div>
-                    <p className="text-sm text-gray-500">Property</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Property</p>
                     <p className="font-medium">{tenant.property.name || tenant.property.title}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-1" />
+                  <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-500 dark:text-gray-300 mt-1" />
                   <div>
-                    <p className="text-sm text-gray-500">Address</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Address</p>
                     <p className="font-medium">{tenant.property.address || 'Address not available'}</p>
                   </div>
                 </div>
@@ -239,22 +239,22 @@ const TenantDetail = () => {
           )}
 
           {/* Maintenance Requests */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <FileText className="h-5 w-5 mr-2 text-blue-600" />
+              <FileText className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
               Maintenance Requests
             </h2>
             {maintenanceLoading ? (
-              <p className="text-gray-500">Loading maintenance requests...</p>
+              <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Loading maintenance requests...</p>
             ) : maintenanceRequests.length > 0 ? (
               <div className="space-y-3">
                 {maintenanceRequests.slice(0, 5).map((request) => (
-                  <div key={request.id} className="border border-gray-200 rounded-lg p-4">
+                  <div key={request.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-medium">{request.request_title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{request.request_description}</p>
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{request.request_description}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 mt-2">
                           Created: {formatDate(request.created_at)}
                         </p>
                       </div>
@@ -265,13 +265,13 @@ const TenantDetail = () => {
                   </div>
                 ))}
                 {maintenanceRequests.length > 5 && (
-                  <p className="text-sm text-gray-500 text-center">
+                  <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-center">
                     And {maintenanceRequests.length - 5} more requests...
                   </p>
                 )}
               </div>
             ) : (
-              <p className="text-gray-500">No maintenance requests found.</p>
+              <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">No maintenance requests found.</p>
             )}
           </div>
         </div>
@@ -279,19 +279,19 @@ const TenantDetail = () => {
         {/* Right Column - Lease Info */}
         <div className="space-y-6">
           {/* Lease Status */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <Calendar className="h-5 w-5 mr-2 text-blue-600" />
+              <Calendar className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
               Lease Information
             </h2>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-500">Status</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Status</p>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  leaseStatus.color === 'green' ? 'bg-green-100 text-green-800' :
-                  leaseStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                  leaseStatus.color === 'red' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
+                  leaseStatus.color === 'green' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                  leaseStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200' :
+                  leaseStatus.color === 'red' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                  'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                 }`}>
                   {leaseStatus.color === 'green' ? <CheckCircle className="h-4 w-4 mr-1" /> :
                    leaseStatus.color === 'yellow' ? <AlertCircle className="h-4 w-4 mr-1" /> :
@@ -301,35 +301,35 @@ const TenantDetail = () => {
                 </span>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Lease Start</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Lease Start</p>
                 <p className="font-medium">{formatDate(tenant.leaseStartDate || tenant.lease_start)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Lease End</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Lease End</p>
                 <p className="font-medium">{formatDate(tenant.leaseEndDate || tenant.lease_end)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Rent Payment Day</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Rent Payment Day</p>
                 <p className="font-medium">{tenant.rent_payment_day || 1} of each month</p>
               </div>
             </div>
           </div>
 
           {/* Financial Information */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <DollarSign className="h-5 w-5 mr-2 text-blue-600" />
+              <DollarSign className="h-5 w-5 mr-2 text-blue-600 dark:text-blue-400" />
               Financial Information
             </h2>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-500">Monthly Rent</p>
-                <p className="text-2xl font-bold text-green-600">
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Monthly Rent</p>
+                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                   ${tenant.rentAmount || tenant.rent_amount || '0'}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Payment Status</p>
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Payment Status</p>
                 <p className="font-medium capitalize">{tenant.status || tenant.payment_status || 'N/A'}</p>
               </div>
             </div>
@@ -340,12 +340,12 @@ const TenantDetail = () => {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Edit Tenant</h2>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <X className="h-6 w-6" />
               </button>
@@ -353,78 +353,78 @@ const TenantDetail = () => {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Full Name *
                 </label>
                 <input
                   type="text"
                   value={editFormData.full_name || ''}
                   onChange={(e) => handleInputChange('full_name', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Email *
                 </label>
                 <input
                   type="email"
                   value={editFormData.email || ''}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Phone Number *
                 </label>
                 <input
                   type="tel"
                   value={editFormData.phone_number || ''}
                   onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Lease Start Date
                   </label>
                   <input
                     type="date"
                     value={editFormData.lease_start || ''}
                     onChange={(e) => handleInputChange('lease_start', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Lease End Date
                   </label>
                   <input
                     type="date"
                     value={editFormData.lease_end || ''}
                     onChange={(e) => handleInputChange('lease_end', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Rent Payment Day
                 </label>
                 <select
                   value={editFormData.rent_payment_day || '1'}
                   onChange={(e) => handleInputChange('rent_payment_day', parseInt(e.target.value))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {Array.from({ length: 28 }, (_, i) => i + 1).map(day => (
                     <option key={day} value={day}>
@@ -441,7 +441,7 @@ const TenantDetail = () => {
             <div className="flex justify-end space-x-4 mt-6">
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors"
               >
                 Cancel
               </button>

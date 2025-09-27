@@ -79,21 +79,21 @@ const Violations = () => {
       </div>
 
       {/* Filters Row */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
         <div className="flex gap-4">
           {/* Associations Dropdown */}
           <div className="relative inline-block">
             <button
-              className="border border-gray-300 rounded px-4 py-2 flex items-center gap-2 bg-white min-w-[200px]"
+              className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 flex items-center gap-2 bg-white dark:bg-gray-800 min-w-[200px]"
               onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
             >
               <span>{selectedAssociation}</span>
-              <ChevronDown className="h-4 w-4 text-gray-500" />
+              <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300" />
             </button>
             {isAssociationDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
                 <div
-                  className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer"
                   onClick={() => {
                     setSelectedAssociation('All associations');
                     setIsAssociationDropdownOpen(false);
@@ -102,7 +102,7 @@ const Violations = () => {
                   All associations
                 </div>
                 <div
-                  className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-blue-600 hover:text-blue-700"
+                  className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700"
                   onClick={handleManageGroups}
                 >
                   Manage groups...
@@ -115,20 +115,20 @@ const Violations = () => {
           <div className="relative inline-block">
             <button
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
-              className="border border-gray-300 rounded px-4 py-2 flex items-center gap-2 bg-white text-green-600 hover:text-green-700"
+              className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 flex items-center gap-2 bg-white dark:bg-gray-800 text-green-600 dark:text-green-400 hover:text-green-700"
             >
               <span>Add filter option</span>
               <ChevronDown className="h-4 w-4" />
             </button>
             {isFilterDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
                 {filterOptions.map(option => (
                   <div
                     key={option.id}
-                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer"
                     onClick={() => handleAddFilter(option.id)}
                   >
-                    <div className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center bg-white">
+                    <div className="w-6 h-6 border border-gray-300 dark:border-gray-600 rounded flex items-center justify-center bg-white dark:bg-gray-800">
                       {activeFilters.includes(option.id) && (
                         <Check className="h-4 w-4 text-green-500" />
                       )}
@@ -143,17 +143,17 @@ const Violations = () => {
 
         {/* Keep existing active filters section */}
         {activeFilters.length > 0 && (
-          <div className="mb-6 bg-white rounded-lg border p-4">
+          <div className="mb-6 bg-white dark:bg-gray-800 rounded-lg border p-4">
             <div className="grid grid-cols-4 gap-4">
               {activeFilters.map(filterId => {
                 const option = filterOptions.find(opt => opt.id === filterId);
                 return (
                   <div key={filterId} className="relative">
-                    <label className="block text-sm text-gray-600 mb-1">
+                    <label className="block text-sm text-gray-600 dark:text-gray-300 mb-1">
                       {option.label.toUpperCase()}
                       <button
                         onClick={() => handleRemoveFilter(filterId)}
-                        className="ml-2 text-gray-400 hover:text-gray-600"
+                        className="ml-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
                       >
                         <X className="h-4 w-4 inline" />
                       </button>
@@ -164,27 +164,27 @@ const Violations = () => {
                           <input
                             type="text"
                             placeholder="m/d/yyyy"
-                            className="w-full border border-gray-300 rounded px-3 py-2"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
                             value={filterValues.date_created.start}
                             onChange={(e) => handleFilterValueChange(filterId, e.target.value, 'start')}
                           />
-                          <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                         </div>
                         <span>to</span>
                         <div className="relative flex-1">
                           <input
                             type="text"
                             placeholder="m/d/yyyy"
-                            className="w-full border border-gray-300 rounded px-3 py-2"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
                             value={filterValues.date_created.end}
                             onChange={(e) => handleFilterValueChange(filterId, e.target.value, 'end')}
                           />
-                          <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                         </div>
                       </div>
                     ) : filterId === 'stages' ? (
                       <select
-                        className="w-full border border-gray-300 rounded px-3 py-2"
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
                         value={filterValues[filterId]}
                         onChange={(e) => handleFilterValueChange(filterId, e.target.value)}
                       >
@@ -196,7 +196,7 @@ const Violations = () => {
                     ) : (
                       <input
                         type="text"
-                        className="w-full border border-gray-300 rounded px-3 py-2"
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
                         placeholder="Address, unit or owner"
                         value={filterValues[filterId]}
                         onChange={(e) => handleFilterValueChange(filterId, e.target.value)}
@@ -218,32 +218,32 @@ const Violations = () => {
       </div>
 
       {/* Table Structure */}
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         <div className="flex justify-between items-center px-4 py-2 border-b">
-          <span className="text-gray-600">0 matches</span>
-          <button className="text-gray-600 hover:text-gray-800">Export</button>
+          <span className="text-gray-600 dark:text-gray-300">0 matches</span>
+          <button className="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-200">Export</button>
         </div>
         
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TYPE</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">TYPE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 CATEGORY
-                <button className="ml-1 text-gray-400">▲</button>
+                <button className="ml-1 text-gray-400 dark:text-gray-500 dark:text-gray-300">▲</button>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ADDRESS</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OWNERS</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ASSOCIATION</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">UNIT</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">STAGE</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DEADLINE</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VIOLATION DATE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">ADDRESS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">OWNERS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">ASSOCIATION</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">UNIT</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">STAGE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">DEADLINE</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">VIOLATION DATE</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
             <tr>
-              <td colSpan="9" className="px-6 py-12 text-center text-gray-500">
+              <td colSpan="9" className="px-6 py-12 text-center text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                 We didn't find any violations. Maybe you don't have any or maybe you need to{' '}
                 <button 
                   onClick={() => {
@@ -255,7 +255,7 @@ const Violations = () => {
                     });
                     setSelectedAssociation('All associations');
                   }}
-                  className="text-blue-600 hover:text-blue-700 underline"
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-700 underline"
                 >
                   clear your filters
                 </button>

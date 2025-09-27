@@ -300,17 +300,17 @@ const RentalOwners = () => {
 
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return <ChevronDown className="h-4 w-4 text-gray-400" />;
+      return <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />;
     }
     return sortDirection === 'asc' ? 
-      <ChevronUp className="h-4 w-4 text-gray-600" /> : 
-      <ChevronDown className="h-4 w-4 text-gray-600" />;
+      <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-300" /> : 
+      <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-300" />;
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -319,7 +319,7 @@ const RentalOwners = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Rental owners</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rental owners</h1>
         
         {/* Top buttons */}
         <div className="flex items-center space-x-4">
@@ -332,24 +332,24 @@ const RentalOwners = () => {
           </button>
           
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <option>Management fees</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
           </div>
           
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <option>Owner draw</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
           </div>
           
           <div className="relative">
-            <select className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               <option>Owner contribution</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
           </div>
           
           <button className="inline-flex items-center px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
@@ -360,22 +360,22 @@ const RentalOwners = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200">
+      <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
         <div className="flex items-center space-x-4">
           <div className="relative">
             <select 
               value={filterRentals}
               onChange={(e) => setFilterRentals(e.target.value)}
-              className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="all">All rentals</option>
               <option value="active">Active rentals</option>
               <option value="inactive">Inactive rentals</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
           </div>
           
-          <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <Filter className="h-4 w-4 mr-2" />
             Add filter option
             <ChevronDown className="h-4 w-4 ml-2" />
@@ -385,7 +385,7 @@ const RentalOwners = () => {
 
       {/* Table Header */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-600">{filteredOwners.length} matches</span>
+        <span className="text-sm text-gray-600 dark:text-gray-300">{filteredOwners.length} matches</span>
         
         <div className="flex items-center space-x-2">
           {/* Import Section */}
@@ -399,7 +399,7 @@ const RentalOwners = () => {
             />
             <label
               htmlFor="csv-upload"
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
             >
               <Upload className="h-4 w-4 mr-2" />
               Import
@@ -414,7 +414,7 @@ const RentalOwners = () => {
             )}
             <button
               onClick={handleDownloadTemplate}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Template
             </button>
@@ -422,7 +422,7 @@ const RentalOwners = () => {
           
           <button
             onClick={handleExport}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           >
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -432,23 +432,23 @@ const RentalOwners = () => {
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
         <input
           type="text"
           placeholder="Search rental owners..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
               <th 
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                 onClick={() => handleSort('company_name')}
               >
                 <div className="flex items-center space-x-1">
@@ -457,7 +457,7 @@ const RentalOwners = () => {
                 </div>
               </th>
               <th 
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                 onClick={() => handleSort('business_type')}
               >
                 <div className="flex items-center space-x-1">
@@ -466,7 +466,7 @@ const RentalOwners = () => {
                 </div>
               </th>
               <th 
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                 onClick={() => handleSort('city')}
               >
                 <div className="flex items-center space-x-1">
@@ -475,7 +475,7 @@ const RentalOwners = () => {
                 </div>
               </th>
               <th 
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                 onClick={() => handleSort('contact_phone')}
               >
                 <div className="flex items-center space-x-1">
@@ -484,7 +484,7 @@ const RentalOwners = () => {
                 </div>
               </th>
               <th 
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                 onClick={() => handleSort('contact_email')}
               >
                 <div className="flex items-center space-x-1">
@@ -492,43 +492,43 @@ const RentalOwners = () => {
                   {getSortIcon('contact_email')}
                 </div>
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 ACTIONS
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
             {filteredOwners.length > 0 ? (
               filteredOwners.map((owner) => (
-                <tr key={owner.id} className="hover:bg-gray-50">
+                <tr key={owner.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div 
-                      className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
+                      className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 cursor-pointer"
                       onClick={() => navigate(`/rental-owners/${owner.id}`)}
                     >
                       {owner.company_name || 'N/A'}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {owner.business_type || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {owner.city && owner.state ? `${owner.city}, ${owner.state}` : '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {owner.contact_phone || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {owner.contact_email || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
-                      <button className="text-gray-400 hover:text-gray-600">
+                      <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
                       <button 
                         onClick={() => handleDeleteOwner(owner.id)}
-                        className="text-red-400 hover:text-red-600"
+                        className="text-red-400 hover:text-red-600 dark:text-red-400"
                         title="Delete owner"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -539,7 +539,7 @@ const RentalOwners = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500">
+                <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                   No rental owners found
                 </td>
               </tr>
@@ -551,65 +551,65 @@ const RentalOwners = () => {
       {/* Add Owner Modal */}
       {showAddOwner && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">Add New Rental Owner</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Add New Rental Owner</h3>
                              <form onSubmit={handleAddOwner}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Company Name *</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name *</label>
                     <input
                       type="text"
                       required
                       value={newOwnerData.company_name}
                       onChange={(e) => setNewOwnerData({...newOwnerData, company_name: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Business Type</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Business Type</label>
                     <input
                       type="text"
                       value={newOwnerData.business_type}
                       onChange={(e) => setNewOwnerData({...newOwnerData, business_type: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Contact Email</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Email</label>
                     <input
                       type="email"
                       value={newOwnerData.contact_email}
                       onChange={(e) => setNewOwnerData({...newOwnerData, contact_email: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Contact Phone</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Contact Phone</label>
                     <input
                       type="tel"
                       value={newOwnerData.contact_phone}
                       onChange={(e) => setNewOwnerData({...newOwnerData, contact_phone: e.target.value})}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">City</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
                       <input
                         type="text"
                         value={newOwnerData.city}
                         onChange={(e) => setNewOwnerData({...newOwnerData, city: e.target.value})}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">State</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">State</label>
                       <input
                         type="text"
                         value={newOwnerData.state}
                         onChange={(e) => setNewOwnerData({...newOwnerData, state: e.target.value})}
-                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
                   </div>
@@ -618,7 +618,7 @@ const RentalOwners = () => {
                   <button
                     type="button"
                     onClick={() => setShowAddOwner(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900"
                   >
                     Cancel
                   </button>
@@ -638,28 +638,28 @@ const RentalOwners = () => {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && deleteConfirmData && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div className="mt-3">
-              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 dark:bg-red-900/30 rounded-full">
+                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mt-4 text-center">Delete Rental Owner</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mt-4 text-center">Delete Rental Owner</h3>
               <div className="mt-4">
-                <p className="text-sm text-gray-500 text-center mb-4">
+                <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-center mb-4">
                   {deleteConfirmData.message}
                 </p>
                 
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <h4 className="font-medium text-red-800 mb-2">Properties that will be deleted:</h4>
+                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Properties that will be deleted:</h4>
                   <div className="space-y-2">
                     {deleteConfirmData.properties.map((property, index) => (
                       <div key={property.id} className="flex justify-between items-center text-sm">
-                        <span className="text-gray-700">{property.title}</span>
-                        <span className="text-gray-500">{property.address}</span>
+                        <span className="text-gray-700 dark:text-gray-300">{property.title}</span>
+                        <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">{property.address}</span>
                         <span className={`px-2 py-1 rounded text-xs ${
-                          property.status === 'occupied' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          property.status === 'occupied' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         }`}>
                           {property.status}
                         </span>
@@ -668,7 +668,7 @@ const RentalOwners = () => {
                   </div>
                 </div>
                 
-                <p className="text-sm text-red-600 text-center font-medium">
+                <p className="text-sm text-red-600 dark:text-red-400 text-center font-medium">
                   ⚠️ This action cannot be undone. All properties and their associated data will be permanently deleted.
                 </p>
               </div>
@@ -679,7 +679,7 @@ const RentalOwners = () => {
                     setShowDeleteConfirm(false);
                     setDeleteConfirmData(null);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900"
                 >
                   Cancel
                 </button>

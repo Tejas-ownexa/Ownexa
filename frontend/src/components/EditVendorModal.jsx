@@ -107,7 +107,7 @@ const EditVendorModal = ({ vendor, isOpen, onClose, onVendorUpdated }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110"
+            className="p-2 rounded-lg text-gray-400 dark:text-gray-300 hover:text-gray-600 hover:bg-gray-100 transition-all duration-300 hover:scale-110"
           >
             <X className="h-6 w-6" />
           </button>

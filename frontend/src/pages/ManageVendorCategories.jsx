@@ -47,9 +47,9 @@ const ManageVendorCategories = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Manage vendor categories</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Manage vendor categories</h1>
           <div className="flex space-x-3">
             <button
               onClick={() => setIsAddingCategory(true)}
@@ -60,7 +60,7 @@ const ManageVendorCategories = () => {
             </button>
             <button
               onClick={handleBack}
-              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+              className="bg-gray-200 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
             >
               Back to Vendors
             </button>
@@ -69,36 +69,36 @@ const ManageVendorCategories = () => {
       </div>
 
       {/* Categories Table */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-4 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">
+              <tr className="border-b border-gray-200 dark:border-gray-600">
+                <th className="text-left py-4 px-4 text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   CATEGORY NAME
                 </th>
-                <th className="text-left py-4 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left py-4 px-4 text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   DETAILS
                 </th>
-                <th className="text-right py-4 px-4 text-sm font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-right py-4 px-4 text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   ACTIONS
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {categories.map((category) => (
-                <tr key={category.id} className="hover:bg-gray-50">
-                  <td className="py-4 px-4 text-sm text-gray-900 font-medium">
+                <tr key={category.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                  <td className="py-4 px-4 text-sm text-gray-900 dark:text-white font-medium">
                     {category.name}
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-600">
+                  <td className="py-4 px-4 text-sm text-gray-600 dark:text-gray-300">
                     {category.details}
                   </td>
                   <td className="py-4 px-4 text-right">
                     {category.canDelete && (
                       <button
                         onClick={() => handleDeleteCategory(category.id)}
-                        className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                        className="text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 hover:text-red-600 dark:text-red-400 transition-colors p-1"
                         title="Delete category"
                       >
                         <X className="h-5 w-5" />
@@ -117,7 +117,7 @@ const ManageVendorCategories = () => {
                       value={newCategoryName}
                       onChange={(e) => setNewCategoryName(e.target.value)}
                       placeholder="Enter category name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                       autoFocus
                       onKeyPress={(e) => {
                         if (e.key === 'Enter') {
@@ -128,7 +128,7 @@ const ManageVendorCategories = () => {
                       }}
                     />
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-600">
+                  <td className="py-4 px-4 text-sm text-gray-600 dark:text-gray-300">
                     No vendors are assigned to this category
                   </td>
                   <td className="py-4 px-4 text-right">
@@ -142,7 +142,7 @@ const ManageVendorCategories = () => {
                       </button>
                       <button
                         onClick={handleCancel}
-                        className="bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs hover:bg-gray-400 transition-colors"
+                        className="bg-gray-300 text-gray-700 dark:text-gray-300 px-3 py-1 rounded text-xs hover:bg-gray-400 transition-colors"
                       >
                         Cancel
                       </button>
@@ -157,7 +157,7 @@ const ManageVendorCategories = () => {
         {/* Empty State */}
         {categories.length === 0 && !isAddingCategory && (
           <div className="text-center py-12">
-            <div className="text-gray-500 mb-4">
+            <div className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mb-4">
               <p>No vendor categories found.</p>
             </div>
             <button

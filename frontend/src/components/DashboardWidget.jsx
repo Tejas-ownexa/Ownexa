@@ -39,36 +39,36 @@ const DashboardWidget = ({ title, value, description, icon: Icon, link, color = 
   const getColorClasses = (color) => {
     switch (color) {
       case 'green':
-        return 'bg-gradient-to-br from-green-100 to-green-200 text-green-600';
+        return 'bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-800/30 text-green-600 dark:text-green-400';
       case 'red':
-        return 'bg-gradient-to-br from-red-100 to-red-200 text-red-600';
+        return 'bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30 text-red-600 dark:text-red-400';
       case 'yellow':
-        return 'bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600';
+        return 'bg-gradient-to-br from-yellow-100 to-yellow-200 dark:from-yellow-900/30 dark:to-yellow-800/30 text-yellow-600 dark:text-yellow-400';
       case 'purple':
-        return 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600';
+        return 'bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-800/30 text-purple-600 dark:text-purple-400';
       case 'blue':
       default:
-        return 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600';
+        return 'bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-600 dark:text-blue-400';
     }
   };
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
+    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-105 ${
       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
     }`}>
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-            <p className="text-3xl font-bold text-gray-900 mb-2">
+            <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">{title}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               {typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue}
             </p>
             {description && (
-              <p className="text-sm text-gray-500">{description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300">{description}</p>
             )}
             {trend !== undefined && (
               <div className={`flex items-center mt-2 text-sm font-medium ${
-                trend > 0 ? 'text-green-600' : trend < 0 ? 'text-red-600' : 'text-gray-600'
+                trend > 0 ? 'text-green-600 dark:text-green-400' : trend < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'
               }`}>
                 {trend > 0 ? (
                   <TrendingUp className="h-4 w-4 mr-1" />
@@ -85,13 +85,13 @@ const DashboardWidget = ({ title, value, description, icon: Icon, link, color = 
         </div>
         
         {/* Progress bar for visual appeal */}
-        <div className="mt-4 w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+        <div className="mt-4 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
           <div 
             className={`h-2 rounded-full transition-all duration-1000 ease-out ${
-              color === 'green' ? 'bg-green-500' :
-              color === 'red' ? 'bg-red-500' :
-              color === 'yellow' ? 'bg-yellow-500' :
-              'bg-blue-500'
+              color === 'green' ? 'bg-green-500 dark:bg-green-400' :
+              color === 'red' ? 'bg-red-500 dark:bg-red-400' :
+              color === 'yellow' ? 'bg-yellow-500 dark:bg-yellow-400' :
+              'bg-blue-500 dark:bg-blue-400'
             }`}
             style={{ 
               width: isVisible ? '75%' : '0%',
@@ -103,7 +103,7 @@ const DashboardWidget = ({ title, value, description, icon: Icon, link, color = 
         {link && (
           <Link
             to={link}
-            className="mt-4 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200 group"
+            className="mt-4 inline-flex items-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200 group"
           >
             <span>View details</span>
             <svg className="ml-1 h-4 w-4 transform transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

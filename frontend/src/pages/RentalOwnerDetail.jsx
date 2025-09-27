@@ -107,11 +107,11 @@ const RentalOwnerDetail = () => {
 
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowDown className="h-4 w-4 text-gray-400" />;
+      return <ArrowDown className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />;
     }
     return sortDirection === 'asc' ? 
-      <ArrowUp className="h-4 w-4 text-gray-600" /> : 
-      <ArrowDown className="h-4 w-4 text-gray-600" />;
+      <ArrowUp className="h-4 w-4 text-gray-600 dark:text-gray-300" /> : 
+      <ArrowDown className="h-4 w-4 text-gray-600 dark:text-gray-300" />;
   };
 
   const getInitials = (name) => {
@@ -122,8 +122,8 @@ const RentalOwnerDetail = () => {
   // Show loading state
   if (ownerLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -131,10 +131,10 @@ const RentalOwnerDetail = () => {
   // Show error state
   if (ownerError || !ownerData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Owner not found</h2>
-          <p className="text-gray-600 mb-4">The rental owner you're looking for doesn't exist.</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Owner not found</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">The rental owner you're looking for doesn't exist.</p>
           <button 
             onClick={() => navigate('/rental-owners')}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
@@ -147,9 +147,9 @@ const RentalOwnerDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-600">
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -161,10 +161,10 @@ const RentalOwnerDetail = () => {
               </div>
               
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">{displayOwnerData.company_name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{displayOwnerData.company_name}</h1>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm text-gray-600">Rental owner</span>
-                  <button className="text-sm text-blue-600 hover:text-blue-800">Edit</button>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Rental owner</span>
+                  <button className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200">Edit</button>
                 </div>
               </div>
             </div>
@@ -176,13 +176,13 @@ const RentalOwnerDetail = () => {
               
               {/* Navigation Controls */}
               <div className="flex items-center space-x-2">
-                <button className="p-2 text-gray-400 hover:text-gray-600">
+                <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                   <ChevronLeft className="h-5 w-5" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600">
+                <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                   <ChevronRight className="h-5 w-5" />
                 </button>
-                <button className="p-2 text-gray-400 hover:text-gray-600">
+                <button className="p-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                   <MoreHorizontal className="h-5 w-5" />
                 </button>
               </div>
@@ -199,8 +199,8 @@ const RentalOwnerDetail = () => {
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
-                    ? 'border-green-500 text-gray-900'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-green-500 text-gray-900 dark:text-white'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 {tab.label}
@@ -220,7 +220,7 @@ const RentalOwnerDetail = () => {
                 <button className="px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700">
                   Manage properties
                 </button>
-                <button className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <button className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                   Record management fees
                 </button>
               </div>
@@ -233,21 +233,21 @@ const RentalOwnerDetail = () => {
                   <select 
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                     <option value="all">All</option>
                   </select>
-                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   {ownerLoading ? 'Loading...' : `${propertiesData?.length || 0} matches`}
                 </span>
-                <button className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800">
+                <button className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-200">
                   <Download className="h-4 w-4" />
                   <span>Export</span>
                 </button>
@@ -255,12 +255,12 @@ const RentalOwnerDetail = () => {
             </div>
 
             {/* Properties Table */}
-            <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
                     <th 
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => handleSort('property_name')}
                     >
                       <div className="flex items-center space-x-1">
@@ -268,62 +268,62 @@ const RentalOwnerDetail = () => {
                         {getSortIcon('property_name')}
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       STATUS
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       LOCATION
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       OTHER RENTAL OWNERS
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       TYPE
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       {/* Actions column */}
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                   {ownerLoading ? (
                     <tr>
                       <td colSpan="6" className="px-6 py-12 text-center">
                         <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
-                          <span className="text-gray-600">Loading properties...</span>
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400 mr-2"></div>
+                          <span className="text-gray-600 dark:text-gray-300">Loading properties...</span>
                         </div>
                       </td>
                     </tr>
                   ) : propertiesData && propertiesData.length > 0 ? (
                     propertiesData.map((property) => (
-                      <tr key={property.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           {property.title || property.property_name || property.name || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             property.status === 'active' || property.status === 'occupied' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                           }`}>
                             {property.status || 'Active'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {property.address ? 
                             `${property.address.split(',')[0]}, ${property.address.split(',')[1]?.trim() || ''}`.replace(/,$/, '') :
                             property.location || 'N/A'
                           }
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {displayOwnerData.company_name || 'N/A'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {property.property_type || property.type || 'Residential'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-gray-400 hover:text-gray-600">
+                          <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                             <MoreHorizontal className="h-4 w-4" />
                           </button>
                         </td>
@@ -331,13 +331,13 @@ const RentalOwnerDetail = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan="6" className="px-6 py-12 text-center text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                         <div className="text-center">
                           <p className="text-lg font-medium mb-2">No properties found</p>
                           <p className="text-sm">
                             We didn't find any properties. Maybe you don't have any or maybe you need to{' '}
                             <button 
-                              className="text-blue-600 hover:text-blue-800 font-medium"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 font-medium"
                               onClick={() => {
                                 // Clear any filters if needed
                                 setStatusFilter('active');
@@ -376,7 +376,7 @@ const RentalOwnerDetail = () => {
               <div className="flex items-center space-x-4">
                 <div className="relative">
                   <select 
-                    className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All categories</option>
                     <option value="plumbing">Plumbing</option>
@@ -385,12 +385,12 @@ const RentalOwnerDetail = () => {
                     <option value="cleaning">Cleaning</option>
                     <option value="landscaping">Landscaping</option>
                   </select>
-                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   {vendorsLoading ? 'Loading...' : `${vendorsData?.length || 0} vendors`}
                 </span>
                 <button 
@@ -399,7 +399,7 @@ const RentalOwnerDetail = () => {
                     console.log('Export vendors for rental owner:', id);
                     // Could export to CSV or PDF
                   }}
-                  className="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                  className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-200 transition-colors"
                 >
                   <Download className="h-4 w-4" />
                   <span>Export</span>
@@ -409,14 +409,14 @@ const RentalOwnerDetail = () => {
 
             {/* Vendors by Category */}
             {vendorsLoading ? (
-              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-12">
+              <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 p-12">
                 <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
-                  <span className="text-gray-600">Loading vendors...</span>
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 dark:border-blue-400 mr-2"></div>
+                  <span className="text-gray-600 dark:text-gray-300">Loading vendors...</span>
                 </div>
               </div>
             ) : vendorsError ? (
-              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-12">
+              <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 p-12">
                 <div className="text-center">
                   <p className="text-red-500">Failed to load vendors. Please try again.</p>
                 </div>
@@ -434,13 +434,13 @@ const RentalOwnerDetail = () => {
                     return acc;
                   }, {})
                 ).map(([categoryName, vendors]) => (
-                  <div key={categoryName} className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+                  <div key={categoryName} className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
                     {/* Category Header */}
-                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                      <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                    <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
                         <span className="w-3 h-3 bg-blue-500 rounded-full mr-3"></span>
                         {categoryName}
-                        <span className="ml-2 text-sm text-gray-500">({vendors.length} vendor{vendors.length !== 1 ? 's' : ''})</span>
+                        <span className="ml-2 text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">({vendors.length} vendor{vendors.length !== 1 ? 's' : ''})</span>
                       </h3>
                     </div>
                     
@@ -448,14 +448,14 @@ const RentalOwnerDetail = () => {
                     <div className="p-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {vendors.map((vendor) => (
-                          <div key={vendor.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div key={vendor.id} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div className="flex items-start justify-between mb-3">
                               <div>
-                                <h4 className="font-medium text-gray-900">
+                                <h4 className="font-medium text-gray-900 dark:text-white">
                                   {vendor.company_name || `${vendor.first_name} ${vendor.last_name}`}
                                 </h4>
                                 {vendor.company_name && (
-                                  <p className="text-sm text-gray-600">
+                                  <p className="text-sm text-gray-600 dark:text-gray-300">
                                     {vendor.first_name} {vendor.last_name}
                                   </p>
                                 )}
@@ -465,7 +465,7 @@ const RentalOwnerDetail = () => {
                                   // TODO: Add more options menu functionality
                                   console.log('More options for vendor:', vendor.id);
                                 }}
-                                className="text-gray-400 hover:text-gray-600 transition-colors"
+                                className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300 transition-colors"
                                 title="More options"
                               >
                                 <MoreHorizontal className="h-4 w-4" />
@@ -474,21 +474,21 @@ const RentalOwnerDetail = () => {
                             
                             <div className="space-y-2 text-sm">
                               {vendor.primary_email && (
-                                <div className="flex items-center text-gray-600">
+                                <div className="flex items-center text-gray-600 dark:text-gray-300">
                                   <span className="w-4 h-4 mr-2">📧</span>
                                   <span className="truncate">{vendor.primary_email}</span>
                                 </div>
                               )}
                               {vendor.phone_1 && (
-                                <div className="flex items-center text-gray-600">
+                                <div className="flex items-center text-gray-600 dark:text-gray-300">
                                   <span className="w-4 h-4 mr-2">📞</span>
                                   <span>{vendor.phone_1}</span>
                                 </div>
                               )}
                               {vendor.website && (
-                                <div className="flex items-center text-gray-600">
+                                <div className="flex items-center text-gray-600 dark:text-gray-300">
                                   <span className="w-4 h-4 mr-2">🌐</span>
-                                  <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 truncate">
+                                  <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 truncate">
                                     {vendor.website}
                                   </a>
                                 </div>
@@ -499,13 +499,13 @@ const RentalOwnerDetail = () => {
                               <div className="flex items-center space-x-2">
                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                                   vendor.is_active 
-                                    ? 'bg-green-100 text-green-800' 
-                                    : 'bg-gray-100 text-gray-800'
+                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                                 }`}>
                                   {vendor.is_active ? 'Active' : 'Inactive'}
                                 </span>
                                 {vendor.is_verified && (
-                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                                     Verified
                                   </span>
                                 )}
@@ -517,7 +517,7 @@ const RentalOwnerDetail = () => {
                                     console.log('View vendor:', vendor.id);
                                     // Could open a modal or navigate to vendor detail page
                                   }}
-                                  className="p-1 text-blue-600 hover:text-blue-800 transition-colors" 
+                                  className="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 transition-colors" 
                                   title="View"
                                 >
                                   <Eye className="h-4 w-4" />
@@ -528,7 +528,7 @@ const RentalOwnerDetail = () => {
                                     console.log('Edit vendor:', vendor.id);
                                     // Could open edit modal or navigate to edit page
                                   }}
-                                  className="p-1 text-green-600 hover:text-green-800 transition-colors" 
+                                  className="p-1 text-green-600 dark:text-green-400 hover:text-green-800 dark:text-green-200 transition-colors" 
                                   title="Edit"
                                 >
                                   <Edit className="h-4 w-4" />
@@ -543,10 +543,10 @@ const RentalOwnerDetail = () => {
                 ))}
               </div>
             ) : (
-              <div className="bg-white shadow-sm rounded-lg border border-gray-200 p-12">
+              <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 p-12">
                 <div className="text-center">
                   <p className="text-lg font-medium mb-2">No vendors found</p>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                     This rental owner doesn't have any vendors assigned yet.
                   </p>
                   <button 
@@ -562,42 +562,42 @@ const RentalOwnerDetail = () => {
         )}
 
         {activeTab === 'summary' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Owner Summary</h2>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Owner Summary</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Company Information</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Company Information</h3>
                 <dl className="mt-2 space-y-2">
                   <div>
-                    <dt className="text-sm font-medium text-gray-900">Company Name</dt>
-                    <dd className="text-sm text-gray-600">{displayOwnerData.company_name || 'N/A'}</dd>
+                    <dt className="text-sm font-medium text-gray-900 dark:text-white">Company Name</dt>
+                    <dd className="text-sm text-gray-600 dark:text-gray-300">{displayOwnerData.company_name || 'N/A'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-900">Business Type</dt>
-                    <dd className="text-sm text-gray-600">{displayOwnerData.business_type || 'N/A'}</dd>
+                    <dt className="text-sm font-medium text-gray-900 dark:text-white">Business Type</dt>
+                    <dd className="text-sm text-gray-600 dark:text-gray-300">{displayOwnerData.business_type || 'N/A'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-900">Location</dt>
-                    <dd className="text-sm text-gray-600">
+                    <dt className="text-sm font-medium text-gray-900 dark:text-white">Location</dt>
+                    <dd className="text-sm text-gray-600 dark:text-gray-300">
                       {displayOwnerData.city && displayOwnerData.state ? `${displayOwnerData.city}, ${displayOwnerData.state}` : 'N/A'}
                     </dd>
                   </div>
                 </dl>
               </div>
               <div>
-                <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Contact Information</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contact Information</h3>
                 <dl className="mt-2 space-y-2">
                   <div>
-                    <dt className="text-sm font-medium text-gray-900">Email</dt>
-                    <dd className="text-sm text-gray-600">{displayOwnerData.contact_email || 'N/A'}</dd>
+                    <dt className="text-sm font-medium text-gray-900 dark:text-white">Email</dt>
+                    <dd className="text-sm text-gray-600 dark:text-gray-300">{displayOwnerData.contact_email || 'N/A'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-900">Phone</dt>
-                    <dd className="text-sm text-gray-600">{displayOwnerData.contact_phone || 'N/A'}</dd>
+                    <dt className="text-sm font-medium text-gray-900 dark:text-white">Phone</dt>
+                    <dd className="text-sm text-gray-600 dark:text-gray-300">{displayOwnerData.contact_phone || 'N/A'}</dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-900">Total Properties</dt>
-                    <dd className="text-sm text-gray-600">{propertiesData?.length || 0}</dd>
+                    <dt className="text-sm font-medium text-gray-900 dark:text-white">Total Properties</dt>
+                    <dd className="text-sm text-gray-600 dark:text-gray-300">{propertiesData?.length || 0}</dd>
                   </div>
                 </dl>
               </div>
@@ -606,30 +606,30 @@ const RentalOwnerDetail = () => {
         )}
 
         {activeTab === 'financials' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Financial Information</h2>
-            <p className="text-gray-600">Financial data will be displayed here.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Financial Information</h2>
+            <p className="text-gray-600 dark:text-gray-300">Financial data will be displayed here.</p>
           </div>
         )}
 
         {activeTab === 'communications' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Communications</h2>
-            <p className="text-gray-600">Communication history will be displayed here.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Communications</h2>
+            <p className="text-gray-600 dark:text-gray-300">Communication history will be displayed here.</p>
           </div>
         )}
 
         {activeTab === 'files' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Files</h2>
-            <p className="text-gray-600">File management will be displayed here.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Files</h2>
+            <p className="text-gray-600 dark:text-gray-300">File management will be displayed here.</p>
           </div>
         )}
 
         {activeTab === 'notes' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Notes</h2>
-            <p className="text-gray-600">Notes and comments will be displayed here.</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 p-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Notes</h2>
+            <p className="text-gray-600 dark:text-gray-300">Notes and comments will be displayed here.</p>
           </div>
         )}
       </div>

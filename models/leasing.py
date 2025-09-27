@@ -12,20 +12,21 @@ class PropertyUnitDetail(BaseModel):
     bedrooms = db.Column(db.Integer, default=0, nullable=False)
     bathrooms = db.Column(db.Numeric(3, 1), default=0.0, nullable=False)
     square_feet = db.Column(db.Integer)
-    unit_type = db.Column(db.String(50), default='Apartment')
-    floor_number = db.Column(db.Integer)
+    rent_amount = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    deposit_amount = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    pet_deposit = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    pet_fee = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    utilities_included = db.Column(db.Text)
     amenities = db.Column(db.Text)
+    floor_level = db.Column(db.String(50))  # Changed from floor_number to floor_level
+    balcony = db.Column(db.Boolean, default=False)  # Changed from balcony_patio to balcony
     parking_spaces = db.Column(db.Integer, default=0)
     storage_unit = db.Column(db.Boolean, default=False)
-    balcony_patio = db.Column(db.Boolean, default=False)
-    furnished = db.Column(db.Boolean, default=False)
-    pet_friendly = db.Column(db.Boolean, default=False)
-    laundry_type = db.Column(db.String(50))
-    hvac_type = db.Column(db.String(50))
-    flooring_type = db.Column(db.String(100))
     appliances_included = db.Column(db.Text)
-    utilities_included = db.Column(db.Text)
+    flooring_type = db.Column(db.String(100))
+    last_renovated = db.Column(db.Date)  # Added from actual schema
     notes = db.Column(db.Text)
+    is_available = db.Column(db.Boolean, default=True)  # Added from actual schema
     
     # Relationships
     property = db.relationship('Property', backref='unit_details')
@@ -36,28 +37,24 @@ class PropertyListingStatus(BaseModel):
     
     id = db.Column(db.Integer, primary_key=True)
     property_id = db.Column(db.Integer, db.ForeignKey('properties.id', ondelete='CASCADE'), nullable=False, unique=True)
-    is_listed = db.Column(db.Boolean, default=False, nullable=False)
+    status = db.Column(db.String(50), default='Draft')  # Changed from listing_status to status
     listing_date = db.Column(db.Date)
-    listing_rent = db.Column(db.Numeric(10, 2))
-    listing_status = db.Column(db.String(50), default='Draft')
-    availability_date = db.Column(db.Date)
-    listing_description = db.Column(db.Text)
-    listing_photos = db.Column(db.Text)
-    marketing_channels = db.Column(db.Text)
+    listing_price = db.Column(db.Numeric(10, 2))  # Changed from listing_rent to listing_price
+    marketing_description = db.Column(db.Text)  # Changed from listing_description to marketing_description
+    showing_instructions = db.Column(db.Text)  # Added from actual schema
+    pet_policy = db.Column(db.Text)  # Added from actual schema
+    lease_terms = db.Column(db.Text)  # Added from actual schema
+    application_fee = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    security_deposit = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    first_month_rent = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    last_month_rent = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    broker_fee = db.Column(db.Numeric(10, 2))  # Added from actual schema
+    minimum_lease_term = db.Column(db.Integer)  # Added from actual schema
+    maximum_lease_term = db.Column(db.Integer)  # Added from actual schema
+    available_date = db.Column(db.Date)  # Changed from availability_date to available_date
+    photos_uploaded = db.Column(db.Boolean, default=False)  # Added from actual schema
+    virtual_tour_link = db.Column(db.String(255))  # Added from actual schema
     listing_agent_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    
-    # Lease transition information
-    current_lease_end = db.Column(db.Date)
-    next_lease_start = db.Column(db.Date)
-    lease_transition_status = db.Column(db.String(50))
-    current_tenant_names = db.Column(db.Text)
-    lease_renewal_option = db.Column(db.Boolean, default=True)
-    rent_increase_amount = db.Column(db.Numeric(10, 2), default=0.00)
-    
-    # Marketing metrics
-    listing_views = db.Column(db.Integer, default=0)
-    inquiries_count = db.Column(db.Integer, default=0)
-    applications_count = db.Column(db.Integer, default=0)
     
     # Relationships
     property = db.relationship('Property', backref='listing_status')
@@ -129,28 +126,11 @@ class ApplicantGroup(BaseModel):
     __tablename__ = 'applicant_groups'
     
     id = db.Column(db.Integer, primary_key=True)
-    property_id = db.Column(db.Integer, db.ForeignKey('properties.id', ondelete='CASCADE'), nullable=False)
-    
-    # Group information
     group_name = db.Column(db.String(255))
-    unit_number = db.Column(db.String(50))
-    
-    # Group status and progress
-    group_status = db.Column(db.String(50), default='Pending', nullable=False)
-    percent_complete = db.Column(db.Integer, default=0)  # 0-100
-    
-    # Group workflow tracking
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
-    completion_milestones = db.Column(db.Text)  # JSON object
-    
-    # Group settings
-    max_members = db.Column(db.Integer)
-    is_joint_application = db.Column(db.Boolean, default=True)
+    property_id = db.Column(db.Integer, db.ForeignKey('properties.id', ondelete='CASCADE'), nullable=False)
     primary_applicant_id = db.Column(db.Integer, db.ForeignKey('leasing_applicants.id'))
-    
-    # Group notes and history
-    group_notes = db.Column(db.Text)
-    status_change_history = db.Column(db.Text)  # JSON array
+    group_status = db.Column(db.String(50), default='Pending', nullable=False)
+    total_monthly_income = db.Column(db.Numeric(10, 2))  # Added from actual schema
     
     # Relationships
     property = db.relationship('Property', backref='applicant_groups')
@@ -188,53 +168,39 @@ class LeaseDraft(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     property_id = db.Column(db.Integer, db.ForeignKey('properties.id', ondelete='CASCADE'), nullable=False)
     applicant_id = db.Column(db.Integer, db.ForeignKey('leasing_applicants.id', ondelete='SET NULL'))
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    
-    # Draft lease details
-    draft_name = db.Column(db.String(255), nullable=False)
-    lease_type = db.Column(db.String(50), default='Fixed Term', nullable=False)
     lease_start_date = db.Column(db.Date)
     lease_end_date = db.Column(db.Date)
-    lease_term_months = db.Column(db.Integer)
-    
-    # Financial terms
     monthly_rent = db.Column(db.Numeric(10, 2), nullable=False)
     security_deposit = db.Column(db.Numeric(10, 2), default=0.00)
-    first_month_rent = db.Column(db.Numeric(10, 2))
-    last_month_rent = db.Column(db.Numeric(10, 2), default=0.00)
     pet_deposit = db.Column(db.Numeric(8, 2), default=0.00)
     application_fee = db.Column(db.Numeric(8, 2), default=0.00)
-    
-    # Lease terms
-    late_fee_amount = db.Column(db.Numeric(8, 2), default=0.00)
-    late_fee_grace_days = db.Column(db.Integer, default=5)
-    utilities_tenant_pays = db.Column(db.Text)
-    utilities_landlord_pays = db.Column(db.Text)
+    broker_fee = db.Column(db.Numeric(8, 2), default=0.00)  # Added from actual schema
+    first_month_rent = db.Column(db.Numeric(10, 2))
+    last_month_rent = db.Column(db.Numeric(10, 2), default=0.00)
+    lease_terms = db.Column(db.Text)  # Added from actual schema
+    special_conditions = db.Column(db.Text)  # Added from actual schema
+    utilities_included = db.Column(db.Text)  # Added from actual schema
     parking_included = db.Column(db.Boolean, default=False)
+    storage_included = db.Column(db.Boolean, default=False)  # Added from actual schema
     pet_policy = db.Column(db.Text)
-    subletting_allowed = db.Column(db.Boolean, default=False)
-    smoking_allowed = db.Column(db.Boolean, default=False)
-    
-    # Custom terms and conditions
-    special_terms = db.Column(db.Text)
-    custom_clauses = db.Column(db.Text)
-    
-    # Draft status
+    maintenance_responsibility = db.Column(db.Text)  # Added from actual schema
+    late_fee_policy = db.Column(db.Text)  # Added from actual schema
+    renewal_terms = db.Column(db.Text)  # Added from actual schema
+    termination_clause = db.Column(db.Text)  # Added from actual schema
     draft_status = db.Column(db.String(50), default='Draft', nullable=False)
-    version_number = db.Column(db.Integer, default=1)
-    is_template = db.Column(db.Boolean, default=False)
-    
-    # Approval workflow
-    reviewed_by = db.Column(db.Integer, db.ForeignKey('user.id'))
-    review_date = db.Column(db.Date)
-    review_notes = db.Column(db.Text)
-    approved_for_sending = db.Column(db.Boolean, default=False)
+    created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Fixed column name
+    approved_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # Added from actual schema
+    approved_date = db.Column(db.Date)  # Added from actual schema
+    tenant_signed_date = db.Column(db.Date)  # Added from actual schema
+    landlord_signed_date = db.Column(db.Date)  # Added from actual schema
+    lease_effective_date = db.Column(db.Date)  # Added from actual schema
+    notes = db.Column(db.Text)  # Added from actual schema
     
     # Relationships
     property = db.relationship('Property', backref='lease_drafts')
     applicant = db.relationship('LeasingApplicant', backref='lease_drafts')
-    created_by_user = db.relationship('User', foreign_keys=[created_by], backref='created_lease_drafts')
-    reviewed_by_user = db.relationship('User', foreign_keys=[reviewed_by], backref='reviewed_lease_drafts')
+    created_by_user = db.relationship('User', foreign_keys=[created_by_user_id], backref='created_lease_drafts')
+    approved_by_user = db.relationship('User', foreign_keys=[approved_by_user_id], backref='approved_lease_drafts')
 
 class DraftLeaseApprovedApplicant(BaseModel):
     """Model for approved applicants in draft lease"""

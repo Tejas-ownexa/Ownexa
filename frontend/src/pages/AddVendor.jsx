@@ -160,12 +160,12 @@ const AddVendor = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-4">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Add vendor</h1>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Add vendor</h1>
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -173,7 +173,7 @@ const AddVendor = () => {
             <div className="space-y-4">
               {/* Name Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   NAME (REQUIRED)
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -182,7 +182,7 @@ const AddVendor = () => {
                     placeholder="First"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                   <input
@@ -190,7 +190,7 @@ const AddVendor = () => {
                     placeholder="Last"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -198,15 +198,15 @@ const AddVendor = () => {
 
               {/* Rental Owner Company */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   RENTAL OWNER COMPANY
                 </label>
                 {loadingRentalOwners ? (
-                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                  <div className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700">
                     Loading rental owners...
                   </div>
                 ) : rentalOwnersError ? (
-                  <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600">
+                  <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600 dark:text-red-400">
                     Failed to load rental owners
                   </div>
                 ) : (
@@ -214,7 +214,7 @@ const AddVendor = () => {
                     <select
                       value={formData.rentalOwnerId}
                       onChange={(e) => handleInputChange('rentalOwnerId', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                       required
                     >
                       <option value="">Select Rental Owner Company...</option>
@@ -239,15 +239,15 @@ const AddVendor = () => {
 
               {/* Category */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   CATEGORY
                 </label>
                 {loadingCategories ? (
-                  <div className="px-3 py-2 border border-gray-300 rounded-md bg-gray-100">
+                  <div className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700">
                     Loading categories...
                   </div>
                 ) : categoriesError ? (
-                  <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600">
+                  <div className="px-3 py-2 border border-red-300 rounded-md bg-red-50 text-red-600 dark:text-red-400">
                     Failed to load categories
                   </div>
                 ) : (
@@ -255,7 +255,7 @@ const AddVendor = () => {
                     <select
                       value={formData.category}
                       onChange={(e) => handleInputChange('category', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     >
                       <option value="">Select Category...</option>
                       {vendorCategories.map((category) => (
@@ -264,7 +264,7 @@ const AddVendor = () => {
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                   </div>
                 )}
               </div>
@@ -274,16 +274,16 @@ const AddVendor = () => {
             <div className="space-y-4">
               {/* Primary Email */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   PRIMARY EMAIL
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                   <input
                     type="email"
                     value={formData.primaryEmail}
                     onChange={(e) => handleInputChange('primaryEmail', e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     required
                   />
                 </div>
@@ -291,16 +291,16 @@ const AddVendor = () => {
 
               {/* Phone Number */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   PHONE NUMBER
                 </label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                   <input
                     type="tel"
                     value={formData.phone1}
                     onChange={(e) => handleInputChange('phone1', e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Phone number"
                   />
                 </div>
@@ -310,22 +310,22 @@ const AddVendor = () => {
 
           {/* Address Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium text-gray-900">Address Information</h3>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Address Information</h3>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column - Address */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     STREET ADDRESS
                   </label>
                   <div className="relative">
-                    <Home className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Home className="absolute left-3 top-3 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                     <textarea
                       value={formData.streetAddress}
                       onChange={(e) => handleInputChange('streetAddress', e.target.value)}
                       rows={2}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     />
                   </div>
                 </div>
@@ -333,25 +333,25 @@ const AddVendor = () => {
                 {/* City, State, ZIP */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       CITY
                     </label>
                     <input
                       type="text"
                       value={formData.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       STATE
                     </label>
                     <div className="relative">
                       <select
                         value={formData.state}
                         onChange={(e) => handleInputChange('state', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                       >
                         <option value="">Select...</option>
                         <option value="CA">California</option>
@@ -365,18 +365,18 @@ const AddVendor = () => {
                         <option value="NC">North Carolina</option>
                         <option value="MI">Michigan</option>
                       </select>
-                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       ZIP
                     </label>
                     <input
                       type="text"
                       value={formData.zip}
                       onChange={(e) => handleInputChange('zip', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
                 </div>
@@ -385,14 +385,14 @@ const AddVendor = () => {
               {/* Right Column - Comments */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     COMMENTS
                   </label>
                   <textarea
                     value={formData.comments}
                     onChange={(e) => handleInputChange('comments', e.target.value)}
                     rows={6}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                     placeholder="Additional notes about this vendor..."
                   />
                 </div>
@@ -413,7 +413,7 @@ const AddVendor = () => {
               type="button"
               onClick={handleCancel}
               disabled={createVendorMutation.isLoading}
-              className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gray-200 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

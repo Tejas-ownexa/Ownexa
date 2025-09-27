@@ -445,7 +445,7 @@ const AccountabilityFinancials = () => {
   if (propertiesLoading || financialLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -453,9 +453,9 @@ const AccountabilityFinancials = () => {
   if (!properties || properties.length === 0) {
     return (
       <div className="text-center py-12">
-        <Home className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
-        <p className="mt-1 text-sm text-gray-500">Get started by adding your first property.</p>
+        <Home className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No properties found</h3>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Get started by adding your first property.</p>
         <div className="mt-6">
           <Link
             to="/add-property"
@@ -472,16 +472,16 @@ const AccountabilityFinancials = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white shadow rounded-lg p-6">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Financial Ledger</h1>
-            <p className="text-gray-600">Complete financial overview of all properties</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Financial Ledger</h1>
+            <p className="text-gray-600 dark:text-gray-300">Complete financial overview of all properties</p>
           </div>
           <div className="flex items-center space-x-4">
             <div className="text-right">
-              <p className="text-sm text-gray-500">Total Properties</p>
-              <p className="text-2xl font-bold text-gray-900">{properties.length}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Properties</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{properties.length}</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -496,38 +496,38 @@ const AccountabilityFinancials = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <DollarSign className="h-8 w-8 text-green-600" />
+              <DollarSign className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Monthly Income</p>
-              <p className="text-2xl font-bold text-green-600">{formatCurrency(getTotalIncome())}</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Monthly Income</p>
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">{formatCurrency(getTotalIncome())}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <Receipt className="h-8 w-8 text-red-600" />
+              <Receipt className="h-8 w-8 text-red-600 dark:text-red-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Monthly Expenses</p>
-              <p className="text-2xl font-bold text-red-600">{formatCurrency(getTotalExpenses())}</p>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Monthly Expenses</p>
+              <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(getTotalExpenses())}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <PiggyBank className="h-8 w-8 text-blue-600" />
+              <PiggyBank className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Net Monthly Profit</p>
-              <p className={`text-2xl font-bold ${getTotalNetProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Net Monthly Profit</p>
+              <p className={`text-2xl font-bold ${getTotalNetProfit() >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {formatCurrency(getTotalNetProfit())}
               </p>
             </div>
@@ -537,27 +537,27 @@ const AccountabilityFinancials = () => {
 
 
       {/* Property Financial Analysis Section */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Property Financial Analysis</h3>
-          <p className="text-sm text-gray-600">Detailed financial breakdown and performance metrics for individual properties</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Property Financial Analysis</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">Detailed financial breakdown and performance metrics for individual properties</p>
         </div>
         
         {/* Charts removed as requested */}
       </div>
 
       {/* Portfolio Analytics */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Portfolio Analytics</h3>
-          <p className="text-sm text-gray-600">High-level performance across all properties</p>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Portfolio Analytics</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-300">High-level performance across all properties</p>
         </div>
 
         {/* Selector: All properties or single property */}
         <div className="mb-6 flex items-center gap-3">
-          <label className="text-sm text-gray-700">Scope</label>
+          <label className="text-sm text-gray-700 dark:text-gray-300">Scope</label>
           <select
-            className="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            className="border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             value={selectedProperty || ''}
             onChange={(e) => setSelectedProperty(e.target.value ? Number(e.target.value) : null)}
           >
@@ -571,7 +571,7 @@ const AccountabilityFinancials = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Bubble: Value vs Annual Cost vs APR */}
           <div className="h-96 p-4 rounded-lg border lg:col-span-2">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Value, Cost, and Interest Rate Analysis</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Value, Cost, and Interest Rate Analysis</h4>
             {(() => {
               const bubble = valueCostAprBubbles();
               return (
@@ -616,9 +616,9 @@ const AccountabilityFinancials = () => {
               );
             })()}
             {(() => { const excl = valueCostAprBubbles().excluded; return excl > 0 ? (
-              <p className="mt-2 text-xs text-gray-500">{excl} properties omitted due to missing value/cost/APR data.</p>
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{excl} properties omitted due to missing value/cost/APR data.</p>
             ) : null; })()}
-            <p className="mt-2 text-xs text-gray-500">
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
               X: total_value, Y: property_tax_annual + insurance_annual + (hoa_fees_monthly × 12), bubble size: current_apr.
               Look for large bubbles high on the Y-axis—high annual carrying costs and higher APR may indicate refinancing opportunities.
             </p>
@@ -626,7 +626,7 @@ const AccountabilityFinancials = () => {
 
           {/* ROI Distribution */}
           <div className="h-72 p-4 rounded-lg border">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">ROI Distribution</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">ROI Distribution</h4>
             {(() => {
               const hist = roiHistogram();
               return (
@@ -655,7 +655,7 @@ const AccountabilityFinancials = () => {
 
           {/* Net Profit by Property */}
           <div className="h-72 p-4 rounded-lg border lg:col-span-2">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Net Profit by Property (Annual)</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Net Profit by Property (Annual)</h4>
             {(() => {
               const items = netProfitByProperty();
               return (
@@ -686,7 +686,7 @@ const AccountabilityFinancials = () => {
 
           {/* Monthly Rent vs Expenses Histogram */}
           <div className="h-72 p-4 rounded-lg border">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Monthly Rent vs Expenses</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Monthly Rent vs Expenses</h4>
             {(() => {
               const hist = buildRentExpenseHistogram();
               return (
@@ -736,7 +736,7 @@ const AccountabilityFinancials = () => {
 
           {/* Property Value Allocation (Top-N Pie with Others) */}
           <div className="h-96 p-4 rounded-lg border lg:col-span-2">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Property Value Allocation</h4>
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Property Value Allocation</h4>
             {(() => {
               const items = propertyValueAllocation();
               const sorted = [...items].sort((a, b) => b.value - a.value);
@@ -788,39 +788,39 @@ const AccountabilityFinancials = () => {
       </div>
 
       {/* Ledger Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900">Property Ledger</h2>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">Property Ledger</h2>
         </div>
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Property
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Monthly Rent
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Monthly Expenses
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Net Monthly Profit
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Annual Net Profit
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   ROI
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {financialData?.map((data, index) => {
                 const netMonthlyProfit = calculateNetProfit(data);
                 const annualNetProfit = calculateAnnualNetProfit(data);
@@ -828,7 +828,7 @@ const AccountabilityFinancials = () => {
                 
                 return (
                   <React.Fragment key={data.property.id}>
-                    <tr className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                    <tr className={index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
@@ -849,43 +849,43 @@ const AccountabilityFinancials = () => {
                             ) : null}
                             {(!data.property.image_url || data.property.image_url === '') && (
                               <div className="h-10 w-10 rounded-lg bg-gray-200 flex items-center justify-center">
-                                <Home className="h-5 w-5 text-gray-400" />
+                                <Home className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                               </div>
                             )}
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
                               {data.property.title}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
                               {data.property.address?.street_1}, {data.property.address?.city}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {formatCurrency(data.property.rent_amount)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {formatCurrency(data.summary?.total_monthly_expenses || 0)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`text-sm font-medium ${netMonthlyProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <span className={`text-sm font-medium ${netMonthlyProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                           {formatCurrency(netMonthlyProfit)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`text-sm font-medium ${annualNetProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        <span className={`text-sm font-medium ${annualNetProfit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                           {formatCurrency(annualNetProfit)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {formatPercentage(roi)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => togglePropertyDetails(data.property.id)}
-                          className="text-blue-600 hover:text-blue-900 flex items-center"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 flex items-center"
                         >
                           {showDetails[data.property.id] ? (
                             <>
@@ -905,76 +905,76 @@ const AccountabilityFinancials = () => {
                     {/* Expanded Details Row */}
                     {showDetails[data.property.id] && (
                       <tr>
-                        <td colSpan="7" className="px-6 py-4 bg-gray-50">
+                        <td colSpan="7" className="px-6 py-4 bg-gray-50 dark:bg-gray-900">
                           <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                              <div className="bg-white p-4 rounded-lg border">
-                                <h4 className="text-sm font-medium text-gray-900 mb-2">Mortgage Details</h4>
+                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Mortgage Details</h4>
                                 <div className="space-y-1 text-sm">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Monthly Payment:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Monthly Payment:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.monthly_loan_payment || 0)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">APR:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">APR:</span>
                                     <span className="font-medium">{formatPercentage(data.financial?.current_apr || 0)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Loan Term:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Loan Term:</span>
                                     <span className="font-medium">{data.financial?.loan_term_years || 0} years</span>
                                   </div>
                                 </div>
                               </div>
                               
-                              <div className="bg-white p-4 rounded-lg border">
-                                <h4 className="text-sm font-medium text-gray-900 mb-2">Property Taxes & Insurance</h4>
+                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Property Taxes & Insurance</h4>
                                 <div className="space-y-1 text-sm">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Annual Taxes:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Annual Taxes:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.property_tax_annual || 0)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Annual Insurance:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Annual Insurance:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.insurance_annual || 0)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">HOA Fees:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">HOA Fees:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.hoa_fees_monthly || 0)}/mo</span>
                                   </div>
                                 </div>
                               </div>
                               
-                              <div className="bg-white p-4 rounded-lg border">
-                                <h4 className="text-sm font-medium text-gray-900 mb-2">Property Value</h4>
+                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Property Value</h4>
                                 <div className="space-y-1 text-sm">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Total Value:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Value:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.total_value || 0)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Purchase Price:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Purchase Price:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.purchase_price || 0)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-500">Down Payment:</span>
+                                    <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Down Payment:</span>
                                     <span className="font-medium">{formatCurrency(data.financial?.down_payment || 0)}</span>
                                   </div>
                                 </div>
                               </div>
                               
-                              <div className="bg-white p-4 rounded-lg border">
-                                <h4 className="text-sm font-medium text-gray-900 mb-2">Recent Transactions</h4>
+                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border">
+                                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Recent Transactions</h4>
                                 <div className="space-y-1 text-sm">
                                   {data.transactions?.slice(0, 3).map((transaction, idx) => (
                                     <div key={idx} className="flex justify-between">
-                                      <span className="text-gray-500 truncate">{transaction.description}</span>
-                                      <span className={`font-medium ${transaction.transaction_type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                                      <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 truncate">{transaction.description}</span>
+                                      <span className={`font-medium ${transaction.transaction_type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                         {transaction.transaction_type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
                                       </span>
                                     </div>
                                   ))}
                                   {(!data.transactions || data.transactions.length === 0) && (
-                                    <span className="text-gray-400">No recent transactions</span>
+                                    <span className="text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">No recent transactions</span>
                                   )}
                                 </div>
                               </div>
@@ -992,25 +992,25 @@ const AccountabilityFinancials = () => {
       </div>
 
       {/* Summary Footer */}
-      <div className="bg-white shadow rounded-lg p-6">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <p className="text-sm text-gray-500">Total Annual Income</p>
-            <p className="text-xl font-bold text-green-600">{formatCurrency(getTotalIncome() * 12)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Annual Income</p>
+            <p className="text-xl font-bold text-green-600 dark:text-green-400">{formatCurrency(getTotalIncome() * 12)}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-500">Total Annual Expenses</p>
-            <p className="text-xl font-bold text-red-600">{formatCurrency(getTotalExpenses() * 12)}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Annual Expenses</p>
+            <p className="text-xl font-bold text-red-600 dark:text-red-400">{formatCurrency(getTotalExpenses() * 12)}</p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-500">Total Annual Net Profit</p>
-            <p className={`text-xl font-bold ${getTotalNetProfit() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Annual Net Profit</p>
+            <p className={`text-xl font-bold ${getTotalNetProfit() >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
               {formatCurrency(getTotalNetProfit() * 12)}
             </p>
           </div>
           <div className="text-center">
-            <p className="text-sm text-gray-500">Average ROI</p>
-            <p className="text-xl font-bold text-blue-600">
+            <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Average ROI</p>
+            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
               {financialData && financialData.length > 0 
                 ? formatPercentage(
                     financialData.reduce((sum, data) => sum + (data.summary?.annual_roi || 0), 0) / financialData.length
@@ -1025,17 +1025,17 @@ const AccountabilityFinancials = () => {
       {/* Create Financial Record Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">New Financial Record</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">New Financial Record</h3>
               <form onSubmit={handleCreateFinancial} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Property</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Property</label>
                   <select
                     name="property_id"
                     value={formData.property_id}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     required
                   >
                     <option value="">Select Property</option>
@@ -1049,23 +1049,23 @@ const AccountabilityFinancials = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Financial Year</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Financial Year</label>
                     <input
                       type="number"
                       name="financial_year"
                       value={formData.financial_year}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Period</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period</label>
                     <select
                       name="financial_period"
                       value={formData.financial_period}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       required
                     >
                       <option value="monthly">Monthly</option>
@@ -1077,24 +1077,24 @@ const AccountabilityFinancials = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
                     <input
                       type="date"
                       name="period_start_date"
                       value={formData.period_start_date}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">End Date</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
                     <input
                       type="date"
                       name="period_end_date"
                       value={formData.period_end_date}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       required
                     />
                   </div>
@@ -1102,137 +1102,137 @@ const AccountabilityFinancials = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Rental Income</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Rental Income</label>
                     <input
                       type="number"
                       step="0.01"
                       name="total_rental_income"
                       value={formData.total_rental_income}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Other Income</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Other Income</label>
                     <input
                       type="number"
                       step="0.01"
                       name="other_income"
                       value={formData.other_income}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Mortgage Payments</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mortgage Payments</label>
                     <input
                       type="number"
                       step="0.01"
                       name="mortgage_payments"
                       value={formData.mortgage_payments}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Property Taxes</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Property Taxes</label>
                     <input
                       type="number"
                       step="0.01"
                       name="property_taxes"
                       value={formData.property_taxes}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Insurance Costs</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Insurance Costs</label>
                     <input
                       type="number"
                       step="0.01"
                       name="insurance_costs"
                       value={formData.insurance_costs}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Maintenance Costs</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Maintenance Costs</label>
                     <input
                       type="number"
                       step="0.01"
                       name="maintenance_costs"
                       value={formData.maintenance_costs}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Utilities</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Utilities</label>
                     <input
                       type="number"
                       step="0.01"
                       name="utilities"
                       value={formData.utilities}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">HOA Fees</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">HOA Fees</label>
                     <input
                       type="number"
                       step="0.01"
                       name="hoa_fees"
                       value={formData.hoa_fees}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Management Fees</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Management Fees</label>
                     <input
                       type="number"
                       step="0.01"
                       name="property_management_fees"
                       value={formData.property_management_fees}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Other Expenses</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Other Expenses</label>
                     <input
                       type="number"
                       step="0.01"
                       name="other_expenses"
                       value={formData.other_expenses}
                       onChange={handleNumberInputChange}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Notes</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Notes</label>
                   <textarea
                     name="notes"
                     value={formData.notes}
                     onChange={handleInputChange}
                     rows="3"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
 
@@ -1240,7 +1240,7 @@ const AccountabilityFinancials = () => {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900"
                   >
                     Cancel
                   </button>

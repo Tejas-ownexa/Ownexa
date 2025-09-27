@@ -143,7 +143,7 @@ const Sidebar = () => {
               to={user?.role === 'VENDOR' ? '/maintenance' : '/dashboard'} 
               className="flex items-center group"
             >
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg group-hover:scale-110 transition-transform duration-300">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700 rounded-lg group-hover:scale-110 transition-transform duration-300">
                 <Home className="h-6 w-6 text-white" />
               </div>
               <span className="ml-3 text-xl font-bold text-gradient">OWNEXA</span>
@@ -168,11 +168,10 @@ const Sidebar = () => {
               if (item.isExpandable) {
                 // Expandable item with sub-items
                 const Icon = item.icon;
-                const isActive = location.pathname === '/rentals' ||
-                  item.subItems.some(subItem =>
-                    location.pathname === subItem.href.split('?')[0] ||
-                    location.pathname + location.search === subItem.href
-                  );
+                const isActive = item.subItems.some(subItem =>
+                  location.pathname === subItem.href.split('?')[0] ||
+                  location.pathname + location.search === subItem.href
+                );
 
                 return (
                   <div key={item.name}>
@@ -181,12 +180,12 @@ const Sidebar = () => {
                         to={item.name === 'Associations' ? '/associations' : item.name === 'Rentals' ? '/rentals' : item.name === 'Leasing' ? '/leasing' : item.name === 'Maintenance' ? '/maintenance' : '#'}
                         className={`flex items-center flex-1 px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
                           isActive
-                            ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
-                            : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
+                            ? 'bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 text-blue-700 dark:text-blue-300 dark:text-blue-300 border-r-2 border-blue-600 dark:border-blue-400 dark:border-blue-400 shadow-md'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-gray-700 dark:hover:to-gray-600 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400 hover:shadow-sm'
                         }`}
                         title={isCollapsed ? item.name : ''}
                       >
-                        <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-300'}`} />
                         {!isCollapsed && (
                           <span className="ml-3 flex-1 text-left">{item.name}</span>
                         )}
@@ -219,8 +218,8 @@ const Sidebar = () => {
                               to={subItem.href}
                               className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                                 isSubActive
-                                  ? 'bg-blue-50 text-blue-600'
-                                  : 'text-gray-600 hover:bg-gray-50 hover:text-blue-500'
+                                  ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-400'
                               }`}
                             >
                               <SubIcon className="h-4 w-4" />
@@ -242,12 +241,12 @@ const Sidebar = () => {
                     to={item.href}
                     className={`flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 ${
                       isActive
-                        ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border-r-2 border-blue-600 shadow-md'
-                        : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 hover:shadow-sm'
+                        ? 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600 dark:border-blue-400 shadow-md'
+                        : 'text-gray-700 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 hover:text-blue-600 dark:text-blue-400 hover:shadow-sm'
                     }`}
                     title={isCollapsed ? item.name : ''}
                   >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-300'}`} />
                     {!isCollapsed && (
                       <span className="ml-3">{item.name}</span>
                     )}
@@ -266,7 +265,7 @@ const Sidebar = () => {
                 <User className="h-4 w-4 mr-2" />
                 <div className="truncate">
                   <div className="font-medium">{user.full_name || user.username}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300">
                     {user.role === 'TENANT' ? '🏠 Tenant' : 
                      user.role === 'VENDOR' ? '🔧 Vendor' : '👤 Owner'}
                   </div>
@@ -294,12 +293,12 @@ const Sidebar = () => {
       <div className="md:hidden fixed top-2 left-2 z-50">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="p-2 bg-white rounded-md shadow-lg border border-gray-200"
+          className="p-2 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-600"
         >
           {isMobileOpen ? (
-            <X className="h-5 w-5 text-gray-600" />
+            <X className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           ) : (
-            <Menu className="h-5 w-5 text-gray-600" />
+            <Menu className="h-5 w-5 text-gray-600 dark:text-gray-300" />
           )}
         </button>
       </div>
@@ -309,7 +308,7 @@ const Sidebar = () => {
         isMobileOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}>
         <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsMobileOpen(false)} />
-        <div className="absolute left-0 top-0 h-full w-80 sm:w-64 bg-white shadow-lg transform transition-transform duration-300 flex flex-col">
+        <div className="absolute left-0 top-0 h-full w-80 sm:w-64 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 flex flex-col">
           {/* Mobile Header */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
             <Link 
@@ -317,8 +316,8 @@ const Sidebar = () => {
               className="flex items-center"
               onClick={() => setIsMobileOpen(false)}
             >
-              <Home className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">OWNEXA</span>
+              <Home className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+              <span className="ml-2 text-xl font-bold text-gray-900 dark:text-white">OWNEXA</span>
             </Link>
           </div>
 
@@ -329,11 +328,10 @@ const Sidebar = () => {
                 if (item.isExpandable) {
                   // Expandable item with sub-items for mobile
                   const Icon = item.icon;
-                  const isActive = location.pathname === '/rentals' ||
-                    item.subItems.some(subItem =>
-                      location.pathname === subItem.href.split('?')[0] ||
-                      location.pathname + location.search === subItem.href
-                    );
+                  const isActive = item.subItems.some(subItem =>
+                    location.pathname === subItem.href.split('?')[0] ||
+                    location.pathname + location.search === subItem.href
+                  );
 
                   return (
                     <div key={item.name}>
@@ -341,11 +339,11 @@ const Sidebar = () => {
                         onClick={item.toggle}
                         className={`flex items-center w-full px-3 py-3 text-sm font-medium rounded-md transition-colors ${
                           isActive
-                            ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                            : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600 dark:border-blue-400'
+                            : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600 dark:text-blue-400'
                         }`}
                       >
-                        <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                        <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-300'}`} />
                         <span className="ml-3 flex-1 text-left">{item.name}</span>
                         {item.isExpanded ? (
                           <ChevronUp className="h-4 w-4 ml-2" />
@@ -368,8 +366,8 @@ const Sidebar = () => {
                                 to={subItem.href}
                                 className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                                   isSubActive
-                                    ? 'bg-blue-50 text-blue-600'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-blue-500'
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-blue-500 dark:hover:text-blue-400'
                                 }`}
                                 onClick={() => setIsMobileOpen(false)}
                               >
@@ -392,12 +390,12 @@ const Sidebar = () => {
                       to={item.href}
                       className={`flex items-center px-3 py-3 text-sm font-medium rounded-md transition-colors ${
                         isActive
-                          ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-600'
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                          ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-r-2 border-blue-600 dark:border-blue-400'
+                          : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600 dark:text-blue-400'
                       }`}
                       onClick={() => setIsMobileOpen(false)}
                     >
-                      <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                      <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-300'}`} />
                       <span className="ml-3">{item.name}</span>
                     </Link>
                   );
@@ -413,7 +411,7 @@ const Sidebar = () => {
                 <User className="h-4 w-4 mr-2" />
                 <div>
                   <div className="font-medium">{user.full_name || user.username}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                  <div className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300">
                     {user.role === 'TENANT' ? '🏠 Tenant' : 
                      user.role === 'VENDOR' ? '🔧 Vendor' : '👤 Owner'}
                   </div>

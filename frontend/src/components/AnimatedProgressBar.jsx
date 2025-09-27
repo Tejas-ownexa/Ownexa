@@ -45,7 +45,7 @@ const AnimatedProgressBar = ({
       <div className="flex justify-between items-center mb-2">
         <span className="text-sm font-medium text-gray-700">Progress</span>
         {showPercentage && (
-          <span className="text-sm font-medium text-gray-500">
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-300">
             {Math.round(displayValue)}%
           </span>
         )}

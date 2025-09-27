@@ -16,7 +16,7 @@ const AddGroupModal = ({ isOpen, onClose }) => {
           <h2 className="text-2xl font-semibold">Add group</h2>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600"
           >
             <X className="h-6 w-6" />
           </button>
@@ -28,7 +28,7 @@ const AddGroupModal = ({ isOpen, onClose }) => {
             {/* Name Field */}
             <div>
               <label className="block font-medium mb-1">Name</label>
-              <p className="text-gray-500 text-sm mb-2">
+              <p className="text-gray-500 dark:text-gray-300 text-sm mb-2">
                 Give your group a clear, memorable name to make searching easy.
               </p>
               <input
@@ -42,7 +42,7 @@ const AddGroupModal = ({ isOpen, onClose }) => {
             {/* Description Field */}
             <div>
               <label className="block font-medium mb-1">Description (optional)</label>
-              <p className="text-gray-500 text-sm mb-2">
+              <p className="text-gray-500 dark:text-gray-300 text-sm mb-2">
                 Provide extra details to describe how this group should be used.
               </p>
               <textarea
@@ -55,7 +55,7 @@ const AddGroupModal = ({ isOpen, onClose }) => {
             {/* Properties Field */}
             <div>
               <label className="block font-medium mb-1">Properties</label>
-              <p className="text-gray-500 text-sm mb-2">
+              <p className="text-gray-500 dark:text-gray-300 text-sm mb-2">
                 Choose the properties you want to include.
               </p>
               <button className="border border-gray-300 rounded px-4 py-2 text-gray-600 hover:bg-gray-50">
@@ -66,7 +66,7 @@ const AddGroupModal = ({ isOpen, onClose }) => {
             {/* Privacy Field */}
             <div>
               <label className="block font-medium mb-1">Privacy</label>
-              <p className="text-gray-500 text-sm mb-2">
+              <p className="text-gray-500 dark:text-gray-300 text-sm mb-2">
                 Decide if you want to share this group with other staff members or keep it to yourself.
               </p>
               <label className="flex items-center gap-2">

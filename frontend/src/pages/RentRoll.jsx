@@ -170,11 +170,11 @@ const RentRoll = () => {
 
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return <ChevronDown className="h-4 w-4 text-gray-400" />;
+      return <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />;
     }
     return sortDirection === 'asc' ? 
-      <ChevronUp className="h-4 w-4 text-gray-600" /> : 
-      <ChevronDown className="h-4 w-4 text-gray-600" />;
+      <ChevronUp className="h-4 w-4 text-gray-600 dark:text-gray-300" /> : 
+      <ChevronDown className="h-4 w-4 text-gray-600 dark:text-gray-300" />;
   };
 
   const getDaysLeftBadge = (daysLeft) => {
@@ -182,41 +182,41 @@ const RentRoll = () => {
     
     // Handle payment due statuses
     if (daysLeft === 'DUE TODAY') {
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">DUE TODAY</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">DUE TODAY</span>;
     } else if (daysLeft === 'DUE TOMORROW') {
       return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">DUE TOMORROW</span>;
     } else if (daysLeft.includes('DUE IN') && daysLeft.includes('DAYS')) {
       const days = parseInt(daysLeft.match(/\d+/)[0]);
       if (days <= 3) {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:text-yellow-200">{daysLeft}</span>;
       } else if (days <= 7) {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">{daysLeft}</span>;
       } else {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">{daysLeft}</span>;
       }
     }
     
     // Handle legacy lease expiration statuses
     else if (daysLeft === 'EXPIRED' || daysLeft === 'LEASE EXPIRED') {
-      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">LEASE EXPIRED</span>;
+      return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">LEASE EXPIRED</span>;
     } else if (daysLeft.includes('DAYS LEFT')) {
       const days = parseInt(daysLeft);
       if (days <= 30) {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:text-yellow-200">{daysLeft}</span>;
       } else {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">{daysLeft}</span>;
       }
     } else if (daysLeft.includes('DAYS')) {
       // Legacy format for backwards compatibility
       const days = parseInt(daysLeft);
       if (days <= 30) {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:text-yellow-200">{daysLeft}</span>;
       } else {
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{daysLeft}</span>;
+        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">{daysLeft}</span>;
       }
     }
     
-    return <span className="text-sm text-gray-900">{daysLeft}</span>;
+    return <span className="text-sm text-gray-900 dark:text-white">{daysLeft}</span>;
   };
 
   const formatCurrency = (amount) => {
@@ -232,7 +232,7 @@ const RentRoll = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -241,7 +241,7 @@ const RentRoll = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Rent roll</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Rent roll</h1>
         
         {/* Top buttons */}
         <div className="flex items-center space-x-4">
@@ -250,31 +250,31 @@ const RentRoll = () => {
             Add lease
           </button>
           
-          <button className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <RefreshCw className="h-4 w-4 mr-2" />
             Renew lease
           </button>
           
-          <button className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <DollarSign className="h-4 w-4 mr-2" />
             Receive payment
           </button>
           
-          <button className="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <button className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <MoreHorizontal className="h-4 w-4" />
           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-600">
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab('rentroll')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'rentroll'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Rent roll
@@ -283,8 +283,8 @@ const RentRoll = () => {
             onClick={() => setActiveTab('liability')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'liability'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Liability management
@@ -295,33 +295,33 @@ const RentRoll = () => {
       {activeTab === 'rentroll' && (
         <>
           {/* Filters */}
-          <div className="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200">
+          <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-600">
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <select 
                   value={filterRentals}
                   onChange={(e) => setFilterRentals(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All rentals</option>
                   <option value="active">Active rentals</option>
                   <option value="future">Future rentals</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
               </div>
               
               <div className="relative">
                 <select 
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Status</option>
                   <option value="active">Active Leases</option>
                   <option value="future">Future Leases</option>
                   <option value="expired">Expired Leases</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
               </div>
               
               <button 
@@ -330,7 +330,7 @@ const RentRoll = () => {
                   setFilterRentals('all');
                   setFilterStatus('all');
                 }}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Clear Filters
@@ -338,15 +338,15 @@ const RentRoll = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-gray-300">
                 {filteredLeases.length} of {leases.length} leases
                 {(searchTerm || filterRentals !== 'all' || filterStatus !== 'all') && (
-                  <span className="text-blue-600 font-medium"> (filtered)</span>
+                  <span className="text-blue-600 dark:text-blue-400 font-medium"> (filtered)</span>
                 )}
               </span>
               <button
                 onClick={handleExport}
-                className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <Download className="h-4 w-4 mr-2" />
                 Export
@@ -356,23 +356,23 @@ const RentRoll = () => {
 
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
             <input
               type="text"
               placeholder="Search leases..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
 
           {/* Table */}
-          <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-600 overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                     onClick={() => handleSort('lease')}
                   >
                     <div className="flex items-center space-x-1">
@@ -381,7 +381,7 @@ const RentRoll = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                     onClick={() => handleSort('status')}
                   >
                     <div className="flex items-center space-x-1">
@@ -390,7 +390,7 @@ const RentRoll = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                     onClick={() => handleSort('type')}
                   >
                     <div className="flex items-center space-x-1">
@@ -399,7 +399,7 @@ const RentRoll = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                     onClick={() => handleSort('daysLeft')}
                   >
                     <div className="flex items-center space-x-1">
@@ -408,7 +408,7 @@ const RentRoll = () => {
                     </div>
                   </th>
                   <th 
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                     onClick={() => handleSort('rent')}
                   >
                     <div className="flex items-center space-x-1">
@@ -416,57 +416,57 @@ const RentRoll = () => {
                       {getSortIcon('rent')}
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     ACTIONS
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                 {filteredLeases.length > 0 ? (
                   filteredLeases.map((lease, index) => (
-                    <tr key={lease.id || index} className="hover:bg-gray-50">
+                    <tr key={lease.id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer">
+                          <div className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 cursor-pointer">
                             {lease.lease || 'ATK 50 - THE ELSER II - ATK 50 | Daniela Herrera'}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                             {lease.leaseId || '00086342'}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                           {lease.status || 'Active'}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {lease.type || 'Fixed w/rollover'}
                         <br />
-                        <span className="text-gray-500">
+                        <span className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                           {lease.leaseDates || '10/31/2023 - 10/30/2024'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getDaysLeftBadge(lease.daysLeft)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                         <div>
                           <div className="font-medium">
                             {formatCurrency(lease.rent)}
                             {lease.monthlyRent && lease.rent !== lease.monthlyRent && (
-                              <span className="text-xs text-blue-600 ml-1">(Next)</span>
+                              <span className="text-xs text-blue-600 dark:text-blue-400 ml-1">(Next)</span>
                             )}
                           </div>
                           {lease.monthlyRent && lease.rent !== lease.monthlyRent && (
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                               Monthly: {formatCurrency(lease.monthlyRent)}
                             </div>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-gray-400 hover:text-gray-600">
+                        <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                           <MoreHorizontal className="h-4 w-4" />
                         </button>
                       </td>
@@ -474,7 +474,7 @@ const RentRoll = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500">
+                    <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                       No leases found
                     </td>
                   </tr>
@@ -488,8 +488,8 @@ const RentRoll = () => {
       {activeTab === 'liability' && (
         <div className="space-y-6">
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Liability Management</h3>
-            <p className="text-gray-600">This section is under development.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Liability Management</h3>
+            <p className="text-gray-600 dark:text-gray-300">This section is under development.</p>
           </div>
         </div>
       )}

@@ -167,7 +167,7 @@ const MaintenanceChatbot = ({ isOpen, onClose, userProperties = [] }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl h-3/4 flex flex-col">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl h-3/4 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-2">
@@ -181,7 +181,7 @@ const MaintenanceChatbot = ({ isOpen, onClose, userProperties = [] }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600"
           >
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -246,7 +246,7 @@ const MaintenanceChatbot = ({ isOpen, onClose, userProperties = [] }) => {
                   <div>
                     <p className="text-sm whitespace-pre-wrap">{message.message}</p>
                     <p className={`text-xs mt-1 ${
-                      message.role === 'user' ? 'text-blue-100' : 'text-gray-500'
+                      message.role === 'user' ? 'text-blue-100' : 'text-gray-500 dark:text-gray-300'
                     }`}>
                       {new Date(message.timestamp).toLocaleTimeString()}
                     </p>

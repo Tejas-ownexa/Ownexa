@@ -5,6 +5,8 @@ from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
 from routes.auth_routes import token_required
 from utils.image_upload import save_image, resize_image, delete_image
+from utils.db_utils import handle_db_error
+from utils.property_utils import safe_delete_property_related_records, check_property_deletion_constraints
 import os
 
 property_bp = Blueprint('properties', __name__)
@@ -321,6 +323,7 @@ def import_properties(current_user):
 
 @property_bp.route('/<int:property_id>', methods=['DELETE'])
 @token_required
+@handle_db_error
 def delete_property(current_user, property_id):
     try:
         print(f"Delete property attempt - Property ID: {property_id}, User: {current_user.username}")
@@ -335,52 +338,64 @@ def delete_property(current_user, property_id):
         if property.owner_id != current_user.id:
             return jsonify({'error': 'Unauthorized to delete this property'}), 403
         
-        # Check if property has related records that would prevent deletion
-        from models.tenant import Tenant, OutstandingBalance
-        from models.maintenance import MaintenanceRequest
+        # Check if property can be safely deleted
+        can_delete, blocking_reasons = check_property_deletion_constraints(property_id)
+        if not can_delete:
+            error_message = f"Cannot delete property. Please resolve the following issues first: {', '.join(blocking_reasons)}"
+            return jsonify({'error': error_message}), 400
         
-        # Check for tenants
-        tenant_count = Tenant.query.filter_by(property_id=property_id).count()
-        if tenant_count > 0:
-            return jsonify({'error': f'Cannot delete property with {tenant_count} tenants. Please reassign or remove tenants first.'}), 400
+        # Delete related records in the correct order to avoid foreign key constraint violations
+        print(f"Deleting related records for property {property_id}")
+        deleted_counts = safe_delete_property_related_records(property_id)
         
-        # Check for outstanding balances
-        balance_count = OutstandingBalance.query.filter_by(property_id=property_id).count()
-        if balance_count > 0:
-            return jsonify({'error': f'Cannot delete property with {balance_count} outstanding balances. Please resolve balances first.'}), 400
+        if deleted_counts:
+            print(f"Deleted related records: {deleted_counts}")
+        else:
+            print("No related records found to delete")
         
-        # Check for maintenance requests
-        maintenance_count = MaintenanceRequest.query.filter_by(property_id=property_id).count()
-        if maintenance_count > 0:
-            return jsonify({'error': f'Cannot delete property with {maintenance_count} maintenance requests. Please resolve requests first.'}), 400
-        
-        # Skip work orders and tasks checks due to schema mismatch
-        # These models have columns that don't exist in the actual database
-        print(f"Warning: Skipping work orders and tasks checks due to database schema mismatch")
-        
-        # Delete the property using raw SQL to avoid cascade issues
+        # Now delete the property itself
         try:
-            # Delete any work orders related to this property (if they exist)
-            db.session.execute(db.text("DELETE FROM work_orders WHERE property_id = :property_id"), 
-                            {"property_id": property_id})
-            
-            # Now delete the property
-            db.session.execute(db.text("DELETE FROM properties WHERE id = :property_id"), 
-                            {"property_id": property_id})
-            
-            db.session.commit()
-        except Exception as delete_error:
-            print(f"Error during direct deletion: {delete_error}")
-            # Fallback to normal deletion
             db.session.delete(property)
             db.session.commit()
-        
-        print(f"Property {property_id} deleted successfully by user {current_user.username}")
-        return jsonify({'message': 'Property deleted successfully'}), 200
+            print(f"Property {property_id} deleted successfully by user {current_user.username}")
+            return jsonify({'message': 'Property deleted successfully'}), 200
+        except Exception as delete_error:
+            print(f"Error during property deletion: {delete_error}")
+            db.session.rollback()
+            return jsonify({'error': f'Failed to delete property: {str(delete_error)}'}), 400
         
     except Exception as e:
         print(f"Error deleting property: {str(e)}")
         db.session.rollback()
+        return jsonify({'error': f'Failed to delete property. Please try again.'}), 400
+
+@property_bp.route('/<int:property_id>/can-delete', methods=['GET'])
+@token_required
+def can_delete_property(current_user, property_id):
+    """Check if a property can be safely deleted"""
+    try:
+        # Find the property
+        property = Property.query.get(property_id)
+        
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        # Check if user owns the property
+        if property.owner_id != current_user.id:
+            return jsonify({'error': 'Unauthorized to access this property'}), 403
+        
+        # Check deletion constraints
+        can_delete, blocking_reasons = check_property_deletion_constraints(property_id)
+        
+        return jsonify({
+            'can_delete': can_delete,
+            'blocking_reasons': blocking_reasons,
+            'property_id': property_id,
+            'property_title': property.title
+        }), 200
+        
+    except Exception as e:
+        print(f"Error checking property deletion constraints: {str(e)}")
         return jsonify({'error': str(e)}), 400
 
 @property_bp.route('/<int:property_id>', methods=['GET'])

@@ -12,7 +12,7 @@ const CollectManagementFeesModal = ({ isOpen, onClose }) => {
           <h2 className="text-2xl font-semibold">Collect management fees</h2>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600"
           >
             <X className="h-6 w-6" />
           </button>

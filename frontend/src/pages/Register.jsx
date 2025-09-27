@@ -73,31 +73,31 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
           Create your account
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
+        <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
           Or{' '}
-          <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link to="/login" className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500">
             sign in to your existing account
           </Link>
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-white dark:bg-gray-800 py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             {/* Account Type Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Account Type
               </label>
               <select
                 {...register('role', { required: 'Account type is required' })}
                 onChange={(e) => handleRoleChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select account type</option>
                 <option value="OWNER">Property Owner</option>
@@ -106,19 +106,19 @@ const Register = () => {
                 <option value="VENDOR">Vendor</option>
               </select>
               {errors.role && (
-                <p className="mt-1 text-sm text-red-600">{errors.role.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.role.message}</p>
               )}
             </div>
 
             {/* Vendor Type Selection (only show if vendor is selected) */}
             {selectedRole === 'VENDOR' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Vendor Type
                 </label>
                 <select
                   {...register('vendor_type', { required: 'Vendor type is required' })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   disabled={isLoadingVendorTypes}
                 >
                   <option value="">Select vendor type</option>
@@ -129,14 +129,14 @@ const Register = () => {
                   ))}
                 </select>
                 {errors.vendor_type && (
-                  <p className="mt-1 text-sm text-red-600">{errors.vendor_type.message}</p>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.vendor_type.message}</p>
                 )}
               </div>
             )}
 
             {/* Full Name */}
             <div>
-              <label htmlFor="full_name" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="full_name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Full Name
               </label>
               <div className="mt-1 relative">
@@ -144,19 +144,19 @@ const Register = () => {
                   id="full_name"
                   type="text"
                   {...register('full_name', { required: 'Full name is required' })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                   placeholder="Enter your full name"
                 />
-                <User className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                <User className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
               </div>
               {errors.full_name && (
-                <p className="mt-1 text-sm text-red-600">{errors.full_name.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.full_name.message}</p>
               )}
             </div>
 
             {/* Username */}
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Username
               </label>
               <div className="mt-1 relative">
@@ -164,19 +164,19 @@ const Register = () => {
                   id="username"
                   type="text"
                   {...register('username', { required: 'Username is required' })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                   placeholder="Choose a username"
                 />
-                <User className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                <User className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
               </div>
               {errors.username && (
-                <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.username.message}</p>
               )}
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Email address
               </label>
               <div className="mt-1 relative">
@@ -190,19 +190,19 @@ const Register = () => {
                       message: 'Invalid email address'
                     }
                   })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                   placeholder="Enter your email"
                 />
-                <Mail className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
               </div>
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
               )}
             </div>
 
             {/* Phone Number */}
             <div>
-              <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Phone Number
               </label>
               <div className="mt-1 relative">
@@ -210,20 +210,20 @@ const Register = () => {
                   id="phone_number"
                   type="tel"
                   {...register('phone_number', { required: 'Phone number is required' })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                   placeholder="Enter your phone number"
                 />
-                <Phone className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                <Phone className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
               </div>
               {errors.phone_number && (
-                <p className="mt-1 text-sm text-red-600">{errors.phone_number.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone_number.message}</p>
               )}
             </div>
 
             {/* Address Fields */}
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label htmlFor="street_address_1" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="street_address_1" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Street Address
                 </label>
                 <div className="mt-1 relative">
@@ -231,70 +231,70 @@ const Register = () => {
                     id="street_address_1"
                     type="text"
                     {...register('street_address_1', { required: 'Street address is required' })}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                     placeholder="Enter street address"
                   />
-                  <MapPin className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                  <MapPin className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
                 </div>
                 {errors.street_address_1 && (
-                  <p className="mt-1 text-sm text-red-600">{errors.street_address_1.message}</p>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.street_address_1.message}</p>
                 )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     City
                   </label>
                   <input
                     id="city"
                     type="text"
                     {...register('city', { required: 'City is required' })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="City"
                   />
                   {errors.city && (
-                    <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.city.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     State
                   </label>
                   <input
                     id="state"
                     type="text"
                     {...register('state', { required: 'State is required' })}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     placeholder="State"
                   />
                   {errors.state && (
-                    <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.state.message}</p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="zip_code" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   ZIP Code
                 </label>
                 <input
                   id="zip_code"
                   type="text"
                   {...register('zip_code', { required: 'ZIP code is required' })}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                   placeholder="ZIP Code"
                 />
                 {errors.zip_code && (
-                  <p className="mt-1 text-sm text-red-600">{errors.zip_code.message}</p>
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.zip_code.message}</p>
                 )}
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -308,19 +308,19 @@ const Register = () => {
                       message: 'Password must be at least 6 characters'
                     }
                   })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                   placeholder="Create a password"
                 />
-                <Lock className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                <Lock className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="confirm_password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Confirm Password
               </label>
               <div className="mt-1 relative">
@@ -331,13 +331,13 @@ const Register = () => {
                     required: 'Please confirm your password',
                     validate: value => value === watch('password') || 'Passwords do not match'
                   })}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 pl-10"
                   placeholder="Confirm your password"
                 />
-                <Lock className="h-5 w-5 text-gray-400 absolute left-3 top-2.5" />
+                <Lock className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 absolute left-3 top-2.5" />
               </div>
               {errors.confirm_password && (
-                <p className="mt-1 text-sm text-red-600">{errors.confirm_password.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirm_password.message}</p>
               )}
             </div>
 

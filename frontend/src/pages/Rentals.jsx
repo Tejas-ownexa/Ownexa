@@ -340,7 +340,7 @@ const Rentals = () => {
   if (tenantsLoading || rentRollLoading || propertiesLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
       </div>
     );
   }
@@ -350,14 +350,14 @@ const Rentals = () => {
 
 
       {/* Navigation Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-600">
         <nav className="flex flex-wrap space-x-4 sm:space-x-8">
           <button
             onClick={() => setActiveTab('properties')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'properties'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-green-500 text-green-600 dark:text-green-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Properties
@@ -366,8 +366,8 @@ const Rentals = () => {
             onClick={() => setActiveTab('rentroll')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'rentroll'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-green-500 text-green-600 dark:text-green-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Rent roll
@@ -376,8 +376,8 @@ const Rentals = () => {
             onClick={() => setActiveTab('liability')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'liability'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-green-500 text-green-600 dark:text-green-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Liability management
@@ -390,7 +390,7 @@ const Rentals = () => {
         <div className="space-y-6">
           {/* Properties Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Properties</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Properties</h1>
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <Link
                 to="/add-property"
@@ -400,15 +400,15 @@ const Rentals = () => {
                 <span className="hidden sm:inline">Add property</span>
                 <span className="sm:hidden">Add</span>
               </Link>
-              <button className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2 text-sm sm:text-base">
+              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center space-x-2 text-sm sm:text-base">
                 <span className="hidden sm:inline">Management fees</span>
                 <span className="sm:hidden">Fees</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
-              <button className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors text-sm sm:text-base hidden sm:block">
+              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors text-sm sm:text-base hidden sm:block">
                 Manage bank accounts
               </button>
-              <button className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors">
                 <MoreHorizontal className="h-4 w-4" />
               </button>
             </div>
@@ -418,36 +418,36 @@ const Rentals = () => {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
               <div className="relative w-full sm:w-auto">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                 <input
                   type="text"
                   placeholder="Search properties..."
                   value={propertySearchTerm}
                   onChange={(e) => setPropertySearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
+                  className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full sm:w-64"
                 />
               </div>
               <select 
                 value={propertyFilterStatus} 
                 onChange={(e) => setPropertyFilterStatus(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full sm:w-auto"
+                className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm w-full sm:w-auto"
               >
                 <option value="all">All rentals</option>
                 <option value="available">Available</option>
                 <option value="rented">Rented</option>
                 <option value="maintenance">Maintenance</option>
               </select>
-              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
+              <button className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
                 <Filter className="h-4 w-4" />
                 <span className="hidden sm:inline">Add filter option</span>
                 <span className="sm:hidden">Filters</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               <div className="flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
-                <span className="text-sm text-gray-600 hidden sm:inline">Show bank accounts</span>
-                <span className="text-sm text-gray-600 sm:hidden">Bank accounts</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300 hidden sm:inline">Show bank accounts</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300 sm:hidden">Bank accounts</span>
                 <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                  <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                  <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white dark:bg-gray-800 border-4 appearance-none cursor-pointer"/>
                   <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                 </div>
               </div>
@@ -482,7 +482,7 @@ const Rentals = () => {
                   document.body.removeChild(link);
                   toast.success('Properties exported successfully!');
                 }}
-                className="bg-white text-gray-700 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
+                className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center justify-center sm:justify-start space-x-2 text-sm sm:text-base"
               >
                 <Download className="h-4 w-4" />
                 <span>Export</span>
@@ -567,18 +567,18 @@ const Rentals = () => {
           </div>
 
           {/* Results Count */}
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-300">
             {filteredProperties.length} matches
           </div>
 
           {/* Properties Table */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-gray-900">
                   <tr>
                     <th 
-                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => handleSort('property')}
                     >
                       <div className="flex items-center space-x-1">
@@ -588,7 +588,7 @@ const Rentals = () => {
                       </div>
                     </th>
                     <th 
-                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => handleSort('location')}
                     >
                       <div className="flex items-center space-x-1">
@@ -598,7 +598,7 @@ const Rentals = () => {
                       </div>
                     </th>
                     <th 
-                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 hidden md:table-cell"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700 hidden md:table-cell"
                       onClick={() => handleSort('owner')}
                     >
                       <div className="flex items-center space-x-1">
@@ -607,11 +607,11 @@ const Rentals = () => {
                         {getSortIcon('owner')}
                       </div>
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell">
                       MANAGER
                     </th>
                     <th 
-                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => handleSort('type')}
                     >
                       <div className="flex items-center space-x-1">
@@ -619,51 +619,51 @@ const Rentals = () => {
                         {getSortIcon('type')}
                       </div>
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       STATUS
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden 2xl:table-cell">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden 2xl:table-cell">
                       DEPOSIT TRUST ACCOUNT
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       ACTIONS
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                   {filteredProperties.length > 0 ? (
                     filteredProperties.map((property) => (
-                      <tr key={property.id} className="hover:bg-gray-50">
+                      <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <Link
                             to={`/properties/${property.id}`}
-                            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                            className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200"
                           >
                             {property.title}
                           </Link>
                         </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           {property.address?.city || 'N/A'}, {property.address?.state || 'N/A'}
                         </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white hidden md:table-cell">
                           {property.rental_owner?.company_name || 'N/A'}
                         </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hidden lg:table-cell">
                           -
                         </td>
-                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           <span className="hidden sm:inline">Residential, {property.apt_number ? 'Condo/Townhome' : 'Single-Family'}</span>
                           <span className="sm:hidden">{property.apt_number ? 'Condo' : 'Single'}</span>
                         </td>
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
                             property.status === 'available' 
-                              ? 'bg-green-100 text-green-800' 
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
                               : property.status === 'rented'
-                              ? 'bg-blue-100 text-blue-800'
+                              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200'
                               : property.status === 'maintenance'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
+                              ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200'
+                              : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                           }`}>
                             <span className={`w-2 h-2 rounded-full mr-2 ${
                               property.status === 'available' 
@@ -672,7 +672,7 @@ const Rentals = () => {
                                 ? 'bg-blue-500'
                                 : property.status === 'maintenance'
                                 ? 'bg-yellow-500'
-                                : 'bg-gray-500'
+                                : 'bg-gray-50 dark:bg-gray-9000'
                             }`}></span>
                             {property.status ? property.status.charAt(0).toUpperCase() + property.status.slice(1) : 'Unknown'}
                           </span>
@@ -680,7 +680,7 @@ const Rentals = () => {
                         <td className="px-3 sm:px-6 py-4 whitespace-nowrap hidden 2xl:table-cell">
                           <Link
                             to="#"
-                            className="text-sm text-blue-600 hover:text-blue-800"
+                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200"
                           >
                             Setup
                           </Link>
@@ -689,12 +689,12 @@ const Rentals = () => {
                           <div className="flex items-center space-x-2">
                             <button 
                               onClick={() => handleDeleteProperty(property.id)}
-                              className="text-red-600 hover:text-red-900 transition-colors"
+                              className="text-red-600 dark:text-red-400 hover:text-red-900 transition-colors"
                               title="Delete Property"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
-                            <button className="text-gray-400 hover:text-gray-600">
+                            <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                               <MoreHorizontal className="h-4 w-4" />
                             </button>
                           </div>
@@ -704,11 +704,11 @@ const Rentals = () => {
                   ) : (
                     <tr>
                       <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
-                        <div className="text-gray-400 mb-4">
+                        <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                           <Search className="h-16 w-16 mx-auto" />
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
-                        <p className="text-gray-600 mb-6">Get started by adding your first property to your portfolio</p>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No properties found</h3>
+                        <p className="text-gray-600 dark:text-gray-300 mb-6">Get started by adding your first property to your portfolio</p>
                         <Link
                           to="/add-property"
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -734,7 +734,7 @@ const Rentals = () => {
               <select 
                 value={filterStatus} 
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm"
               >
                 <option value="all">All rentals</option>
                 <option value="active">Active</option>
@@ -742,12 +742,12 @@ const Rentals = () => {
                 <option value="expired">Expired</option>
               </select>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   ({filteredLeases.filter(l => l.status === 'Active').length} Active, {filteredLeases.filter(l => l.status === 'Future').length} Future)
                 </span>
-                <ChevronDown className="h-4 w-4 text-gray-400" />
+                <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
               </div>
-              <button className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
+              <button className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
                 <Filter className="h-4 w-4" />
                 <span>Add filter option</span>
                 <ChevronDown className="h-4 w-4" />
@@ -755,7 +755,7 @@ const Rentals = () => {
             </div>
             <button 
               onClick={handleExport}
-              className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2"
+              className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center space-x-2"
             >
               <Download className="h-4 w-4" />
               <span>Export</span>
@@ -763,18 +763,18 @@ const Rentals = () => {
           </div>
 
           {/* Results Count */}
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-300">
             {filteredLeases.length} matches
           </div>
 
           {/* Rent Roll Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                   onClick={() => handleSort('lease')}
                 >
                   <div className="flex items-center space-x-1">
@@ -783,7 +783,7 @@ const Rentals = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                   onClick={() => handleSort('status')}
                 >
                   <div className="flex items-center space-x-1">
@@ -792,7 +792,7 @@ const Rentals = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                   onClick={() => handleSort('type')}
                 >
                   <div className="flex items-center space-x-1">
@@ -801,7 +801,7 @@ const Rentals = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                   onClick={() => handleSort('daysLeft')}
                 >
                   <div className="flex items-center space-x-1">
@@ -810,7 +810,7 @@ const Rentals = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                   onClick={() => handleSort('rent')}
                 >
                   <div className="flex items-center space-x-1">
@@ -818,47 +818,47 @@ const Rentals = () => {
                     {getSortIcon('rent')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   ACTIONS
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {filteredLeases.map((lease) => (
-                <tr key={lease.id} className="hover:bg-gray-50">
+                <tr key={lease.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{lease.lease}</div>
-                      <div className="text-sm text-gray-500">ID: {lease.uniqueId}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{lease.lease}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">ID: {lease.uniqueId}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      lease.status === 'Active' ? 'text-green-600 bg-green-100' : 
-                      lease.status === 'Future' ? 'text-blue-600 bg-blue-100' : 
-                      'text-gray-600 bg-gray-100'
+                      lease.status === 'Active' ? 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30' : 
+                      lease.status === 'Future' ? 'text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/30' : 
+                      'text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-700'
                     }`}>
                       {lease.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {lease.typeDisplay}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {lease.daysLeft}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900">
+                      <span className="text-sm font-medium text-gray-900 dark:text-white">
                         {formatCurrency(lease.rent)}
                       </span>
-                      <button className="text-gray-400 hover:text-gray-600">
+                      <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                         <MoreHorizontal className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                   </td>
@@ -871,13 +871,13 @@ const Rentals = () => {
 
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
             <input
               type="text"
               placeholder="Search leases..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
         </>
@@ -886,8 +886,8 @@ const Rentals = () => {
       {activeTab === 'liability' && (
         <div className="space-y-6">
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Liability Management</h3>
-            <p className="text-gray-600">This section is under development.</p>
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Liability Management</h3>
+            <p className="text-gray-600 dark:text-gray-300">This section is under development.</p>
           </div>
         </div>
       )}

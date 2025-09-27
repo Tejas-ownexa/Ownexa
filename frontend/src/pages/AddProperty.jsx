@@ -161,20 +161,20 @@ const AddProperty = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Add New Property</h1>
-        <p className="text-gray-600">Create a new property listing with financial details</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Add New Property</h1>
+        <p className="text-gray-600 dark:text-gray-300">Create a new property listing with financial details</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Information */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4 flex items-center">
             <Home className="h-5 w-5 mr-2" />
             Basic Information
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Property Title *
               </label>
               <input
@@ -184,12 +184,12 @@ const AddProperty = () => {
                 placeholder="Enter property title"
               />
               {errors.title && (
-                <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.title.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Status *
               </label>
               <select
@@ -203,12 +203,12 @@ const AddProperty = () => {
                 <option value="unavailable">Unavailable</option>
               </select>
               {errors.status && (
-                <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.status.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 <Building2 className="h-4 w-4 inline mr-1" />
                 Rental Owner *
               </label>
@@ -227,12 +227,12 @@ const AddProperty = () => {
                 ))}
               </select>
               {errors.owner_id && (
-                <p className="mt-1 text-sm text-red-600">{errors.owner_id.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.owner_id.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Monthly Rent *
               </label>
               <input
@@ -243,12 +243,12 @@ const AddProperty = () => {
                 placeholder="Enter monthly rent amount"
               />
               {errors.rent_amount && (
-                <p className="mt-1 text-sm text-red-600">{errors.rent_amount.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.rent_amount.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Case Number
               </label>
               <input
@@ -260,7 +260,7 @@ const AddProperty = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Folio
               </label>
               <input
@@ -274,11 +274,11 @@ const AddProperty = () => {
         </div>
 
         {/* Address Information */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Address Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Street Address 1 *
               </label>
               <input
@@ -288,12 +288,12 @@ const AddProperty = () => {
                 placeholder="Enter street address"
               />
               {errors.street_address_1 && (
-                <p className="mt-1 text-sm text-red-600">{errors.street_address_1.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.street_address_1.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Street Address 2
               </label>
               <input
@@ -305,7 +305,7 @@ const AddProperty = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Apartment/Unit Number
               </label>
               <input
@@ -317,7 +317,7 @@ const AddProperty = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 City *
               </label>
               <input
@@ -327,12 +327,12 @@ const AddProperty = () => {
                 placeholder="Enter city"
               />
               {errors.city && (
-                <p className="mt-1 text-sm text-red-600">{errors.city.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.city.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 State *
               </label>
               <input
@@ -342,12 +342,12 @@ const AddProperty = () => {
                 placeholder="Enter state"
               />
               {errors.state && (
-                <p className="mt-1 text-sm text-red-600">{errors.state.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.state.message}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 ZIP Code *
               </label>
               <input
@@ -357,14 +357,14 @@ const AddProperty = () => {
                 placeholder="Enter ZIP code"
               />
               {errors.zip_code && (
-                <p className="mt-1 text-sm text-red-600">{errors.zip_code.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.zip_code.message}</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Financial Details Toggle */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold flex items-center">
               <DollarSign className="h-5 w-5 mr-2" />
@@ -382,7 +382,7 @@ const AddProperty = () => {
 
         {/* Financial Details Form */}
         {showFinancialDetails && (
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center">
               <CreditCard className="h-5 w-5 mr-2" />
               Property Financial Information
@@ -391,7 +391,7 @@ const AddProperty = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Property Value Information */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Total Property Value
                 </label>
                 <input
@@ -404,7 +404,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Purchase Price
                 </label>
                 <input
@@ -417,7 +417,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Purchase Date
                 </label>
                 <input
@@ -428,7 +428,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Price per Sq Ft
                 </label>
                 <input
@@ -442,7 +442,7 @@ const AddProperty = () => {
 
               {/* Mortgage Information */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Mortgage Amount *
                 </label>
                 <input
@@ -455,7 +455,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Down Payment *
                 </label>
                 <input
@@ -468,7 +468,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Current APR (%) *
                 </label>
                 <input
@@ -481,7 +481,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Loan Term (Years)
                 </label>
                 <select
@@ -495,7 +495,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Payment Day of Month
                 </label>
                 <select
@@ -513,7 +513,7 @@ const AddProperty = () => {
                 <div className="md:col-span-2 lg:col-span-3">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <div className="flex items-center">
-                      <Calculator className="h-5 w-5 text-blue-600 mr-2" />
+                      <Calculator className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
                       <span className="font-medium text-blue-900">
                         Calculated Monthly Payment: ${calculatedPayment}
                       </span>
@@ -524,7 +524,7 @@ const AddProperty = () => {
 
               {/* Additional Expenses */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Annual Property Tax
                 </label>
                 <input
@@ -537,7 +537,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Annual Insurance
                 </label>
                 <input
@@ -550,7 +550,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Monthly HOA Fees
                 </label>
                 <input
@@ -563,7 +563,7 @@ const AddProperty = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Monthly Maintenance Reserve
                 </label>
                 <input
@@ -579,13 +579,13 @@ const AddProperty = () => {
         )}
 
         {/* Property Image */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Property Image</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Upload Property Image
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-md">
               <div className="space-y-1 text-center">
                 {imagePreview ? (
                   <div className="relative">
@@ -604,11 +604,11 @@ const AddProperty = () => {
                   </div>
                 ) : (
                   <>
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
+                    <div className="flex text-sm text-gray-600 dark:text-gray-300">
                       <label
                         htmlFor="image-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
+                        className="relative cursor-pointer bg-white dark:bg-gray-800 rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
                       >
                         <span>Upload a file</span>
                         <input
@@ -622,7 +622,7 @@ const AddProperty = () => {
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
                       PNG, JPG, GIF, WEBP up to 16MB
                     </p>
                   </>
@@ -633,10 +633,10 @@ const AddProperty = () => {
         </div>
 
         {/* Description */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Description</h2>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Property Description *
             </label>
             <textarea
@@ -646,7 +646,7 @@ const AddProperty = () => {
               placeholder="Describe the property..."
             />
             {errors.description && (
-              <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description.message}</p>
             )}
           </div>
         </div>

@@ -103,7 +103,7 @@ const Properties = () => {
 
   if (error) {
     return (
-      <div className="text-center text-red-600">
+      <div className="text-center text-red-600 dark:text-red-400">
         Error loading properties: {error.message}
       </div>
     );
@@ -121,8 +121,8 @@ const Properties = () => {
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Properties</h1>
             </div>
-            <p className="text-gray-600">Manage and browse your property portfolio</p>
-            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+            <p className="text-gray-600 dark:text-gray-300">Manage and browse your property portfolio</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300">
               <span>Total: {properties?.length || 0}</span>
               <span>•</span>
               <span>Available: {properties?.filter(p => p.status === 'available').length || 0}</span>
@@ -141,11 +141,11 @@ const Properties = () => {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
             <input
               type="text"
               placeholder="Search properties..."
@@ -220,7 +220,7 @@ const Properties = () => {
 
       {/* Results */}
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
           {properties?.length || 0} Properties Found
         </h2>
       </div>
@@ -238,11 +238,11 @@ const Properties = () => {
         </div>
       ) : (
         <div className="text-center py-12">
-          <div className="text-gray-400 mb-4">
+          <div className="text-gray-400 dark:text-gray-300 mb-4">
             <Search className="h-16 w-16 mx-auto" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No properties found</h3>
-          <p className="text-gray-600 mb-6">Get started by adding your first property to your portfolio</p>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No properties found</h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">Get started by adding your first property to your portfolio</p>
           <Link
             to="/add-property"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"

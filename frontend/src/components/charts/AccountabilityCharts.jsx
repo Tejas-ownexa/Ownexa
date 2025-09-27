@@ -58,6 +58,9 @@ export const RevenueExpenseTrendChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       title: {
         display: false,
@@ -112,8 +115,17 @@ export const ExpenseBreakdownChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'bottom',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 8,
         callbacks: {
           label: function(context) {
             const label = context.label || '';
