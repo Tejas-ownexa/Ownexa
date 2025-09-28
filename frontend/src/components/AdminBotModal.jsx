@@ -13,8 +13,8 @@ const AdminBotModal = ({ isOpen, onClose }) => {
         onClick={onClose}
       />
       
-      {/* Modal - Positioned like a chat widget */}
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg h-[450px] sm:h-[550px] flex flex-col overflow-hidden">
+      {/* Modal - Positioned on right side with extended height */}
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg h-[90vh] sm:h-[85vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-2 shadow-lg">
           <div className="flex items-center justify-between">

@@ -52,20 +52,8 @@ Just ask me anything about your property management in natural language! 🏘️
 
   // Load conversation history from localStorage
   const loadConversationHistory = () => {
-    try {
-      const savedMessages = localStorage.getItem('adminBotConversation');
-      if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages);
-        // Ensure we have at least the welcome message
-        if (parsedMessages.length === 0) {
-          return [defaultWelcomeMessage];
-        }
-        return parsedMessages;
-      }
-    } catch (error) {
-      console.error('Error loading conversation history:', error);
-    }
-    return [defaultWelcomeMessage];
+    // Start with empty chat - no welcome message
+    return [];
   };
 
   // Save conversation history to localStorage
@@ -83,7 +71,7 @@ Just ask me anything about your property management in natural language! 🏘️
   const clearConversationHistory = () => {
     try {
       localStorage.removeItem('adminBotConversation');
-      setMessages([defaultWelcomeMessage]);
+      setMessages([]);
       setConversationContext([]);
       toast.success('Conversation history cleared!');
     } catch (error) {
