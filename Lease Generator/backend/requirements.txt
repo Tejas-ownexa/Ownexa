@@ -6,3 +6,4 @@ SQLAlchemy
 Flask-SQLAlchemy
 werkzeug
 reportlab
+docusign-esign

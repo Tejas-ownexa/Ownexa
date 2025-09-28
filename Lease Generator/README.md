@@ -10,6 +10,7 @@ A full-stack web application for generating lease documents with customizable te
 - 💾 SQLite database for data persistence
 - 🌐 Modern React frontend with Tailwind CSS
 - ⚡ Flask backend API
+- ✍️ DocuSign integration (embedded or email signing)
 
 ## Tech Stack
 
@@ -19,6 +20,7 @@ A full-stack web application for generating lease documents with customizable te
 - **ReportLab** - PDF generation
 - **PyPDF** - PDF manipulation
 - **SQLite** - Database
+- **DocuSign eSignature SDK** - Envelope creation and signing links
 
 ### Frontend
 - **React** - Frontend framework
@@ -84,6 +86,29 @@ Lease Generator/
 
 The backend will run on `http://localhost:5001`
 
+#### DocuSign Configuration
+
+Set the following environment variables (create a `.env` file in `Lease Generator/backend`):
+
+```
+DOCUSIGN_INTEGRATION_KEY=YOUR_INTEGRATOR_KEY
+DOCUSIGN_USER_ID=YOUR_IMPERSONATED_USER_GUID
+DOCUSIGN_ACCOUNT_ID=YOUR_ACCOUNT_ID
+DOCUSIGN_BASE_PATH=https://demo.docusign.net/restapi
+DOCUSIGN_OAUTH_BASE_PATH=account-d.docusign.com
+# Provide either a file path to the RSA private key or a base64-encoded key
+DOCUSIGN_PRIVATE_KEY_PATH=C:\\path\\to\\private.key
+# DOCUSIGN_PRIVATE_KEY_B64=base64-encoded-private-key
+DOCUSIGN_RETURN_URL=http://localhost:3000/docusign/complete
+```
+
+Notes:
+- The integration uses JWT grant with scopes `signature` and `impersonation`.
+- Ensure the user is consented. You can obtain consent by visiting (replace values):
+  `https://account-d.docusign.com/oauth/auth?response_type=code&scope=signature%20impersonation&client_id=YOUR_INTEGRATOR_KEY&redirect_uri=http://localhost`
+  and approving once (one-time user consent).
+- Use the Demo environment keys for testing.
+
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
@@ -106,8 +131,10 @@ The frontend will run on `http://localhost:3000`
 ## API Endpoints
 
 - `GET /health` - Health check endpoint
-- `POST /api/generate` - Generate lease document
-- Additional endpoints defined in `routes.py`
+- `POST /api/generate-filled` - Generate filled lease document
+- `GET /api/download/:filename` - Download generated PDF
+- `POST /api/docusign/send` - Body: `{ filename, tenantEmail, tenantFullName, mode: 'embedded'|'email' }`
+  - Returns embedded signing URL when `mode=embedded`, or `envelopeId` for email mode
 
 ## Usage
 

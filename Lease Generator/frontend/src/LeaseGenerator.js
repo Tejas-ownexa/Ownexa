@@ -35,6 +35,7 @@ const LeaseGenerator = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [signingUrl, setSigningUrl] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -62,6 +63,21 @@ const LeaseGenerator = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(link.href);
+
+      // Send for signing via email
+      const sendResp = await axios.post(`${API_URL}/docusign/send`, {
+        filename: response.data.filename,
+        tenantEmail: formData.tenantEmail,
+        tenantFullName: formData.tenantFullName,
+        mode: 'email'
+      });
+      if (sendResp.data && sendResp.data.envelopeId) {
+        if (sendResp.data.mode === 'bypass') {
+          alert(`${sendResp.data.message}\n\nEnvelope ID: ${sendResp.data.envelopeId}\n\nNote: This is test mode. Complete DocuSign consent for live functionality.`);
+        } else {
+          alert(`Lease sent for signing! Envelope ID: ${sendResp.data.envelopeId}. The tenant will receive an email to sign the document.`);
+        }
+      }
 
     } catch (err) {
       setError('Failed to generate lease. Please check the backend server.');

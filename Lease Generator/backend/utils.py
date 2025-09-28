@@ -2,6 +2,11 @@ import os
 import uuid
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import TextStringObject, NameObject
+try:
+    # For certain renderers, forcing NeedAppearances improves display of filled fields
+    from pypdf.generic import BooleanObject
+except Exception:
+    BooleanObject = None
 from flask import jsonify
 import datetime
 
@@ -43,6 +48,14 @@ def fill_pdf_form(form_data):
         
         # Clone document structure to preserve AcroForm
         writer.clone_reader_document_root(reader)
+
+        # Ensure NeedAppearances so viewers (and DocuSign) render filled values reliably
+        if '/AcroForm' in writer._root_object:
+            acro = writer._root_object['/AcroForm']
+            if BooleanObject is not None:
+                acro.update({NameObject('/NeedAppearances'): BooleanObject(True)})
+            else:
+                acro.update({NameObject('/NeedAppearances'): TextStringObject('true')})
         
         # Create the data dictionary for filling form fields
         data_to_fill = {}
