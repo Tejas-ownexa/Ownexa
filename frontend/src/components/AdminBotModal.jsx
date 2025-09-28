@@ -6,7 +6,7 @@ const AdminBotModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end justify-end p-2 sm:p-4">
+    <div className="fixed inset-0 z-[9999] flex items-end justify-end p-1 sm:p-2">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black bg-opacity-20 transition-opacity"
@@ -14,7 +14,7 @@ const AdminBotModal = ({ isOpen, onClose }) => {
       />
       
       {/* Modal - Positioned on right side with extended height */}
-      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg h-[90vh] sm:h-[85vh] flex flex-col overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg h-[95vh] sm:h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-2 shadow-lg">
           <div className="flex items-center justify-between">
