@@ -94,12 +94,12 @@ const App = () => {
           <AuthProvider>
             <AdminBotProvider>
             <Router>
-            <div className="min-h-screen gradient-bg relative overflow-hidden">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
               {/* Animated background elements */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 rounded-full filter blur-xl opacity-10 animate-float"></div>
-                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
-                <div className="absolute top-40 left-1/2 w-80 h-80 bg-cyan-200 rounded-full filter blur-xl opacity-10 animate-float" style={{animationDelay: '4s'}}></div>
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 dark:bg-blue-800 rounded-full filter blur-xl opacity-20 dark:opacity-10 animate-float"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 dark:bg-indigo-800 rounded-full filter blur-xl opacity-20 dark:opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
+                <div className="absolute top-40 left-1/2 w-80 h-80 bg-cyan-200 dark:bg-cyan-800 rounded-full filter blur-xl opacity-20 dark:opacity-10 animate-float" style={{animationDelay: '4s'}}></div>
               </div>
               
               <Routes>

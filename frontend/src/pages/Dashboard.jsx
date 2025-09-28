@@ -286,8 +286,8 @@ const Dashboard = () => {
               </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gradient">Property Dashboard</h1>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Welcome back, {user?.full_name || 'User'}!</p>
-            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
+            <p className="text-gray-600 dark:text-gray-300">Welcome back, {user?.full_name || 'User'}!</p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center space-x-1">
                 <Calendar className="h-4 w-4" />
                 <span>{new Date().toLocaleDateString()}</span>
@@ -558,7 +558,7 @@ const Dashboard = () => {
                   className={`relative py-4 px-4 font-medium text-sm flex items-center space-x-2 rounded-t-lg transition-all duration-300 ${
                     activeTab === tab.id
                       ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-lg transform -translate-y-1'
-                      : 'text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700 dark:hover:bg-gray-700'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                   }`}
                 >
                   <Icon className={`h-4 w-4 transition-transform duration-300 ${activeTab === tab.id ? 'scale-110' : ''}`} />
@@ -725,7 +725,7 @@ const Dashboard = () => {
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Home className="h-12 w-12 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                  <Home className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No properties yet</h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-4">Start by adding your first property listing.</p>
                   <Link to="/add-property" className="btn-primary">
@@ -799,8 +799,8 @@ const Dashboard = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 bg-gray-50 dark:bg-gray-900 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <User className="h-12 w-12 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <User className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Tenants Yet</h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-4">Start adding tenants to your properties to see them here.</p>
                   <Link to="/tenants" className="btn-primary">
@@ -844,7 +844,7 @@ const Dashboard = () => {
               <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Property Performance Comparison</h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">123 Main Street</div>
                       <div className="text-sm text-gray-600 dark:text-gray-300">Single Family Home</div>
@@ -855,7 +855,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">456 Oak Avenue</div>
                       <div className="text-sm text-gray-600 dark:text-gray-300">Apartment Complex</div>
@@ -866,7 +866,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">789 Pine Street</div>
                       <div className="text-sm text-gray-600 dark:text-gray-300">Condo</div>
@@ -936,7 +936,7 @@ const Dashboard = () => {
                     {maintenanceList.map((request) => (
                       <div key={request.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
                         {/* Header */}
-                        <div className="bg-gray-50 dark:bg-gray-900 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+                        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
                           <div className="flex items-center justify-between">
                             <div>
                               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -1052,8 +1052,8 @@ const Dashboard = () => {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 bg-gray-50 dark:bg-gray-900 rounded-lg border border-gray-200">
-                  <Wrench className="h-12 w-12 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mx-auto mb-4" />
+                <div className="text-center py-8 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <Wrench className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-900 mb-2">No Maintenance Requests</h3>
                   <p className="text-gray-600 mb-4">There are no maintenance requests at this time.</p>
                 </div>
@@ -1065,7 +1065,7 @@ const Dashboard = () => {
           {activeTab === 'profile' && (
             <div>
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Profile Information</h2>
-              <div className="bg-gray-50 dark:bg-gray-900 dark:bg-gray-800 rounded-lg p-6">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

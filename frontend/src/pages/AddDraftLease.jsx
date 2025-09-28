@@ -38,70 +38,12 @@ const AddDraftLease = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLease, setGeneratedLease] = useState('');
-  const [templates, setTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [isUploadingTemplate, setIsUploadingTemplate] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Load templates on component mount
-  React.useEffect(() => {
-    loadTemplates();
-  }, []);
-
-  const loadTemplates = async () => {
-    try {
-      const response = await api.get('/api/ai-lease/templates');
-      if (response.data.success) {
-        setTemplates(response.data.templates);
-        // Set default template if available
-        if (response.data.templates.length > 0 && !selectedTemplate) {
-          setSelectedTemplate(response.data.templates[0].filename);
-        }
-      }
-    } catch (error) {
-      console.error('Error loading templates:', error);
-    }
-  };
-
-  const handleTemplateUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    if (!file.name.endsWith('.pdf')) {
-      alert('Please upload a PDF file');
-      return;
-    }
-
-    setIsUploadingTemplate(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await api.post('/api/ai-lease/templates', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (response.data.success) {
-        toast.success('Template uploaded successfully!');
-        loadTemplates(); // Reload templates
-        setSelectedTemplate(response.data.filename);
-      } else {
-        throw new Error(response.data.error || 'Upload failed');
-      }
-    } catch (error) {
-      console.error('Error uploading template:', error);
-      toast.error(error.response?.data?.error || 'Failed to upload template');
-    } finally {
-      setIsUploadingTemplate(false);
-      e.target.value = ''; // Reset file input
-    }
-  };
 
   const generateAILease = async () => {
     setIsGenerating(true);
@@ -225,7 +167,7 @@ const AddDraftLease = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto space-y-8 p-4 sm:p-6">
       {/* Header */}
         <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-2xl shadow-2xl">
@@ -254,7 +196,7 @@ const AddDraftLease = () => {
           </div>
           <button
             onClick={() => navigate('/leasing?tab=draft-lease')}
-                className="group bg-white dark:bg-gray-800/20 hover:bg-white dark:bg-gray-800/30 backdrop-blur-sm text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-2 border border-white/20 hover:border-white/30"
+                className="group bg-white/90 dark:bg-gray-800/20 hover:bg-white dark:hover:bg-gray-800/30 backdrop-blur-sm text-gray-800 dark:text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-2 border border-white/30 dark:border-white/20 hover:border-white/50 dark:hover:border-white/30 shadow-lg hover:shadow-xl"
           >
                 <X className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
                 <span className="font-medium">Back to Draft Leases</span>
@@ -263,58 +205,10 @@ const AddDraftLease = () => {
         </div>
       </div>
 
-        {/* Template Management Section */}
-        <div className="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sm:p-8 mb-8">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2 bg-purple-500 rounded-lg">
-              <FileText className="h-5 w-5 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Template Management</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Template Selection */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Select Template</label>
-              <select
-                value={selectedTemplate}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
-                className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300"
-              >
-                <option value="">Select a template...</option>
-                {templates.map((template) => (
-                  <option key={template.filename} value={template.filename}>
-                    {template.filename} ({new Date(template.uploaded_at).toLocaleDateString()})
-                  </option>
-                ))}
-              </select>
-            </div>
-            
-            {/* Template Upload */}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Upload New Template</label>
-              <div className="relative">
-                <input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleTemplateUpload}
-                  disabled={isUploadingTemplate}
-                  className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-base file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
-                />
-                {isUploadingTemplate && (
-                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Upload a PDF template with fillable form fields</p>
-            </div>
-          </div>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Section */}
-          <div className="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sm:p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Lease Information</h2>
               <p className="text-gray-600 dark:text-gray-300">Fill in the details below to generate your lease document</p>
@@ -322,7 +216,7 @@ const AddDraftLease = () => {
             <form onSubmit={handleSubmit} className="space-y-8">
             
             {/* Basic Information Section */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-700">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-blue-500 rounded-lg">
                   <Info className="h-5 w-5 text-white" />
@@ -337,7 +231,7 @@ const AddDraftLease = () => {
                     name="landlordFullName" 
                     value={formData.landlordFullName} 
                     onChange={handleInputChange}
-                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="Enter landlord's full name"
                     required
                   />
@@ -349,7 +243,7 @@ const AddDraftLease = () => {
                     name="tenantFullName" 
                     value={formData.tenantFullName} 
                     onChange={handleInputChange}
-                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="Enter tenant's full name"
                     required
                   />
@@ -361,7 +255,7 @@ const AddDraftLease = () => {
                       name="landlordEmail"
                       value={formData.landlordEmail}
                       onChange={handleInputChange}
-                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="landlord@example.com"
                     />
                   </div>
@@ -372,7 +266,7 @@ const AddDraftLease = () => {
                       name="landlordPhone"
                       value={formData.landlordPhone}
                       onChange={handleInputChange}
-                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="(555) 123-4567"
                     />
                 </div>
@@ -383,7 +277,7 @@ const AddDraftLease = () => {
                       name="tenantEmail"
                       value={formData.tenantEmail}
                       onChange={handleInputChange}
-                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="tenant@example.com"
                     />
                   </div>
@@ -394,7 +288,7 @@ const AddDraftLease = () => {
                       name="tenantPhone"
                       value={formData.tenantPhone}
                       onChange={handleInputChange}
-                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="(555) 123-4567"
                     />
                 </div>
@@ -402,7 +296,7 @@ const AddDraftLease = () => {
                   </div>
 
             {/* Property Information Section */}
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6 border border-green-200 dark:border-green-700">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-green-500 rounded-lg">
                   <Plus className="h-5 w-5 text-white" />
@@ -417,7 +311,7 @@ const AddDraftLease = () => {
                     name="streetAddress"
                     value={formData.streetAddress}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="123 Main Street"
                     required
                   />
@@ -429,7 +323,7 @@ const AddDraftLease = () => {
                     name="unitNumber" 
                     value={formData.unitNumber} 
                     onChange={handleInputChange} 
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="Apt 2B"
                   />
                 </div>
@@ -440,7 +334,7 @@ const AddDraftLease = () => {
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="New York"
                     required
                   />
@@ -452,7 +346,7 @@ const AddDraftLease = () => {
                     name="zipCode"
                     value={formData.zipCode}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="10001"
                     required
                   />
@@ -464,7 +358,7 @@ const AddDraftLease = () => {
                     name="includedFurniture"
                     value={formData.includedFurniture}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 placeholder-gray-400" 
                     placeholder="e.g., None, Basic furniture, Fully furnished"
                   />
                 </div>
@@ -472,7 +366,7 @@ const AddDraftLease = () => {
             </div>
 
             {/* Lease Terms Section */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100">
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-6 border border-purple-200 dark:border-purple-700">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-purple-500 rounded-lg">
                   <Calendar className="h-5 w-5 text-white" />
@@ -508,7 +402,7 @@ const AddDraftLease = () => {
             </div>
 
             {/* Fees and Policies Section */}
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-6 border border-orange-100">
+            <div className="bg-orange-50 dark:bg-orange-900/20 rounded-xl p-6 border border-orange-200 dark:border-orange-700">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-orange-500 rounded-lg">
                   <Save className="h-5 w-5 text-white" />
@@ -526,14 +420,14 @@ const AddDraftLease = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Pets Policy</label>
-                  <select name="petsPolicy" value={formData.petsPolicy} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
+                  <select name="petsPolicy" value={formData.petsPolicy} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
                     <option value="not_allowed">Not Allowed</option>
                     <option value="allowed">Allowed</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Smoking Policy</label>
-                  <select name="smokingPolicy" value={formData.smokingPolicy} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
+                  <select name="smokingPolicy" value={formData.smokingPolicy} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
                     <option value="not_permitted">Not Permitted</option>
                     <option value="permitted">Permitted</option>
                   </select>
@@ -542,7 +436,7 @@ const AddDraftLease = () => {
               </div>
 
             {/* Early Termination Section */}
-            <div className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl p-6 border border-yellow-100">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-6 border border-yellow-200 dark:border-yellow-700">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-yellow-500 rounded-lg">
                   <Calendar className="h-5 w-5 text-white" />
@@ -552,7 +446,7 @@ const AddDraftLease = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Early Termination Agreement</label>
-                  <select name="earlyTerminationFee" value={formData.earlyTerminationFee} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800/50 backdrop-blur-sm focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
+                  <select name="earlyTerminationFee" value={formData.earlyTerminationFee} onChange={handleInputChange} className="w-full px-6 py-4 text-lg rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300">
                     <option value="disagrees">Does Not Agree</option>
                     <option value="agrees">Agrees</option>
                   </select>
@@ -565,7 +459,7 @@ const AddDraftLease = () => {
             </div>
 
             {/* Agent Information Section */}
-            <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-6 border border-teal-100">
+            <div className="bg-teal-50 dark:bg-teal-900/20 rounded-xl p-6 border border-teal-200 dark:border-teal-700">
               <div className="flex items-center space-x-3 mb-6">
                 <div className="p-2 bg-teal-500 rounded-lg">
                   <Info className="h-5 w-5 text-white" />
@@ -611,7 +505,7 @@ const AddDraftLease = () => {
         </div>
 
           {/* Status Section */}
-          <div className="bg-white dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 sm:p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
             <div className="flex items-center space-x-3 mb-6">
               <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg">
                 <FileText className="h-6 w-6 text-white" />
@@ -620,7 +514,7 @@ const AddDraftLease = () => {
           </div>
           
           {generatedLease ? (
-              <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 text-center border border-green-200">
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-2xl p-8 text-center border border-green-200 dark:border-green-700">
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="w-20 h-20 bg-green-500 rounded-full mx-auto flex items-center justify-center animate-pulse">
@@ -647,7 +541,7 @@ const AddDraftLease = () => {
                 </div>
             </div>
           ) : (
-              <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-8 text-center border border-gray-200 dark:border-gray-600">
+              <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 text-center border border-gray-200 dark:border-gray-600">
                 <div className="space-y-4">
                   <div className="w-20 h-20 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full mx-auto flex items-center justify-center">
                     <FileText className="h-10 w-10 text-white" />
