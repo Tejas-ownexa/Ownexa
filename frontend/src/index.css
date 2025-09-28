@@ -4,15 +4,15 @@
 
 /* CSS Variables for Theme Support */
 :root {
-  /* Light theme colors */
+  /* Light theme colors - improved contrast */
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
   --bg-tertiary: #f1f5f9;
   --bg-quaternary: #e2e8f0;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
-  --text-tertiary: #94a3b8;
-  --text-quaternary: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-quaternary: #94a3b8;
   --border-primary: #e2e8f0;
   --border-secondary: #cbd5e1;
   --border-tertiary: #94a3b8;
@@ -185,6 +185,14 @@
 
   .gradient-bg {
     background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary), var(--bg-tertiary));
+  }
+  
+  .gradient-bg-light {
+    background: linear-gradient(135deg, #f8fafc, #ffffff, #f1f5f9);
+  }
+  
+  .gradient-bg-dark {
+    background: linear-gradient(135deg, #1e293b, #0f172a, #334155);
   }
 
   .animate-float {
