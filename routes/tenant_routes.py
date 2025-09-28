@@ -139,9 +139,27 @@ def create_tenant(current_user):
                 if property.owner_id != current_user.id:
                     return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
-                # Check if property is available
-                if property.status != 'available':
-                    return jsonify({'error': 'Property is not available for rent'}), 400
+                # Check if property is available using the same logic as frontend
+                from datetime import date
+                today = date.today()
+                
+                # Get active tenants (excluding current tenant if updating)
+                active_tenants = Tenant.query.filter(
+                    Tenant.property_id == property.id,
+                    Tenant.id != existing_tenant.id,  # Exclude current tenant
+                    (Tenant.lease_end.is_(None)) | (Tenant.lease_end >= today)
+                ).count()
+                
+                # Determine actual rental status (same logic as frontend)
+                if active_tenants > 0:
+                    rental_status = 'rented'
+                elif property.status == 'maintenance':
+                    rental_status = 'maintenance'
+                else:
+                    rental_status = 'available'
+                
+                if rental_status != 'available':
+                    return jsonify({'error': f'Property is not available for rent. Current status: {rental_status} (DB status: {property.status})'}), 400
 
                 # Update existing tenant with property assignment
                 existing_tenant.property_id = tenant_data['property_id']
@@ -189,13 +207,34 @@ def create_tenant(current_user):
             if not property:
                 return jsonify({'error': 'Property not found'}), 404
             
+            print(f"Property found: {property.title}, Status: {property.status}, Owner: {property.owner_id}")
+            
             # Check if user owns this property
             if property.owner_id != current_user.id:
                 return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
-            # Check if property is available
-            if property.status != 'available':
-                return jsonify({'error': 'Property is not available for rent'}), 400
+            # Check if property is available using the same logic as frontend
+            from datetime import date
+            today = date.today()
+            
+            # Get active tenants (lease hasn't ended)
+            active_tenants = Tenant.query.filter(
+                Tenant.property_id == property.id,
+                (Tenant.lease_end.is_(None)) | (Tenant.lease_end >= today)
+            ).count()
+            
+            # Determine actual rental status (same logic as frontend)
+            if active_tenants > 0:
+                rental_status = 'rented'
+            elif property.status == 'maintenance':
+                rental_status = 'maintenance'
+            else:
+                rental_status = 'available'
+            
+            if rental_status != 'available':
+                return jsonify({'error': f'Property is not available for rent. Current status: {rental_status} (DB status: {property.status})'}), 400
+            
+            print(f"Property {property.id} is available for assignment (rental_status: {rental_status}, active_tenants: {active_tenants})")
 
             # Use property's rent amount
             property_rent_amount = property.rent_amount

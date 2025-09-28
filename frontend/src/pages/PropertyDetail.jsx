@@ -260,17 +260,17 @@ const PropertyDetail = () => {
             </div>
             
             <div className="p-6">
-              <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4">
                 <div className="text-3xl font-bold text-slate-700">
-                  {formatPrice(property.rent_amount)}
+                {formatPrice(property.rent_amount)}
                   <span className="text-lg text-gray-600 dark:text-gray-300">/month</span>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(property.status)}`}>
-                  {getStatusText(property.status)}
-                </span>
               </div>
+              <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(property.status)}`}>
+                {getStatusText(property.status)}
+              </span>
+            </div>
 
-              {/* Property Description */}
+            {/* Property Description */}
               <div className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
                 <div className="flex items-center mb-2">
                   <div className="w-2 h-2 bg-slate-500 rounded-full mr-2"></div>
@@ -296,8 +296,8 @@ const PropertyDetail = () => {
               <div className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 border border-white/50">
                 <p className="text-gray-900 dark:text-white leading-relaxed">{property.description || 'No description available'}</p>
               </div>
-            </div>
           </div>
+        </div>
 
           {/* Property Details - Horizontal Layout */}
           <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl shadow-lg border border-purple-100 overflow-hidden">
@@ -307,8 +307,8 @@ const PropertyDetail = () => {
                   <Home className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="text-lg font-semibold text-white">Property Details</h3>
+                </div>
               </div>
-            </div>
             
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -377,8 +377,8 @@ const PropertyDetail = () => {
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide">Folio</p>
                     </div>
                     <p className="text-gray-900 dark:text-white font-medium text-sm">{property.folio}</p>
-                  </div>
-                )}
+                </div>
+              )}
               </div>
              </div>
            </div>
@@ -483,8 +483,8 @@ const PropertyDetail = () => {
                      <p className="text-pink-600 font-bold text-lg">
                        {property.financial_details.loan_term_years ? `${property.financial_details.loan_term_years} years` : 'N/A'}
                      </p>
-                   </div>
-                 </div>
+            </div>
+          </div>
 
                  {/* Monthly Expenses Breakdown */}
                  <div className="bg-white dark:bg-gray-800/60 backdrop-blur-sm rounded-lg p-4 border border-white/50 mb-4">
@@ -506,25 +506,25 @@ const PropertyDetail = () => {
                          <span className="text-gray-600 dark:text-gray-300">Property Tax:</span>
                          <span className="font-medium">
                            {property.financial_details.property_tax_annual ? `$${(property.financial_details.property_tax_annual / 12).toLocaleString()}` : '$0'}
-                         </span>
-                       </div>
+                </span>
+              </div>
                        <div className="flex justify-between text-sm">
                          <span className="text-gray-600 dark:text-gray-300">Insurance:</span>
                          <span className="font-medium">
                            {property.financial_details.insurance_annual ? `$${(property.financial_details.insurance_annual / 12).toLocaleString()}` : '$0'}
                          </span>
-                       </div>
-                     </div>
+              </div>
+              </div>
                      <div className="space-y-2">
                        <div className="flex justify-between text-sm">
                          <span className="text-gray-600 dark:text-gray-300">HOA Fees:</span>
-                         <span className="font-medium">
+                <span className="font-medium">
                            {property.financial_details.hoa_fees_monthly ? `$${property.financial_details.hoa_fees_monthly.toLocaleString()}` : '$0'}
-                         </span>
-                       </div>
+                </span>
+              </div>
                        <div className="flex justify-between text-sm">
                          <span className="text-gray-600 dark:text-gray-300">Maintenance Reserve:</span>
-                         <span className="font-medium">
+                <span className="font-medium">
                            {property.financial_details.maintenance_reserve_monthly ? `$${property.financial_details.maintenance_reserve_monthly.toLocaleString()}` : '$0'}
                          </span>
                        </div>
@@ -532,8 +532,8 @@ const PropertyDetail = () => {
                          <span className="text-gray-700 dark:text-gray-300">Total Monthly Expenses:</span>
                          <span className="text-red-600 dark:text-red-400">
                            {property.financial_details.total_monthly_expenses ? `$${property.financial_details.total_monthly_expenses.toLocaleString()}` : '$0'}
-                         </span>
-                       </div>
+                </span>
+              </div>
                      </div>
                    </div>
                  </div>
@@ -653,8 +653,8 @@ const PropertyDetail = () => {
                   </div>
                 )}
               </div>
-            </div>
-          )}
+                </div>
+              )}
 
           {/* Contact Info */}
           <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl shadow-lg border border-emerald-100 overflow-hidden">
@@ -684,10 +684,10 @@ const PropertyDetail = () => {
                       <div className="w-2 h-2 bg-emerald-500 rounded-full mr-2"></div>
                       <span className="text-sm text-gray-700 dark:text-gray-300">Phone: {property.rental_owner.contact_phone}</span>
                     </div>
-                  </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
+          </div>
           </div>
 
 
@@ -711,7 +711,7 @@ const PropertyDetail = () => {
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide">Listing Date</p>
                     </div>
                     <p className="text-gray-900 dark:text-white font-medium text-sm">
-                      {property.listing.listing_date ? new Date(property.listing.listing_date).toLocaleDateString() : 'N/A'}
+                    {property.listing.listing_date ? new Date(property.listing.listing_date).toLocaleDateString() : 'N/A'}
                     </p>
                   </div>
 
@@ -722,27 +722,27 @@ const PropertyDetail = () => {
                     </div>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
                       {property.listing.status || 'N/A'}
-                    </span>
-                  </div>
+                  </span>
+                </div>
 
                   <div className="bg-white dark:bg-gray-800/70 backdrop-blur-sm rounded-lg p-4 border border-white/50 hover:bg-white dark:bg-gray-800/80 transition-all duration-200">
                     <div className="flex items-center mb-2">
                       <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                       <p className="text-xs font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide">Listed Price</p>
-                    </div>
+                </div>
                     <p className="text-green-600 dark:text-green-400 font-bold text-lg">
-                      {property.listing.rent_price ? formatPrice(property.listing.rent_price) : 'N/A'}
+                    {property.listing.rent_price ? formatPrice(property.listing.rent_price) : 'N/A'}
                     </p>
-                  </div>
+                </div>
 
-                  {property.listing.notes && (
+                {property.listing.notes && (
                     <div className="bg-white dark:bg-gray-800/60 backdrop-blur-sm rounded-lg p-4 border border-white/50">
                       <div className="flex items-center mb-3">
                         <div className="bg-amber-100 p-2 rounded-lg mr-3">
                           <DollarSign className="h-4 w-4 text-amber-600" />
                         </div>
                         <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Listing Notes</p>
-                      </div>
+                  </div>
                       <div className="bg-white dark:bg-gray-800/50 rounded-lg p-3 border border-white/30">
                         <p className="text-gray-900 dark:text-white text-sm leading-relaxed">{property.listing.notes}</p>
                       </div>
