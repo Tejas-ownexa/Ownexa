@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Calendar, Info, X, Brain, FileText, Download, Save } from 'lucide-react';
+import { Plus, Calendar, Info, X, Brain, FileText, Download, Save, Upload, Mail, ExternalLink, Settings } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../utils/axios';
+import LeaseTemplateManager from '../components/LeaseTemplateManager';
 
 const AddDraftLease = () => {
   const navigate = useNavigate();
@@ -38,10 +39,76 @@ const AddDraftLease = () => {
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedLease, setGeneratedLease] = useState('');
+  const [templates, setTemplates] = useState([]);
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [docusignMode, setDocusignMode] = useState('email'); // 'email' or 'embedded'
+  const [enableDocusign, setEnableDocusign] = useState(false);
+  const [generatedFilename, setGeneratedFilename] = useState('');
+  const [showTemplateManager, setShowTemplateManager] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Load available templates on component mount
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    setLoadingTemplates(true);
+    try {
+      const response = await api.get('/api/ai-lease/templates');
+      if (response.data.success) {
+        setTemplates(response.data.templates);
+        // Set default template if available
+        if (response.data.templates.length > 0) {
+          setSelectedTemplate(response.data.templates[0].filename);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading templates:', error);
+      toast.error('Failed to load templates');
+    } finally {
+      setLoadingTemplates(false);
+    }
+  };
+
+  const sendForDocusignSigning = async (filename) => {
+    if (!formData.tenantEmail || !formData.tenantFullName) {
+      toast.error('Tenant email and name are required for DocuSign');
+      return;
+    }
+
+    try {
+      const response = await api.post('/api/ai-lease/docusign/send', {
+        filename: filename,
+        tenantEmail: formData.tenantEmail,
+        tenantFullName: formData.tenantFullName,
+        mode: docusignMode
+      });
+
+      if (response.data.envelopeId) {
+        if (docusignMode === 'embedded' && response.data.signingUrl) {
+          // Open embedded signing in new window
+          window.open(response.data.signingUrl, '_blank');
+          toast.success(`Embedded signing session created! Envelope ID: ${response.data.envelopeId}`);
+        } else {
+          toast.success(`Lease sent for signing! Envelope ID: ${response.data.envelopeId}. The tenant will receive an email.`);
+        }
+      } else if (response.data.message) {
+        toast.info(response.data.message);
+      }
+    } catch (error) {
+      console.error('DocuSign error:', error);
+      if (error.response?.data?.message) {
+        toast.info(error.response.data.message);
+      } else {
+        toast.error('Failed to send for DocuSign signing');
+      }
+    }
   };
 
 
@@ -87,7 +154,10 @@ const AddDraftLease = () => {
         petsPolicy: formData.petsPolicy,
         smokingPolicy: formData.smokingPolicy,
         earlyTerminationFee: formData.earlyTerminationFee,
-        earlyTerminationAmount: formData.earlyTerminationAmount
+        earlyTerminationAmount: formData.earlyTerminationAmount,
+        
+        // Template selection
+        selectedTemplate: selectedTemplate
       };
 
       console.log('🚀 Starting lease generation with data:', leaseData);
@@ -122,6 +192,12 @@ const AddDraftLease = () => {
         window.URL.revokeObjectURL(link.href);
         
         setGeneratedLease(`Lease PDF generated and downloaded successfully: ${result.filename}`);
+        setGeneratedFilename(result.filename);
+
+        // Send for DocuSign signing if enabled
+        if (enableDocusign) {
+          await sendForDocusignSigning(result.filename);
+        }
       } else {
         throw new Error(result.error || 'Failed to generate lease');
       }
@@ -478,6 +554,121 @@ const AddDraftLease = () => {
               </div>
             </div>
 
+            {/* Template Selection Section */}
+            <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-xl p-6 border border-indigo-200 dark:border-indigo-700">
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="p-2 bg-indigo-500 rounded-lg">
+                  <Settings className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Template & Options</h3>
+              </div>
+              <div className="space-y-6">
+                {/* Template Selection */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Lease Template
+                  </label>
+                  <select
+                    value={selectedTemplate}
+                    onChange={(e) => setSelectedTemplate(e.target.value)}
+                    disabled={loadingTemplates}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all duration-300"
+                  >
+                    {loadingTemplates ? (
+                      <option>Loading templates...</option>
+                    ) : templates.length > 0 ? (
+                      templates.map((template) => (
+                        <option key={template.filename} value={template.filename}>
+                          {template.filename} ({new Date(template.uploaded_at).toLocaleDateString()})
+                        </option>
+                      ))
+                    ) : (
+                      <option>No templates available</option>
+                    )}
+                  </select>
+                  <div className="flex items-center justify-between mt-3">
+                    {templates.length === 0 && !loadingTemplates && (
+                      <p className="text-sm text-gray-500">
+                        No templates available
+                      </p>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setShowTemplateManager(true)}
+                      className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors duration-200"
+                    >
+                      <Upload className="h-4 w-4 mr-1" />
+                      Upload Template
+                    </button>
+                  </div>
+                </div>
+
+                {/* DocuSign Integration Options */}
+                <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <input
+                      type="checkbox"
+                      id="enableDocusign"
+                      checked={enableDocusign}
+                      onChange={(e) => setEnableDocusign(e.target.checked)}
+                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    />
+                    <label htmlFor="enableDocusign" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Send for DocuSign e-signature after generation
+                    </label>
+                  </div>
+                  
+                  {enableDocusign && (
+                    <div className="ml-7 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Signing Mode
+                        </label>
+                        <div className="flex space-x-4">
+                          <label className="flex items-center">
+                            <input
+                              type="radio"
+                              name="docusignMode"
+                              value="email"
+                              checked={docusignMode === 'email'}
+                              onChange={(e) => setDocusignMode(e.target.value)}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                            />
+                            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 flex items-center">
+                              <Mail className="h-4 w-4 mr-1" />
+                              Email Signing
+                            </span>
+                          </label>
+                          <label className="flex items-center">
+                            <input
+                              type="radio"
+                              name="docusignMode"
+                              value="embedded"
+                              checked={docusignMode === 'embedded'}
+                              onChange={(e) => setDocusignMode(e.target.value)}
+                              className="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                            />
+                            <span className="ml-2 text-sm text-gray-700 dark:text-gray-300 flex items-center">
+                              <ExternalLink className="h-4 w-4 mr-1" />
+                              Embedded Signing
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                      
+                      {enableDocusign && (!formData.tenantEmail || !formData.tenantFullName) && (
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
+                          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                            <strong>Note:</strong> Tenant email and name are required for DocuSign integration
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <div className="text-center pt-6">
               <button
                 type="submit"
@@ -532,11 +723,42 @@ const AddDraftLease = () => {
                   <p className="text-green-700 text-lg">
                 {generatedLease}
                   </p>
-                  <div className="mt-6">
+                  <div className="mt-6 space-y-4">
                     <div className="inline-flex items-center px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
                       <span className="text-green-800 dark:text-green-200 font-medium">Ready for download</span>
                     </div>
+                    
+                    {/* DocuSign Actions for Generated Lease */}
+                    {generatedFilename && formData.tenantEmail && formData.tenantFullName && (
+                      <div className="border-t border-green-200 dark:border-green-600 pt-4">
+                        <h4 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-3">
+                          Send for E-Signature
+                        </h4>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <button
+                            onClick={() => sendForDocusignSigning(generatedFilename)}
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
+                          >
+                            <Mail className="h-4 w-4 mr-2" />
+                            Send Email for Signing
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDocusignMode('embedded');
+                              sendForDocusignSigning(generatedFilename);
+                            }}
+                            className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors duration-200"
+                          >
+                            <ExternalLink className="h-4 w-4 mr-2" />
+                            Open Embedded Signing
+                          </button>
+                        </div>
+                        <p className="text-sm text-green-600 dark:text-green-300 mt-2">
+                          Will be sent to: {formData.tenantEmail} ({formData.tenantFullName})
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
             </div>
@@ -564,6 +786,13 @@ const AddDraftLease = () => {
             </div>
         </div>
       </div>
+
+      {/* Template Manager Modal */}
+      <LeaseTemplateManager
+        isOpen={showTemplateManager}
+        onClose={() => setShowTemplateManager(false)}
+        onTemplatesUpdate={loadTemplates}
+      />
     </div>
   );
 };

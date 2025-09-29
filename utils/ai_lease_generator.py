@@ -2,11 +2,21 @@ import os
 import uuid
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import TextStringObject, NameObject
+try:
+    # For certain renderers, forcing NeedAppearances improves display of filled fields
+    from pypdf.generic import BooleanObject
+except Exception:
+    BooleanObject = None
 import datetime
 
-def fill_pdf_form(form_data):
+def fill_pdf_form(form_data, template_filename=None):
     """
     Fills a PDF form template with data from a dictionary and generates a new PDF.
+    
+    Args:
+        form_data (dict): Dictionary containing form field data
+        template_filename (str, optional): Name of the template file to use. 
+                                         If None, uses default template.
     """
     try:
         # Define mapping from frontend data keys to PDF field names
@@ -32,13 +42,28 @@ def fill_pdf_form(form_data):
             'earlyTerminationFee': 'earlyTerminationFee'
         }
 
-        # Load the condo or apt copy template
+        # Load the specified template or default template
         templates_dir = os.path.join(os.path.dirname(__file__), '..', 'uploads', 'templates')
-        template_filename = "condo or apt copy.pdf"
-        template_path = os.path.join(templates_dir, template_filename)
         
-        if not os.path.exists(template_path):
+        # Use specified template or try default templates
+        if template_filename:
+            template_path = os.path.join(templates_dir, template_filename)
+        else:
+            # Try default templates in order of preference
+            default_templates = ["condo or apt.pdf", "condo or apt copy.pdf"]
+            template_path = None
+            template_filename = None
+            
+            for default_template in default_templates:
+                test_path = os.path.join(templates_dir, default_template)
+                if os.path.exists(test_path):
+                    template_path = test_path
+                    template_filename = default_template
+                    break
+        
+        if not template_path or not os.path.exists(template_path):
             print(f"Error: Template '{template_filename}' not found in templates directory: {templates_dir}")
+            print(f"Available templates: {os.listdir(templates_dir) if os.path.exists(templates_dir) else 'Directory not found'}")
             return None
                 
         print(f"Using template: {template_filename}")
@@ -49,6 +74,14 @@ def fill_pdf_form(form_data):
         
         # Clone document structure to preserve AcroForm
         writer.clone_reader_document_root(reader)
+        
+        # Ensure NeedAppearances so viewers (and DocuSign) render filled values reliably
+        if '/AcroForm' in writer._root_object:
+            acro = writer._root_object['/AcroForm']
+            if BooleanObject is not None:
+                acro.update({NameObject('/NeedAppearances'): BooleanObject(True)})
+            else:
+                acro.update({NameObject('/NeedAppearances'): TextStringObject('true')})
         
         # Create the data dictionary for filling form fields
         data_to_fill = {}
@@ -61,6 +94,8 @@ def fill_pdf_form(form_data):
                 else:
                     data_to_fill[pdf_field_name] = str(value)
 
+        print(f"Debug: Data to fill: {data_to_fill}")
+
         # Fill form fields using direct field manipulation
         if data_to_fill and '/AcroForm' in writer._root_object:
             acro_form = writer._root_object['/AcroForm']
@@ -68,7 +103,11 @@ def fill_pdf_form(form_data):
                 fields = acro_form['/Fields']
                 
                 # Update each field directly
+                fields_found = []
+                fields_filled = []
+                
                 for field_name, field_value in data_to_fill.items():
+                    field_found = False
                     for field_ref in fields:
                         field_obj = field_ref.get_object()
                         if '/T' in field_obj and field_obj['/T'] == field_name:
@@ -79,7 +118,17 @@ def fill_pdf_form(form_data):
                             # Remove appearance streams to force regeneration
                             if NameObject('/AP') in field_obj:
                                 del field_obj[NameObject('/AP')]
+                            
+                            fields_filled.append(f"{field_name}={field_value}")
+                            field_found = True
                             break
+                    
+                    if not field_found:
+                        fields_found.append(field_name)
+                
+                print(f"Debug: Fields successfully filled: {fields_filled}")
+                if fields_found:
+                    print(f"Debug: Fields not found in PDF: {fields_found}")
 
         # Generate unique filename
         tenant_name = form_data.get('tenantFullName', 'UNKNOWN_TENANT')

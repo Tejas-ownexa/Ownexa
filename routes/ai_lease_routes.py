@@ -27,8 +27,9 @@ def generate_lease():
         if not form_data:
             return jsonify({'error': 'No data provided'}), 400
         
-        # Generate PDF using the existing template
-        generated_filename = fill_pdf_form(form_data)
+        # Generate PDF using the selected template
+        template_filename = form_data.get('selectedTemplate')
+        generated_filename = fill_pdf_form(form_data, template_filename)
         
         if generated_filename:
             # PDF generation successful
@@ -116,6 +117,81 @@ def get_templates():
         
     except Exception as e:
         return jsonify({'error': f'Failed to get templates: {str(e)}'}), 500
+
+@ai_lease_bp.route('/docusign/send', methods=['POST'])
+# @token_required  # Temporarily disabled for testing
+def docusign_send():
+    """Send lease for DocuSign signing"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        filename = data.get('filename')
+        tenant_email = data.get('tenantEmail')
+        tenant_name = data.get('tenantFullName')
+        mode = data.get('mode', 'embedded')  # 'embedded' or 'email'
+
+        if not filename or not tenant_email or not tenant_name:
+            return jsonify({'error': 'filename, tenantEmail, tenantFullName are required'}), 400
+
+        pdf_path = os.path.join(GENERATED_DIR, filename)
+        if not os.path.exists(pdf_path):
+            return jsonify({'error': 'Generated PDF not found'}), 404
+
+        try:
+            # Import DocuSign services (will be created next)
+            from utils.docusign_service import (
+                create_and_send_envelope_with_embedded_recipient,
+                create_and_send_email_envelope
+            )
+            
+            if mode == 'email':
+                envelope_id = create_and_send_email_envelope(pdf_path, tenant_email, tenant_name)
+                return jsonify({'envelopeId': envelope_id, 'sent': True})
+            else:
+                envelope_id, signing_url = create_and_send_envelope_with_embedded_recipient(
+                    pdf_path, tenant_email, tenant_name
+                )
+                return jsonify({'envelopeId': envelope_id, 'signingUrl': signing_url})
+                
+        except Exception as e:
+            # If DocuSign fails, provide fallback response
+            return jsonify({
+                'error': f'DocuSign integration not configured: {str(e)}',
+                'message': 'Lease generated successfully but DocuSign signing is not available. Please configure DocuSign credentials.'
+            }), 200
+            
+    except Exception as e:
+        return jsonify({'error': f'DocuSign send failed: {str(e)}'}), 500
+
+@ai_lease_bp.route('/docusign/status/<envelope_id>', methods=['GET'])
+# @token_required  # Temporarily disabled for testing
+def docusign_status(envelope_id):
+    """Get DocuSign envelope status"""
+    try:
+        from utils.docusign_service import get_envelope_status
+        status = get_envelope_status(envelope_id)
+        return jsonify({'envelopeId': envelope_id, 'status': status})
+    except Exception as e:
+        return jsonify({'error': f'Failed to get status: {str(e)}'}), 500
+
+@ai_lease_bp.route('/docusign/download-signed/<envelope_id>', methods=['GET'])
+# @token_required  # Temporarily disabled for testing
+def docusign_download_signed(envelope_id):
+    """Download signed document from DocuSign"""
+    try:
+        from utils.docusign_service import download_signed_document
+        
+        # Save under uploads/signed/Envelope_<id>.pdf
+        signed_dir = os.path.join(UPLOADS_DIR, 'signed')
+        os.makedirs(signed_dir, exist_ok=True)
+        target_path = os.path.join(signed_dir, f'Envelope_{envelope_id}.pdf')
+        
+        saved = download_signed_document(envelope_id, target_path)
+        return jsonify({'envelopeId': envelope_id, 'savedPath': saved})
+    except Exception as e:
+        return jsonify({'error': f'Download failed: {str(e)}'}), 500
 
 @ai_lease_bp.route('/health', methods=['GET'])
 def health_check():
