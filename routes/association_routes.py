@@ -531,6 +531,37 @@ def update_association_manager(current_user, association_id, manager_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@association_bp.route('/<int:association_id>/managers/<int:manager_id>', methods=['DELETE'])
+@token_required
+def delete_association_manager(current_user, association_id, manager_id):
+    """Delete an association manager"""
+    try:
+        # Find the association
+        association = Association.query.get_or_404(association_id)
+        
+        # Find the manager
+        manager = AssociationManager.query.filter_by(
+            id=manager_id, 
+            association_id=association_id
+        ).first()
+        
+        if not manager:
+            return jsonify({'error': 'Manager not found'}), 404
+        
+        # Check if manager is primary
+        if manager.is_primary:
+            return jsonify({'error': 'Cannot delete primary manager'}), 400
+        
+        # Delete the manager
+        db.session.delete(manager)
+        db.session.commit()
+        
+        return jsonify({'message': 'Manager deleted successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @association_bp.route('/<int:association_id>', methods=['DELETE'])
 @token_required
 def delete_association(current_user, association_id):

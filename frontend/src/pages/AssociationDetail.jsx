@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { ArrowLeft, Building2, MapPin, User, Plus, Home, Users, DollarSign, AlertTriangle, FileText, Edit2, Save, X } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, User, Plus, Home, Users, DollarSign, AlertTriangle, FileText, Edit2, Save, X, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import associationService from '../services/associationService';
 
@@ -179,6 +179,40 @@ const AssociationDetail = () => {
     }));
   };
 
+  // Delete manager mutation
+  const deleteManagerMutation = useMutation(
+    async (managerId) => {
+      const response = await fetch(`/api/associations/${id}/managers/${managerId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to delete manager');
+      }
+      
+      return response.json();
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['association', id]);
+        toast.success('Manager deleted successfully');
+      },
+      onError: (error) => {
+        toast.error('Failed to delete manager');
+        console.error('Error deleting manager:', error);
+      }
+    }
+  );
+
+  const handleDeleteManager = (manager) => {
+    if (window.confirm(`Are you sure you want to delete ${manager.name}? This action cannot be undone.`)) {
+      deleteManagerMutation.mutate(manager.id);
+    }
+  };
+
   const handlePropertySelection = (propertyId) => {
     setSelectedProperties(prev => 
       prev.includes(propertyId) 
@@ -341,13 +375,25 @@ const AssociationDetail = () => {
                             </button>
                           </>
                         ) : (
-                          <button
-                            onClick={() => handleEditManager(manager)}
-                            className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
-                            title="Edit manager"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleEditManager(manager)}
+                              className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
+                              title="Edit manager"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </button>
+                            {!manager.is_primary && (
+                              <button
+                                onClick={() => handleDeleteManager(manager)}
+                                disabled={deleteManagerMutation.isLoading}
+                                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                                title="Delete manager"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
