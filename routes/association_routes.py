@@ -443,6 +443,53 @@ def assign_property_to_association(current_user, association_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@association_bp.route('/<int:association_id>/managers/<int:manager_id>', methods=['PUT'])
+@token_required
+def update_association_manager(current_user, association_id, manager_id):
+    """Update an association manager"""
+    try:
+        # Find the association
+        association = Association.query.get_or_404(association_id)
+        
+        # Find the manager
+        manager = AssociationManager.query.filter_by(
+            id=manager_id, 
+            association_id=association_id
+        ).first()
+        
+        if not manager:
+            return jsonify({'error': 'Manager not found'}), 404
+        
+        data = request.json
+        
+        # Update manager fields
+        if 'name' in data:
+            manager.name = data['name']
+        if 'email' in data:
+            manager.email = data['email']
+        if 'phone' in data:
+            manager.phone = data['phone']
+        
+        # Update timestamp
+        manager.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Manager updated successfully',
+            'manager': {
+                'id': manager.id,
+                'name': manager.name,
+                'email': manager.email,
+                'phone': manager.phone,
+                'is_primary': manager.is_primary
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @association_bp.route('/<int:association_id>', methods=['DELETE'])
 @token_required
 def delete_association(current_user, association_id):

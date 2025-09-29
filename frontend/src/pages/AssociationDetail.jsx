@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { ArrowLeft, Building2, MapPin, User, Plus, Home, Users, DollarSign, AlertTriangle, FileText } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, User, Plus, Home, Users, DollarSign, AlertTriangle, FileText, Edit2, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import associationService from '../services/associationService';
 
@@ -12,6 +12,15 @@ const AssociationDetail = () => {
   
   const [showAssignPropertyModal, setShowAssignPropertyModal] = useState(false);
   const [selectedProperties, setSelectedProperties] = useState([]);
+  const [editingManager, setEditingManager] = useState(null);
+  const [editManagerData, setEditManagerData] = useState({});
+  const [showAddManager, setShowAddManager] = useState(false);
+  const [newManagerData, setNewManagerData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    is_primary: false
+  });
 
   // Fetch association details
   const { data: association, isLoading, error } = useQuery(
@@ -40,6 +49,134 @@ const AssociationDetail = () => {
 
   const handleAssignProperty = () => {
     navigate(`/associations/${id}/assign-property`);
+  };
+
+  // Update manager mutation
+  const updateManagerMutation = useMutation(
+    async ({ managerId, managerData }) => {
+      const response = await fetch(`/api/associations/${id}/managers/${managerId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(managerData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update manager');
+      }
+      
+      return response.json();
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['association', id]);
+        setEditingManager(null);
+        setEditManagerData({});
+        toast.success('Manager updated successfully');
+      },
+      onError: (error) => {
+        toast.error('Failed to update manager');
+        console.error('Error updating manager:', error);
+      }
+    }
+  );
+
+  const handleEditManager = (manager) => {
+    setEditingManager(manager.id);
+    setEditManagerData({
+      name: manager.name,
+      email: manager.email || '',
+      phone: manager.phone || ''
+    });
+  };
+
+  const handleSaveManager = () => {
+    if (!editManagerData.name.trim()) {
+      toast.error('Manager name is required');
+      return;
+    }
+
+    updateManagerMutation.mutate({
+      managerId: editingManager,
+      managerData: editManagerData
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingManager(null);
+    setEditManagerData({});
+  };
+
+  const handleEditManagerChange = (field, value) => {
+    setEditManagerData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Add new manager mutation
+  const addManagerMutation = useMutation(
+    async (managerData) => {
+      const response = await fetch(`/api/associations/${id}/managers`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify(managerData)
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to add manager');
+      }
+      
+      return response.json();
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['association', id]);
+        setShowAddManager(false);
+        setNewManagerData({
+          name: '',
+          email: '',
+          phone: '',
+          is_primary: false
+        });
+        toast.success('Manager added successfully');
+      },
+      onError: (error) => {
+        toast.error('Failed to add manager');
+        console.error('Error adding manager:', error);
+      }
+    }
+  );
+
+  const handleAddManager = () => {
+    if (!newManagerData.name.trim()) {
+      toast.error('Manager name is required');
+      return;
+    }
+
+    addManagerMutation.mutate(newManagerData);
+  };
+
+  const handleCancelAddManager = () => {
+    setShowAddManager(false);
+    setNewManagerData({
+      name: '',
+      email: '',
+      phone: '',
+      is_primary: false
+    });
+  };
+
+  const handleNewManagerChange = (field, value) => {
+    setNewManagerData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handlePropertySelection = (propertyId) => {
@@ -148,51 +285,214 @@ const AssociationDetail = () => {
           {/* Association Managers */}
           {association.managers && association.managers.length > 0 && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                Association Managers
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
+                <div className="flex items-center">
+                  <User className="h-5 w-5 mr-2" />
+                  Association Managers
+                </div>
+                <button
+                  onClick={() => setShowAddManager(true)}
+                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Manager
+                </button>
               </h2>
               <div className="space-y-4">
                 {association.managers.map((manager, index) => (
                   <div key={manager.id || index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">{manager.name}</h3>
-                      {manager.is_primary && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
-                          Primary
-                        </span>
-                      )}
+                      <div className="flex items-center space-x-2">
+                        {editingManager === manager.id ? (
+                          <input
+                            type="text"
+                            value={editManagerData.name}
+                            onChange={(e) => handleEditManagerChange('name', e.target.value)}
+                            className="text-lg font-medium text-gray-900 dark:text-white bg-transparent border-b border-blue-500 focus:outline-none focus:border-blue-600"
+                            placeholder="Manager name"
+                          />
+                        ) : (
+                          <h3 className="text-lg font-medium text-gray-900 dark:text-white">{manager.name}</h3>
+                        )}
+                        {manager.is_primary && (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                            Primary
+                          </span>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        {editingManager === manager.id ? (
+                          <>
+                            <button
+                              onClick={handleSaveManager}
+                              disabled={updateManagerMutation.isLoading}
+                              className="p-1 text-green-600 hover:text-green-700 hover:bg-green-100 dark:hover:bg-green-900/30 rounded transition-colors"
+                              title="Save changes"
+                            >
+                              <Save className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="p-1 text-red-600 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/30 rounded transition-colors"
+                              title="Cancel"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={() => handleEditManager(manager)}
+                            className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded transition-colors"
+                            title="Edit manager"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                     
                     <div className="space-y-2">
-                      {manager.email && (
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                          <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                          </svg>
-                          <a href={`mailto:${manager.email}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
-                            {manager.email}
-                          </a>
-                        </div>
-                      )}
-                      
-                      {manager.phone && (
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                          <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                          <a href={`tel:${manager.phone}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
-                            {manager.phone}
-                          </a>
-                        </div>
-                      )}
-                      
-                      {!manager.email && !manager.phone && (
-                        <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 italic">No contact information available</p>
+                      {editingManager === manager.id ? (
+                        <>
+                          <div className="flex items-center text-sm">
+                            <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <input
+                              type="email"
+                              value={editManagerData.email}
+                              onChange={(e) => handleEditManagerChange('email', e.target.value)}
+                              className="flex-1 bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500 text-gray-600 dark:text-gray-300"
+                              placeholder="Email address"
+                            />
+                          </div>
+                          
+                          <div className="flex items-center text-sm">
+                            <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <input
+                              type="tel"
+                              value={editManagerData.phone}
+                              onChange={(e) => handleEditManagerChange('phone', e.target.value)}
+                              className="flex-1 bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500 text-gray-600 dark:text-gray-300"
+                              placeholder="Phone number"
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {manager.email && (
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                              <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              <a href={`mailto:${manager.email}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
+                                {manager.email}
+                              </a>
+                            </div>
+                          )}
+                          
+                          {manager.phone && (
+                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                              <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              <a href={`tel:${manager.phone}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
+                                {manager.phone}
+                              </a>
+                            </div>
+                          )}
+                          
+                          {!manager.email && !manager.phone && (
+                            <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 italic">No contact information available</p>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Add Manager Form */}
+          {showAddManager && (
+            <div className="border border-blue-200 dark:border-blue-600 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
+              <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-4 flex items-center">
+                <Plus className="h-5 w-5 mr-2" />
+                Add New Manager
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
+                    Manager Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={newManagerData.name}
+                    onChange={(e) => handleNewManagerChange('name', e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    placeholder="Enter manager name"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={newManagerData.email}
+                    onChange={(e) => handleNewManagerChange('email', e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    placeholder="Enter email address"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-blue-700 dark:text-blue-300 mb-1">
+                    Phone Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={newManagerData.phone}
+                    onChange={(e) => handleNewManagerChange('phone', e.target.value)}
+                    className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                    placeholder="Enter phone number"
+                  />
+                </div>
+                
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="is_primary"
+                    checked={newManagerData.is_primary}
+                    onChange={(e) => handleNewManagerChange('is_primary', e.target.checked)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-blue-300 rounded"
+                  />
+                  <label htmlFor="is_primary" className="ml-2 text-sm text-blue-700 dark:text-blue-300">
+                    Set as primary manager
+                  </label>
+                </div>
+                
+                <div className="flex items-center justify-end space-x-3 pt-4">
+                  <button
+                    onClick={handleCancelAddManager}
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddManager}
+                    disabled={addManagerMutation.isLoading}
+                    className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {addManagerMutation.isLoading ? 'Adding...' : 'Add Manager'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
