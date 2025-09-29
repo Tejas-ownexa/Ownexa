@@ -3,7 +3,6 @@ from models.accountability import AccountabilityFinancial, GeneralLedger, Bankin
 from models.property import Property
 from models.financial import PropertyFinancial, FinancialTransaction
 from models.rental_owner import RentalOwner, RentalOwnerManager
-from models.tenant import Tenant
 from config import db
 from routes.auth_routes import token_required
 from datetime import datetime, date
@@ -79,25 +78,15 @@ def get_financials_dashboard(current_user):
         ).all()
         
         # Calculate current period totals
-        # Calculate current period totals using new formulas
-        # Get all tenants for user properties
-        tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
-        monthly_revenue = sum(float(t.rent_amount or 0) for t in tenants if t.lease_end is None or t.lease_end > date.today())
-        total_revenue = monthly_revenue * 12
-        
-        # Get all property financials for user properties
-        property_financials = PropertyFinancial.query.filter(
-            PropertyFinancial.property_id.in_(property_ids)
-        ).all()
-        monthly_expenses = sum(float(pf.calculate_total_monthly_expenses() or 0) for pf in property_financials)
-        total_expenses = monthly_expenses * 12
-        
+        total_revenue = sum(f.total_income for f in current_financials)
+        total_expenses = sum(f.total_expenses for f in current_financials)
         net_profit = total_revenue - total_expenses
         
-        # For trends, use the same values since property data is relatively stable
-        prev_total_revenue = total_revenue
-        prev_total_expenses = total_expenses
-        prev_net_profit = net_profit        
+        # Calculate previous period totals
+        prev_total_revenue = sum(f.total_income for f in prev_financials)
+        prev_total_expenses = sum(f.total_expenses for f in prev_financials)
+        prev_net_profit = prev_total_revenue - prev_total_expenses
+        
         # Calculate trends
         revenue_trend = ((total_revenue - prev_total_revenue) / prev_total_revenue * 100) if prev_total_revenue > 0 else 0
         expenses_trend = ((total_expenses - prev_total_expenses) / prev_total_expenses * 100) if prev_total_expenses > 0 else 0
