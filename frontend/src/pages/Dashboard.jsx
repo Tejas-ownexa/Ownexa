@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../utils/axios';
 import { useAuth } from '../contexts/AuthContext';
 import { useAdminBot } from '../contexts/AdminBotContext';
-import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench, TrendingUp, TrendingDown, Calendar, PieChart, BarChart3, Activity, MessageCircle } from 'lucide-react';
+import { Plus, Heart, Home, Settings, User, DollarSign, AlertTriangle, CheckCircle, Wrench, TrendingUp, TrendingDown, Calendar, PieChart, BarChart3, Activity, MessageCircle, Warehouse } from 'lucide-react';
 import PropertyCard from '../components/PropertyCard';
 import DashboardWidget from '../components/DashboardWidget';
 import toast from 'react-hot-toast';
@@ -320,6 +320,13 @@ const Dashboard = () => {
             >
               <Plus className="h-4 w-4" />
               <span>Add Property</span>
+            </Link>
+            <Link
+              to="/add-warehouse"
+              className="btn-primary flex items-center justify-center sm:justify-start space-x-2 bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800"
+            >
+              <Warehouse className="h-4 w-4" />
+              <span>Add Warehouse</span>
             </Link>
           </div>
         </div>

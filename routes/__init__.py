@@ -19,6 +19,7 @@ from routes.rental_owner_routes import rental_owner_bp
 from routes.leasing_routes import leasing_bp
 from routes.dashboard_routes import dashboard_bp
 from routes.ai_lease_routes import ai_lease_bp
+from routes.warehouse_routes import warehouse_bp
 
 def init_routes(app):
     print("Initializing routes...")
@@ -44,7 +45,8 @@ def init_routes(app):
                 'rental_owners': '/api/rental-owners',
                 'dashboard': '/api/dashboard',
                 'reports': '/api/reports',
-                'ai_lease': '/api/ai-lease'
+                'ai_lease': '/api/ai-lease',
+                'warehouses': '/api/warehouses'
             }
         })
     
@@ -123,6 +125,10 @@ def init_routes(app):
     # AI Lease routes
     app.register_blueprint(ai_lease_bp, url_prefix='/api/ai-lease')
     print("AI Lease routes registered")
+    
+    # Warehouse routes
+    app.register_blueprint(warehouse_bp, url_prefix='/api/warehouses')
+    print("Warehouse routes registered")
     
     print("All routes registered successfully")
     
