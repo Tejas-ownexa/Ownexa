@@ -27,6 +27,23 @@ def get_associations(current_user):
                     'is_primary': manager.is_primary
                 })
             
+            # Get rental owners from assigned properties
+            rental_owners = []
+            for assignment in a.property_assignments:
+                property_obj = Property.query.get(assignment.property_id)
+                if property_obj and property_obj.rental_owner:
+                    # Check if this rental owner is already added
+                    existing_owner = next((ro for ro in rental_owners if ro['id'] == property_obj.rental_owner.id), None)
+                    if not existing_owner:
+                        rental_owners.append({
+                            'id': property_obj.rental_owner.id,
+                            'company_name': property_obj.rental_owner.company_name,
+                            'contact_person': property_obj.rental_owner.contact_person,
+                            'phone_number': property_obj.rental_owner.phone_number,
+                            'email': property_obj.rental_owner.email,
+                            'business_type': property_obj.rental_owner.business_type
+                        })
+            
             association_data = {
                 'id': a.id,
                 'name': a.name,
@@ -38,6 +55,7 @@ def get_associations(current_user):
                 'zip_code': a.zip_code,
                 'manager': a.manager if a.manager and a.manager != 'None' else None,  # Backward compatibility
                 'managers': managers,
+                'rental_owners': rental_owners,
                 'created_at': a.created_at.isoformat() if a.created_at else None,
                 'updated_at': a.updated_at.isoformat() if a.updated_at else None
             }
@@ -155,6 +173,18 @@ def get_association(current_user, association_id):
         for assignment in association.property_assignments:
             property_obj = Property.query.get(assignment.property_id)
             if property_obj:
+                # Get rental owner information if available
+                rental_owner_info = None
+                if property_obj.rental_owner:
+                    rental_owner_info = {
+                        'id': property_obj.rental_owner.id,
+                        'company_name': property_obj.rental_owner.company_name,
+                        'contact_person': property_obj.rental_owner.contact_person,
+                        'phone_number': property_obj.rental_owner.phone_number,
+                        'email': property_obj.rental_owner.email,
+                        'business_type': property_obj.rental_owner.business_type
+                    }
+                
                 assigned_properties.append({
                     'id': property_obj.id,
                     'title': property_obj.title,
@@ -168,6 +198,7 @@ def get_association(current_user, association_id):
                     },
                     'rent_amount': float(property_obj.rent_amount) if property_obj.rent_amount else None,
                     'status': property_obj.status,
+                    'rental_owner': rental_owner_info,
                     'assignment': {
                         'id': assignment.id,
                         'hoa_fees': float(assignment.hoa_fees) if assignment.hoa_fees else None,
@@ -408,6 +439,125 @@ def assign_property_to_association(current_user, association_id):
                 },
             }
         }), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@association_bp.route('/<int:association_id>/managers', methods=['POST'])
+@token_required
+def add_association_manager(current_user, association_id):
+    """Add a new manager to an association"""
+    try:
+        # Find the association
+        association = Association.query.get_or_404(association_id)
+        
+        data = request.json
+        
+        # Validate required fields
+        if not data.get('name'):
+            return jsonify({'error': 'Manager name is required'}), 400
+        
+        # Create new manager
+        new_manager = AssociationManager(
+            association_id=association_id,
+            name=data['name'],
+            email=data.get('email', ''),
+            phone=data.get('phone', ''),
+            is_primary=data.get('is_primary', False)
+        )
+        
+        db.session.add(new_manager)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Manager added successfully',
+            'manager': {
+                'id': new_manager.id,
+                'name': new_manager.name,
+                'email': new_manager.email,
+                'phone': new_manager.phone,
+                'is_primary': new_manager.is_primary
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@association_bp.route('/<int:association_id>/managers/<int:manager_id>', methods=['PUT'])
+@token_required
+def update_association_manager(current_user, association_id, manager_id):
+    """Update an association manager"""
+    try:
+        # Find the association
+        association = Association.query.get_or_404(association_id)
+        
+        # Find the manager
+        manager = AssociationManager.query.filter_by(
+            id=manager_id, 
+            association_id=association_id
+        ).first()
+        
+        if not manager:
+            return jsonify({'error': 'Manager not found'}), 404
+        
+        data = request.json
+        
+        # Update manager fields
+        if 'name' in data:
+            manager.name = data['name']
+        if 'email' in data:
+            manager.email = data['email']
+        if 'phone' in data:
+            manager.phone = data['phone']
+        
+        # Update timestamp
+        manager.updated_at = datetime.utcnow()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Manager updated successfully',
+            'manager': {
+                'id': manager.id,
+                'name': manager.name,
+                'email': manager.email,
+                'phone': manager.phone,
+                'is_primary': manager.is_primary
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@association_bp.route('/<int:association_id>/managers/<int:manager_id>', methods=['DELETE'])
+@token_required
+def delete_association_manager(current_user, association_id, manager_id):
+    """Delete an association manager"""
+    try:
+        # Find the association
+        association = Association.query.get_or_404(association_id)
+        
+        # Find the manager
+        manager = AssociationManager.query.filter_by(
+            id=manager_id, 
+            association_id=association_id
+        ).first()
+        
+        if not manager:
+            return jsonify({'error': 'Manager not found'}), 404
+        
+        # Check if manager is primary
+        if manager.is_primary:
+            return jsonify({'error': 'Cannot delete primary manager'}), 400
+        
+        # Delete the manager
+        db.session.delete(manager)
+        db.session.commit()
+        
+        return jsonify({'message': 'Manager deleted successfully'}), 200
+        
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

@@ -3,7 +3,6 @@ from models.accountability import AccountabilityFinancial, GeneralLedger, Bankin
 from models.property import Property
 from models.financial import PropertyFinancial, FinancialTransaction
 from models.rental_owner import RentalOwner, RentalOwnerManager
-from models.tenant import Tenant
 from config import db
 from routes.auth_routes import token_required
 from datetime import datetime, date
@@ -206,10 +205,13 @@ def get_general_ledger_dashboard(current_user):
             PropertyFinancial.property_id.in_(property_ids)
         ).all())
         
-        # Calculate total liabilities (sum of all mortgage amounts)
-        current_liabilities = sum(float(pf.mortgage_amount or 0) for pf in PropertyFinancial.query.filter(
-            PropertyFinancial.property_id.in_(property_ids)
-        ).all())        
+        # Calculate total liabilities (sum of all liability entries - credits increase liabilities, debits decrease)
+        liability_debits = sum(float(entry.amount) for entry in all_ledger_entries 
+                              if entry.account_category == 'liabilities' and entry.transaction_type == 'debit')
+        liability_credits = sum(float(entry.amount) for entry in all_ledger_entries 
+                               if entry.account_category == 'liabilities' and entry.transaction_type == 'credit')
+        current_liabilities = liability_credits - liability_debits
+        
         # Calculate total equity (sum of all equity entries)
         equity_debits = sum(float(entry.amount) for entry in all_ledger_entries 
                            if entry.account_category == 'equity' and entry.transaction_type == 'debit')
@@ -217,19 +219,19 @@ def get_general_ledger_dashboard(current_user):
                             if entry.account_category == 'equity' and entry.transaction_type == 'credit')
         current_equity = equity_credits - equity_debits
         
-        # Calculate total revenue (monthly revenue × 12)
-        # Get all tenants for user properties
-        tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
-        monthly_revenue = sum(float(t.rent_amount or 0) for t in tenants if t.lease_end is None or t.lease_end > date.today())
-        current_revenue = monthly_revenue * 12
+        # Calculate total revenue (sum of all revenue entries)
+        revenue_debits = sum(float(entry.amount) for entry in all_ledger_entries 
+                            if entry.account_category == 'revenue' and entry.transaction_type == 'debit')
+        revenue_credits = sum(float(entry.amount) for entry in all_ledger_entries 
+                             if entry.account_category == 'revenue' and entry.transaction_type == 'credit')
+        current_revenue = revenue_credits - revenue_debits
         
-        # Calculate total expenses (monthly expenses × 12)
-        # Get all property financials for user properties
-        property_financials = PropertyFinancial.query.filter(
-            PropertyFinancial.property_id.in_(property_ids)
-        ).all()
-        monthly_expenses = sum(float(pf.calculate_total_monthly_expenses() or 0) for pf in property_financials)
-        current_expenses = monthly_expenses * 12
+        # Calculate total expenses (sum of all expense entries)
+        expense_debits = sum(float(entry.amount) for entry in all_ledger_entries 
+                            if entry.account_category == 'expenses' and entry.transaction_type == 'debit')
+        expense_credits = sum(float(entry.amount) for entry in all_ledger_entries 
+                             if entry.account_category == 'expenses' and entry.transaction_type == 'credit')
+        current_expenses = expense_debits - expense_credits
         
         # Net worth = Assets - Liabilities (or Assets = Liabilities + Equity)
         net_worth = current_assets - current_liabilities

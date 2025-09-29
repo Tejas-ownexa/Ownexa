@@ -29,7 +29,8 @@ import {
   ClipboardList,
   RefreshCw,
   Building2,
-  AlertOctagon
+  AlertOctagon,
+  Warehouse
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -84,6 +85,7 @@ const Sidebar = () => {
         toggle: () => setRentalsExpanded(!rentalsExpanded),
         subItems: [
           { name: 'Properties', href: '/rentals?tab=properties', icon: Building },
+          { name: 'Warehouse', href: '/warehouses', icon: Warehouse },
           { name: 'Rentroll', href: '/rent-roll', icon: Receipt },
           { name: 'Rental Owners', href: '/rental-owners', icon: UserCheck },
           { name: 'Tenants', href: '/tenants', icon: Users },

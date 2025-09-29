@@ -160,6 +160,9 @@ const Associations = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                     MANAGER
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    RENTAL OWNER
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -213,11 +216,28 @@ const Associations = () => {
                           </span>
                         )}
                       </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        {association.rental_owners && association.rental_owners.length > 0 ? (
+                          <div className="space-y-1">
+                            {association.rental_owners.map((rentalOwner, index) => (
+                              <div key={rentalOwner.id || index} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 mr-1 mb-1">
+                                <Building2 className="h-3 w-3 mr-1" />
+                                {rentalOwner.company_name}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 dark:text-gray-300">
+                            <Building2 className="h-3 w-3 mr-1" />
+                            No Rental Owner
+                          </span>
+                        )}
+                      </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="3" className="px-6 py-12 text-center">
+                    <td colSpan="4" className="px-6 py-12 text-center">
                       <div className="text-gray-500 dark:text-gray-400 dark:text-gray-300">
                         <p className="text-lg font-medium mb-2">No associations found</p>
                         <p className="text-sm">
