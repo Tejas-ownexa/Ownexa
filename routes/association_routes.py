@@ -443,6 +443,47 @@ def assign_property_to_association(current_user, association_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+@association_bp.route('/<int:association_id>/managers', methods=['POST'])
+@token_required
+def add_association_manager(current_user, association_id):
+    """Add a new manager to an association"""
+    try:
+        # Find the association
+        association = Association.query.get_or_404(association_id)
+        
+        data = request.json
+        
+        # Validate required fields
+        if not data.get('name'):
+            return jsonify({'error': 'Manager name is required'}), 400
+        
+        # Create new manager
+        new_manager = AssociationManager(
+            association_id=association_id,
+            name=data['name'],
+            email=data.get('email', ''),
+            phone=data.get('phone', ''),
+            is_primary=data.get('is_primary', False)
+        )
+        
+        db.session.add(new_manager)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Manager added successfully',
+            'manager': {
+                'id': new_manager.id,
+                'name': new_manager.name,
+                'email': new_manager.email,
+                'phone': new_manager.phone,
+                'is_primary': new_manager.is_primary
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
 @association_bp.route('/<int:association_id>/managers/<int:manager_id>', methods=['PUT'])
 @token_required
 def update_association_manager(current_user, association_id, manager_id):
