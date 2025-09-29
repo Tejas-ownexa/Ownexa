@@ -142,57 +142,131 @@ const AssociationDetail = () => {
         </div>
       </div>
 
-      {/* Managers Section */}
-      {association.managers && association.managers.length > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-            <User className="h-5 w-5 mr-2" />
-            Association Managers
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {association.managers.map((manager, index) => (
-              <div key={manager.id || index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">{manager.name}</h3>
-                  {manager.is_primary && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
-                      Primary
-                    </span>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  {manager.email && (
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <a href={`mailto:${manager.email}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
-                        {manager.email}
-                      </a>
+      {/* Managers and Rental Owners Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Association Managers */}
+          {association.managers && association.managers.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <User className="h-5 w-5 mr-2" />
+                Association Managers
+              </h2>
+              <div className="space-y-4">
+                {association.managers.map((manager, index) => (
+                  <div key={manager.id || index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">{manager.name}</h3>
+                      {manager.is_primary && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
+                          Primary
+                        </span>
+                      )}
                     </div>
-                  )}
-                  
-                  {manager.phone && (
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
-                      <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                      </svg>
-                      <a href={`tel:${manager.phone}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
-                        {manager.phone}
-                      </a>
+                    
+                    <div className="space-y-2">
+                      {manager.email && (
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                          <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          <a href={`mailto:${manager.email}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
+                            {manager.email}
+                          </a>
+                        </div>
+                      )}
+                      
+                      {manager.phone && (
+                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                          <svg className="h-4 w-4 mr-2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <a href={`tel:${manager.phone}`} className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 hover:underline">
+                            {manager.phone}
+                          </a>
+                        </div>
+                      )}
+                      
+                      {!manager.email && !manager.phone && (
+                        <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 italic">No contact information available</p>
+                      )}
                     </div>
-                  )}
-                  
-                  {!manager.email && !manager.phone && (
-                    <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 italic">No contact information available</p>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* Rental Owners */}
+          {association.assigned_properties && association.assigned_properties.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                <Building2 className="h-5 w-5 mr-2" />
+                Property Rental Owners
+              </h2>
+              <div className="space-y-4">
+                {association.assigned_properties
+                  .filter(property => property.rental_owner)
+                  .map((property, index) => (
+                    <div key={`rental-owner-${property.id}-${index}`} className="border border-green-200 dark:border-green-600 rounded-lg p-4 bg-green-50 dark:bg-green-900/20 hover:shadow-md transition-shadow">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-lg font-medium text-green-900 dark:text-green-100">{property.rental_owner.company_name}</h3>
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                          {property.title}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {property.rental_owner.contact_person && (
+                          <div className="flex items-center text-sm text-green-700 dark:text-green-300">
+                            <User className="h-4 w-4 mr-2 text-green-500" />
+                            <span className="font-medium">{property.rental_owner.contact_person}</span>
+                          </div>
+                        )}
+                        
+                        {property.rental_owner.phone_number && (
+                          <div className="flex items-center text-sm text-green-700 dark:text-green-300">
+                            <svg className="h-4 w-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <a href={`tel:${property.rental_owner.phone_number}`} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:text-green-200 hover:underline">
+                              {property.rental_owner.phone_number}
+                            </a>
+                          </div>
+                        )}
+                        
+                        {property.rental_owner.email && (
+                          <div className="flex items-center text-sm text-green-700 dark:text-green-300">
+                            <svg className="h-4 w-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <a href={`mailto:${property.rental_owner.email}`} className="text-green-600 dark:text-green-400 hover:text-green-800 dark:text-green-200 hover:underline">
+                              {property.rental_owner.email}
+                            </a>
+                          </div>
+                        )}
+                        
+                        {property.rental_owner.business_type && (
+                          <div className="flex items-center text-sm text-green-700 dark:text-green-300">
+                            <Building2 className="h-4 w-4 mr-2 text-green-500" />
+                            <span>{property.rental_owner.business_type}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                
+                {association.assigned_properties.filter(property => property.rental_owner).length === 0 && (
+                  <div className="text-center py-8">
+                    <Building2 className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+                    <p className="text-gray-500 dark:text-gray-400">No rental owners assigned to properties</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Fallback for legacy manager field */}
       {(!association.managers || association.managers.length === 0) && association.manager && (
@@ -325,6 +399,64 @@ const AssociationDetail = () => {
                           </p>
                         </div>
                       </div>
+                      
+                      {/* Rental Owner Information */}
+                      {property.rental_owner && (
+                        <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <h4 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-3 flex items-center">
+                            <User className="h-4 w-4 mr-2" />
+                            Rental Owner Information
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Company Name</p>
+                              <p className="text-blue-900 dark:text-blue-100 font-medium">
+                                {property.rental_owner.company_name}
+                              </p>
+                            </div>
+                            
+                            {property.rental_owner.contact_person && (
+                              <div>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Contact Person</p>
+                                <p className="text-blue-900 dark:text-blue-100">
+                                  {property.rental_owner.contact_person}
+                                </p>
+                              </div>
+                            )}
+                            
+                            {property.rental_owner.phone_number && (
+                              <div>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Phone</p>
+                                <p className="text-blue-900 dark:text-blue-100">
+                                  <a href={`tel:${property.rental_owner.phone_number}`} className="hover:underline">
+                                    {property.rental_owner.phone_number}
+                                  </a>
+                                </p>
+                              </div>
+                            )}
+                            
+                            {property.rental_owner.email && (
+                              <div>
+                                <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Email</p>
+                                <p className="text-blue-900 dark:text-blue-100">
+                                  <a href={`mailto:${property.rental_owner.email}`} className="hover:underline">
+                                    {property.rental_owner.email}
+                                  </a>
+                                </p>
+                              </div>
+                            )}
+                            
+                            {property.rental_owner.business_type && (
+                              <div className="md:col-span-2">
+                                <p className="text-sm text-blue-600 dark:text-blue-400 mb-1">Business Type</p>
+                                <p className="text-blue-900 dark:text-blue-100">
+                                  {property.rental_owner.business_type}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                       
                       {/* Shipping Address */}
                       {(property.assignment.shipping_address.street_1 || 

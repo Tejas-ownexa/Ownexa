@@ -27,6 +27,23 @@ def get_associations(current_user):
                     'is_primary': manager.is_primary
                 })
             
+            # Get rental owners from assigned properties
+            rental_owners = []
+            for assignment in a.property_assignments:
+                property_obj = Property.query.get(assignment.property_id)
+                if property_obj and property_obj.rental_owner:
+                    # Check if this rental owner is already added
+                    existing_owner = next((ro for ro in rental_owners if ro['id'] == property_obj.rental_owner.id), None)
+                    if not existing_owner:
+                        rental_owners.append({
+                            'id': property_obj.rental_owner.id,
+                            'company_name': property_obj.rental_owner.company_name,
+                            'contact_person': property_obj.rental_owner.contact_person,
+                            'phone_number': property_obj.rental_owner.phone_number,
+                            'email': property_obj.rental_owner.email,
+                            'business_type': property_obj.rental_owner.business_type
+                        })
+            
             association_data = {
                 'id': a.id,
                 'name': a.name,
@@ -38,6 +55,7 @@ def get_associations(current_user):
                 'zip_code': a.zip_code,
                 'manager': a.manager if a.manager and a.manager != 'None' else None,  # Backward compatibility
                 'managers': managers,
+                'rental_owners': rental_owners,
                 'created_at': a.created_at.isoformat() if a.created_at else None,
                 'updated_at': a.updated_at.isoformat() if a.updated_at else None
             }
@@ -155,6 +173,18 @@ def get_association(current_user, association_id):
         for assignment in association.property_assignments:
             property_obj = Property.query.get(assignment.property_id)
             if property_obj:
+                # Get rental owner information if available
+                rental_owner_info = None
+                if property_obj.rental_owner:
+                    rental_owner_info = {
+                        'id': property_obj.rental_owner.id,
+                        'company_name': property_obj.rental_owner.company_name,
+                        'contact_person': property_obj.rental_owner.contact_person,
+                        'phone_number': property_obj.rental_owner.phone_number,
+                        'email': property_obj.rental_owner.email,
+                        'business_type': property_obj.rental_owner.business_type
+                    }
+                
                 assigned_properties.append({
                     'id': property_obj.id,
                     'title': property_obj.title,
@@ -168,6 +198,7 @@ def get_association(current_user, association_id):
                     },
                     'rent_amount': float(property_obj.rent_amount) if property_obj.rent_amount else None,
                     'status': property_obj.status,
+                    'rental_owner': rental_owner_info,
                     'assignment': {
                         'id': assignment.id,
                         'hoa_fees': float(assignment.hoa_fees) if assignment.hoa_fees else None,
