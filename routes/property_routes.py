@@ -545,6 +545,75 @@ def update_property(current_user, property_id):
         if 'zip_code' in data:
             property.zip_code = data['zip_code']
         
+        # Handle financial information updates
+        financial_fields = [
+            'total_value', 'purchase_price', 'purchase_date', 'purchase_price_per_sqft',
+            'mortgage_amount', 'down_payment', 'current_apr', 'loan_term_years',
+            'loan_payment_date', 'property_tax_annual', 'insurance_annual',
+            'hoa_fees_monthly', 'maintenance_reserve_monthly'
+        ]
+        
+        # Check if any financial data is provided
+        has_financial_data = any(field in data for field in financial_fields)
+        
+        if has_financial_data:
+            from models.financial import PropertyFinancial
+            from decimal import Decimal
+            from datetime import datetime, date
+            
+            # Get or create financial details
+            financial = PropertyFinancial.query.filter_by(property_id=property_id).first()
+            
+            if not financial:
+                # Create new financial record with default values for required fields
+                financial = PropertyFinancial(
+                    property_id=property_id,
+                    total_value=Decimal('0.00'),
+                    purchase_price=Decimal('0.00'),
+                    purchase_date=date.today(),
+                    mortgage_amount=Decimal('0.00'),
+                    down_payment=Decimal('0.00'),
+                    current_apr=Decimal('0.0000'),
+                    monthly_loan_payment=Decimal('0.00')
+                )
+                db.session.add(financial)
+            
+            # Update financial fields
+            if 'total_value' in data and data['total_value']:
+                financial.total_value = Decimal(str(data['total_value']))
+            if 'purchase_price' in data and data['purchase_price']:
+                financial.purchase_price = Decimal(str(data['purchase_price']))
+            if 'purchase_date' in data and data['purchase_date']:
+                try:
+                    financial.purchase_date = datetime.strptime(data['purchase_date'], '%Y-%m-%d').date()
+                except ValueError:
+                    pass  # Skip invalid date
+            if 'purchase_price_per_sqft' in data and data['purchase_price_per_sqft']:
+                financial.purchase_price_per_sqft = Decimal(str(data['purchase_price_per_sqft']))
+            if 'mortgage_amount' in data and data['mortgage_amount']:
+                financial.mortgage_amount = Decimal(str(data['mortgage_amount']))
+            if 'down_payment' in data and data['down_payment']:
+                financial.down_payment = Decimal(str(data['down_payment']))
+            if 'current_apr' in data and data['current_apr']:
+                financial.current_apr = Decimal(str(data['current_apr']))
+            if 'loan_term_years' in data and data['loan_term_years']:
+                financial.loan_term_years = int(data['loan_term_years'])
+            if 'loan_payment_date' in data and data['loan_payment_date']:
+                financial.loan_payment_date = int(data['loan_payment_date'])
+            if 'property_tax_annual' in data and data['property_tax_annual']:
+                financial.property_tax_annual = Decimal(str(data['property_tax_annual']))
+            if 'insurance_annual' in data and data['insurance_annual']:
+                financial.insurance_annual = Decimal(str(data['insurance_annual']))
+            if 'hoa_fees_monthly' in data and data['hoa_fees_monthly']:
+                financial.hoa_fees_monthly = Decimal(str(data['hoa_fees_monthly']))
+            if 'maintenance_reserve_monthly' in data and data['maintenance_reserve_monthly']:
+                financial.maintenance_reserve_monthly = Decimal(str(data['maintenance_reserve_monthly']))
+            
+            # Recalculate monthly payment if mortgage details changed
+            if any(field in data for field in ['mortgage_amount', 'current_apr', 'loan_term_years']):
+                if financial.mortgage_amount and financial.current_apr and financial.loan_term_years:
+                    financial.monthly_loan_payment = financial.calculate_monthly_payment()
+        
         db.session.commit()
         
         return jsonify({

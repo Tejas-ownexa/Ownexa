@@ -121,7 +121,21 @@ const PropertyDetail = () => {
         apt_number: property.address?.apt || property.apt_number,
         city: property.address?.city || property.city,
         state: property.address?.state || property.state,
-        zip_code: property.address?.zip || property.zip_code
+        zip_code: property.address?.zip || property.zip_code,
+        // Financial information
+        total_value: property.financial_details?.total_value || '',
+        purchase_price: property.financial_details?.purchase_price || '',
+        purchase_date: property.financial_details?.purchase_date || '',
+        purchase_price_per_sqft: property.financial_details?.purchase_price_per_sqft || '',
+        mortgage_amount: property.financial_details?.mortgage_amount || '',
+        down_payment: property.financial_details?.down_payment || '',
+        current_apr: property.financial_details?.current_apr || '',
+        loan_term_years: property.financial_details?.loan_term_years || '',
+        loan_payment_date: property.financial_details?.loan_payment_date || '',
+        property_tax_annual: property.financial_details?.property_tax_annual || '',
+        insurance_annual: property.financial_details?.insurance_annual || '',
+        hoa_fees_monthly: property.financial_details?.hoa_fees_monthly || '',
+        maintenance_reserve_monthly: property.financial_details?.maintenance_reserve_monthly || ''
       });
       setIsEditModalOpen(true);
     }
@@ -758,7 +772,7 @@ const PropertyDetail = () => {
       {/* Edit Property Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Edit Property</h2>
               <button
@@ -934,6 +948,203 @@ const PropertyDetail = () => {
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
+              </div>
+
+              {/* Financial Information Section */}
+              <div className="border-t border-gray-200 dark:border-gray-600 pt-6">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                  <DollarSign className="h-5 w-5 mr-2" />
+                  Financial Information
+                </h3>
+                
+                {/* Property Value Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Total Property Value
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.total_value || ''}
+                      onChange={(e) => handleInputChange('total_value', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter total value"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Purchase Price
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.purchase_price || ''}
+                      onChange={(e) => handleInputChange('purchase_price', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter purchase price"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Purchase Date
+                    </label>
+                    <input
+                      type="date"
+                      value={editFormData.purchase_date || ''}
+                      onChange={(e) => handleInputChange('purchase_date', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Price per Sq Ft
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.purchase_price_per_sqft || ''}
+                      onChange={(e) => handleInputChange('purchase_price_per_sqft', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter price per sq ft"
+                    />
+                  </div>
+                </div>
+
+                {/* Mortgage Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Mortgage Amount
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.mortgage_amount || ''}
+                      onChange={(e) => handleInputChange('mortgage_amount', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter mortgage amount"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Down Payment
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.down_payment || ''}
+                      onChange={(e) => handleInputChange('down_payment', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter down payment"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Current APR (%)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={editFormData.current_apr || ''}
+                      onChange={(e) => handleInputChange('current_apr', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter APR (e.g., 4.5)"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Loan Term (Years)
+                    </label>
+                    <input
+                      type="number"
+                      value={editFormData.loan_term_years || ''}
+                      onChange={(e) => handleInputChange('loan_term_years', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter loan term"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Payment Due Date (Day of Month)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="31"
+                      value={editFormData.loan_payment_date || ''}
+                      onChange={(e) => handleInputChange('loan_payment_date', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter payment day"
+                    />
+                  </div>
+                </div>
+
+                {/* Additional Financial Details */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Annual Property Tax
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.property_tax_annual || ''}
+                      onChange={(e) => handleInputChange('property_tax_annual', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter annual property tax"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Annual Insurance
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.insurance_annual || ''}
+                      onChange={(e) => handleInputChange('insurance_annual', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter annual insurance"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Monthly HOA Fees
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.hoa_fees_monthly || ''}
+                      onChange={(e) => handleInputChange('hoa_fees_monthly', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter monthly HOA fees"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Monthly Maintenance Reserve
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editFormData.maintenance_reserve_monthly || ''}
+                      onChange={(e) => handleInputChange('maintenance_reserve_monthly', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter monthly maintenance reserve"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
