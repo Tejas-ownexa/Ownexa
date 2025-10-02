@@ -61,11 +61,11 @@ const Login = () => {
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gradient">
               Welcome Back
             </h2>
-            <p className="mt-2 text-sm text-gray-600">
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
               Sign in to your account or{' '}
               <Link
                 to="/register"
-                className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-300"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors duration-300"
               >
                 create a new account
               </Link>
@@ -74,7 +74,7 @@ const Login = () => {
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4">
               <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Username
                 </label>
                 <input
@@ -95,12 +95,12 @@ const Login = () => {
                   placeholder="Enter your username"
                 />
                 {errors.username && (
-                  <p className="mt-2 text-sm text-red-600 animate-slide-in-left">{errors.username.message}</p>
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 animate-slide-in-left">{errors.username.message}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -117,14 +117,14 @@ const Login = () => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300" />
                     ) : (
-                      <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                      <Eye className="h-5 w-5 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300" />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="mt-2 text-sm text-red-600 animate-slide-in-left">{errors.password.message}</p>
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400 animate-slide-in-left">{errors.password.message}</p>
                 )}
               </div>
             </div>

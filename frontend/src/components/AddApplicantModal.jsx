@@ -110,7 +110,7 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
           <h2 className="text-xl font-semibold text-gray-900">Add applicant</h2>
           <button
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -206,7 +206,7 @@ const AddApplicantModal = ({ isOpen, onClose, onSave }) => {
                   <h4 className="text-sm font-medium text-gray-700">Co-applicant</h4>
                   <button
                     onClick={() => removeCoApplicant(coApplicant.id)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-gray-400 dark:text-gray-300 hover:text-gray-600 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>

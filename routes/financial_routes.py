@@ -3,9 +3,11 @@ from models.financial import PropertyFinancial, LoanPayment, FinancialTransactio
 from models.property import Property
 from config import db
 from routes.auth_routes import token_required
+from utils.db_utils import handle_db_error, safe_db_operation
 from datetime import datetime, date
 from decimal import Decimal
 import calendar
+import logging
 
 financial_bp = Blueprint('financial', __name__)
 
@@ -208,6 +210,7 @@ def create_property_financial(current_user, property_id):
 
 @financial_bp.route('/property/<int:property_id>/financial', methods=['GET'])
 @token_required
+@handle_db_error
 def get_property_financial(current_user, property_id):
     """Get financial details for a property"""
     try:
@@ -318,6 +321,7 @@ def create_loan_payment(current_user, property_id):
 
 @financial_bp.route('/property/<int:property_id>/loan-payments', methods=['GET'])
 @token_required
+@handle_db_error
 def get_loan_payments(current_user, property_id):
     """Get loan payments for a property"""
     try:
@@ -399,6 +403,7 @@ def create_financial_transaction(current_user, property_id):
 
 @financial_bp.route('/property/<int:property_id>/transactions', methods=['GET'])
 @token_required
+@handle_db_error
 def get_financial_transactions(current_user, property_id):
     """Get financial transactions for a property"""
     try:

@@ -37,14 +37,14 @@ const AnimatedToast = ({
     success: {
       icon: CheckCircle,
       bgColor: 'bg-green-500',
-      textColor: 'text-green-800',
+      textColor: 'text-green-800 dark:text-green-200',
       iconColor: 'text-green-600',
       borderColor: 'border-green-200'
     },
     error: {
       icon: AlertCircle,
       bgColor: 'bg-red-500',
-      textColor: 'text-red-800',
+      textColor: 'text-red-800 dark:text-red-200',
       iconColor: 'text-red-600',
       borderColor: 'border-red-200'
     },
@@ -82,7 +82,7 @@ const AnimatedToast = ({
         ? 'opacity-100 translate-y-0 scale-100' 
         : 'opacity-0 translate-y-2 scale-95'
     }`}>
-      <div className={`max-w-sm w-full bg-white rounded-lg shadow-xl border ${config.borderColor} overflow-hidden`}>
+      <div className={`max-w-sm w-full bg-white dark:bg-gray-800 rounded-lg shadow-xl border ${config.borderColor} overflow-hidden`}>
         <div className="p-4">
           <div className="flex items-start">
             <div className="flex-shrink-0">
@@ -95,7 +95,7 @@ const AnimatedToast = ({
             </div>
             <div className="ml-4 flex-shrink-0 flex">
               <button
-                className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                className="bg-white rounded-md inline-flex text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                 onClick={handleClose}
               >
                 <X className="h-5 w-5" />

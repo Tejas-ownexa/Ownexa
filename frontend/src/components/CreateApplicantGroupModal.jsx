@@ -77,7 +77,7 @@ const CreateApplicantGroupModal = ({ isOpen, onClose, onSave }) => {
           <h2 className="text-xl font-semibold text-gray-900">Create applicant group</h2>
           <button
             onClick={handleCancel}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -125,7 +125,7 @@ const CreateApplicantGroupModal = ({ isOpen, onClose, onSave }) => {
                   </h4>
                   <button
                     onClick={() => removeApplicantFromGroup(applicant.id)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-gray-400 dark:text-gray-300 hover:text-gray-600 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>

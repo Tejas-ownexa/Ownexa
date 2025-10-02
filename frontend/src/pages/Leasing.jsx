@@ -76,25 +76,25 @@ const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) =
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <label className="block text-xs font-medium text-gray-700 mb-1">{label}</label>
+      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-left focus:ring-2 focus:ring-blue-500 focus:border-transparent flex justify-between items-center"
+        className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-left focus:ring-2 focus:ring-blue-500 focus:border-transparent flex justify-between items-center"
       >
-        <span className={value.length === 0 ? 'text-gray-500' : 'text-gray-900'}>
+        <span className={value.length === 0 ? 'text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300' : 'text-gray-900 dark:text-white'}>
           {getDisplayText()}
         </span>
         <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg max-h-60 overflow-y-auto">
           {value.length > 0 && (
-            <div className="p-2 border-b border-gray-200">
+            <div className="p-2 border-b border-gray-200 dark:border-gray-600">
               <button
                 onClick={() => onChange([])}
-                className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 flex items-center gap-1"
               >
                 <X className="h-3 w-3" />
                 Clear all
@@ -104,13 +104,13 @@ const MultiSelectDropdown = ({ label, options, value, onChange, placeholder }) =
           {options.map((option) => (
             <label
               key={option.value}
-              className="px-3 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-2 text-sm"
+              className="px-3 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer flex items-center space-x-2 text-sm"
             >
               <input
                 type="checkbox"
                 checked={value.includes(option.value)}
                 onChange={() => handleOptionClick(option.value)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2"
+                className="rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 focus:ring-blue-500 focus:ring-2"
               />
               <span>{option.label}</span>
             </label>
@@ -246,14 +246,14 @@ const ActionDropdown = ({
     <div className="relative z-50" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
+        className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500"
         title="Actions"
       >
         <MoreVertical className="h-3 w-3" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-0 mr-8 w-40 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+        <div className="absolute right-0 top-0 mr-8 w-40 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-600 z-50">
           <div className="py-1">
             {availableActions.map((action, index) => (
               <button
@@ -452,15 +452,15 @@ const Leasing = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{pageInfo.title}</h1>
-          <p className="text-gray-600">{pageInfo.description}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{pageInfo.title}</h1>
+          <p className="text-gray-600 dark:text-gray-300">{pageInfo.description}</p>
         </div>
       </div>
 
       {/* Tab Content */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
         {renderTabContent()}
       </div>
 
@@ -517,14 +517,14 @@ const ListingTab = () => {
   return (
     <div className="space-y-6">
       {/* Listing Sub-tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-600">
         <nav className="flex space-x-8">
           <button
             onClick={() => setListingActiveTab('listed')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               listingActiveTab === 'listed'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Listed Units
@@ -533,8 +533,8 @@ const ListingTab = () => {
             onClick={() => setListingActiveTab('unlisted')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               listingActiveTab === 'unlisted'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Unlisted Units
@@ -694,7 +694,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
     <div className="space-y-6">
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-end items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-        <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
+        <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center justify-center space-x-2 w-full sm:w-auto">
           <Download className="h-4 w-4" />
           <span>Export</span>
         </button>
@@ -727,7 +727,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
 
           {/* Dropdown Menu */}
           {showBurgerMenu && (
-            <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+            <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-600 z-10">
               <div className="py-2">
                 {burgerMenuItems.map((item, index) => {
                   const Icon = item.icon;
@@ -738,10 +738,10 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                         item.action();
                         setShowBurgerMenu(false);
                       }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center space-x-3"
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center space-x-3"
                     >
-                      <Icon className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-700">{item.label}</span>
+                      <Icon className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{item.label}</span>
                     </button>
                   );
                 })}
@@ -753,13 +753,13 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
 
       {/* View Mode Toggle */}
       <div className="flex justify-start">
-        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-100 p-1">
+        <div className="inline-flex rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 p-1">
           <button
             onClick={() => setViewMode('individual')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               viewMode === 'individual'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             By Individual
@@ -768,8 +768,8 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
             onClick={() => setViewMode('group')}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
               viewMode === 'group'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
+                ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                : 'text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300'
             }`}
           >
             By Group
@@ -778,18 +778,18 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
       </div>
 
       {/* Filters Section */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 p-4">
         {/* Search and Filter Toggle */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
           {/* Search Bar */}
           <div className="relative w-full lg:w-auto">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
             <input
               type="text"
               placeholder={viewMode === 'individual' ? 'Search applicants...' : 'Search groups...'}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full lg:w-64"
+              className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full lg:w-64"
             />
           </div>
 
@@ -797,7 +797,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors"
             >
               <Filter className="h-4 w-4" />
               <span>Filters</span>
@@ -806,7 +806,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
             
             {/* Active Filter Count */}
             {getActiveFilterCount() > 0 && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                 {getActiveFilterCount()} active
               </span>
             )}
@@ -815,7 +815,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
 
         {/* Expandable Filter Options */}
         {showFilters && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {/* Status Filter */}
               <MultiSelectDropdown
@@ -850,13 +850,13 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
 
               {/* Date Filter */}
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
                   {viewMode === 'individual' ? 'Application Date' : 'Last Updated'}
                 </label>
                 <select
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="all">All Time</option>
                   <option value="today">Today</option>
@@ -876,7 +876,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                   setStageFilter([]);
                   setDateFilter('all');
                 }}
-                className="text-sm text-gray-600 hover:text-gray-800 underline"
+                className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-200 underline"
               >
                 Clear all filters
               </button>
@@ -886,105 +886,105 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
       </div>
 
       {/* Applicants Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
                 {viewMode === 'individual' ? (
                   <>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Full name
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Property
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Unit
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Stage in process
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Last Updated
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Application received
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </>
                 ) : (
                   <>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Applicants
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Property
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Unit
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Laste Updated
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Percent complete
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </>
                 )}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {viewMode === 'individual' ? (
                 applicantsLoading ? (
                   <tr>
                     <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
-                      <div className="text-gray-400 mb-4">
+                      <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                         <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
                       </div>
-                      <p className="text-gray-600">Loading applicants...</p>
+                      <p className="text-gray-600 dark:text-gray-300">Loading applicants...</p>
                     </td>
                   </tr>
                 ) : applicants.length > 0 ? (
                   applicants.map((applicant) => (
-                    <tr key={applicant.id} className="hover:bg-gray-50">
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <tr key={applicant.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {applicant.full_name}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {applicant.property?.title || 'N/A'}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {applicant.unit_number || 'N/A'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          applicant.application_status === 'Approved' ? 'bg-green-100 text-green-800' :
-                          applicant.application_status === 'Under Review' ? 'bg-yellow-100 text-yellow-800' :
-                          applicant.application_status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
+                          applicant.application_status === 'Approved' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                          applicant.application_status === 'Under Review' ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200' :
+                          applicant.application_status === 'Rejected' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                          'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         }`}>
                           {applicant.application_status}
                         </span>
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {applicant.stage_in_process || 'Application Submitted'}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {applicant.updated_at ? new Date(applicant.updated_at).toLocaleDateString() : 'N/A'}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {applicant.application_date ? new Date(applicant.application_date).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1002,11 +1002,11 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                 ) : (
                   <tr>
                     <td colSpan="8" className="px-3 sm:px-6 py-12 text-center">
-                      <div className="text-gray-400 mb-4">
+                      <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                         <Users className="h-16 w-16 mx-auto" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No individual applicants found</h3>
-                      <p className="text-gray-600 mb-6">Get started by adding your first applicant or wait for applications to come in</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No individual applicants found</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-6">Get started by adding your first applicant or wait for applications to come in</p>
                       <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
                         <UserPlus className="h-4 w-4" />
                         <span>Add First Applicant</span>
@@ -1018,38 +1018,38 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                 groupsLoading ? (
                   <tr>
                     <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
-                      <div className="text-gray-400 mb-4">
+                      <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                         <RefreshCw className="h-8 w-8 mx-auto animate-spin" />
                       </div>
-                      <p className="text-gray-600">Loading applicant groups...</p>
+                      <p className="text-gray-600 dark:text-gray-300">Loading applicant groups...</p>
                     </td>
                   </tr>
                 ) : applicantGroups.length > 0 ? (
                   applicantGroups.map((group) => (
-                    <tr key={group.id} className="hover:bg-gray-50">
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <tr key={group.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {group.applicants}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {group.property || 'N/A'}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {group.unit}
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          group.status === 'Active' ? 'bg-green-100 text-green-800' :
-                          group.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                          group.status === 'Inactive' ? 'bg-red-100 text-red-800' :
-                          'bg-gray-100 text-gray-800'
+                          group.status === 'Active' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                          group.status === 'Pending' ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200' :
+                          group.status === 'Inactive' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                          'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                         }`}>
                           {group.status}
                         </span>
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         {group.lastUpdated}
                       </td>
-                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                         <div className="flex items-center space-x-2">
                           <div className="flex-1 bg-gray-200 rounded-full h-2">
                             <div 
@@ -1061,7 +1061,7 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                               style={{ width: `${group.percentComplete}%` }}
                             ></div>
                           </div>
-                          <span className="text-xs text-gray-600">{group.percentComplete}%</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-300">{group.percentComplete}%</span>
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1078,11 +1078,11 @@ const ApplicantsTab = ({ onOpenAddApplicant, onOpenCreateGroup, onRejectApplican
                 ) : (
                   <tr>
                     <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
-                      <div className="text-gray-400 mb-4">
+                      <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                         <UsersIcon className="h-16 w-16 mx-auto" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No applicant groups found</h3>
-                      <p className="text-gray-600 mb-6">Create your first group to organize applicants together</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No applicant groups found</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-6">Create your first group to organize applicants together</p>
                       <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center space-x-2 mx-auto">
                         <UsersIcon className="h-4 w-4" />
                         <span>Create First Group</span>
@@ -1153,7 +1153,7 @@ const DraftLeaseTab = () => {
     <div className="space-y-6">
       {/* Header with Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <h2 className="text-2xl font-semibold text-gray-900">Draft leases</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Draft leases</h2>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
           <button 
             onClick={() => navigate('/leasing/add-draft-lease')}
@@ -1162,7 +1162,7 @@ const DraftLeaseTab = () => {
             <Plus className="h-4 w-4" />
             <span>Add lease</span>
           </button>
-          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2">
+          <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center justify-center space-x-2">
             <FileText className="h-4 w-4" />
             <span>eSignature Documents</span>
           </button>
@@ -1210,67 +1210,67 @@ const DraftLeaseTab = () => {
       </div>
 
       {/* Results Count */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 dark:text-gray-300">
         {draftLeases.length} matches
       </div>
 
       {/* Draft Leases Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   LEASE
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   ESIGNATURE STATUS
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   LEASE STATUS
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   AGENT
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   START DATE
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   END DATE
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {draftLeases.length > 0 ? (
                 draftLeases.map((lease) => (
-                  <tr key={lease.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <tr key={lease.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lease.name}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lease.esignatureStatus}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lease.leaseStatus}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lease.agent}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lease.startDate}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lease.endDate}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan="6" className="px-6 py-12 text-center text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                     <div className="space-y-2">
                       <p>We didn't find any draft leases. Maybe you don't have any or maybe you need to{' '}
                         <span 
-                          className="text-blue-600 hover:text-blue-800 cursor-pointer"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 cursor-pointer"
                           onClick={() => {
                             setRentalFilter([]);
                             setStatusFilter([]);
@@ -1403,29 +1403,29 @@ const LeaseRenewalsTab = () => {
 
   const getSortIcon = (field) => {
     if (sortField !== field) {
-      return <ChevronDown className="h-4 w-4 text-gray-400" />;
+      return <ChevronDown className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />;
     }
     return sortDirection === 'asc' ? 
-      <ChevronDown className="h-4 w-4 text-blue-600" /> : 
-      <ChevronUp className="h-4 w-4 text-blue-600" />;
+      <ChevronDown className="h-4 w-4 text-blue-600 dark:text-blue-400" /> : 
+      <ChevronUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
   };
 
   return (
     <div className="space-y-6">
       {/* Header with Title */}
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Lease management</h2>
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">Lease management</h2>
       </div>
 
       {/* Top Level Tabs */}
-      <div className="border-b border-gray-200">
+      <div className="border-b border-gray-200 dark:border-gray-600">
         <nav className="flex space-x-8">
           <button
             onClick={() => setActiveRenewalTab('renewals')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeRenewalTab === 'renewals'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-green-500 text-green-600 dark:text-green-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Renewals
@@ -1434,8 +1434,8 @@ const LeaseRenewalsTab = () => {
             onClick={() => setActiveRenewalTab('leasing')}
             className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeRenewalTab === 'leasing'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-green-500 text-green-600 dark:text-green-400'
+                : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
             }`}
           >
             Leasing
@@ -1445,15 +1445,15 @@ const LeaseRenewalsTab = () => {
 
       {/* Sub-tabs for Renewals */}
       {activeRenewalTab === 'renewals' && (
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-gray-600">
           <nav className="flex space-x-8">
-            <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 font-medium text-sm whitespace-nowrap">
+            <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 dark:text-green-400 font-medium text-sm whitespace-nowrap">
               Not Started ({filteredLeases.length})
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600 font-medium text-sm whitespace-nowrap">
               Renewal offers (0)
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600 font-medium text-sm whitespace-nowrap">
               Accepted offers (0)
             </button>
           </nav>
@@ -1462,15 +1462,15 @@ const LeaseRenewalsTab = () => {
 
       {/* Sub-tabs for Leasing */}
       {activeRenewalTab === 'leasing' && (
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-gray-600">
           <nav className="flex space-x-8">
-            <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 font-medium text-sm whitespace-nowrap">
+            <button className="py-2 px-1 border-b-2 border-green-500 text-green-600 dark:text-green-400 font-medium text-sm whitespace-nowrap">
               Move outs (0)
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600 font-medium text-sm whitespace-nowrap">
               Move ins (0)
             </button>
-            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 font-medium text-sm whitespace-nowrap">
+            <button className="py-2 px-1 border-b-2 border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600 font-medium text-sm whitespace-nowrap">
               Vacancies (0)
             </button>
           </nav>
@@ -1483,7 +1483,7 @@ const LeaseRenewalsTab = () => {
           <select
             value={filterRentals}
             onChange={(e) => setFilterRentals(e.target.value)}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800"
             disabled={ownersLoading}
           >
             <option value="all-rentals">All rentals</option>
@@ -1517,15 +1517,15 @@ const LeaseRenewalsTab = () => {
       </div>
 
       {/* Results Count */}
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 dark:text-gray-300">
         {filteredLeases.length} matches
       </div>
 
       {/* Content Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         {/* Export Button */}
-        <div className="flex justify-end p-4 border-b border-gray-200">
-          <button className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center space-x-2">
+        <div className="flex justify-end p-4 border-b border-gray-200 dark:border-gray-600">
+          <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center space-x-2">
             <Download className="h-4 w-4" />
             <span>Export</span>
           </button>
@@ -1533,18 +1533,18 @@ const LeaseRenewalsTab = () => {
         
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
                 <th className="px-3 sm:px-6 py-3 text-left">
                   <input
                     type="checkbox"
-                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 focus:ring-blue-500"
                   />
                 </th>
                 {activeRenewalTab === 'renewals' ? (
                   <>
                     <th 
-                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700"
+                      className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:text-gray-300"
                       onClick={() => handleSort('daysLeft')}
                     >
                       <div className="flex items-center">
@@ -1552,57 +1552,57 @@ const LeaseRenewalsTab = () => {
                         {getSortIcon('daysLeft')}
                       </div>
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       LEASE
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       CURRENT TERMS
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       RENTAL OWNERS
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       ACTIONS
                     </th>
                   </>
                 ) : (
                   <>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:text-gray-300">
                       DAYS LEFT
                       <ChevronDown className="inline h-4 w-4 ml-1" />
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       LEASE
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       STATUS
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       NOTICE GIVEN DATE
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       MOVE OUT DATE
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       COMMENTS
                     </th>
-                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       NEXT LEASE
                     </th>
                   </>
                 )}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {activeRenewalTab === 'renewals' ? (
                 isLoading ? (
                   <tr>
                     <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
-                      <div className="text-gray-400 mb-4">
+                      <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                         <RefreshCw className="h-16 w-16 mx-auto animate-spin" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Loading lease renewals...</h3>
-                      <p className="text-gray-600">Please wait while we fetch your lease data</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Loading lease renewals...</h3>
+                      <p className="text-gray-600 dark:text-gray-300">Please wait while we fetch your lease data</p>
                     </td>
                   </tr>
                 ) : error ? (
@@ -1611,8 +1611,8 @@ const LeaseRenewalsTab = () => {
                       <div className="text-red-400 mb-4">
                         <XCircle className="h-16 w-16 mx-auto" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">Error loading lease renewals</h3>
-                      <p className="text-gray-600 mb-6">{error.message || 'Failed to fetch lease data'}</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Error loading lease renewals</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-6">{error.message || 'Failed to fetch lease data'}</p>
                       <button 
                         onClick={() => window.location.reload()} 
                         className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
@@ -1623,38 +1623,38 @@ const LeaseRenewalsTab = () => {
                   </tr>
                 ) : filteredLeases.length > 0 ? (
                   filteredLeases.map((lease) => (
-                    <tr key={lease.id} className="hover:bg-gray-50">
+                    <tr key={lease.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <input
                           type="checkbox"
-                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-400 focus:ring-blue-500"
                         />
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          lease.daysLeft < 0 ? 'bg-gray-100 text-gray-800' :
-                          lease.daysLeft <= 30 ? 'bg-red-100 text-red-800' : 
-                          lease.daysLeft <= 60 ? 'bg-yellow-100 text-yellow-800' : 
-                          'bg-green-100 text-green-800'
+                          lease.daysLeft < 0 ? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200' :
+                          lease.daysLeft <= 30 ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' : 
+                          lease.daysLeft <= 60 ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200' : 
+                          'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                         }`}>
                           {lease.daysLeft < 0 ? 'EXPIRED' : `${lease.daysLeft} DAYS`}
                         </span>
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-sm">
-                        <div className="text-blue-600 hover:text-blue-800 cursor-pointer">
+                        <div className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 cursor-pointer">
                           <div className="font-medium">{lease.propertyTitle}</div>
-                          <div className="text-gray-500 text-xs">{lease.tenantName}</div>
+                          <div className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-xs">{lease.tenantName}</div>
                         </div>
                       </td>
-                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-900">
+                      <td className="px-3 sm:px-6 py-4 text-sm text-gray-900 dark:text-white">
                         <div className="whitespace-pre-line">
                           <div className="font-medium">{lease.currentTerms}</div>
-                          <div className="text-gray-500 text-xs">${lease.rentAmount.toLocaleString()}/month</div>
+                          <div className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-xs">${lease.rentAmount.toLocaleString()}/month</div>
                         </div>
                       </td>
                       <td className="px-3 sm:px-6 py-4 text-sm">
                         <div 
-                          className="text-blue-600 hover:text-blue-800 cursor-pointer hover:underline"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 cursor-pointer hover:underline"
                           onClick={() => {
                             // Find the rental owner ID from the company name
                             const owner = rentalOwners.find(ro => ro.company_name === lease.rentalOwners);
@@ -1668,10 +1668,10 @@ const LeaseRenewalsTab = () => {
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm">
                         <div className="flex items-center justify-end space-x-2">
-                          <button className="bg-white text-gray-700 px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50 transition-colors text-sm">
+                          <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1.5 rounded border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors text-sm">
                             Generate offer
                           </button>
-                          <button className="text-gray-400 hover:text-gray-600">
+                          <button className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300">
                             <MoreHorizontal className="h-4 w-4" />
                           </button>
                         </div>
@@ -1681,26 +1681,26 @@ const LeaseRenewalsTab = () => {
                 ) : (
                   <tr>
                     <td colSpan="6" className="px-3 sm:px-6 py-12 text-center">
-                      <div className="text-gray-400 mb-4">
+                      <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                         <RefreshCw className="h-16 w-16 mx-auto" />
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No lease renewals found</h3>
-                      <p className="text-gray-600 mb-6">There are currently no lease renewals to manage</p>
-                      <p className="text-sm text-gray-500">Lease renewals will appear here when they become available for processing</p>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No lease renewals found</h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-6">There are currently no lease renewals to manage</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Lease renewals will appear here when they become available for processing</p>
                     </td>
                   </tr>
                 )
               ) : (
                 <tr>
                   <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
-                    <div className="text-gray-400 mb-4">
+                    <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                       <svg className="h-16 w-16 mx-auto" fill="currentColor" viewBox="0 0 24 24">
                         <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.3"/>
                         <path d="M12 8v4m0 4h.01" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">We didn't find any leases matching your criteria.</h3>
-                    <p className="text-gray-600">Try changing your filters.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">We didn't find any leases matching your criteria.</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Try changing your filters.</p>
                   </td>
                 </tr>
               )}
@@ -1717,8 +1717,8 @@ const LeasingTab = () => {
   return (
     <div className="text-center py-12">
       <Home className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-      <h3 className="text-lg font-medium text-gray-900 mb-2">Leasing Overview</h3>
-      <p className="text-gray-600 mb-6">Complete leasing dashboard and analytics</p>
+      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Leasing Overview</h3>
+      <p className="text-gray-600 dark:text-gray-300 mb-6">Complete leasing dashboard and analytics</p>
       <div className="flex flex-col sm:flex-row justify-center space-y-2 sm:space-y-0 sm:space-x-4">
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
           <ClipboardList className="h-4 w-4" />
@@ -1783,7 +1783,7 @@ const ListedUnitsTab = () => {
             link.click();
             document.body.removeChild(link);
           }}
-          className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
+          className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center justify-center space-x-2"
         >
           <Download className="h-4 w-4" />
           <span>Export</span>
@@ -1791,48 +1791,48 @@ const ListedUnitsTab = () => {
       </div>
 
       {/* Listed Units Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Property Title
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Address
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   City
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   State
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Rent Amount
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Listed Date
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {propertiesLoading ? (
                 <tr>
-                  <td colSpan="7" className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="7" className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                     <div className="flex items-center justify-center py-8">
-                      <RefreshCw className="h-6 w-6 animate-spin text-blue-600 mr-2" />
+                      <RefreshCw className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400 mr-2" />
                       <span>Loading available properties...</span>
                     </div>
                   </td>
                 </tr>
               ) : availableProperties.length > 0 ? (
                 availableProperties.map((property) => (
-                  <tr key={property.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       <div className="flex items-center">
                         {property.image_url ? (
                           <img
@@ -1842,33 +1842,33 @@ const ListedUnitsTab = () => {
                           />
                         ) : (
                           <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
-                            <Home className="h-4 w-4 text-gray-400" />
+                            <Home className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                           </div>
                         )}
                         <span className="font-medium">{property.title}</span>
                       </div>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.address?.street_1 || 'N/A'}
                       {property.address?.apt && `, Apt ${property.address.apt}`}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.address?.city || 'N/A'}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.address?.state || 'N/A'}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium text-green-600">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span className="font-medium text-green-600 dark:text-green-400">
                         ${property.rent_amount ? parseFloat(property.rent_amount).toLocaleString() : '0'}
                       </span>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
                         Available
                       </span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.created_at ? new Date(property.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
@@ -1876,12 +1876,12 @@ const ListedUnitsTab = () => {
               ) : (
                 <tr>
                   <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
-                    <div className="text-gray-400 mb-4">
+                    <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                       <Building className="h-16 w-16 mx-auto" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No available properties</h3>
-                    <p className="text-gray-600 mb-6">All your properties are currently occupied or under maintenance.</p>
-                    <p className="text-sm text-gray-500">Add new properties through the Properties section to see them listed here.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No available properties</h3>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">All your properties are currently occupied or under maintenance.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Add new properties through the Properties section to see them listed here.</p>
                   </td>
                 </tr>
               )}
@@ -1943,7 +1943,7 @@ const UnlistedUnitsTab = () => {
             link.click();
             document.body.removeChild(link);
           }}
-          className="bg-white text-gray-700 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2"
+          className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center justify-center space-x-2"
         >
           <Download className="h-4 w-4" />
           <span>Export</span>
@@ -1951,48 +1951,48 @@ const UnlistedUnitsTab = () => {
       </div>
 
       {/* Unlisted Units Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-600 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Property Title
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Address
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   City
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   State
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Rent Amount
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Rented Date
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               {occupiedLoading ? (
                 <tr>
-                  <td colSpan="7" className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500">
+                  <td colSpan="7" className="px-3 sm:px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                     <div className="flex items-center justify-center py-8">
-                      <RefreshCw className="h-6 w-6 animate-spin text-blue-600 mr-2" />
+                      <RefreshCw className="h-6 w-6 animate-spin text-blue-600 dark:text-blue-400 mr-2" />
                       <span>Loading occupied properties...</span>
                     </div>
                   </td>
                 </tr>
               ) : occupiedProperties.length > 0 ? (
                 occupiedProperties.map((property) => (
-                  <tr key={property.id} className="hover:bg-gray-50">
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <tr key={property.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       <div className="flex items-center">
                         {property.image_url ? (
                           <img
@@ -2002,33 +2002,33 @@ const UnlistedUnitsTab = () => {
                           />
                         ) : (
                           <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center mr-3">
-                            <Home className="h-4 w-4 text-gray-400" />
+                            <Home className="h-4 w-4 text-gray-400 dark:text-gray-500 dark:text-gray-300" />
                           </div>
                         )}
                         <span className="font-medium">{property.title}</span>
                       </div>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.address?.street_1 || 'N/A'}
                       {property.address?.apt && `, Apt ${property.address.apt}`}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.address?.city || 'N/A'}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.address?.state || 'N/A'}
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      <span className="font-medium text-blue-600">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                      <span className="font-medium text-blue-600 dark:text-blue-400">
                         ${property.rent_amount ? parseFloat(property.rent_amount).toLocaleString() : '0'}
                       </span>
                     </td>
                     <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200">
                         Rented
                       </span>
                     </td>
-                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {property.updated_at ? new Date(property.updated_at).toLocaleDateString() : 'N/A'}
                     </td>
                   </tr>
@@ -2036,12 +2036,12 @@ const UnlistedUnitsTab = () => {
               ) : (
                 <tr>
                   <td colSpan="7" className="px-3 sm:px-6 py-12 text-center">
-                    <div className="text-gray-400 mb-4">
+                    <div className="text-gray-400 dark:text-gray-500 dark:text-gray-300 mb-4">
                       <Building className="h-16 w-16 mx-auto" />
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No rented properties</h3>
-                    <p className="text-gray-600 mb-6">All your properties are currently available for rent.</p>
-                    <p className="text-sm text-gray-500">Properties will appear here once they are rented to tenants.</p>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No rented properties</h3>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">All your properties are currently available for rent.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">Properties will appear here once they are rented to tenants.</p>
                   </td>
                 </tr>
               )}

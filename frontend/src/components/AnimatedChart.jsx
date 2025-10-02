@@ -61,10 +61,11 @@ const AnimatedChart = ({
         labels: {
           usePointStyle: true,
           padding: 20,
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
         },
       },
       tooltip: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
         titleColor: 'white',
         bodyColor: 'white',
         borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -76,18 +77,18 @@ const AnimatedChart = ({
     scales: type !== 'doughnut' ? {
       x: {
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
+          color: document.documentElement.classList.contains('dark') ? 'rgba(75, 85, 99, 0.3)' : 'rgba(0, 0, 0, 0.1)',
         },
         ticks: {
-          color: 'rgba(0, 0, 0, 0.6)',
+          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : 'rgba(0, 0, 0, 0.6)',
         },
       },
       y: {
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
+          color: document.documentElement.classList.contains('dark') ? 'rgba(75, 85, 99, 0.3)' : 'rgba(0, 0, 0, 0.1)',
         },
         ticks: {
-          color: 'rgba(0, 0, 0, 0.6)',
+          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : 'rgba(0, 0, 0, 0.6)',
         },
         beginAtZero: true,
       },
@@ -102,14 +103,14 @@ const AnimatedChart = ({
   }[type];
 
   return (
-    <div className={`bg-white rounded-xl shadow-lg p-6 transition-all duration-700 transform ${
+    <div className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-all duration-700 transform ${
       isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
     }`}>
       {title && (
         <div className="mb-6">
-          <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
           {subtitle && (
-            <p className="text-sm text-gray-600 mt-1">{subtitle}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{subtitle}</p>
           )}
         </div>
       )}
@@ -123,8 +124,8 @@ const AnimatedChart = ({
       {/* Loading skeleton */}
       {!animatedData && (
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
+          <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
       )}
     </div>

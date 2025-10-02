@@ -24,6 +24,8 @@ class Property(BaseModel):
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     rental_owner_id = db.Column(db.Integer, db.ForeignKey('rental_owners.id', ondelete='CASCADE'), nullable=True)
     image_url = db.Column(db.String(500))  # Store image URL/path
+    case_number = db.Column(db.String(100))  # Case number field
+    folio = db.Column(db.String(100))  # Folio field
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

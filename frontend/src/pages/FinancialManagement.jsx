@@ -157,76 +157,76 @@ const FinancialManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading financial data...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading financial data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Financial Management</h1>
-          <p className="mt-2 text-gray-600">Track rent payments, outstanding balances, and financial records</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Financial Management</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Track rent payments, outstanding balances, and financial records</p>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Rent Collected</p>
-                <p className="text-2xl font-semibold text-gray-900">${calculateTotalRent().toFixed(2)}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Rent Collected</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">${calculateTotalRent().toFixed(2)}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                <svg className="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Outstanding</p>
-                <p className="text-2xl font-semibold text-gray-900">${calculateTotalOutstanding().toFixed(2)}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Total Outstanding</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">${calculateTotalOutstanding().toFixed(2)}</p>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Properties</p>
-                <p className="text-2xl font-semibold text-gray-900">{properties.length}</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Properties</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{properties.length}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-lg shadow mb-6">
-          <div className="border-b border-gray-200">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-6">
+          <div className="border-b border-gray-200 dark:border-gray-600">
             <nav className="-mb-px flex space-x-8 px-6">
               <button
                 onClick={() => setActiveTab('rent-roll')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'rent-roll'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 Rent Roll
@@ -235,8 +235,8 @@ const FinancialManagement = () => {
                 onClick={() => setActiveTab('outstanding')}
                 className={`py-4 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'outstanding'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
                 }`}
               >
                 Outstanding Balances
@@ -249,7 +249,7 @@ const FinancialManagement = () => {
             {activeTab === 'rent-roll' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-medium text-gray-900">Rent Roll</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Rent Roll</h3>
                   <button
                     onClick={() => setShowRentForm(true)}
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -259,17 +259,17 @@ const FinancialManagement = () => {
                 </div>
 
                 {showRentForm && (
-                  <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Record Rent Payment</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 mb-6">
+                    <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">Record Rent Payment</h4>
                     <form onSubmit={handleRentSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Property</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Property</label>
                           <select
                             required
                             value={rentFormData.property_id}
                             onChange={(e) => setRentFormData({...rentFormData, property_id: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="">Select Property</option>
                             {properties.map(property => (
@@ -280,12 +280,12 @@ const FinancialManagement = () => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Tenant</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tenant</label>
                           <select
                             required
                             value={rentFormData.tenant_id}
                             onChange={(e) => setRentFormData({...rentFormData, tenant_id: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="">Select Tenant</option>
                             {tenants.map(tenant => (
@@ -296,33 +296,33 @@ const FinancialManagement = () => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount</label>
                           <input
                             type="number"
                             step="0.01"
                             required
                             value={rentFormData.amount_paid}
                             onChange={(e) => setRentFormData({...rentFormData, amount_paid: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="0.00"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Payment Date</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Date</label>
                           <input
                             type="date"
                             required
                             value={rentFormData.payment_date}
                             onChange={(e) => setRentFormData({...rentFormData, payment_date: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Method</label>
                           <select
                             value={rentFormData.payment_method}
                             onChange={(e) => setRentFormData({...rentFormData, payment_method: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="check">Check</option>
                             <option value="cash">Cash</option>
@@ -331,11 +331,11 @@ const FinancialManagement = () => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
                           <select
                             value={rentFormData.status}
                             onChange={(e) => setRentFormData({...rentFormData, status: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="completed">Completed</option>
                             <option value="pending">Pending</option>
@@ -344,12 +344,12 @@ const FinancialManagement = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Remarks</label>
                         <textarea
                           rows={2}
                           value={rentFormData.remarks}
                           onChange={(e) => setRentFormData({...rentFormData, remarks: e.target.value})}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           placeholder="Optional remarks about the payment..."
                         />
                       </div>
@@ -363,7 +363,7 @@ const FinancialManagement = () => {
                         <button
                           type="button"
                           onClick={() => setShowRentForm(false)}
-                          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                          className="bg-gray-300 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         >
                           Cancel
                         </button>
@@ -374,42 +374,42 @@ const FinancialManagement = () => {
 
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tenant</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Method</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {rentRoll.map((rent) => (
-                        <tr key={rent.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <tr key={rent.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                             {getPropertyName(rent.property_id)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {getTenantName(rent.tenant_id)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             ${parseFloat(rent.amount_paid || 0).toFixed(2)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {new Date(rent.payment_date).toLocaleDateString()}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {rent.payment_method ? rent.payment_method.replace('_', ' ') : 'N/A'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               rent.status === 'completed' 
-                                ? 'bg-green-100 text-green-800' 
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
                                 : rent.status === 'pending'
-                                ? 'bg-yellow-100 text-yellow-800'
-                                : 'bg-red-100 text-red-800'
+                                ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200'
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                             }`}>
                               {rent.status || 'N/A'}
                             </span>
@@ -417,7 +417,7 @@ const FinancialManagement = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button
                               onClick={() => handleDeleteRent(rent.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 dark:text-red-400 hover:text-red-900"
                             >
                               Delete
                             </button>
@@ -428,7 +428,7 @@ const FinancialManagement = () => {
                   </table>
                   {rentRoll.length === 0 && (
                     <div className="text-center py-12">
-                      <p className="text-gray-500">No rent payments recorded yet.</p>
+                      <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">No rent payments recorded yet.</p>
                     </div>
                   )}
                 </div>
@@ -439,7 +439,7 @@ const FinancialManagement = () => {
             {activeTab === 'outstanding' && (
               <div>
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-lg font-medium text-gray-900">Outstanding Balances</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Outstanding Balances</h3>
                   <button
                     onClick={() => setShowBalanceForm(true)}
                     className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
@@ -449,17 +449,17 @@ const FinancialManagement = () => {
                 </div>
 
                 {showBalanceForm && (
-                  <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Record Outstanding Balance</h4>
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 mb-6">
+                    <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">Record Outstanding Balance</h4>
                     <form onSubmit={handleBalanceSubmit} className="space-y-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Property</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Property</label>
                           <select
                             required
                             value={balanceFormData.property_id}
                             onChange={(e) => setBalanceFormData({...balanceFormData, property_id: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="">Select Property</option>
                             {properties.map(property => (
@@ -470,12 +470,12 @@ const FinancialManagement = () => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Tenant</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tenant</label>
                           <select
                             required
                             value={balanceFormData.tenant_id}
                             onChange={(e) => setBalanceFormData({...balanceFormData, tenant_id: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           >
                             <option value="">Select Tenant</option>
                             {tenants.map(tenant => (
@@ -486,25 +486,25 @@ const FinancialManagement = () => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Amount</label>
                           <input
                             type="number"
                             step="0.01"
                             required
                             value={balanceFormData.due_amount}
                             onChange={(e) => setBalanceFormData({...balanceFormData, due_amount: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="0.00"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Due Date</label>
                           <input
                             type="date"
                             required
                             value={balanceFormData.due_date}
                             onChange={(e) => setBalanceFormData({...balanceFormData, due_date: e.target.value})}
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </div>
@@ -518,7 +518,7 @@ const FinancialManagement = () => {
                         <button
                           type="button"
                           onClick={() => setShowBalanceForm(false)}
-                          className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                          className="bg-gray-300 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500"
                         >
                           Cancel
                         </button>
@@ -529,36 +529,36 @@ const FinancialManagement = () => {
 
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tenant</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Due Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {outstandingBalances.map((balance) => (
-                        <tr key={balance.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <tr key={balance.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                             {getPropertyName(balance.property_id)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {getTenantName(balance.tenant_id)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             ${parseFloat(balance.due_amount || 0).toFixed(2)}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                             {new Date(balance.due_date).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                               balance.is_resolved 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-red-100 text-red-800'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                             }`}>
                               {balance.is_resolved ? 'Resolved' : 'Outstanding'}
                             </span>
@@ -566,7 +566,7 @@ const FinancialManagement = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <button
                               onClick={() => handleDeleteBalance(balance.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="text-red-600 dark:text-red-400 hover:text-red-900"
                             >
                               Delete
                             </button>
@@ -577,7 +577,7 @@ const FinancialManagement = () => {
                   </table>
                   {outstandingBalances.length === 0 && (
                     <div className="text-center py-12">
-                      <p className="text-gray-500">No outstanding balances recorded yet.</p>
+                      <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">No outstanding balances recorded yet.</p>
                     </div>
                   )}
                 </div>

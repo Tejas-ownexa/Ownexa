@@ -11,11 +11,43 @@ class Association(BaseModel):
     city = db.Column(db.String(100))
     state = db.Column(db.String(100))
     zip_code = db.Column(db.String(20))
-    manager = db.Column(db.String(255))
+    manager = db.Column(db.String(255))  # Keep for backward compatibility
     
     # Relationships
     memberships = db.relationship('AssociationMembership', back_populates='association')
     ownership_accounts = db.relationship('OwnershipAccount', back_populates='association')
+    managers = db.relationship('AssociationManager', back_populates='association', cascade='all, delete-orphan')
+
+class AssociationManager(BaseModel):
+    __tablename__ = 'association_managers'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    association_id = db.Column(db.Integer, db.ForeignKey('associations.id'), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255))
+    phone = db.Column(db.String(50))
+    is_primary = db.Column(db.Boolean, default=False)
+    
+    # Relationships
+    association = db.relationship('Association', back_populates='managers')
+
+class AssociationPropertyAssignment(BaseModel):
+    __tablename__ = 'association_property_assignments'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    association_id = db.Column(db.Integer, db.ForeignKey('associations.id'), nullable=False)
+    property_id = db.Column(db.Integer, db.ForeignKey('properties.id'), nullable=False)
+    hoa_fees = db.Column(db.Numeric(10, 2))
+    special_assessment = db.Column(db.Numeric(10, 2))
+    ship_street_address_1 = db.Column(db.String(255))
+    ship_street_address_2 = db.Column(db.String(255))
+    ship_city = db.Column(db.String(100))
+    ship_state = db.Column(db.String(100))
+    ship_zip_code = db.Column(db.String(20))
+    
+    # Relationships
+    association = db.relationship('Association', backref='property_assignments')
+    # property relationship defined in Property model via backref if needed at a later time
 
 class PropertyFavorite(BaseModel):
     __tablename__ = 'property_favorites'

@@ -128,24 +128,24 @@ const Accountability = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Accountability</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Accountability</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-2">
               Comprehensive financial tracking and accounting for your properties
             </p>
           </div>
                       <div className="flex items-center space-x-4">
             <div className="text-right">
-              <div className="text-sm text-gray-500">Total Properties</div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Total Properties</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white">
                 {loading ? '...' : summaryData.totalProperties}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500">Active Accounts</div>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Active Accounts</div>
+              <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                 {loading ? '...' : summaryData.activeAccounts}
               </div>
             </div>
@@ -154,8 +154,8 @@ const Accountability = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="border-b border-gray-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+        <div className="border-b border-gray-200 dark:border-gray-600">
           <nav className="flex space-x-8 px-6" aria-label="Tabs">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -166,8 +166,8 @@ const Accountability = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center space-x-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                     isActive
-                      ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : 'border-transparent text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:border-gray-600'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -179,15 +179,15 @@ const Accountability = () => {
         </div>
 
         {/* Tab Description */}
-        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-600">
           <div className="flex items-center space-x-2">
             {(() => {
               const activeTabData = tabs.find(tab => tab.id === activeTab);
               const Icon = activeTabData.icon;
               return (
                 <>
-                  <Icon className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm text-gray-600">{activeTabData.description}</span>
+                  <Icon className="h-5 w-5 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
+                  <span className="text-sm text-gray-600 dark:text-gray-300">{activeTabData.description}</span>
                 </>
               );
             })()}

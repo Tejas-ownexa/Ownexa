@@ -7,18 +7,15 @@ class Task(BaseModel):
     __tablename__ = 'tasks'
     
     id = db.Column(db.Integer, primary_key=True)
-    task_name = db.Column(db.String(255), nullable=False)
-    task_type = db.Column(db.String(100))  # 'maintenance', 'repair', 'inspection', 'emergency'
+    title = db.Column(db.String(255), nullable=False)  # Changed from task_name to title
     description = db.Column(db.Text)
-    property_id = db.Column(db.Integer, db.ForeignKey('properties.id', ondelete='CASCADE'))
-    assigned_to_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     status = db.Column(db.String(50), default='active')  # 'active', 'completed', 'cancelled'
-    start_date = db.Column(db.Date)
-    end_date = db.Column(db.Date)
+    priority = db.Column(db.String(50))  # Added priority column
+    due_date = db.Column(db.Date)  # Changed from start_date/end_date to due_date
     created_by_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    assigned_to_user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='SET NULL'))
     
     # Relationships
-    property = db.relationship('Property', backref='tasks')
     assigned_to_user = db.relationship('User', foreign_keys=[assigned_to_user_id], backref='assigned_tasks')
     created_by_user = db.relationship('User', foreign_keys=[created_by_user_id], backref='created_tasks')
     work_orders = db.relationship('WorkOrder', secondary='work_order_tasks', back_populates='tasks')

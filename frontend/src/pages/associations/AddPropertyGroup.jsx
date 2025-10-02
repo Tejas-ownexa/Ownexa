@@ -13,13 +13,13 @@ const AddPropertyGroup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-800">
       {/* Header */}
       <div className="flex justify-between items-center p-6 border-b">
         <h2 className="text-2xl font-semibold">Add group</h2>
         <button 
           onClick={handleCancel}
-          className="text-gray-400 hover:text-gray-600"
+          className="text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
         >
           <X className="h-6 w-6" />
         </button>
@@ -31,37 +31,37 @@ const AddPropertyGroup = () => {
           {/* Name Field */}
           <div>
             <label className="block font-medium mb-1">Name</label>
-            <p className="text-gray-500 text-sm mb-2">
+            <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm mb-2">
               Give your group a clear, memorable name to make searching easy.
             </p>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
             />
           </div>
 
           {/* Description Field */}
           <div>
             <label className="block font-medium mb-1">Description (optional)</label>
-            <p className="text-gray-500 text-sm mb-2">
+            <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm mb-2">
               Provide extra details to describe how this group should be used.
             </p>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full border border-gray-300 rounded px-3 py-2 h-32"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded px-3 py-2 h-32"
             />
           </div>
 
           {/* Properties Field */}
           <div>
             <label className="block font-medium mb-1">Properties</label>
-            <p className="text-gray-500 text-sm mb-2">
+            <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm mb-2">
               Choose the properties you want to include.
             </p>
-            <button className="border border-gray-300 rounded px-4 py-2 text-gray-600 hover:bg-gray-50">
+            <button className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900">
               Add properties
             </button>
           </div>
@@ -69,7 +69,7 @@ const AddPropertyGroup = () => {
           {/* Privacy Field */}
           <div>
             <label className="block font-medium mb-1">Privacy</label>
-            <p className="text-gray-500 text-sm mb-2">
+            <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm mb-2">
               Decide if you want to share this group with other staff members or keep it to yourself.
             </p>
             <label className="flex items-center gap-2">
@@ -77,7 +77,7 @@ const AddPropertyGroup = () => {
                 type="checkbox"
                 checked={isPrivate}
                 onChange={(e) => setIsPrivate(e.target.checked)}
-                className="rounded border-gray-300"
+                className="rounded border-gray-300 dark:border-gray-600"
               />
               <span>Make my group private</span>
             </label>

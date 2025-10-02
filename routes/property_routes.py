@@ -5,6 +5,8 @@ from models.rental_owner import RentalOwner, RentalOwnerManager
 from config import db
 from routes.auth_routes import token_required
 from utils.image_upload import save_image, resize_image, delete_image
+from utils.db_utils import handle_db_error
+from utils.property_utils import safe_delete_property_related_records, check_property_deletion_constraints
 import os
 
 property_bp = Blueprint('properties', __name__)
@@ -78,7 +80,9 @@ def create_property(current_user):
             status=data.get('status', 'available'),
             owner_id=owner_id,
             rental_owner_id=rental_owner_id,
-            image_url=image_url
+            image_url=image_url,
+            case_number=data.get('case_number'),
+            folio=data.get('folio')
         )
         
         print("Attempting to save property to database")
@@ -161,31 +165,33 @@ def get_properties(current_user):
             if prop.rental_owner:
                 # Use the direct rental owner relationship
                 rental_owner_info = {
-                    'id': prop.rental_owner.id,
-                    'company_name': prop.rental_owner.company_name,
-                    'business_type': prop.rental_owner.business_type or 'Property Owner',
-                    'contact_email': prop.rental_owner.contact_email or prop.rental_owner.email,
-                    'contact_phone': prop.rental_owner.contact_phone or prop.rental_owner.phone_number
+                   'id': prop.rental_owner.id,
+                   'company_name': prop.rental_owner.company_name,
+                   'business_type': prop.rental_owner.business_type or 'Property Owner',
+                   'contact_email': prop.rental_owner.contact_email or prop.rental_owner.email,
+                   'contact_phone': prop.rental_owner.contact_phone or prop.rental_owner.phone_number
                 }
             elif prop.owner:
                 # Fallback to user information if no rental owner linked
                 rental_owner_info = {
-                    'id': prop.owner.id,
-                    'company_name': prop.owner.full_name or prop.owner.username,
-                    'business_type': 'Property Owner',
-                    'contact_email': prop.owner.email
+                   'id': prop.owner.id,
+                   'company_name': prop.owner.full_name or prop.owner.username,
+                   'business_type': 'Property Owner',
+                   'contact_email': prop.owner.email
                 }
             
             properties_data.append({
                 'id': prop.id,
                 'title': prop.title,
+                'case_number': prop.case_number,
+                'folio': prop.folio,
                 'address': {
-                    'street_1': prop.street_address_1,
-                    'street_2': prop.street_address_2,
-                    'apt': prop.apt_number,
-                    'city': prop.city,
-                    'state': prop.state,
-                    'zip': prop.zip_code
+                   'street_1': prop.street_address_1,
+                   'street_2': prop.street_address_2,
+                   'apt': prop.apt_number,
+                   'city': prop.city,
+                   'state': prop.state,
+                   'zip': prop.zip_code
                 },
                 'description': prop.description,
                 'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
@@ -196,10 +202,10 @@ def get_properties(current_user):
                 'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
                 'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
                 'owner': {
-                    'id': prop.owner.id,
-                    'username': prop.owner.username,
-                    'full_name': prop.owner.full_name,
-                    'email': prop.owner.email
+                   'id': prop.owner.id,
+                   'username': prop.owner.username,
+                   'full_name': prop.owner.full_name,
+                   'email': prop.owner.email
                 } if prop.owner else None,
                 'rental_owner': rental_owner_info
             })
@@ -254,42 +260,42 @@ def import_properties(current_user):
                 city = ''
                 state = ''
                 if location and ',' in location:
-                    parts = location.split(',')
-                    city = parts[0].strip()
-                    state = parts[1].strip() if len(parts) > 1 else ''
+                   parts = location.split(',')
+                   city = parts[0].strip()
+                   state = parts[1].strip() if len(parts) > 1 else ''
                 
                 # Validate required fields
                 if not title:
-                    errors.append(f"Row {row_num}: Property title is required")
-                    continue
+                   errors.append(f"Row {row_num}: Property title is required")
+                   continue
                 
                 if not city:
-                    errors.append(f"Row {row_num}: City is required")
-                    continue
+                   errors.append(f"Row {row_num}: City is required")
+                   continue
                 
                 if not state:
-                    errors.append(f"Row {row_num}: State is required")
-                    continue
+                   errors.append(f"Row {row_num}: State is required")
+                   continue
                 
                 # Convert rent_amount to float
                 try:
-                    rent_amount_float = float(rent_amount) if rent_amount else 0.0
+                   rent_amount_float = float(rent_amount) if rent_amount else 0.0
                 except ValueError:
-                    rent_amount_float = 0.0
+                   rent_amount_float = 0.0
                 
                 # Create property
                 property = Property(
-                    title=title,
-                    street_address_1=street_address,
-                    street_address_2=street_address_2,
-                    apt_number=apt_number,
-                    city=city,
-                    state=state,
-                    zip_code=zip_code,
-                    description=description,
-                    rent_amount=rent_amount_float,
-                    status=status,
-                    owner_id=current_user.id
+                   title=title,
+                   street_address_1=street_address,
+                   street_address_2=street_address_2,
+                   apt_number=apt_number,
+                   city=city,
+                   state=state,
+                   zip_code=zip_code,
+                   description=description,
+                   rent_amount=rent_amount_float,
+                   status=status,
+                   owner_id=current_user.id
                 )
                 
                 db.session.add(property)
@@ -317,6 +323,7 @@ def import_properties(current_user):
 
 @property_bp.route('/<int:property_id>', methods=['DELETE'])
 @token_required
+@handle_db_error
 def delete_property(current_user, property_id):
     try:
         print(f"Delete property attempt - Property ID: {property_id}, User: {current_user.username}")
@@ -331,52 +338,64 @@ def delete_property(current_user, property_id):
         if property.owner_id != current_user.id:
             return jsonify({'error': 'Unauthorized to delete this property'}), 403
         
-        # Check if property has related records that would prevent deletion
-        from models.tenant import Tenant, OutstandingBalance
-        from models.maintenance import MaintenanceRequest
+        # Check if property can be safely deleted
+        can_delete, blocking_reasons = check_property_deletion_constraints(property_id)
+        if not can_delete:
+            error_message = f"Cannot delete property. Please resolve the following issues first: {', '.join(blocking_reasons)}"
+            return jsonify({'error': error_message}), 400
         
-        # Check for tenants
-        tenant_count = Tenant.query.filter_by(property_id=property_id).count()
-        if tenant_count > 0:
-            return jsonify({'error': f'Cannot delete property with {tenant_count} tenants. Please reassign or remove tenants first.'}), 400
+        # Delete related records in the correct order to avoid foreign key constraint violations
+        print(f"Deleting related records for property {property_id}")
+        deleted_counts = safe_delete_property_related_records(property_id)
         
-        # Check for outstanding balances
-        balance_count = OutstandingBalance.query.filter_by(property_id=property_id).count()
-        if balance_count > 0:
-            return jsonify({'error': f'Cannot delete property with {balance_count} outstanding balances. Please resolve balances first.'}), 400
+        if deleted_counts:
+            print(f"Deleted related records: {deleted_counts}")
+        else:
+            print("No related records found to delete")
         
-        # Check for maintenance requests
-        maintenance_count = MaintenanceRequest.query.filter_by(property_id=property_id).count()
-        if maintenance_count > 0:
-            return jsonify({'error': f'Cannot delete property with {maintenance_count} maintenance requests. Please resolve requests first.'}), 400
-        
-        # Skip work orders and tasks checks due to schema mismatch
-        # These models have columns that don't exist in the actual database
-        print(f"Warning: Skipping work orders and tasks checks due to database schema mismatch")
-        
-        # Delete the property using raw SQL to avoid cascade issues
+        # Now delete the property itself
         try:
-            # Delete any work orders related to this property (if they exist)
-            db.session.execute(db.text("DELETE FROM work_orders WHERE property_id = :property_id"), 
-                             {"property_id": property_id})
-            
-            # Now delete the property
-            db.session.execute(db.text("DELETE FROM properties WHERE id = :property_id"), 
-                             {"property_id": property_id})
-            
-            db.session.commit()
-        except Exception as delete_error:
-            print(f"Error during direct deletion: {delete_error}")
-            # Fallback to normal deletion
             db.session.delete(property)
             db.session.commit()
-        
-        print(f"Property {property_id} deleted successfully by user {current_user.username}")
-        return jsonify({'message': 'Property deleted successfully'}), 200
+            print(f"Property {property_id} deleted successfully by user {current_user.username}")
+            return jsonify({'message': 'Property deleted successfully'}), 200
+        except Exception as delete_error:
+            print(f"Error during property deletion: {delete_error}")
+            db.session.rollback()
+            return jsonify({'error': f'Failed to delete property: {str(delete_error)}'}), 400
         
     except Exception as e:
         print(f"Error deleting property: {str(e)}")
         db.session.rollback()
+        return jsonify({'error': f'Failed to delete property. Please try again.'}), 400
+
+@property_bp.route('/<int:property_id>/can-delete', methods=['GET'])
+@token_required
+def can_delete_property(current_user, property_id):
+    """Check if a property can be safely deleted"""
+    try:
+        # Find the property
+        property = Property.query.get(property_id)
+        
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        # Check if user owns the property
+        if property.owner_id != current_user.id:
+            return jsonify({'error': 'Unauthorized to access this property'}), 403
+        
+        # Check deletion constraints
+        can_delete, blocking_reasons = check_property_deletion_constraints(property_id)
+        
+        return jsonify({
+            'can_delete': can_delete,
+            'blocking_reasons': blocking_reasons,
+            'property_id': property_id,
+            'property_title': property.title
+        }), 200
+        
+    except Exception as e:
+        print(f"Error checking property deletion constraints: {str(e)}")
         return jsonify({'error': str(e)}), 400
 
 @property_bp.route('/<int:property_id>', methods=['GET'])
@@ -387,10 +406,61 @@ def get_property(property_id):
         # Get the latest listing for this property
         from models.listing import Listing
         listing = Listing.query.filter_by(property_id=property_id).order_by(Listing.listing_date.desc()).first()
-        
+
+        # Association assignment (if any)
+        try:
+            from models.association import AssociationPropertyAssignment, Association
+            assignment = AssociationPropertyAssignment.query.filter_by(property_id=property_id).first()
+            association_info = None
+            if assignment:
+                assoc = Association.query.get(assignment.association_id)
+                association_info = {
+                   'association': {
+                       'id': assoc.id if assoc else assignment.association_id,
+                       'name': assoc.name if assoc else None,
+                   },
+                   'hoa_fees': float(assignment.hoa_fees) if assignment.hoa_fees is not None else None,
+                   'special_assessment': float(assignment.special_assessment) if assignment.special_assessment is not None else None,
+                   'shipping_address': {
+                       'street_1': assignment.ship_street_address_1,
+                       'street_2': assignment.ship_street_address_2,
+                       'city': assignment.ship_city,
+                       'state': assignment.ship_state,
+                       'zip': assignment.ship_zip_code,
+                   }
+                }
+        except Exception:
+            association_info = None
+
+        # Financial information (if any)
+        financial_info = None
+        if property.financial_details:
+            financial = property.financial_details
+            financial_info = {
+                'total_value': float(financial.total_value) if financial.total_value else None,
+                'purchase_price': float(financial.purchase_price) if financial.purchase_price else None,
+                'purchase_date': financial.purchase_date.isoformat() if financial.purchase_date else None,
+                'purchase_price_per_sqft': float(financial.purchase_price_per_sqft) if financial.purchase_price_per_sqft else None,
+                'mortgage_amount': float(financial.mortgage_amount) if financial.mortgage_amount else None,
+                'down_payment': float(financial.down_payment) if financial.down_payment else None,
+                'current_apr': float(financial.current_apr) if financial.current_apr else None,
+                'loan_term_years': financial.loan_term_years,
+                'monthly_loan_payment': float(financial.monthly_loan_payment) if financial.monthly_loan_payment else None,
+                'loan_payment_date': financial.loan_payment_date,
+                'property_tax_annual': float(financial.property_tax_annual) if financial.property_tax_annual else None,
+                'insurance_annual': float(financial.insurance_annual) if financial.insurance_annual else None,
+                'hoa_fees_monthly': float(financial.hoa_fees_monthly) if financial.hoa_fees_monthly else None,
+                'maintenance_reserve_monthly': float(financial.maintenance_reserve_monthly) if financial.maintenance_reserve_monthly else None,
+                'total_monthly_expenses': float(financial.calculate_total_monthly_expenses()) if financial else None,
+                'monthly_cash_flow': float(financial.calculate_cash_flow(property.rent_amount)) if financial and property.rent_amount else None,
+                'roi_percentage': float(financial.calculate_roi(property.rent_amount)) if financial and property.rent_amount else None
+            }
+         
         return jsonify({
             'id': property.id,
             'title': property.title,
+            'case_number': property.case_number,
+            'folio': property.folio,
             'address': {
                 'street_1': property.street_address_1,
                 'street_2': property.street_address_2,
@@ -403,8 +473,10 @@ def get_property(property_id):
             'rent_amount': float(property.rent_amount) if property.rent_amount else None,
             'status': property.status,
             'image_url': property.image_url,
-            'created_at': property.updated_at.isoformat() if property.updated_at else None,  # Use updated_at as created_at
-            'updated_at': property.updated_at.isoformat() if property.updated_at else None,
+             'created_at': property.updated_at.isoformat() if property.updated_at else None,  # Use updated_at as created_at
+             'updated_at': property.updated_at.isoformat() if property.updated_at else None,
+             'association_assignment': association_info,
+             'financial_details': financial_info,
             'owner': {
                 'id': property.owner.id,
                 'username': property.owner.username,
@@ -423,6 +495,145 @@ def get_property(property_id):
         print("Error fetching property:", str(e))
         return jsonify({'error': str(e)}), 400
 
+@property_bp.route('/<int:property_id>', methods=['PUT'])
+@token_required
+def update_property(current_user, property_id):
+    try:
+        property = Property.query.get_or_404(property_id)
+        
+        # Check if user owns the property
+        if property.owner_id != current_user.id:
+            return jsonify({'error': 'Unauthorized to update this property'}), 403
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Update property fields
+        if 'title' in data:
+            property.title = data['title']
+        if 'description' in data:
+            property.description = data['description']
+        if 'rent_amount' in data:
+            old_rent = property.rent_amount
+            new_rent = data['rent_amount']
+            property.rent_amount = new_rent
+            
+            # Update all tenant rent amounts for this property to keep them in sync
+            if old_rent != new_rent:
+                from models.tenant import Tenant
+                tenants = Tenant.query.filter_by(property_id=property_id).all()
+                for tenant in tenants:
+                    tenant.rent_amount = new_rent
+                print(f"Updated rent amount for {len(tenants)} tenants from ${old_rent} to ${new_rent}")
+        if 'status' in data:
+            property.status = data['status']
+        if 'case_number' in data:
+            property.case_number = data['case_number']
+        if 'folio' in data:
+            property.folio = data['folio']
+        if 'street_address_1' in data:
+            property.street_address_1 = data['street_address_1']
+        if 'street_address_2' in data:
+            property.street_address_2 = data['street_address_2']
+        if 'apt_number' in data:
+            property.apt_number = data['apt_number']
+        if 'city' in data:
+            property.city = data['city']
+        if 'state' in data:
+            property.state = data['state']
+        if 'zip_code' in data:
+            property.zip_code = data['zip_code']
+        
+        # Handle financial information updates
+        financial_fields = [
+            'total_value', 'purchase_price', 'purchase_date', 'purchase_price_per_sqft',
+            'mortgage_amount', 'down_payment', 'current_apr', 'loan_term_years',
+            'loan_payment_date', 'property_tax_annual', 'insurance_annual',
+            'hoa_fees_monthly', 'maintenance_reserve_monthly'
+        ]
+        
+        # Check if any financial data is provided
+        has_financial_data = any(field in data for field in financial_fields)
+        
+        if has_financial_data:
+            from models.financial import PropertyFinancial
+            from decimal import Decimal
+            from datetime import datetime, date
+            
+            # Get or create financial details
+            financial = PropertyFinancial.query.filter_by(property_id=property_id).first()
+            
+            if not financial:
+                # Create new financial record with default values for required fields
+                financial = PropertyFinancial(
+                    property_id=property_id,
+                    total_value=Decimal('0.00'),
+                    purchase_price=Decimal('0.00'),
+                    purchase_date=date.today(),
+                    mortgage_amount=Decimal('0.00'),
+                    down_payment=Decimal('0.00'),
+                    current_apr=Decimal('0.0000'),
+                    monthly_loan_payment=Decimal('0.00')
+                )
+                db.session.add(financial)
+            
+            # Update financial fields
+            if 'total_value' in data and data['total_value']:
+                financial.total_value = Decimal(str(data['total_value']))
+            if 'purchase_price' in data and data['purchase_price']:
+                financial.purchase_price = Decimal(str(data['purchase_price']))
+            if 'purchase_date' in data and data['purchase_date']:
+                try:
+                    financial.purchase_date = datetime.strptime(data['purchase_date'], '%Y-%m-%d').date()
+                except ValueError:
+                    pass  # Skip invalid date
+            if 'purchase_price_per_sqft' in data and data['purchase_price_per_sqft']:
+                financial.purchase_price_per_sqft = Decimal(str(data['purchase_price_per_sqft']))
+            if 'mortgage_amount' in data and data['mortgage_amount']:
+                financial.mortgage_amount = Decimal(str(data['mortgage_amount']))
+            if 'down_payment' in data and data['down_payment']:
+                financial.down_payment = Decimal(str(data['down_payment']))
+            if 'current_apr' in data and data['current_apr']:
+                financial.current_apr = Decimal(str(data['current_apr']))
+            if 'loan_term_years' in data and data['loan_term_years']:
+                financial.loan_term_years = int(data['loan_term_years'])
+            if 'loan_payment_date' in data and data['loan_payment_date']:
+                financial.loan_payment_date = int(data['loan_payment_date'])
+            if 'property_tax_annual' in data and data['property_tax_annual']:
+                financial.property_tax_annual = Decimal(str(data['property_tax_annual']))
+            if 'insurance_annual' in data and data['insurance_annual']:
+                financial.insurance_annual = Decimal(str(data['insurance_annual']))
+            if 'hoa_fees_monthly' in data and data['hoa_fees_monthly']:
+                financial.hoa_fees_monthly = Decimal(str(data['hoa_fees_monthly']))
+            if 'maintenance_reserve_monthly' in data and data['maintenance_reserve_monthly']:
+                financial.maintenance_reserve_monthly = Decimal(str(data['maintenance_reserve_monthly']))
+            
+            # Recalculate monthly payment if mortgage details changed
+            if any(field in data for field in ['mortgage_amount', 'current_apr', 'loan_term_years']):
+                if financial.mortgage_amount and financial.current_apr and financial.loan_term_years:
+                    financial.monthly_loan_payment = financial.calculate_monthly_payment()
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Property updated successfully',
+            'property': {
+                'id': property.id,
+                'title': property.title,
+                'case_number': property.case_number,
+                'folio': property.folio,
+                'description': property.description,
+                'rent_amount': float(property.rent_amount) if property.rent_amount else None,
+                'status': property.status
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        print("Error updating property:", str(e))
+        return jsonify({'error': str(e)}), 400
+
 # Add a test route to verify the blueprint is working
 @property_bp.route('/user/favorites', methods=['GET'])
 @token_required
@@ -437,30 +648,30 @@ def get_user_favorites(current_user):
             prop = favorite.property
             if prop:
                 favorite_properties.append({
-                    'property': {
-                        'id': prop.id,
-                        'title': prop.title,
-                        'address': {
-                            'street_1': prop.street_address_1,
-                            'street_2': prop.street_address_2,
-                            'apt': prop.apt_number,
-                            'city': prop.city,
-                            'state': prop.state,
-                            'zip': prop.zip_code
-                        },
-                        'description': prop.description,
-                        'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
-                        'status': prop.status,
-                        'image_url': prop.image_url,
-                        'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
-                        'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
-                        'owner': {
-                            'id': prop.owner.id,
-                            'username': prop.owner.username,
-                            'full_name': prop.owner.full_name,
-                            'email': prop.owner.email
-                        } if prop.owner else None
-                    }
+                   'property': {
+                       'id': prop.id,
+                       'title': prop.title,
+                       'address': {
+                           'street_1': prop.street_address_1,
+                           'street_2': prop.street_address_2,
+                           'apt': prop.apt_number,
+                           'city': prop.city,
+                           'state': prop.state,
+                           'zip': prop.zip_code
+                       },
+                       'description': prop.description,
+                       'rent_amount': float(prop.rent_amount) if prop.rent_amount else None,
+                       'status': prop.status,
+                       'image_url': prop.image_url,
+                       'created_at': prop.updated_at.isoformat() if prop.updated_at else None,  # Use updated_at as created_at
+                       'updated_at': prop.updated_at.isoformat() if prop.updated_at else None,
+                       'owner': {
+                           'id': prop.owner.id,
+                           'username': prop.owner.username,
+                           'full_name': prop.owner.full_name,
+                           'email': prop.owner.email
+                       } if prop.owner else None
+                   }
                 })
         
         return jsonify(favorite_properties), 200
@@ -566,16 +777,16 @@ def adjust_property_rents(current_user):
                 # Update all tenants' rent amounts for this property
                 tenants = Tenant.query.filter_by(property_id=property.id).all()
                 for tenant in tenants:
-                    tenant.rent_amount = new_rent
+                   tenant.rent_amount = new_rent
                 
                 updated_properties.append({
-                    'property_id': property.id,
-                    'property_title': property.title,
-                    'old_rent': float(property.rent_amount),
-                    'new_rent': float(new_rent),
-                    'monthly_expenses': float(total_monthly_expenses),
-                    'cash_flow': float(new_rent - total_monthly_expenses),
-                    'tenants_updated': len(tenants)
+                   'property_id': property.id,
+                   'property_title': property.title,
+                   'old_rent': float(property.rent_amount),
+                   'new_rent': float(new_rent),
+                   'monthly_expenses': float(total_monthly_expenses),
+                   'cash_flow': float(new_rent - total_monthly_expenses),
+                   'tenants_updated': len(tenants)
                 })
         
         db.session.commit()
