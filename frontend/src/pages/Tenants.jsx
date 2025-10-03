@@ -222,15 +222,6 @@ const Tenants = () => {
             </div>
             </div>
           
-            <button className="btn-secondary">
-              Receive payment
-            </button>
-            <button className="btn-secondary">
-              Compose email
-            </button>
-            <button className="btn-secondary">
-              Resident Center users
-            </button>
           </div>
         </div>
       </div>
@@ -249,10 +240,6 @@ const Tenants = () => {
               <option value="active">Active</option>
               <option value="future">Future</option>
             </select>
-            <button className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
-              <Filter className="h-4 w-4" />
-              <span>Add filter option</span>
-            </button>
           </div>
         </div>
         <div className="flex space-x-2">
@@ -264,125 +251,7 @@ const Tenants = () => {
             <span>Export</span>
           </button>
           
-          <button 
-                         onClick={() => {
-               // Download CSV template with available properties
-               const availableProperties = userProperties.filter(p => p.status === 'available');
-               let csvTemplate = [
-                 ['FULL_NAME', 'EMAIL', 'PHONE', 'PROPERTY_ID', 'LEASE_START_DATE', 'LEASE_END_DATE', 'RENT_AMOUNT', 'PAYMENT_STATUS'],
-                 ['# Required fields: FULL_NAME, EMAIL, PHONE'],
-                 ['# PROPERTY_ID: Leave empty for future tenants, or use available property ID'],
-                 ['# PAYMENT_STATUS: Use "active" for assigned tenants, "future" for unassigned tenants'],
-                 ['# Date format: YYYY-MM-DD (e.g., 2024-01-01)'],
-                 ['# Rent amount: Use numbers only (e.g., 2500.00)']
-               ];
-               
-               // Add sample rows - one assigned, one future tenant
-               if (availableProperties.length > 0) {
-                 // Assigned tenant example
-                 csvTemplate.push([
-                   'John Doe', 'john.doe@email.com', '+1-555-0123', 
-                   availableProperties[0].id.toString(), '2024-01-01', '2024-12-31', 
-                   availableProperties[0].rent_amount?.toString() || '2500.00', 'active'
-                 ]);
-                 
-                 // Future tenant example (no property assignment)
-                 csvTemplate.push([
-                   'Jane Smith', 'jane.smith@email.com', '+1-555-0124', 
-                   '', '2024-06-01', '2025-05-31', '2800.00', 'future'
-                 ]);
-               } else {
-                 // If no available properties, show future tenant examples
-                 csvTemplate.push([
-                   'John Doe', 'john.doe@email.com', '+1-555-0123', '', '2024-01-01', '2024-12-31', '2500.00', 'future'
-                 ]);
-                 csvTemplate.push([
-                   'Jane Smith', 'jane.smith@email.com', '+1-555-0124', '', '2024-06-01', '2025-05-31', '2800.00', 'future'
-                 ]);
-               }
-               
-               const csvContent = csvTemplate.map(row => row.join(',')).join('\n');
-
-                             const blob = new Blob([csvContent], { type: 'text/csv' });
-              const link = document.createElement('a');
-              const url = URL.createObjectURL(blob);
-              link.setAttribute('href', url);
-              link.setAttribute('download', 'tenants_import_template.csv');
-              if (link && link.style) {
-                link.style.visibility = 'hidden';
-              }
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              toast.success('CSV template downloaded!');
-            }}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
-          >
-            <Download className="h-4 w-4" />
-            <span>Template</span>
-          </button>
           
-          <button 
-            onClick={() => {
-              // Create a file input for CSV import
-              const fileInput = document.createElement('input');
-              fileInput.type = 'file';
-              fileInput.accept = '.csv';
-              fileInput.style.display = 'none';
-              
-              fileInput.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                try {
-                  const formData = new FormData();
-                  formData.append('csv_file', file);
-                  
-                  const response = await api.post('/api/tenants/import', formData, {
-                    headers: {
-                      'Content-Type': 'multipart/form-data',
-                    },
-                  });
-                  
-                  if (response.data.success) {
-                    if (response.data.imported_count > 0) {
-                      toast.success(`Successfully imported ${response.data.imported_count} tenants!`);
-                      // Refresh the tenants list using React Query
-                      queryClient.invalidateQueries(['tenants']);
-                      fetchTenants();
-                    } else {
-                      // Show errors if no tenants were imported
-                      if (response.data.errors && response.data.errors.length > 0) {
-                        const errorMessage = response.data.errors.join(', ');
-                        toast.error(`Import failed: ${errorMessage}`);
-                      } else {
-                        toast.error('No tenants were imported. Please check your CSV format.');
-                      }
-                    }
-                  } else {
-                    toast.error('Import failed: ' + (response.data.error || 'Unknown error'));
-                  }
-                } catch (error) {
-                  console.error('Import error:', error);
-                  if (error.response && error.response.data && error.response.data.error) {
-                    toast.error('Import failed: ' + error.response.data.error);
-                  } else {
-                    toast.error('Failed to import tenants. Please check your CSV format.');
-                  }
-                }
-                
-                // Clean up
-                document.body.removeChild(fileInput);
-              };
-              
-              document.body.appendChild(fileInput);
-              fileInput.click();
-            }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
-          >
-            <Upload className="h-4 w-4" />
-            <span>Import</span>
-          </button>
         </div>
       </div>
 

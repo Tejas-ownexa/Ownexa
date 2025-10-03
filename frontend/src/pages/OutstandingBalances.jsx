@@ -200,56 +200,6 @@ const OutstandingBalances = () => {
             <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
           </div>
 
-          {/* Add filter option */}
-          <div className="relative">
-            <select 
-              value=""
-              onChange={(e) => {
-                if (e.target.value === 'Balance') {
-                  handleFilterChange('balanceFilter', '61 - 90 days');
-                }
-                // Reset the dropdown
-                e.target.value = '';
-              }}
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="">Add filter option</option>
-              <option value="Balance">Balance (Days Overdue)</option>
-              <option value="Property">Property</option>
-              <option value="Tenant">Tenant</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
-          </div>
-
-          {/* Balance Filter */}
-          {filters.balanceFilter && (
-            <div className="flex items-center bg-green-50 border border-green-200 rounded-md px-3 py-2">
-              <div className="w-1 h-4 bg-green-500 rounded mr-2"></div>
-              <span className="text-sm text-green-800 dark:text-green-200 mr-2">BALANCE</span>
-              <select
-                value={filters.balanceFilter}
-                onChange={(e) => handleFilterChange('balanceFilter', e.target.value)}
-                className="bg-transparent border-none text-sm text-green-800 dark:text-green-200 focus:outline-none"
-              >
-                <option>61 - 90 days</option>
-                <option>0 - 30 days</option>
-                <option>31 - 60 days</option>
-                <option>90+ days</option>
-              </select>
-              <button
-                onClick={() => handleFilterChange('balanceFilter', 'Apply filter')}
-                className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
-              >
-                Apply filter
-              </button>
-              <button
-                onClick={removeBalanceFilter}
-                className="ml-2 text-green-600 dark:text-green-400 hover:text-green-800 dark:text-green-200"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
