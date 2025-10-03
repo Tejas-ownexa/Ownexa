@@ -34,8 +34,12 @@ def get_rental_data(current_user):
             OutstandingBalance.property_id.in_(property_ids)
         ).all()
         
-        # Calculate statistics
-        total_monthly_rent = sum(float(tenant.rent_amount or 0) for tenant in tenants)
+        # Calculate statistics - use current property rent amounts
+        total_monthly_rent = sum(
+            float(tenant.property.rent_amount or 0) if tenant.property and tenant.property.rent_amount 
+            else float(tenant.rent_amount or 0) 
+            for tenant in tenants
+        )
         total_collected = sum(float(payment.amount_paid or 0) for payment in rent_roll)
         total_outstanding = sum(float(balance.due_amount or 0) for balance in outstanding_balances)
         occupancy_rate = (len(tenants) / len(properties)) * 100 if properties else 0
@@ -167,8 +171,11 @@ def get_rent_roll(current_user):
             # Format address
             address = f"{street_address}, {city}, {state}" if street_address and city and state else "Address not available"
             
-            # Calculate next payment amount (could be prorated or full)
-            next_payment_amount = float(tenant.rent_amount) if tenant.rent_amount else 0
+            # Calculate next payment amount (could be prorated or full) - use current property rent
+            next_payment_amount = (
+                float(tenant.property.rent_amount) if tenant.property and tenant.property.rent_amount 
+                else float(tenant.rent_amount) if tenant.rent_amount else 0
+            )
             
             # Check if we need to calculate prorated amount for next payment
             if next_payment_date and tenant.lease_start:
@@ -241,7 +248,10 @@ def get_rent_roll(current_user):
                 'nextPaymentDate': next_payment_date.strftime('%Y-%m-%d') if next_payment_date else None,
                 'rentPaymentDay': getattr(tenant, 'rent_payment_day', 1),
                 'rent': next_payment_amount,  # Now shows actual next payment amount (prorated or full)
-                'monthlyRent': float(tenant.rent_amount) if tenant.rent_amount else 0,  # Keep original for reference
+                'monthlyRent': (
+                    float(tenant.property.rent_amount) if tenant.property and tenant.property.rent_amount 
+                    else float(tenant.rent_amount) if tenant.rent_amount else 0
+                ),  # Use current property rent
                 'tenant_name': tenant.full_name,
                 'property_title': property_title,
                 'address': address,
@@ -359,8 +369,12 @@ def get_rental_statistics(current_user):
             )
         ).all()
         
-        # Calculate statistics
-        total_monthly_rent = sum(float(tenant.rent_amount or 0) for tenant in tenants)
+        # Calculate statistics - use current property rent amounts
+        total_monthly_rent = sum(
+            float(tenant.property.rent_amount or 0) if tenant.property and tenant.property.rent_amount 
+            else float(tenant.rent_amount or 0) 
+            for tenant in tenants
+        )
         current_month_collected = sum(float(payment.amount_paid or 0) for payment in current_month_payments)
         total_outstanding = sum(float(balance.due_amount or 0) for balance in outstanding_balances)
         occupancy_rate = (len(tenants) / len(properties)) * 100 if properties else 0
@@ -750,8 +764,12 @@ def generate_rental_summary_report(current_user):
             )
         ).all()
         
-        # Calculate summary statistics
-        total_monthly_rent = sum(float(tenant.rent_amount or 0) for tenant in tenants)
+        # Calculate summary statistics - use current property rent amounts
+        total_monthly_rent = sum(
+            float(tenant.property.rent_amount or 0) if tenant.property and tenant.property.rent_amount 
+            else float(tenant.rent_amount or 0) 
+            for tenant in tenants
+        )
         current_month_collected = sum(float(payment.amount_paid or 0) for payment in current_month_payments)
         total_outstanding = sum(float(balance.due_amount or 0) for balance in outstanding_balances)
         occupancy_rate = (len(tenants) / len(properties)) * 100 if properties else 0

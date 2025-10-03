@@ -1128,6 +1128,179 @@ COMMENT ON TABLE draft_lease_rent_charges IS 'Rent splitting and proration detai
 COMMENT ON TABLE draft_lease_move_in_charges IS 'Move-in charges and deposits required before tenant occupancy';
 COMMENT ON TABLE draft_lease_signatures IS 'Electronic signature tracking and document management for draft leases';
 
+-- 38. WAREHOUSES TABLE
+CREATE TABLE warehouses (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    address VARCHAR(500) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    zip_code VARCHAR(20) NOT NULL,
+    total_square_feet INTEGER NOT NULL,
+    status VARCHAR(50) DEFAULT 'active',
+    owner_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    purchase_price NUMERIC(15, 2),
+    total_value NUMERIC(15, 2),
+    mortgage_amount NUMERIC(15, 2),
+    loan_term INTEGER,
+    down_payment NUMERIC(15, 2),
+    interest_rate NUMERIC(5, 4),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 39. ASSOCIATION MANAGERS TABLE
+CREATE TABLE association_managers (
+    id SERIAL PRIMARY KEY,
+    association_id INTEGER NOT NULL REFERENCES associations(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(50),
+    is_primary BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 40. ASSOCIATION PROPERTY ASSIGNMENTS TABLE
+CREATE TABLE association_property_assignments (
+    id SERIAL PRIMARY KEY,
+    association_id INTEGER NOT NULL REFERENCES associations(id) ON DELETE CASCADE,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    hoa_fees NUMERIC(10, 2),
+    special_assessment NUMERIC(10, 2),
+    ship_street_address_1 VARCHAR(255),
+    ship_street_address_2 VARCHAR(255),
+    ship_city VARCHAR(100),
+    ship_state VARCHAR(100),
+    ship_zip_code VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 41. ACCOUNTABILITY FINANCIALS TABLE
+CREATE TABLE accountability_financials (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    financial_year INTEGER NOT NULL,
+    financial_period VARCHAR(20) NOT NULL,
+    period_start_date DATE NOT NULL,
+    period_end_date DATE NOT NULL,
+    total_rental_income NUMERIC(12, 2) DEFAULT 0,
+    other_income NUMERIC(12, 2) DEFAULT 0,
+    total_income NUMERIC(12, 2) DEFAULT 0,
+    mortgage_payments NUMERIC(12, 2) DEFAULT 0,
+    property_taxes NUMERIC(12, 2) DEFAULT 0,
+    insurance_costs NUMERIC(12, 2) DEFAULT 0,
+    maintenance_costs NUMERIC(12, 2) DEFAULT 0,
+    utilities NUMERIC(12, 2) DEFAULT 0,
+    hoa_fees NUMERIC(12, 2) DEFAULT 0,
+    property_management_fees NUMERIC(12, 2) DEFAULT 0,
+    other_expenses NUMERIC(12, 2) DEFAULT 0,
+    total_expenses NUMERIC(12, 2) DEFAULT 0,
+    net_income NUMERIC(12, 2) DEFAULT 0,
+    cash_flow NUMERIC(12, 2) DEFAULT 0,
+    roi_percentage NUMERIC(5, 2) DEFAULT 0,
+    status VARCHAR(20) DEFAULT 'draft',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 42. GENERAL LEDGER TABLE
+CREATE TABLE general_ledger (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    transaction_type VARCHAR(50) NOT NULL,
+    account_category VARCHAR(100) NOT NULL,
+    account_subcategory VARCHAR(100) NOT NULL,
+    amount NUMERIC(12, 2) NOT NULL,
+    running_balance NUMERIC(12, 2) NOT NULL,
+    reference_number VARCHAR(100),
+    description TEXT NOT NULL,
+    notes TEXT,
+    posted_by VARCHAR(100),
+    approved_by VARCHAR(100),
+    approval_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 43. BANKING TABLE
+CREATE TABLE banking (
+    id SERIAL PRIMARY KEY,
+    property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    bank_name VARCHAR(100) NOT NULL,
+    account_name VARCHAR(100) NOT NULL,
+    account_number VARCHAR(50) NOT NULL,
+    account_type VARCHAR(50) NOT NULL,
+    routing_number VARCHAR(20),
+    current_balance NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    available_balance NUMERIC(12, 2) NOT NULL DEFAULT 0,
+    last_reconciliation_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_primary BOOLEAN DEFAULT FALSE,
+    interest_rate NUMERIC(5, 4) DEFAULT 0,
+    monthly_fee NUMERIC(8, 2) DEFAULT 0,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 44. BANKING TRANSACTIONS TABLE
+CREATE TABLE banking_transactions (
+    id SERIAL PRIMARY KEY,
+    banking_account_id INTEGER NOT NULL REFERENCES banking(id) ON DELETE CASCADE,
+    transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    posted_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    transaction_type VARCHAR(50) NOT NULL,
+    amount NUMERIC(12, 2) NOT NULL,
+    balance_after NUMERIC(12, 2) NOT NULL,
+    description TEXT NOT NULL,
+    reference_number VARCHAR(100),
+    payee VARCHAR(200),
+    category VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'pending',
+    is_reconciled BOOLEAN DEFAULT FALSE,
+    reconciliation_date DATE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create indexes for new tables
+CREATE INDEX idx_warehouses_owner_id ON warehouses(owner_id);
+CREATE INDEX idx_warehouses_status ON warehouses(status);
+CREATE INDEX idx_association_managers_association_id ON association_managers(association_id);
+CREATE INDEX idx_association_managers_is_primary ON association_managers(is_primary);
+CREATE INDEX idx_association_property_assignments_association_id ON association_property_assignments(association_id);
+CREATE INDEX idx_association_property_assignments_property_id ON association_property_assignments(property_id);
+CREATE INDEX idx_accountability_financials_property_id ON accountability_financials(property_id);
+CREATE INDEX idx_accountability_financials_user_id ON accountability_financials(user_id);
+CREATE INDEX idx_accountability_financials_financial_year ON accountability_financials(financial_year);
+CREATE INDEX idx_general_ledger_property_id ON general_ledger(property_id);
+CREATE INDEX idx_general_ledger_user_id ON general_ledger(user_id);
+CREATE INDEX idx_general_ledger_transaction_date ON general_ledger(transaction_date);
+CREATE INDEX idx_banking_property_id ON banking(property_id);
+CREATE INDEX idx_banking_user_id ON banking(user_id);
+CREATE INDEX idx_banking_is_active ON banking(is_active);
+CREATE INDEX idx_banking_transactions_banking_account_id ON banking_transactions(banking_account_id);
+CREATE INDEX idx_banking_transactions_transaction_date ON banking_transactions(transaction_date);
+CREATE INDEX idx_banking_transactions_status ON banking_transactions(status);
+
+-- Add comments for new tables
+COMMENT ON TABLE warehouses IS 'Warehouse properties with financial tracking and ownership details';
+COMMENT ON TABLE association_managers IS 'Managers for homeowner associations with contact information';
+COMMENT ON TABLE association_property_assignments IS 'Property assignments to associations with HOA fees and shipping details';
+COMMENT ON TABLE accountability_financials IS 'Financial accountability tracking for properties with income and expense details';
+COMMENT ON TABLE general_ledger IS 'General ledger entries for property financial transactions';
+COMMENT ON TABLE banking IS 'Bank account information for properties with balance tracking';
+COMMENT ON TABLE banking_transactions IS 'Banking transaction records with reconciliation status';
+
 -- Success message
 SELECT 'All tables created successfully!' as status;
 

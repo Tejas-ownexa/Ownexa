@@ -203,7 +203,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
           <h2 className="text-2xl font-bold text-gray-800">Add Vendor</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-gray-500 dark:text-gray-300 hover:text-gray-700 text-2xl"
           >
             ×
           </button>
@@ -355,7 +355,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
                 PRIMARY EMAIL
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-400">✉</span>
+                <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">✉</span>
                 <input
                   type="email"
                   name="primary_email"
@@ -371,7 +371,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
                 ALTERNATE EMAIL
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-400">✉</span>
+                <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">✉</span>
                 <input
                   type="email"
                   name="alternate_email"
@@ -388,7 +388,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-400">📞</span>
+                  <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">📞</span>
                   <input
                     type="tel"
                     name="phone_1"
@@ -399,7 +399,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
                   />
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-400">📞</span>
+                  <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">📞</span>
                   <input
                     type="tel"
                     name="phone_2"
@@ -410,7 +410,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
                   />
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-400">📞</span>
+                  <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">📞</span>
                   <input
                     type="tel"
                     name="phone_3"
@@ -421,7 +421,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
                   />
                 </div>
                 <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-400">📞</span>
+                  <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">📞</span>
                   <input
                     type="tel"
                     name="phone_4"
@@ -442,7 +442,7 @@ const AddVendorModal = ({ isOpen, onClose, onVendorAdded }) => {
                 STREET ADDRESS
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-2 text-gray-400">🏠</span>
+                <span className="absolute left-3 top-2 text-gray-400 dark:text-gray-300">🏠</span>
                 <input
                   type="text"
                   name="street_address"

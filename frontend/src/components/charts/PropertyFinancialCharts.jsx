@@ -33,7 +33,7 @@ export const MortgagePaymentBreakdownChart = ({ data }) => {
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading mortgage data...</div>
+        <div className="text-gray-500 dark:text-gray-300">Loading mortgage data...</div>
       </div>
     );
   }
@@ -73,8 +73,17 @@ export const MortgagePaymentBreakdownChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'bottom',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 8,
         callbacks: {
           label: function(context) {
             const label = context.label || '';
@@ -96,7 +105,7 @@ export const MonthlyExpenseBreakdownChart = ({ data }) => {
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading expense data...</div>
+        <div className="text-gray-500 dark:text-gray-300">Loading expense data...</div>
       </div>
     );
   }
@@ -137,8 +146,17 @@ export const MonthlyExpenseBreakdownChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'bottom',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 8,
         callbacks: {
           label: function(context) {
             const label = context.label || '';
@@ -160,7 +178,7 @@ export const PropertyValueEquityChart = ({ data }) => {
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading property value data...</div>
+        <div className="text-gray-500 dark:text-gray-300">Loading property value data...</div>
       </div>
     );
   }
@@ -197,8 +215,17 @@ export const PropertyValueEquityChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 8,
         callbacks: {
           label: function(context) {
             const label = context.dataset.label || '';
@@ -228,7 +255,7 @@ export const MonthlyCashFlowChart = ({ data }) => {
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading cash flow data...</div>
+        <div className="text-gray-500 dark:text-gray-300">Loading cash flow data...</div>
       </div>
     );
   }
@@ -277,8 +304,17 @@ export const MonthlyCashFlowChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 8,
         callbacks: {
           label: function(context) {
             const label = context.dataset.label || '';
@@ -308,7 +344,7 @@ export const ROIAnalysisChart = ({ data }) => {
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading ROI data...</div>
+        <div className="text-gray-500 dark:text-gray-300">Loading ROI data...</div>
       </div>
     );
   }
@@ -353,8 +389,17 @@ export const ROIAnalysisChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
       tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 0.9)' : 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 8,
         callbacks: {
           label: function(context) {
             const label = context.dataset.label || '';
@@ -384,7 +429,7 @@ export const PropertyPerformanceTimelineChart = ({ data }) => {
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-gray-500">Loading performance data...</div>
+        <div className="text-gray-500 dark:text-gray-300">Loading performance data...</div>
       </div>
     );
   }
@@ -443,6 +488,9 @@ export const PropertyPerformanceTimelineChart = ({ data }) => {
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          color: document.documentElement.classList.contains('dark') ? '#e5e7eb' : '#374151',
+        },
       },
     },
     scales: {

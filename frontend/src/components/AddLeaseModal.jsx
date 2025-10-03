@@ -272,7 +272,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
           <h2 className="text-xl font-semibold text-gray-900">Create Lease from Approved Application</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600 transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -289,13 +289,13 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
             {applicantsLoading ? (
               <div className="text-center py-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="text-gray-500 mt-2">Loading approved applicants...</p>
+                <p className="text-gray-500 dark:text-gray-300 mt-2">Loading approved applicants...</p>
               </div>
             ) : approvedApplicants.length === 0 ? (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
-                <User className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No approved applicants found</p>
-                <p className="text-sm text-gray-400 mt-1">Please approve some applications first</p>
+                <User className="h-12 w-12 text-gray-400 dark:text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-300">No approved applicants found</p>
+                <p className="text-sm text-gray-400 dark:text-gray-300 mt-1">Please approve some applications first</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -323,7 +323,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                         )}
                       </div>
                       <div className="text-right">
-                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:text-green-200">
                           Approved
                         </span>
                       </div>
@@ -407,7 +407,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                       </option>
                     ))}
                   </select>
-                  <p className="text-xs text-gray-500 mt-1">Select the day of each month when rent payment is due</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Select the day of each month when rent payment is due</p>
                   {errors.rent_payment_day && (
                     <p className="text-red-500 text-sm mt-1">{errors.rent_payment_day.message}</p>
                   )}
@@ -418,7 +418,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                     Monthly Rent
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-gray-400 dark:text-gray-300" />
                     <input
                       type="text"
                       value={selectedApplicant?.property?.monthly_rent ? `$${selectedApplicant.property.monthly_rent.toLocaleString()}/month` : 'N/A'}
@@ -426,7 +426,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                       className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                     {selectedApplicant?.property?.monthly_rent ? 'Rent amount is set by the property\'s listing' : 'No rent amount set for this property'}
                   </p>
                 </div>
@@ -446,7 +446,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                             setCalculatingProration(false);
                             setProrationError('Calculation cancelled');
                           }}
-                          className="text-xs text-red-600 hover:text-red-800 underline"
+                          className="text-xs text-red-600 hover:text-red-800 dark:text-red-200 underline"
                         >
                           Cancel
                         </button>
@@ -466,7 +466,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                               calculateProratedRent(selectedApplicant.property.id, leaseStartDate, rentPaymentDay);
                             }
                           }}
-                          className="text-xs text-blue-600 hover:text-blue-800 underline"
+                          className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline"
                         >
                           Try again
                         </button>
@@ -480,28 +480,28 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
                           <div className="text-center">
                             <p className="text-sm text-gray-700 mb-1">First Month Amount</p>
                             <p className="text-2xl font-bold text-blue-600">${proratedRent.amount.toFixed(0)}</p>
-                            <p className="text-xs text-gray-500">Instead of ${proratedRent.monthlyRent.toFixed(0)}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-300">Instead of ${proratedRent.monthlyRent.toFixed(0)}</p>
                           </div>
 
                           {/* You Save */}
                           <div className="text-center">
                             <p className="text-sm text-gray-700 mb-1">You Save</p>
                             <p className="text-2xl font-bold text-green-600">${(proratedRent.monthlyRent - proratedRent.amount).toFixed(2)}</p>
-                            <p className="text-xs text-gray-500">For partial month</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-300">For partial month</p>
                           </div>
 
                           {/* Days Prorated */}
                           <div className="text-center">
                             <p className="text-sm text-gray-700 mb-1">Days Prorated</p>
                             <p className="text-2xl font-bold text-gray-800">{proratedRent.daysRemaining} days</p>
-                            <p className="text-xs text-gray-500">Out of {proratedRent.totalDaysInMonth} days</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-300">Out of {proratedRent.totalDaysInMonth} days</p>
                           </div>
 
                           {/* Daily Rate */}
                           <div className="text-center">
                             <p className="text-sm text-gray-700 mb-1">Daily Rate</p>
                             <p className="text-2xl font-bold text-gray-800">${(proratedRent.monthlyRent / proratedRent.totalDaysInMonth).toFixed(0)}/day</p>
-                            <p className="text-xs text-gray-500">Next full payment: {(() => {
+                            <p className="text-xs text-gray-500 dark:text-gray-300">Next full payment: {(() => {
                               const startDate = new Date(proratedRent.startDate);
                               const nextMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1);
                               return nextMonth.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -519,7 +519,7 @@ const AddLeaseModal = ({ isOpen, onClose, onSuccess }) => {
 
                     {!proratedRent && !calculatingProration && !prorationError && (
                       <div className="text-center py-4">
-                        <p className="text-sm text-gray-500 mb-4">
+                        <p className="text-sm text-gray-500 dark:text-gray-300 mb-4">
                           Enter lease start date and rent payment day to calculate prorated rent
                         </p>
                         <button

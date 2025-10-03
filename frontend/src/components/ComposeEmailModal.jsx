@@ -19,13 +19,13 @@ const ComposeEmailModal = ({ isOpen, onClose }) => {
             <span className="text-gray-700">New email</span>
           </div>
           <div className="flex items-center gap-4">
-            <button className="text-gray-500 hover:text-gray-700">
+            <button className="text-gray-500 dark:text-gray-300 hover:text-gray-700">
               <span className="text-2xl">−</span>
             </button>
-            <button className="text-gray-500 hover:text-gray-700">
+            <button className="text-gray-500 dark:text-gray-300 hover:text-gray-700">
               <span className="text-xl">⤢</span>
             </button>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+            <button onClick={onClose} className="text-gray-500 dark:text-gray-300 hover:text-gray-700">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -44,7 +44,7 @@ const ComposeEmailModal = ({ isOpen, onClose }) => {
                 className="w-full border-b border-gray-300 p-2 focus:outline-none focus:border-blue-500"
                 readOnly
               />
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 h-4 w-4" />
             </div>
           </div>
 
@@ -81,7 +81,7 @@ const ComposeEmailModal = ({ isOpen, onClose }) => {
                 className="w-full border-b border-gray-300 p-2 focus:outline-none focus:border-blue-500"
                 placeholder="Select template..."
               />
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 h-4 w-4" />
             </div>
           </div>
 

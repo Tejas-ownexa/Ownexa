@@ -99,7 +99,7 @@ const VendorProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-lg">Loading vendor profile...</div>
       </div>
     );
@@ -107,25 +107,25 @@ const VendorProfile = () => {
 
   if (!vendorProfile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Vendor Profile Not Found</h2>
-          <p className="text-gray-600">Please contact support to set up your vendor profile.</p>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Vendor Profile Not Found</h2>
+          <p className="text-gray-600 dark:text-gray-300">Please contact support to set up your vendor profile.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Vendor Profile</h1>
-              <p className="text-gray-600 mt-1">Manage your business information and services</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Vendor Profile</h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">Manage your business information and services</p>
             </div>
             {!isEditing && (
               <button
@@ -143,15 +143,15 @@ const VendorProfile = () => {
           {/* Main Profile Information */}
           <div className="lg:col-span-2 space-y-6">
             {/* Business Information */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
               <div className="flex items-center mb-4">
-                <Building className="h-6 w-6 text-blue-600 mr-3" />
-                <h2 className="text-xl font-semibold text-gray-900">Business Information</h2>
+                <Building className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3" />
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Business Information</h2>
               </div>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Business Name
                   </label>
                   {isEditing ? (
@@ -159,25 +159,25 @@ const VendorProfile = () => {
                       type="text"
                       value={formData.business_name || ''}
                       onChange={(e) => handleInputChange('business_name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
-                    <p className="text-gray-900 font-medium">{vendorProfile.business_name}</p>
+                    <p className="text-gray-900 dark:text-white font-medium">{vendorProfile.business_name}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Vendor Type
                   </label>
                   <div className="flex items-center">
-                    <Wrench className="h-4 w-4 text-gray-500 mr-2" />
-                    <span className="text-gray-900">{getVendorTypeLabel(vendorProfile.vendor_type)}</span>
+                    <Wrench className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mr-2" />
+                    <span className="text-gray-900 dark:text-white">{getVendorTypeLabel(vendorProfile.vendor_type)}</span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Phone Number
                   </label>
                   {isEditing ? (
@@ -185,18 +185,18 @@ const VendorProfile = () => {
                       type="tel"
                       value={formData.phone_number || ''}
                       onChange={(e) => handleInputChange('phone_number', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
                     <div className="flex items-center">
-                      <Phone className="h-4 w-4 text-gray-500 mr-2" />
-                      <span className="text-gray-900">{vendorProfile.phone_number}</span>
+                      <Phone className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mr-2" />
+                      <span className="text-gray-900 dark:text-white">{vendorProfile.phone_number}</span>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Email Address
                   </label>
                   {isEditing ? (
@@ -204,18 +204,18 @@ const VendorProfile = () => {
                       type="email"
                       value={formData.email || ''}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
                     <div className="flex items-center">
-                      <Mail className="h-4 w-4 text-gray-500 mr-2" />
-                      <span className="text-gray-900">{vendorProfile.email}</span>
+                      <Mail className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mr-2" />
+                      <span className="text-gray-900 dark:text-white">{vendorProfile.email}</span>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Business Address
                   </label>
                   {isEditing ? (
@@ -223,12 +223,12 @@ const VendorProfile = () => {
                       value={formData.address || ''}
                       onChange={(e) => handleInputChange('address', e.target.value)}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     />
                   ) : (
                     <div className="flex items-start">
-                      <MapPin className="h-4 w-4 text-gray-500 mr-2 mt-0.5" />
-                      <span className="text-gray-900">{vendorProfile.address}</span>
+                      <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 mr-2 mt-0.5" />
+                      <span className="text-gray-900 dark:text-white">{vendorProfile.address}</span>
                     </div>
                   )}
                 </div>
@@ -236,12 +236,12 @@ const VendorProfile = () => {
             </div>
 
             {/* Professional Information */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Professional Information</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Professional Information</h2>
               
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     License Number
                   </label>
                   {isEditing ? (
@@ -249,16 +249,16 @@ const VendorProfile = () => {
                       type="text"
                       value={formData.license_number || ''}
                       onChange={(e) => handleInputChange('license_number', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Enter your license number"
                     />
                   ) : (
-                    <p className="text-gray-900">{vendorProfile.license_number || 'Not provided'}</p>
+                    <p className="text-gray-900 dark:text-white">{vendorProfile.license_number || 'Not provided'}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Insurance Information
                   </label>
                   {isEditing ? (
@@ -266,16 +266,16 @@ const VendorProfile = () => {
                       value={formData.insurance_info || ''}
                       onChange={(e) => handleInputChange('insurance_info', e.target.value)}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Enter your insurance details"
                     />
                   ) : (
-                    <p className="text-gray-900">{vendorProfile.insurance_info || 'Not provided'}</p>
+                    <p className="text-gray-900 dark:text-white">{vendorProfile.insurance_info || 'Not provided'}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Hourly Rate ($)
                   </label>
                   {isEditing ? (
@@ -284,11 +284,11 @@ const VendorProfile = () => {
                       step="0.01"
                       value={formData.hourly_rate || ''}
                       onChange={(e) => handleInputChange('hourly_rate', parseFloat(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Enter your hourly rate"
                     />
                   ) : (
-                    <p className="text-gray-900">
+                    <p className="text-gray-900 dark:text-white">
                       {vendorProfile.hourly_rate ? `$${vendorProfile.hourly_rate}/hour` : 'Not set'}
                     </p>
                   )}
@@ -301,7 +301,7 @@ const VendorProfile = () => {
               <div className="flex justify-end space-x-4">
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900"
                 >
                   Cancel
                 </button>
@@ -320,35 +320,35 @@ const VendorProfile = () => {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Status Card */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Status</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Account Status</h3>
               
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Verification Status</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Verification Status</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     vendorProfile.is_verified 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
+                      : 'bg-yellow-100 text-yellow-800 dark:text-yellow-200'
                   }`}>
                     {vendorProfile.is_verified ? 'Verified' : 'Pending'}
                   </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Account Status</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Account Status</span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     vendorProfile.is_active 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' 
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                   }`}>
                     {vendorProfile.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Member Since</span>
-                  <span className="text-sm text-gray-900">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Member Since</span>
+                  <span className="text-sm text-gray-900 dark:text-white">
                     {vendorProfile.created_at ? new Date(vendorProfile.created_at).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
@@ -356,13 +356,13 @@ const VendorProfile = () => {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h3>
               
               <div className="space-y-3">
                 <button
                   onClick={() => navigate('/maintenance')}
-                  className="w-full flex items-center px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md"
+                  className="w-full flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 rounded-md"
                 >
                   <Wrench className="h-4 w-4 mr-3" />
                   View Maintenance Requests

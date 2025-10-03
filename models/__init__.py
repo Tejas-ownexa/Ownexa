@@ -47,3 +47,4 @@ from models.leasing import (
     ApplicantGroupMember, LeaseDraft, DraftLeaseApprovedApplicant, DraftLeaseRecurringCharge,
     DraftLeaseOneTimeCharge, DraftLeaseRentCharge, DraftLeaseMoveInCharge, DraftLeaseSignature
 )
+from models.warehouse import Warehouse

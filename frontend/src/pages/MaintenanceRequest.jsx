@@ -91,15 +91,15 @@ const MaintenanceRequest = () => {
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'low':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:text-yellow-200';
       case 'high':
         return 'bg-orange-100 text-orange-800';
       case 'urgent':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200';
     }
   };
 
@@ -123,23 +123,23 @@ const MaintenanceRequest = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-4"
+            className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <Wrench className="h-8 w-8 text-blue-600 mr-3" />
+              <Wrench className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-3" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Submit Maintenance Request</h1>
-                <p className="text-gray-600 mt-1">Report maintenance issues for your property</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Submit Maintenance Request</h1>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">Report maintenance issues for your property</p>
               </div>
             </div>
             
@@ -158,7 +158,7 @@ const MaintenanceRequest = () => {
         <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
           <div className="flex items-center space-x-3">
             <div className="flex-shrink-0">
-              <Bot className="h-6 w-6 text-blue-600" />
+              <Bot className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-medium text-blue-900">
@@ -178,16 +178,16 @@ const MaintenanceRequest = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Property Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Property *
               </label>
               <select
                 {...register('property_id', { required: 'Property is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select your property</option>
                 {userProperties?.map((property) => (
@@ -197,45 +197,45 @@ const MaintenanceRequest = () => {
                 ))}
               </select>
               {errors.property_id && (
-                <p className="mt-1 text-sm text-red-600">{errors.property_id.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.property_id.message}</p>
               )}
             </div>
 
             {/* Request Title */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Issue Title *
               </label>
               <input
                 type="text"
                 {...register('request_title', { required: 'Issue title is required' })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Brief description of the issue"
               />
               {errors.request_title && (
-                <p className="mt-1 text-sm text-red-600">{errors.request_title.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.request_title.message}</p>
               )}
             </div>
 
             {/* Request Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Detailed Description *
               </label>
               <textarea
                 {...register('request_description', { required: 'Description is required' })}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Please provide detailed information about the maintenance issue..."
               />
               {errors.request_description && (
-                <p className="mt-1 text-sm text-red-600">{errors.request_description.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.request_description.message}</p>
               )}
             </div>
 
             {/* Priority Level */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Priority Level *
               </label>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -247,10 +247,10 @@ const MaintenanceRequest = () => {
                 ].map((priority) => (
                   <label
                     key={priority.value}
-                    className={`relative flex flex-col p-3 border rounded-lg cursor-pointer hover:bg-gray-50 ${
+                    className={`relative flex flex-col p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 ${
                       watch('priority') === priority.value
                         ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300'
+                        : 'border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     <input
@@ -263,24 +263,24 @@ const MaintenanceRequest = () => {
                       <div className={`w-3 h-3 rounded-full border-2 ${
                         watch('priority') === priority.value
                           ? 'border-blue-500 bg-blue-500'
-                          : 'border-gray-300'
+                          : 'border-gray-300 dark:border-gray-600'
                       }`} />
                       <span className={`ml-2 text-sm font-medium px-2 py-1 rounded-full ${getPriorityColor(priority.value)}`}>
                         {priority.label}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-600">{priority.description}</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-300">{priority.description}</span>
                   </label>
                 ))}
               </div>
               {errors.priority && (
-                <p className="mt-1 text-sm text-red-600">{errors.priority.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.priority.message}</p>
               )}
             </div>
 
             {/* Vendor Type Suggestion */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Suggested Vendor Type
               </label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -294,10 +294,10 @@ const MaintenanceRequest = () => {
                 ].map((type) => (
                   <label
                     key={type.value}
-                    className={`relative flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 ${
+                    className={`relative flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 ${
                       selectedVendorType === type.value
                         ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300'
+                        : 'border-gray-300 dark:border-gray-600'
                     }`}
                   >
                     <input
@@ -318,26 +318,26 @@ const MaintenanceRequest = () => {
 
             {/* Request Date */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Issue Date
               </label>
               <input
                 type="date"
                 {...register('request_date')}
                 defaultValue={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             {/* Additional Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Additional Notes
               </label>
               <textarea
                 {...register('tenant_notes')}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Any additional information that might help with the repair..."
               />
             </div>
@@ -347,7 +347,7 @@ const MaintenanceRequest = () => {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Cancel
               </button>
@@ -365,10 +365,10 @@ const MaintenanceRequest = () => {
         {/* Information Panel */}
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
           <div className="flex items-start">
-            <AlertTriangle className="h-6 w-6 text-blue-600 mr-3 mt-0.5" />
+            <AlertTriangle className="h-6 w-6 text-blue-600 dark:text-blue-400 mr-3 mt-0.5" />
             <div>
               <h3 className="text-lg font-medium text-blue-900 mb-2">What happens next?</h3>
-              <ul className="space-y-2 text-sm text-blue-800">
+              <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
                 <li className="flex items-center">
                   <Clock className="h-4 w-4 mr-2" />
                   Your request will be reviewed within 24 hours

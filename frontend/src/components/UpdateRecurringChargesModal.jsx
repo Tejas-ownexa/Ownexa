@@ -16,7 +16,7 @@ const UpdateRecurringChargesModal = ({ isOpen, onClose }) => {
           <h2 className="text-2xl font-semibold">Update recurring charges</h2>
           <button 
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 dark:text-gray-300 hover:text-gray-600"
           >
             <X className="h-6 w-6" />
           </button>
@@ -38,7 +38,7 @@ const UpdateRecurringChargesModal = ({ isOpen, onClose }) => {
                 >
                   <option value="">Select</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-300 pointer-events-none" />
               </div>
             </div>
 
@@ -55,7 +55,7 @@ const UpdateRecurringChargesModal = ({ isOpen, onClose }) => {
                 >
                   <option value="">Select</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-300 pointer-events-none" />
               </div>
             </div>
 
@@ -72,7 +72,7 @@ const UpdateRecurringChargesModal = ({ isOpen, onClose }) => {
                 >
                   <option value="">Select</option>
                 </select>
-                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-300 pointer-events-none" />
               </div>
             </div>
           </div>

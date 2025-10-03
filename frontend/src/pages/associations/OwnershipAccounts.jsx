@@ -85,11 +85,11 @@ const OwnershipAccounts = () => {
       case 'unit_owner':
         return (
           <div>
-            <div className="uppercase text-gray-500 text-sm font-medium mb-2">
+            <div className="uppercase text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm font-medium mb-2">
               UNIT OR OWNER
               <button 
                 onClick={() => handleRemoveFilter('unit_owner')}
-                className="ml-2 text-gray-400 hover:text-gray-600"
+                className="ml-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <X className="h-4 w-4 inline" />
               </button>
@@ -99,7 +99,7 @@ const OwnershipAccounts = () => {
               placeholder="Enter unit or owner..."
               value={unitOwnerValue}
               onChange={(e) => setUnitOwnerValue(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-2 w-[200px]"
+              className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 w-[200px]"
             />
           </div>
         );
@@ -107,11 +107,11 @@ const OwnershipAccounts = () => {
       case 'start_end':
         return (
           <div>
-            <div className="uppercase text-gray-500 text-sm font-medium mb-2">
+            <div className="uppercase text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm font-medium mb-2">
               START - END
               <button 
                 onClick={() => handleRemoveFilter('start_end')}
-                className="ml-2 text-gray-400 hover:text-gray-600"
+                className="ml-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <X className="h-4 w-4 inline" />
               </button>
@@ -121,13 +121,13 @@ const OwnershipAccounts = () => {
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="border border-gray-300 rounded px-3 py-2"
+                className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
               />
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="border border-gray-300 rounded px-3 py-2"
+                className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2"
               />
             </div>
           </div>
@@ -136,28 +136,28 @@ const OwnershipAccounts = () => {
       case 'delinquency':
         return (
           <div>
-            <div className="uppercase text-gray-500 text-sm font-medium mb-2">
+            <div className="uppercase text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 text-sm font-medium mb-2">
               DELINQUENCY STATUS
               <button 
                 onClick={() => handleRemoveFilter('delinquency')}
-                className="ml-2 text-gray-400 hover:text-gray-600"
+                className="ml-2 text-gray-400 dark:text-gray-500 dark:text-gray-300 hover:text-gray-600 dark:hover:text-gray-400 dark:text-gray-300"
               >
                 <X className="h-4 w-4 inline" />
               </button>
             </div>
             <div className="relative">
               <button
-                className="border border-gray-300 rounded px-3 py-2 w-[200px] text-left flex items-center justify-between"
+                className="border border-gray-300 dark:border-gray-600 rounded px-3 py-2 w-[200px] text-left flex items-center justify-between"
                 onClick={() => setIsDelinquencyDropdownOpen(!isDelinquencyDropdownOpen)}
               >
                 <span>{delinquencyStatus || 'Select statuses to include...'}</span>
                 <ChevronDown className="h-4 w-4" />
               </button>
               {isDelinquencyDropdownOpen && (
-                <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+                <div className="absolute left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
                   <div className="py-1">
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => {
                         setDelinquencyStatus('Current');
                         setIsDelinquencyDropdownOpen(false);
@@ -166,7 +166,7 @@ const OwnershipAccounts = () => {
                       Current
                     </button>
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => {
                         setDelinquencyStatus('Past Due');
                         setIsDelinquencyDropdownOpen(false);
@@ -175,7 +175,7 @@ const OwnershipAccounts = () => {
                       Past Due
                     </button>
                     <button 
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => {
                         setDelinquencyStatus('Collections');
                         setIsDelinquencyDropdownOpen(false);
@@ -209,24 +209,24 @@ const OwnershipAccounts = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Ownership Accounts</h1>
-            <p className="text-gray-600">Manage ownership accounts and recurring charges</p>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Ownership Accounts</h1>
+            <p className="text-gray-600 dark:text-gray-300">Manage ownership accounts and recurring charges</p>
           </div>
           <div className="flex gap-4">
             <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               Add Account
             </button>
             <button 
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               onClick={handleReceivePayment}
             >
               Receive Payment
             </button>
             <button 
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               onClick={handleUpdateRecurringCharges}
             >
               Update Recurring Charges
@@ -236,12 +236,12 @@ const OwnershipAccounts = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <div className="flex gap-4">
           {/* Associations Dropdown */}
           <div className="relative">
             <button
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[200px] justify-between"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[200px] justify-between"
               onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
             >
               <span>{selectedAssociation}</span>
@@ -249,10 +249,10 @@ const OwnershipAccounts = () => {
             </button>
           
             {isAssociationDropdownOpen && (
-              <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div className="absolute left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
                 <div className="py-1">
                   <button 
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                     onClick={() => {
                       setSelectedAssociation('All associations');
                       setIsAssociationDropdownOpen(false);
@@ -261,7 +261,7 @@ const OwnershipAccounts = () => {
                     All associations
                   </button>
                   <button 
-                    className="w-full text-left px-4 py-2 hover:bg-gray-100 text-blue-600"
+                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700 text-blue-600 dark:text-blue-400"
                     onClick={() => {
                       setIsAssociationDropdownOpen(false);
                       handleManageGroups();
@@ -277,7 +277,7 @@ const OwnershipAccounts = () => {
           {/* Status Dropdown */}
           <div className="relative">
             <button
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[200px] justify-between"
+              className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 min-w-[200px] justify-between"
               onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
             >
               <span>{getStatusDisplayText()}</span>
@@ -285,15 +285,15 @@ const OwnershipAccounts = () => {
             </button>
 
             {isStatusDropdownOpen && (
-              <div className="absolute left-0 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div className="absolute left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
                 <div className="py-1">
                   {statusOptions.map((option) => (
                     <button
                       key={option.id}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700 flex items-center"
                       onClick={() => handleStatusToggle(option.id)}
                     >
-                      <span className={`mr-2 ${selectedStatuses.includes(option.id) ? 'text-blue-600' : 'text-gray-400'}`}>
+                      <span className={`mr-2 ${selectedStatuses.includes(option.id) ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500 dark:text-gray-300'}`}>
                         {selectedStatuses.includes(option.id) ? '✓' : '○'}
                       </span>
                       {option.name}
@@ -307,19 +307,19 @@ const OwnershipAccounts = () => {
           {/* Add Filter Dropdown */}
           <div className="relative">
             <button
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-600 bg-green-50 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-green-600 dark:text-green-400 bg-green-50 hover:bg-green-100 dark:bg-green-900/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
             >
               Add Filter Option
               <ChevronDown className="ml-2 h-4 w-4" />
             </button>
             {isFilterDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+              <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
                 <div className="py-1">
                   {filterOptions.map((option) => (
                     <button
                       key={option.id}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100"
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                       onClick={() => handleAddFilter(option.id)}
                     >
                       {option.name}
@@ -334,10 +334,10 @@ const OwnershipAccounts = () => {
 
       {/* Active Filters */}
       {selectedFilters.length > 0 && (
-        <div className="bg-white rounded-lg border-l-4 border-green-500 p-4 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border-l-4 border-green-500 p-4 mb-4">
           <div className="flex items-end gap-4">
             {selectedFilters.map((filterId) => renderFilter(filterId))}
-            <button className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded h-[38px]">
+            <button className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 rounded h-[38px]">
               Apply filter
             </button>
           </div>
@@ -345,31 +345,31 @@ const OwnershipAccounts = () => {
       )}
 
       {/* Accounts Table */}
-      <div className="bg-white rounded-lg shadow-md">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   ACCOUNT
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   STATUS
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   START - END
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
               <tr>
                 <td colSpan="3" className="px-6 py-12 text-center">
-                  <div className="text-gray-500">
+                  <div className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-500 dark:text-gray-300">
                     <p className="text-lg font-medium mb-2">No accounts found</p>
                     <p className="text-sm">
                       We didn't find any accounts. Maybe you don't have any or maybe you need to{' '}
                       <button 
-                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 font-medium"
                         onClick={() => {
                           setSelectedAssociation('All associations');
                           setSelectedStatuses(['active', 'future']);

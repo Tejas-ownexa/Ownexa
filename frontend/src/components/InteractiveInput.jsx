@@ -47,7 +47,7 @@ const InteractiveInput = ({
       <div className="relative">
         {icon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <span className="text-gray-400">{icon}</span>
+            <span className="text-gray-400 dark:text-gray-300">{icon}</span>
           </div>
         )}
         
@@ -70,9 +70,9 @@ const InteractiveInput = ({
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? (
-              <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-300 hover:text-gray-600" />
             ) : (
-              <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              <Eye className="h-5 w-5 text-gray-400 dark:text-gray-300 hover:text-gray-600" />
             )}
           </button>
         )}

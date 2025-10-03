@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+<<<<<<< HEAD
 /* Global spacing reset */
 * {
   margin: 0;
@@ -25,47 +26,199 @@ main {
 #root > div {
   margin-top: 0 !important;
   padding-top: 0 !important;
+=======
+/* CSS Variables for Theme Support */
+:root {
+  /* Light theme colors - improved contrast */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-quaternary: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-quaternary: #94a3b8;
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --border-tertiary: #94a3b8;
+  --shadow-primary: rgba(0, 0, 0, 0.1);
+  --shadow-secondary: rgba(0, 0, 0, 0.05);
+  --shadow-tertiary: rgba(0, 0, 0, 0.02);
+  
+  /* Accent colors for light mode */
+  --accent-primary: #3b82f6;
+  --accent-secondary: #8b5cf6;
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-danger: #ef4444;
+  --accent-info: #06b6d4;
+  
+  /* Card backgrounds */
+  --card-bg: #ffffff;
+  --card-bg-hover: #f8fafc;
+  --card-border: #e2e8f0;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  
+  /* Button colors */
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-hover: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #f1f5f9;
+  --btn-secondary-hover: #e2e8f0;
+  --btn-secondary-text: #1e293b;
+}
+
+.dark {
+  /* Dark theme colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-quaternary: #475569;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-quaternary: #64748b;
+  --border-primary: #334155;
+  --border-secondary: #475569;
+  --border-tertiary: #64748b;
+  --shadow-primary: rgba(0, 0, 0, 0.4);
+  --shadow-secondary: rgba(0, 0, 0, 0.3);
+  --shadow-tertiary: rgba(0, 0, 0, 0.2);
+  
+  /* Accent colors for dark mode - adjusted for better contrast */
+  --accent-primary: #60a5fa;
+  --accent-secondary: #a78bfa;
+  --accent-success: #34d399;
+  --accent-warning: #fbbf24;
+  --accent-danger: #f87171;
+  --accent-info: #22d3ee;
+  
+  /* Card backgrounds for dark mode */
+  --card-bg: #1e293b;
+  --card-bg-hover: #334155;
+  --card-border: #334155;
+  --card-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* Button colors for dark mode */
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-hover: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #334155;
+  --btn-secondary-hover: #475569;
+  --btn-secondary-text: #f8fafc;
+>>>>>>> 9010d28ffdbe7d520a9135b06ed90726c286e44f
 }
 
 @layer components {
   .input-field {
-    @apply block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 hover:border-gray-400 hover:shadow-md;
+    @apply block w-full px-4 py-3 rounded-lg shadow-sm focus:outline-none focus:ring-2 transition-all duration-300 hover:shadow-md;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    color: var(--text-primary);
+  }
+  
+  .input-field:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px var(--accent-primary);
+  }
+  
+  .input-field:hover {
+    border-color: var(--border-secondary);
   }
 
   .btn-primary {
-    @apply px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+    @apply px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+    background: linear-gradient(135deg, var(--btn-primary-bg), var(--accent-primary));
+    color: var(--btn-primary-text);
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--btn-primary-hover), var(--accent-primary));
+  }
+  
+  .btn-primary:focus {
+    box-shadow: 0 0 0 2px var(--accent-primary);
   }
 
   .btn-secondary {
-    @apply px-6 py-3 text-sm font-medium text-gray-700 bg-gradient-to-r from-gray-100 to-gray-200 rounded-lg hover:from-gray-200 hover:to-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg;
+    @apply px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg;
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--border-primary);
+  }
+  
+  .btn-secondary:hover {
+    background: var(--btn-secondary-hover);
   }
 
   .btn-success {
-    @apply px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 rounded-lg hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+    @apply px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+    background: linear-gradient(135deg, var(--accent-success), #059669);
+    color: white;
+  }
+  
+  .btn-success:hover {
+    background: linear-gradient(135deg, #059669, #047857);
   }
 
   .btn-danger {
-    @apply px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-700 rounded-lg hover:from-red-700 hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+    @apply px-6 py-3 text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transform transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl;
+    background: linear-gradient(135deg, var(--accent-danger), #dc2626);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
   }
 
   .dashboard-card {
-    @apply bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] border border-gray-100 hover:border-blue-200;
+    @apply rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02];
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 6px -1px var(--card-shadow);
+  }
+  
+  .dashboard-card:hover {
+    background-color: var(--card-bg-hover);
+    border-color: var(--accent-primary);
   }
 
   .interactive-card {
-    @apply bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 border border-gray-100 hover:border-blue-200 cursor-pointer;
+    @apply rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 cursor-pointer;
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 6px -1px var(--card-shadow);
+  }
+  
+  .interactive-card:hover {
+    background-color: var(--card-bg-hover);
+    border-color: var(--accent-primary);
   }
 
   .glass-card {
-    @apply bg-white/80 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02] border border-white/20;
+    @apply backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:scale-[1.02];
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 4px 6px -1px var(--card-shadow);
   }
 
   .gradient-text {
-    @apply bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .gradient-bg {
-    @apply bg-gradient-to-br from-blue-50 via-white to-purple-50;
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary), var(--bg-tertiary));
+  }
+  
+  .gradient-bg-light {
+    background: linear-gradient(135deg, #f8fafc, #ffffff, #f1f5f9);
+  }
+  
+  .gradient-bg-dark {
+    background: linear-gradient(135deg, #1e293b, #0f172a, #334155);
   }
 
   .animate-float {
@@ -118,6 +271,40 @@ main {
 
   .border-gradient {
     @apply border-2 border-transparent bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-border;
+  }
+
+  /* Enhanced text contrast utilities for dark mode */
+  .text-contrast {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+
+  .text-contrast-muted {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+
+  .text-contrast-subtle {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  .text-contrast-minimal {
+    @apply text-gray-400 dark:text-gray-300;
+  }
+
+  /* Enhanced table styling for dark mode */
+  .table-header {
+    @apply bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-200;
+  }
+
+  .table-row {
+    @apply bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700;
+  }
+
+  .table-cell {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+
+  .table-cell-muted {
+    @apply text-gray-500 dark:text-gray-300;
   }
 }
 
@@ -250,13 +437,25 @@ main {
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
 ::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 4px;
 }
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
 ::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 /* Smooth transitions for all elements */
@@ -264,4 +463,48 @@ main {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+/* Ensure proper viewport handling */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Responsive chart containers */
+.chart-container {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-container {
+    height: 200px;
+  }
+}
+
+/* Ensure dashboard content fits on screen */
+.dashboard-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .text-3xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .text-2xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
 }

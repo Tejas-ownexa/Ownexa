@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AdminBotProvider, useAdminBot } from './contexts/AdminBotContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import AdminBotModal from './components/AdminBotModal';
 // import ErrorBoundary from './components/ErrorBoundary';
@@ -16,6 +17,7 @@ import PropertyDetail from './pages/PropertyDetail';
 import Properties from './pages/Properties';
 import AddProperty from './pages/AddProperty';
 import Tenants from './pages/Tenants';
+import TenantDetail from './pages/TenantDetail';
 import Rentals from './pages/Rentals';
 import RentalOwners from './pages/RentalOwners';
 import RentalOwnerDetail from './pages/RentalOwnerDetail';
@@ -33,6 +35,10 @@ import ManageVendorCategories from './pages/ManageVendorCategories';
 import WorkOrders from './pages/WorkOrders';
 import AddWorkOrder from './pages/AddWorkOrder';
 import Associations from './pages/Associations';
+import AssociationDetail from './pages/AssociationDetail';
+import AssignProperty from './pages/associations/AssignProperty';
+import AddWarehouse from './pages/AddWarehouse';
+import Warehouses from './pages/Warehouses';
 
 import Accountability from './pages/Accountability';
 import Reporting from './pages/Reporting';
@@ -88,9 +94,11 @@ const App = () => {
   return (
     // <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AdminBotProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <AdminBotProvider>
             <Router>
+<<<<<<< HEAD
               <div className="min-h-screen gradient-bg relative overflow-hidden">
                 {/* Animated background elements */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -109,6 +117,26 @@ const App = () => {
                       <div className="md:ml-64 transition-all duration-500 relative z-10">
                         <main className="p-2 sm:p-4 md:p-6 lg:p-8">
                           <Routes>
+=======
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
+              {/* Animated background elements */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200 dark:bg-blue-800 rounded-full filter blur-xl opacity-20 dark:opacity-10 animate-float"></div>
+                <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200 dark:bg-indigo-800 rounded-full filter blur-xl opacity-20 dark:opacity-10 animate-float" style={{animationDelay: '2s'}}></div>
+                <div className="absolute top-40 left-1/2 w-80 h-80 bg-cyan-200 dark:bg-cyan-800 rounded-full filter blur-xl opacity-20 dark:opacity-10 animate-float" style={{animationDelay: '4s'}}></div>
+              </div>
+              
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="*" element={
+                  <>
+                    <Sidebar />
+                    {/* Main content area - responsive padding */}
+                    <div className="md:ml-64 transition-all duration-500 relative z-10 min-h-screen">
+                      <main className="p-2 sm:p-4 md:p-6 lg:p-8 max-w-full overflow-x-hidden">
+                        <Routes>
+>>>>>>> 9010d28ffdbe7d520a9135b06ed90726c286e44f
                     <Route path="/dashboard" element={
                       <PrivateRoute>
                         <DashboardRouter />
@@ -130,12 +158,29 @@ const App = () => {
                         <AddProperty />
                       </PrivateRoute>
                     } />
+                    <Route path="/add-warehouse" element={
+                      <PrivateRoute>
+                        <AddWarehouse />
+                      </PrivateRoute>
+                    } />
+                    <Route path="/warehouses" element={
+                      <PrivateRoute>
+                        <Warehouses />
+                      </PrivateRoute>
+                    } />
                     <Route path="/tenants" element={
                       <PrivateRoute>
                         <Tenants />
                       </PrivateRoute>
                     } />
+                    <Route path="/tenants/:id" element={
+                      <PrivateRoute>
+                        <TenantDetail />
+                      </PrivateRoute>
+                    } />
                     <Route path="/associations" element={<PrivateRoute><Associations /></PrivateRoute>} />
+                    <Route path="/associations/:id" element={<PrivateRoute><AssociationDetail /></PrivateRoute>} />
+                    <Route path="/associations/:id/assign-property" element={<PrivateRoute><AssignProperty /></PrivateRoute>} />
                     <Route path="/associations/property-groups" element={<PrivateRoute><PropertyGroups /></PrivateRoute>} />
                     <Route path="/associations/property-groups/add" element={
                       <PrivateRoute>
@@ -281,8 +326,9 @@ const App = () => {
               <AdminBotWrapper />
             </div>
           </Router>
-          </AdminBotProvider>
-        </AuthProvider>
+            </AdminBotProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </QueryClientProvider>
     // </ErrorBoundary>
   );

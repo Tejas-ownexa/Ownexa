@@ -3,6 +3,7 @@ from models.accountability import AccountabilityFinancial, GeneralLedger, Bankin
 from models.property import Property
 from models.financial import PropertyFinancial, FinancialTransaction
 from models.rental_owner import RentalOwner, RentalOwnerManager
+from models.tenant import Tenant
 from config import db
 from routes.auth_routes import token_required
 from datetime import datetime, date
@@ -195,21 +196,46 @@ def get_general_ledger_dashboard(current_user):
         else:
             prev_month_start = date(current_date.year, current_date.month - 1, 1)
         
-        # Calculate total assets (sum of all asset entries)
-        current_assets = db.session.query(func.sum(GeneralLedger.amount)).filter(
-            GeneralLedger.property_id.in_(property_ids),
-            GeneralLedger.account_category == 'assets',
-            GeneralLedger.transaction_type == 'debit'
-        ).scalar() or 0
+        # Get all general ledger entries for calculations
+        all_ledger_entries = GeneralLedger.query.filter(
+            GeneralLedger.property_id.in_(property_ids)
+        ).all()
         
-        # Calculate net worth (assets - liabilities)
-        current_liabilities = db.session.query(func.sum(GeneralLedger.amount)).filter(
-            GeneralLedger.property_id.in_(property_ids),
-            GeneralLedger.account_category == 'liabilities',
-            GeneralLedger.transaction_type == 'credit'
-        ).scalar() or 0
+        # Calculate total assets (sum of all property total values)
+        current_assets = sum(float(pf.total_value or 0) for pf in PropertyFinancial.query.filter(
+            PropertyFinancial.property_id.in_(property_ids)
+        ).all())
         
+        # Calculate total liabilities (sum of all mortgage amounts)
+        current_liabilities = sum(float(pf.mortgage_amount or 0) for pf in PropertyFinancial.query.filter(
+            PropertyFinancial.property_id.in_(property_ids)
+        ).all())        
+        # Calculate total equity (sum of all equity entries)
+        equity_debits = sum(float(entry.amount) for entry in all_ledger_entries 
+                           if entry.account_category == 'equity' and entry.transaction_type == 'debit')
+        equity_credits = sum(float(entry.amount) for entry in all_ledger_entries 
+                            if entry.account_category == 'equity' and entry.transaction_type == 'credit')
+        current_equity = equity_credits - equity_debits
+        
+        # Calculate total revenue (monthly revenue × 12)
+        # Get all tenants for user properties
+        tenants = Tenant.query.filter(Tenant.property_id.in_(property_ids)).all()
+        monthly_revenue = sum(float(t.rent_amount or 0) for t in tenants if t.lease_end is None or t.lease_end > date.today())
+        current_revenue = monthly_revenue * 12
+        
+        # Calculate total expenses (monthly expenses × 12)
+        # Get all property financials for user properties
+        property_financials = PropertyFinancial.query.filter(
+            PropertyFinancial.property_id.in_(property_ids)
+        ).all()
+        monthly_expenses = sum(float(pf.calculate_total_monthly_expenses() or 0) for pf in property_financials)
+        current_expenses = monthly_expenses * 12
+        
+        # Net worth = Assets - Liabilities (or Assets = Liabilities + Equity)
         net_worth = current_assets - current_liabilities
+        
+        # Net income = Revenue - Expenses
+        net_income = current_revenue - current_expenses
         
         # Monthly activity (number of transactions this month)
         monthly_activity = GeneralLedger.query.filter(
@@ -224,51 +250,62 @@ def get_general_ledger_dashboard(current_user):
         ).count()
         
         # Previous month calculations
-        prev_assets = db.session.query(func.sum(GeneralLedger.amount)).filter(
-            GeneralLedger.property_id.in_(property_ids),
-            GeneralLedger.account_category == 'assets',
-            GeneralLedger.transaction_type == 'debit',
-            GeneralLedger.transaction_date >= prev_month_start,
-            GeneralLedger.transaction_date < month_start
-        ).scalar() or 0
+        prev_month_entries = [entry for entry in all_ledger_entries 
+                             if prev_month_start <= entry.transaction_date < month_start]
         
-        prev_liabilities = db.session.query(func.sum(GeneralLedger.amount)).filter(
-            GeneralLedger.property_id.in_(property_ids),
-            GeneralLedger.account_category == 'liabilities',
-            GeneralLedger.transaction_type == 'credit',
-            GeneralLedger.transaction_date >= prev_month_start,
-            GeneralLedger.transaction_date < month_start
-        ).scalar() or 0
+        # Calculate previous month assets (property values are relatively stable, so use current values)
+        prev_assets = current_assets
+        
+        # Calculate previous month liabilities
+        prev_liability_debits = sum(float(entry.amount) for entry in prev_month_entries 
+                                   if entry.account_category == 'liabilities' and entry.transaction_type == 'debit')
+        prev_liability_credits = sum(float(entry.amount) for entry in prev_month_entries 
+                                    if entry.account_category == 'liabilities' and entry.transaction_type == 'credit')
+        prev_liabilities = prev_liability_credits - prev_liability_debits
         
         prev_net_worth = prev_assets - prev_liabilities
-        prev_monthly_activity = GeneralLedger.query.filter(
-            GeneralLedger.property_id.in_(property_ids),
-            GeneralLedger.transaction_date >= prev_month_start,
-            GeneralLedger.transaction_date < month_start
-        ).count()
+        prev_monthly_activity = len(prev_month_entries)
         
         # Calculate trends
-        assets_trend = ((current_assets - prev_assets) / prev_assets * 100) if prev_assets > 0 else 0
-        net_worth_trend = ((net_worth - prev_net_worth) / prev_net_worth * 100) if prev_net_worth > 0 else 0
+        assets_trend = ((current_assets - prev_assets) / prev_assets * 100) if prev_assets != 0 else 0
+        net_worth_trend = ((net_worth - prev_net_worth) / prev_net_worth * 100) if prev_net_worth != 0 else 0
         activity_trend = ((monthly_activity - prev_monthly_activity) / prev_monthly_activity * 100) if prev_monthly_activity > 0 else 0
         
-        # Get chart data from actual ledger entries
-        all_entries = GeneralLedger.query.filter(
-            GeneralLedger.property_id.in_(property_ids)
-        ).order_by(GeneralLedger.transaction_date).all()
+        # Get chart data from actual ledger entries (we already have all_ledger_entries)
+        all_entries = all_ledger_entries
         
-        # Calculate account category balances
+        # Calculate account category balances using proper accounting logic
         category_totals = {}
         for entry in all_entries:
             if entry.account_category not in category_totals:
-                category_totals[entry.account_category] = 0
+                category_totals[entry.account_category] = {'debits': 0, 'credits': 0}
+            
             if entry.transaction_type == 'debit':
-                category_totals[entry.account_category] += float(entry.amount)
+                category_totals[entry.account_category]['debits'] += float(entry.amount)
             else:
-                category_totals[entry.account_category] -= float(entry.amount)
+                category_totals[entry.account_category]['credits'] += float(entry.amount)
         
-        category_labels = list(category_totals.keys())
-        category_values = [abs(v) for v in category_totals.values()]
+        # Calculate net balances for each category
+        category_balances = {}
+        for category, totals in category_totals.items():
+            if category == 'assets':
+                # Assets: Debits - Credits
+                category_balances[category] = totals['debits'] - totals['credits']
+            elif category == 'liabilities':
+                # Liabilities: Credits - Debits
+                category_balances[category] = totals['credits'] - totals['debits']
+            elif category == 'equity':
+                # Equity: Credits - Debits
+                category_balances[category] = totals['credits'] - totals['debits']
+            elif category == 'revenue':
+                # Revenue: Credits - Debits
+                category_balances[category] = totals['credits'] - totals['debits']
+            elif category == 'expenses':
+                # Expenses: Debits - Credits
+                category_balances[category] = totals['debits'] - totals['credits']
+        
+        category_labels = list(category_balances.keys())
+        category_values = [abs(v) for v in category_balances.values()]
         
         # Calculate monthly activity
         monthly_credits = []
@@ -295,6 +332,11 @@ def get_general_ledger_dashboard(current_user):
         
         return jsonify({
             'totalAssets': float(current_assets),
+            'totalLiabilities': float(current_liabilities),
+            'totalEquity': float(current_equity),
+            'totalRevenue': float(current_revenue),
+            'totalExpenses': float(current_expenses),
+            'netIncome': float(net_income),
             'netWorth': float(net_worth),
             'monthlyActivity': monthly_activity,
             'unreconciled': unreconciled,
@@ -766,6 +808,208 @@ def get_general_ledger_entries(current_user):
             'approval_date': entry.approval_date.isoformat() if entry.approval_date else None,
             'created_at': entry.created_at.isoformat() if entry.created_at else None
         } for entry in entries])
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@accountability_bp.route('/general-ledger/<int:entry_id>', methods=['PUT'])
+@token_required
+def update_general_ledger_entry(current_user, entry_id):
+    """Update a general ledger entry"""
+    try:
+        data = request.get_json()
+        
+        # Get the ledger entry
+        ledger_entry = GeneralLedger.query.get(entry_id)
+        if not ledger_entry:
+            return jsonify({'error': 'Ledger entry not found'}), 404
+        
+        # Check if user has access to this property
+        property = Property.query.get(ledger_entry.property_id)
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
+            return jsonify({'error': 'Access denied'}), 403
+        
+        # Update fields
+        if 'transaction_date' in data:
+            ledger_entry.transaction_date = datetime.strptime(data['transaction_date'], '%Y-%m-%d').date()
+        if 'transaction_type' in data:
+            ledger_entry.transaction_type = data['transaction_type']
+        if 'account_category' in data:
+            ledger_entry.account_category = data['account_category']
+        if 'account_subcategory' in data:
+            ledger_entry.account_subcategory = data['account_subcategory']
+        if 'amount' in data:
+            ledger_entry.amount = Decimal(str(data['amount']))
+        if 'reference_number' in data:
+            ledger_entry.reference_number = data['reference_number']
+        if 'description' in data:
+            ledger_entry.description = data['description']
+        if 'notes' in data:
+            ledger_entry.notes = data['notes']
+        
+        # Recalculate running balance if amount or type changed
+        if 'amount' in data or 'transaction_type' in data:
+            # Get all entries for this property up to this entry
+            all_entries = GeneralLedger.query.filter(
+                GeneralLedger.property_id == ledger_entry.property_id,
+                GeneralLedger.id <= ledger_entry.id
+            ).order_by(GeneralLedger.id).all()
+            
+            running_balance = 0
+            for entry in all_entries:
+                if entry.id == ledger_entry.id:
+                    # Use updated values for current entry
+                    if entry.transaction_type == 'debit':
+                        running_balance += entry.amount
+                    else:
+                        running_balance -= entry.amount
+                else:
+                    # Use existing values for other entries
+                    if entry.transaction_type == 'debit':
+                        running_balance += entry.amount
+                    else:
+                        running_balance -= entry.amount
+            
+            ledger_entry.running_balance = running_balance
+            
+            # Update running balances for all subsequent entries
+            subsequent_entries = GeneralLedger.query.filter(
+                GeneralLedger.property_id == ledger_entry.property_id,
+                GeneralLedger.id > ledger_entry.id
+            ).order_by(GeneralLedger.id).all()
+            
+            for entry in subsequent_entries:
+                if entry.transaction_type == 'debit':
+                    running_balance += entry.amount
+                else:
+                    running_balance -= entry.amount
+                entry.running_balance = running_balance
+        
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Ledger entry updated successfully',
+            'entry': {
+                'id': ledger_entry.id,
+                'transaction_date': ledger_entry.transaction_date.isoformat(),
+                'amount': float(ledger_entry.amount),
+                'running_balance': float(ledger_entry.running_balance)
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@accountability_bp.route('/general-ledger/<int:entry_id>', methods=['DELETE'])
+@token_required
+def delete_general_ledger_entry(current_user, entry_id):
+    """Delete a general ledger entry"""
+    try:
+        # Get the ledger entry
+        ledger_entry = GeneralLedger.query.get(entry_id)
+        if not ledger_entry:
+            return jsonify({'error': 'Ledger entry not found'}), 404
+        
+        # Check if user has access to this property
+        property = Property.query.get(ledger_entry.property_id)
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
+            return jsonify({'error': 'Access denied'}), 403
+        
+        # Recalculate running balances for all subsequent entries
+        subsequent_entries = GeneralLedger.query.filter(
+            GeneralLedger.property_id == ledger_entry.property_id,
+            GeneralLedger.id > ledger_entry.id
+        ).order_by(GeneralLedger.id).all()
+        
+        # Get the running balance before this entry
+        previous_entries = GeneralLedger.query.filter(
+            GeneralLedger.property_id == ledger_entry.property_id,
+            GeneralLedger.id < ledger_entry.id
+        ).order_by(GeneralLedger.id).all()
+        
+        running_balance = 0
+        for entry in previous_entries:
+            if entry.transaction_type == 'debit':
+                running_balance += entry.amount
+            else:
+                running_balance -= entry.amount
+        
+        # Update running balances for subsequent entries
+        for entry in subsequent_entries:
+            if entry.transaction_type == 'debit':
+                running_balance += entry.amount
+            else:
+                running_balance -= entry.amount
+            entry.running_balance = running_balance
+        
+        # Delete the entry
+        db.session.delete(ledger_entry)
+        db.session.commit()
+        
+        return jsonify({'message': 'Ledger entry deleted successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@accountability_bp.route('/general-ledger/<int:entry_id>', methods=['GET'])
+@token_required
+def get_general_ledger_entry(current_user, entry_id):
+    """Get a specific general ledger entry"""
+    try:
+        # Get the ledger entry
+        ledger_entry = GeneralLedger.query.get(entry_id)
+        if not ledger_entry:
+            return jsonify({'error': 'Ledger entry not found'}), 404
+        
+        # Check if user has access to this property
+        property = Property.query.get(ledger_entry.property_id)
+        if not property:
+            return jsonify({'error': 'Property not found'}), 404
+        
+        manager = RentalOwnerManager.query.filter_by(
+            rental_owner_id=property.rental_owner_id,
+            user_id=current_user.id
+        ).first()
+        
+        if not manager and current_user.role != 'ADMIN' and current_user.username != 'admin':
+            return jsonify({'error': 'Access denied'}), 403
+        
+        return jsonify({
+            'id': ledger_entry.id,
+            'property_id': ledger_entry.property_id,
+            'property_title': ledger_entry.property.title,
+            'transaction_date': ledger_entry.transaction_date.isoformat(),
+            'transaction_type': ledger_entry.transaction_type,
+            'account_category': ledger_entry.account_category,
+            'account_subcategory': ledger_entry.account_subcategory,
+            'amount': float(ledger_entry.amount),
+            'running_balance': float(ledger_entry.running_balance),
+            'reference_number': ledger_entry.reference_number,
+            'description': ledger_entry.description,
+            'notes': ledger_entry.notes,
+            'posted_by': ledger_entry.posted_by,
+            'approved_by': ledger_entry.approved_by,
+            'approval_date': ledger_entry.approval_date.isoformat() if ledger_entry.approval_date else None,
+            'created_at': ledger_entry.created_at.isoformat() if ledger_entry.created_at else None
+        })
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500

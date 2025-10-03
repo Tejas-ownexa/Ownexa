@@ -278,10 +278,10 @@ const Reporting = () => {
 
   const getSortIcon = (section, key) => {
     const sort = sortConfig[section];
-    if (sort.key !== key) return <SortAsc className="h-4 w-4 text-gray-400" />;
+    if (sort.key !== key) return <SortAsc className="h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />;
     return sort.direction === 'asc' 
-      ? <SortAsc className="h-4 w-4 text-blue-600" />
-      : <SortDesc className="h-4 w-4 text-blue-600" />;
+      ? <SortAsc className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+      : <SortDesc className="h-4 w-4 text-blue-600 dark:text-blue-400" />;
   };
 
   // Chart and analytics components
@@ -306,7 +306,7 @@ const Reporting = () => {
           <div className="mt-2">
             <div className="bg-blue-400 bg-opacity-30 rounded-full h-1.5">
               <div 
-                className="bg-white rounded-full h-1.5 transition-all duration-1000 ease-out"
+                className="bg-white dark:bg-gray-800 rounded-full h-1.5 transition-all duration-1000 ease-out"
                 style={{ width: `${overview.occupancy_rate || 0}%` }}
               ></div>
             </div>
@@ -373,15 +373,15 @@ const Reporting = () => {
     const overview = data.overview;
     
     return (
-      <div className="bg-white rounded-lg shadow p-4 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-semibold text-gray-900 flex items-center">
-            <PieChart className="h-4 w-4 mr-2 text-blue-600" />
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white flex items-center">
+            <PieChart className="h-4 w-4 mr-2 text-blue-600 dark:text-blue-400" />
             Portfolio Overview
           </h3>
           <button
             onClick={() => setShowCharts(!showCharts)}
-            className="flex items-center text-xs text-gray-600 hover:text-gray-900"
+            className="flex items-center text-xs text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:text-white"
           >
             {showCharts ? <EyeOff className="h-3 w-3 mr-1" /> : <Eye className="h-3 w-3 mr-1" />}
             {showCharts ? 'Hide Charts' : 'Show Charts'}
@@ -391,12 +391,12 @@ const Reporting = () => {
         {showCharts && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {/* Income vs Expenses Chart */}
-            <div className="bg-gray-50 rounded-lg p-3">
-              <h4 className="text-xs font-medium text-gray-700 mb-2">Income vs Expenses</h4>
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+              <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Income vs Expenses</h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Total Income</span>
-                  <span className="text-xs font-medium text-green-600">{formatCurrency(overview.total_income || 0)}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-300">Total Income</span>
+                  <span className="text-xs font-medium text-green-600 dark:text-green-400">{formatCurrency(overview.total_income || 0)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                   <div 
@@ -406,8 +406,8 @@ const Reporting = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Total Expenses</span>
-                  <span className="text-xs font-medium text-red-600">{formatCurrency(overview.total_expenses || 0)}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-300">Total Expenses</span>
+                  <span className="text-xs font-medium text-red-600 dark:text-red-400">{formatCurrency(overview.total_expenses || 0)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                   <div 
@@ -423,12 +423,12 @@ const Reporting = () => {
             </div>
 
             {/* Property Status Chart */}
-            <div className="bg-gray-50 rounded-lg p-3">
-              <h4 className="text-xs font-medium text-gray-700 mb-2">Property Status</h4>
+            <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+              <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Property Status</h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Occupied</span>
-                  <span className="text-xs font-medium text-blue-600">{overview.total_properties - (overview.total_properties - (overview.total_tenants || 0))}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-300">Occupied</span>
+                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">{overview.total_properties - (overview.total_properties - (overview.total_tenants || 0))}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                   <div 
@@ -442,12 +442,12 @@ const Reporting = () => {
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-600">Vacant</span>
-                  <span className="text-xs font-medium text-gray-600">{overview.total_properties - (overview.total_tenants || 0)}</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-300">Vacant</span>
+                  <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{overview.total_properties - (overview.total_tenants || 0)}</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1.5">
                   <div 
-                    className="bg-gray-500 h-1.5 rounded-full transition-all duration-1000 ease-out"
+                    className="bg-gray-50 dark:bg-gray-9000 h-1.5 rounded-full transition-all duration-1000 ease-out"
                     style={{ 
                       width: overview.total_properties > 0 
                         ? `${((overview.total_properties - (overview.total_tenants || 0)) / overview.total_properties) * 100}%` 
@@ -477,9 +477,9 @@ const Reporting = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         {items.map((item, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow border">
-            <div className="text-sm font-medium text-gray-500">{item.label}</div>
-            <div className="text-2xl font-bold text-gray-900">{item.value}</div>
+          <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border">
+            <div className="text-sm font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{item.label}</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{item.value}</div>
           </div>
         ))}
       </div>
@@ -496,37 +496,37 @@ const Reporting = () => {
     // Handle different report types
     if (data.properties) {
       return (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Properties</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Properties</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Rent</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tenant</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Address</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Monthly Rent</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tenant</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                 {data.properties.map((property, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{property.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{property.address}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{property.property_type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{property.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{property.address}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{property.property_type}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        property.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                        property.status === 'ACTIVE' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                       }`}>
                         {property.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(property.monthly_rent)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{property.tenant_name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{formatCurrency(property.monthly_rent)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{property.tenant_name}</td>
                   </tr>
                 ))}
               </tbody>
@@ -538,31 +538,31 @@ const Reporting = () => {
 
     if (data.tenants) {
       return (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Tenants</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Tenants</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Rent</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lease End</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Monthly Rent</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Lease End</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                 {data.tenants.map((tenant, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tenant.full_name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tenant.property_title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(tenant.monthly_rent)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tenant.lease_end}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{tenant.full_name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{tenant.property_title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{formatCurrency(tenant.monthly_rent)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{tenant.lease_end}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        tenant.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        tenant.is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                       }`}>
                         {tenant.is_active ? 'Active' : 'Inactive'}
                       </span>
@@ -578,45 +578,45 @@ const Reporting = () => {
 
     if (data.requests) {
       return (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h3 className="text-lg font-medium text-gray-900">Maintenance Requests</h3>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Maintenance Requests</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-50 dark:bg-gray-900">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Priority</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cost</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Created</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                 {data.requests.map((request, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{request.title}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{request.property_title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{request.title}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{request.property_title}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        request.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
-                        request.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                        request.priority === 'HIGH' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                        request.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200' : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                       }`}>
                         {request.priority}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        request.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                        request.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                        request.status === 'COMPLETED' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                        request.status === 'IN_PROGRESS' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                       }`}>
                         {request.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(request.cost)}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{request.created_at}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">{formatCurrency(request.cost)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{request.created_at}</td>
                   </tr>
                 ))}
               </tbody>
@@ -638,16 +638,16 @@ const Reporting = () => {
 
           {/* Properties Section */}
           {data.sections.properties && data.sections.properties.properties && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-6 py-4 border-b-2 border-blue-600 bg-blue-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+              <div className="px-6 py-4 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50">
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => toggleSection('properties')}
-                    className="flex items-center text-lg font-bold text-blue-800 hover:text-blue-900 transition-colors"
+                    className="flex items-center text-lg font-bold text-blue-800 dark:text-blue-200 hover:text-blue-900 transition-colors"
                   >
-                    <Building className="h-5 w-5 mr-3 text-blue-600" />
+                    <Building className="h-5 w-5 mr-3 text-blue-600 dark:text-blue-400" />
                     Properties Portfolio
-                    <span className="ml-3 text-sm font-normal text-blue-600">
+                    <span className="ml-3 text-sm font-normal text-blue-600 dark:text-blue-400">
                       ({data.sections.properties.properties.length} properties)
                     </span>
                     {expandedSections.properties ? (
@@ -658,13 +658,13 @@ const Reporting = () => {
                   </button>
                   <div className="flex items-center space-x-2">
                     <div className="relative">
-                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                       <input
                         type="text"
                         placeholder="Search properties..."
                         value={searchFilters.properties}
                         onChange={(e) => handleSearch('properties', e.target.value)}
-                        className="pl-8 pr-3 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="pl-8 pr-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
@@ -707,31 +707,31 @@ const Reporting = () => {
                         <th className="px-6 py-4 text-left text-sm font-bold text-white uppercase tracking-wider">Tenant</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {filterAndSortData(data.sections.properties.properties, 'properties', 'title').map((property, index) => (
-                        <tr key={index} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{property.title}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{property.address}</td>
+                        <tr key={index} className={`hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}`}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{property.title}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{property.address}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
                               property.status?.toLowerCase() === 'occupied' 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200' 
                                 : property.status?.toLowerCase() === 'available'
                                 ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
                             }`}>
                               <span className={`w-2 h-2 rounded-full mr-2 ${
                                 property.status?.toLowerCase() === 'occupied' 
                                   ? 'bg-green-500' 
                                   : property.status?.toLowerCase() === 'available'
                                   ? 'bg-orange-500'
-                                  : 'bg-gray-500'
+                                  : 'bg-gray-50 dark:bg-gray-9000'
                               }`}></span>
                               {property.status || 'N/A'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium text-right">{formatCurrency(property.monthly_rent)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{property.tenant_name || 'Vacant'}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium text-right">{formatCurrency(property.monthly_rent)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{property.tenant_name || 'Vacant'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -743,16 +743,16 @@ const Reporting = () => {
 
           {/* Tenants Section */}
           {data.sections.tenants && data.sections.tenants.tenants && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
               <div className="px-6 py-4 border-b-2 border-green-600 bg-green-50">
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => toggleSection('tenants')}
-                    className="flex items-center text-lg font-bold text-green-800 hover:text-green-900 transition-colors"
+                    className="flex items-center text-lg font-bold text-green-800 dark:text-green-200 hover:text-green-900 transition-colors"
                   >
-                    <Users className="h-5 w-5 mr-3 text-green-600" />
+                    <Users className="h-5 w-5 mr-3 text-green-600 dark:text-green-400" />
                     Tenants Management
-                    <span className="ml-3 text-sm font-normal text-green-600">
+                    <span className="ml-3 text-sm font-normal text-green-600 dark:text-green-400">
                       ({data.sections.tenants.tenants.length} tenants)
                     </span>
                     {expandedSections.tenants ? (
@@ -763,13 +763,13 @@ const Reporting = () => {
                   </button>
                   <div className="flex items-center space-x-2">
                     <div className="relative">
-                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                       <input
                         type="text"
                         placeholder="Search tenants..."
                         value={searchFilters.tenants}
                         onChange={(e) => handleSearch('tenants', e.target.value)}
-                        className="pl-8 pr-3 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="pl-8 pr-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:outline-none focus:ring-2 focus:ring-green-500"
                       />
                     </div>
                   </div>
@@ -812,18 +812,18 @@ const Reporting = () => {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {filterAndSortData(data.sections.tenants.tenants, 'tenants', 'full_name').map((tenant, index) => (
-                        <tr key={index} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-green-50'}`}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tenant.full_name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{tenant.property_title}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium text-right">{formatCurrency(tenant.monthly_rent)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">{tenant.lease_end}</td>
+                        <tr key={index} className={`hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-green-50'}`}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{tenant.full_name}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{tenant.property_title}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium text-right">{formatCurrency(tenant.monthly_rent)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 text-center">{tenant.lease_end}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
                             <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
                               tenant.is_active 
-                                ? 'bg-green-100 text-green-800 border border-green-200' 
-                                : 'bg-red-100 text-red-800 border border-red-200'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 border border-green-200' 
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 border border-red-200'
                             }`}>
                               <span className={`w-2 h-2 rounded-full mr-2 ${
                                 tenant.is_active ? 'bg-green-500' : 'bg-red-500'
@@ -842,16 +842,16 @@ const Reporting = () => {
 
           {/* Maintenance Section */}
           {data.sections.maintenance && data.sections.maintenance.requests && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-red-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-orange-50 to-red-50">
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => toggleSection('maintenance')}
-                    className="flex items-center text-base font-semibold text-gray-900 hover:text-orange-600 transition-colors"
+                    className="flex items-center text-base font-semibold text-gray-900 dark:text-white hover:text-orange-600 dark:text-orange-400 transition-colors"
                   >
-                    <Wrench className="h-4 w-4 mr-2 text-orange-600" />
+                    <Wrench className="h-4 w-4 mr-2 text-orange-600 dark:text-orange-400" />
                     Maintenance Requests
-                    <span className="ml-2 text-xs font-normal text-gray-500">
+                    <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
                       ({data.sections.maintenance.requests.length} requests)
                     </span>
                     {expandedSections.maintenance ? (
@@ -862,13 +862,13 @@ const Reporting = () => {
                   </button>
                   <div className="flex items-center space-x-2">
                     <div className="relative">
-                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                       <input
                         type="text"
                         placeholder="Search requests..."
                         value={searchFilters.maintenance}
                         onChange={(e) => handleSearch('maintenance', e.target.value)}
-                        className="pl-8 pr-3 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="pl-8 pr-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"
                       />
                     </div>
                   </div>
@@ -878,10 +878,10 @@ const Reporting = () => {
               {expandedSections.maintenance && (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('maintenance', 'title')}
                         >
                           <div className="flex items-center">
@@ -889,9 +889,9 @@ const Reporting = () => {
                             {getSortIcon('maintenance', 'title')}
                           </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('maintenance', 'priority')}
                         >
                           <div className="flex items-center">
@@ -900,7 +900,7 @@ const Reporting = () => {
                           </div>
                         </th>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('maintenance', 'status')}
                         >
                           <div className="flex items-center">
@@ -909,7 +909,7 @@ const Reporting = () => {
                           </div>
                         </th>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('maintenance', 'cost')}
                         >
                           <div className="flex items-center">
@@ -919,28 +919,28 @@ const Reporting = () => {
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {filterAndSortData(data.sections.maintenance.requests, 'maintenance', 'title').map((request, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{request.title}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{request.property_title}</td>
+                        <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{request.title}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{request.property_title}</td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              request.priority === 'HIGH' ? 'bg-red-100 text-red-800' :
-                              request.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                              request.priority === 'HIGH' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                              request.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800 dark:text-yellow-200' : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                             }`}>
                               {request.priority}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              request.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                              request.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                              request.status === 'COMPLETED' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                              request.status === 'IN_PROGRESS' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200' : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
                             }`}>
                               {request.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{formatCurrency(request.cost)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium">{formatCurrency(request.cost)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -952,16 +952,16 @@ const Reporting = () => {
 
           {/* Financial Section */}
           {data.sections.financial && data.sections.financial.transactions && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-indigo-50">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-600 bg-gradient-to-r from-purple-50 to-indigo-50">
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() => toggleSection('financial')}
-                    className="flex items-center text-base font-semibold text-gray-900 hover:text-purple-600 transition-colors"
+                    className="flex items-center text-base font-semibold text-gray-900 dark:text-white hover:text-purple-600 transition-colors"
                   >
                     <DollarSign className="h-4 w-4 mr-2 text-purple-600" />
                     Financial Transactions
-                    <span className="ml-2 text-xs font-normal text-gray-500">
+                    <span className="ml-2 text-xs font-normal text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
                       ({data.sections.financial.transactions.length} transactions)
                     </span>
                     {expandedSections.financial ? (
@@ -972,13 +972,13 @@ const Reporting = () => {
                   </button>
                   <div className="flex items-center space-x-2">
                     <div className="relative">
-                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Search className="h-3 w-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
                       <input
                         type="text"
                         placeholder="Search transactions..."
                         value={searchFilters.financial}
                         onChange={(e) => handleSearch('financial', e.target.value)}
-                        className="pl-8 pr-3 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="pl-8 pr-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
                     </div>
                   </div>
@@ -988,10 +988,10 @@ const Reporting = () => {
               {expandedSections.financial && (
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-900">
                       <tr>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('financial', 'type')}
                         >
                           <div className="flex items-center">
@@ -1000,7 +1000,7 @@ const Reporting = () => {
                           </div>
                         </th>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('financial', 'amount')}
                         >
                           <div className="flex items-center">
@@ -1008,9 +1008,9 @@ const Reporting = () => {
                             {getSortIcon('financial', 'amount')}
                           </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Description</th>
                         <th 
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 dark:bg-gray-700"
                           onClick={() => handleSort('financial', 'date')}
                         >
                           <div className="flex items-center">
@@ -1018,23 +1018,23 @@ const Reporting = () => {
                             {getSortIcon('financial', 'date')}
                           </div>
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">Property</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
                       {filterAndSortData(data.sections.financial.transactions, 'financial', 'description').map((transaction, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                        <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              transaction.type === 'INCOME' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              transaction.type === 'INCOME' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200'
                             }`}>
                               {transaction.type}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">{formatCurrency(transaction.amount)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.description}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.date}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.property_title}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-medium">{formatCurrency(transaction.amount)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{transaction.description}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{transaction.date}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{transaction.property_title}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1048,8 +1048,8 @@ const Reporting = () => {
     }
 
     return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-500">Report data will be displayed here after generation.</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <p className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Report data will be displayed here after generation.</p>
       </div>
     );
   };
@@ -1057,7 +1057,7 @@ const Reporting = () => {
   if (loadingTypes) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader className="h-8 w-8 animate-spin text-blue-600" />
+        <Loader className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
       </div>
     );
   }
@@ -1065,30 +1065,30 @@ const Reporting = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-            <p className="text-gray-600 mt-1">Generate comprehensive reports for your property management data</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports & Analytics</h1>
+            <p className="text-gray-600 dark:text-gray-300 mt-1">Generate comprehensive reports for your property management data</p>
           </div>
           <div className="flex items-center space-x-2">
-            <FileText className="h-8 w-8 text-blue-600" />
+            <FileText className="h-8 w-8 text-blue-600 dark:text-blue-400" />
           </div>
         </div>
       </div>
 
       {/* Report Configuration */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Generate Report</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Generate Report</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {/* Report Type Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Report Type</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Report Type</label>
             <select
               value={selectedReportType}
               onChange={(e) => setSelectedReportType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select a report type</option>
               {reportTypesData?.report_types?.map((type) => {
@@ -1104,23 +1104,23 @@ const Reporting = () => {
 
           {/* Start Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Start Date</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* End Date */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">End Date</label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
@@ -1159,10 +1159,10 @@ const Reporting = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-start">
             <div className="flex-shrink-0">
-              <FileText className="h-5 w-5 text-blue-600 mt-0.5" />
+              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">Report Viewing Options</h3>
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">Report Viewing Options</h3>
               <div className="mt-2 text-sm text-blue-700">
                 <p><strong>Generate (View Online):</strong> View the report with modern styling, interactive tables, and responsive design in your browser.</p>
                 <p><strong>Download PDF:</strong> Download a professional PDF report with formatted tables, proper styling, and print-ready layout.</p>
@@ -1184,16 +1184,16 @@ const Reporting = () => {
                 className={`p-4 border rounded-lg cursor-pointer transition-all ${
                   isSelected
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900'
                 }`}
               >
                 <div className="flex items-center space-x-3">
-                  <Icon className={`h-6 w-6 ${isSelected ? 'text-blue-600' : 'text-gray-400'}`} />
+                  <Icon className={`h-6 w-6 ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300'}`} />
                   <div>
-                    <div className={`font-medium ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
+                    <div className={`font-medium ${isSelected ? 'text-blue-900' : 'text-gray-900 dark:text-white'}`}>
                       {type.name}
                     </div>
-                    <div className="text-sm text-gray-500">{type.description}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">{type.description}</div>
                   </div>
                 </div>
               </div>
@@ -1206,18 +1206,18 @@ const Reporting = () => {
       {reportData && (
         <div className="space-y-6">
           {/* Report Header */}
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">{reportData.report_type}</h2>
-                <p className="text-gray-600">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">{reportData.report_type}</h2>
+                <p className="text-gray-600 dark:text-gray-300">
                   Generated by {reportData.generated_by} • 
                   {reportData.date_range?.start_date} to {reportData.date_range?.end_date}
                 </p>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-500">Generated on</div>
-                <div className="text-sm font-medium text-gray-900">
+                <div className="text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">Generated on</div>
+                <div className="text-sm font-medium text-gray-900 dark:text-white">
                   {new Date().toLocaleDateString()}
                 </div>
               </div>

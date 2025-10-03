@@ -139,9 +139,27 @@ def create_tenant(current_user):
                 if property.owner_id != current_user.id:
                     return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
-                # Check if property is available
-                if property.status != 'available':
-                    return jsonify({'error': 'Property is not available for rent'}), 400
+                # Check if property is available using the same logic as frontend
+                from datetime import date
+                today = date.today()
+                
+                # Get active tenants (excluding current tenant if updating)
+                active_tenants = Tenant.query.filter(
+                    Tenant.property_id == property.id,
+                    Tenant.id != existing_tenant.id,  # Exclude current tenant
+                    (Tenant.lease_end.is_(None)) | (Tenant.lease_end >= today)
+                ).count()
+                
+                # Determine actual rental status (same logic as frontend)
+                if active_tenants > 0:
+                    rental_status = 'rented'
+                elif property.status == 'maintenance':
+                    rental_status = 'maintenance'
+                else:
+                    rental_status = 'available'
+                
+                if rental_status != 'available':
+                    return jsonify({'error': f'Property is not available for rent. Current status: {rental_status} (DB status: {property.status})'}), 400
 
                 # Update existing tenant with property assignment
                 existing_tenant.property_id = tenant_data['property_id']
@@ -189,13 +207,34 @@ def create_tenant(current_user):
             if not property:
                 return jsonify({'error': 'Property not found'}), 404
             
+            print(f"Property found: {property.title}, Status: {property.status}, Owner: {property.owner_id}")
+            
             # Check if user owns this property
             if property.owner_id != current_user.id:
                 return jsonify({'error': 'Not authorized to add tenants to this property'}), 403
 
-            # Check if property is available
-            if property.status != 'available':
-                return jsonify({'error': 'Property is not available for rent'}), 400
+            # Check if property is available using the same logic as frontend
+            from datetime import date
+            today = date.today()
+            
+            # Get active tenants (lease hasn't ended)
+            active_tenants = Tenant.query.filter(
+                Tenant.property_id == property.id,
+                (Tenant.lease_end.is_(None)) | (Tenant.lease_end >= today)
+            ).count()
+            
+            # Determine actual rental status (same logic as frontend)
+            if active_tenants > 0:
+                rental_status = 'rented'
+            elif property.status == 'maintenance':
+                rental_status = 'maintenance'
+            else:
+                rental_status = 'available'
+            
+            if rental_status != 'available':
+                return jsonify({'error': f'Property is not available for rent. Current status: {rental_status} (DB status: {property.status})'}), 400
+            
+            print(f"Property {property.id} is available for assignment (rental_status: {rental_status}, active_tenants: {active_tenants})")
 
             # Use property's rent amount
             property_rent_amount = property.rent_amount
@@ -302,6 +341,14 @@ def get_tenants(current_user):
         tenant_list = []
         for tenant in tenants:
             try:
+                # Always use the current property rent amount if tenant is assigned to a property
+                current_rent = "0"
+                if tenant.property and tenant.property.rent_amount:
+                    current_rent = str(tenant.property.rent_amount)
+                elif tenant.rent_amount:
+                    # Fallback to tenant's stored rent for unassigned tenants
+                    current_rent = str(tenant.rent_amount)
+                
                 tenant_data = {
                     'id': tenant.id,
                     'name': tenant.full_name,
@@ -310,7 +357,7 @@ def get_tenants(current_user):
                     'propertyId': tenant.property_id,
                     'leaseStartDate': tenant.lease_start.isoformat() if tenant.lease_start else None,
                     'leaseEndDate': tenant.lease_end.isoformat() if tenant.lease_end else None,
-                    'rentAmount': str(tenant.rent_amount) if tenant.rent_amount else "0",
+                    'rentAmount': current_rent,
                     'status': tenant.payment_status or 'pending',
                     'created_at': tenant.created_at.isoformat() if tenant.created_at else None
                 }
@@ -456,6 +503,13 @@ def get_my_unit(current_user):
         next_month = today.replace(day=1) + timedelta(days=32)
         next_month = next_month.replace(day=1)
         
+        # Always use current property rent amount
+        current_rent = 0
+        if property and property.rent_amount:
+            current_rent = float(property.rent_amount)
+        elif tenant.rent_amount:
+            current_rent = float(tenant.rent_amount)
+        
         tenant_data = {
             'id': tenant.id,
             'full_name': tenant.full_name,
@@ -463,7 +517,7 @@ def get_my_unit(current_user):
             'phone_number': tenant.phone_number,
             'lease_start': tenant.lease_start.isoformat() if tenant.lease_start else None,
             'lease_end': tenant.lease_end.isoformat() if tenant.lease_end else None,
-            'rent_amount': float(tenant.rent_amount) if tenant.rent_amount else 0,
+            'rent_amount': current_rent,
             'payment_status': tenant.payment_status or 'active',
             'rent_due_date': next_month.isoformat(),
             'property': {
@@ -757,6 +811,130 @@ def import_tenants(current_user):
     except Exception as e:
         print("Error importing tenants:", str(e))
         db.session.rollback()
+        return jsonify({'error': str(e)}), 400
+
+@tenant_bp.route('/<int:tenant_id>', methods=['GET'])
+@token_required
+def get_tenant(current_user, tenant_id):
+    """Get a specific tenant by ID"""
+    try:
+        # Find the tenant
+        tenant = Tenant.query.get(tenant_id)
+        
+        if not tenant:
+            return jsonify({'error': 'Tenant not found'}), 404
+        
+        # Check authorization
+        if tenant.property_id:
+            # For assigned tenants, check if the user owns the property
+            property = Property.query.get(tenant.property_id)
+            if not property or property.owner_id != current_user.id:
+                return jsonify({'error': 'Unauthorized to view this tenant'}), 403
+        # For unassigned tenants, allow access (you might want to add additional checks)
+        
+        # Always use the current property rent amount if tenant is assigned to a property
+        current_rent = "0"
+        if tenant.property and tenant.property.rent_amount:
+            current_rent = str(tenant.property.rent_amount)
+        elif tenant.rent_amount:
+            # Fallback to tenant's stored rent for unassigned tenants
+            current_rent = str(tenant.rent_amount)
+        
+        tenant_data = {
+            'id': tenant.id,
+            'name': tenant.full_name,
+            'full_name': tenant.full_name,
+            'email': tenant.email,
+            'phone': tenant.phone_number,
+            'phone_number': tenant.phone_number,
+            'propertyId': tenant.property_id,
+            'leaseStartDate': tenant.lease_start.isoformat() if tenant.lease_start else None,
+            'leaseEndDate': tenant.lease_end.isoformat() if tenant.lease_end else None,
+            'lease_start': tenant.lease_start.isoformat() if tenant.lease_start else None,
+            'lease_end': tenant.lease_end.isoformat() if tenant.lease_end else None,
+            'rentAmount': current_rent,
+            'rent_amount': current_rent,
+            'rent_payment_day': tenant.rent_payment_day,
+            'status': tenant.payment_status or 'pending',
+            'payment_status': tenant.payment_status or 'pending',
+            'created_at': tenant.created_at.isoformat() if tenant.created_at else None
+        }
+        
+        # Handle property data (can be None for unassigned tenants)
+        if tenant.property:
+            # Format address
+            property_address = []
+            if tenant.property.street_address_1:
+                property_address.append(tenant.property.street_address_1)
+            if tenant.property.street_address_2:
+                property_address.append(tenant.property.street_address_2)
+            if tenant.property.city:
+                property_address.append(tenant.property.city)
+            if tenant.property.state:
+                property_address.append(tenant.property.state)
+            if tenant.property.zip_code:
+                property_address.append(tenant.property.zip_code)
+            
+            tenant_data['property'] = {
+                'id': tenant.property.id,
+                'name': tenant.property.title,
+                'title': tenant.property.title,
+                'address': ', '.join(property_address),
+                'status': tenant.property.status
+            }
+        else:
+            # For unassigned tenants
+            tenant_data['property'] = None
+        
+        return jsonify(tenant_data), 200
+        
+    except Exception as e:
+        print(f"Error fetching tenant: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+
+@tenant_bp.route('/<int:tenant_id>', methods=['PUT'])
+@token_required
+def update_tenant(current_user, tenant_id):
+    """Update a specific tenant"""
+    try:
+        # Find the tenant
+        tenant = Tenant.query.get(tenant_id)
+        
+        if not tenant:
+            return jsonify({'error': 'Tenant not found'}), 404
+        
+        # Check authorization
+        if tenant.property_id:
+            # For assigned tenants, check if the user owns the property
+            property = Property.query.get(tenant.property_id)
+            if not property or property.owner_id != current_user.id:
+                return jsonify({'error': 'Unauthorized to update this tenant'}), 403
+        
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+        
+        # Update tenant fields
+        if 'full_name' in data:
+            tenant.full_name = data['full_name']
+        if 'email' in data:
+            tenant.email = data['email']
+        if 'phone_number' in data:
+            tenant.phone_number = data['phone_number']
+        if 'lease_start' in data and data['lease_start']:
+            tenant.lease_start = datetime.strptime(data['lease_start'], '%Y-%m-%d').date()
+        if 'lease_end' in data and data['lease_end']:
+            tenant.lease_end = datetime.strptime(data['lease_end'], '%Y-%m-%d').date()
+        if 'rent_payment_day' in data:
+            tenant.rent_payment_day = data['rent_payment_day']
+        
+        db.session.commit()
+        
+        return jsonify({'message': 'Tenant updated successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error updating tenant: {str(e)}")
         return jsonify({'error': str(e)}), 400
 
 @tenant_bp.route('/<int:tenant_id>', methods=['DELETE'])

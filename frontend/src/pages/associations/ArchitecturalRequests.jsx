@@ -61,14 +61,14 @@ const ArchitecturalRequests = () => {
     <div className="p-6">
       <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-yellow-800">
+          <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
             <span>⚠️</span>
             <span>
               To set up architectural requests in Resident Center, go to{' '}
               <a href="#" className="underline">Resident Center Settings</a>.
             </span>
           </div>
-          <button className="text-gray-500 hover:text-gray-700">×</button>
+          <button className="text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:text-gray-300">×</button>
         </div>
       </div>
 
@@ -87,16 +87,16 @@ const ArchitecturalRequests = () => {
         {/* Associations Dropdown */}
         <div className="relative inline-block">
           <button
-            className="border border-gray-300 rounded px-4 py-2 flex items-center gap-2 bg-white min-w-[200px]"
+            className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 flex items-center gap-2 bg-white dark:bg-gray-800 min-w-[200px]"
             onClick={() => setIsAssociationDropdownOpen(!isAssociationDropdownOpen)}
           >
             <span>{selectedAssociation}</span>
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
           </button>
           {isAssociationDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
               <div
-                className="px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer"
                 onClick={() => {
                   setSelectedAssociation('All associations');
                   setIsAssociationDropdownOpen(false);
@@ -105,7 +105,7 @@ const ArchitecturalRequests = () => {
                 All associations
               </div>
               <div
-                className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-blue-600 hover:text-blue-700"
+                className="px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer text-blue-600 dark:text-blue-400 hover:text-blue-700"
                 onClick={() => {
                   handleManageGroups();
                   setIsAssociationDropdownOpen(false);
@@ -120,21 +120,21 @@ const ArchitecturalRequests = () => {
         {/* Status Dropdown */}
         <div className="relative inline-block" ref={statusDropdownRef}>
           <button
-            className="border border-gray-300 rounded px-4 py-2 flex items-center gap-2 bg-white min-w-[200px]"
+            className="border border-gray-300 dark:border-gray-600 rounded px-4 py-2 flex items-center gap-2 bg-white dark:bg-gray-800 min-w-[200px]"
             onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
           >
             <span>{getStatusDisplayText()}</span>
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300" />
           </button>
           {isStatusDropdownOpen && (
-            <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg z-50">
               {statusOptions.map(option => (
                 <div
                   key={option.id}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 cursor-pointer"
                   onClick={() => handleStatusToggle(option.id)}
                 >
-                  <div className="w-6 h-6 border border-gray-300 rounded flex items-center justify-center bg-white">
+                  <div className="w-6 h-6 border border-gray-300 dark:border-gray-600 rounded flex items-center justify-center bg-white dark:bg-gray-800">
                     {selectedStatuses.includes(option.id) && (
                       <Check className="h-4 w-4 text-green-500" />
                     )}
@@ -147,21 +147,21 @@ const ArchitecturalRequests = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-900">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ADDRESS</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ASSOCIATION</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DATE OF REQUEST</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AGE OF REQUEST</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PROJECT NAME</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DECISION STATUS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">ADDRESS</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">ASSOCIATION</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">DATE OF REQUEST</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">AGE OF REQUEST</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">PROJECT NAME</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 uppercase tracking-wider">DECISION STATUS</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
             <tr>
-              <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
+              <td colSpan="6" className="px-6 py-12 text-center text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">
                 We didn't find any architectural requests. Maybe you don't have any or maybe you need to{' '}
                 <button className="text-blue-500 hover:underline">
                   clear your filters

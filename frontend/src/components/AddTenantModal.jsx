@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useQuery } from 'react-query';
+import { Search, X } from 'lucide-react';
 import api from '../utils/axios';
 import toast from 'react-hot-toast';
 
@@ -12,6 +13,9 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
   const [prorationError, setProrationError] = useState(null);
   const [tenantMode, setTenantMode] = useState('existing'); // 'existing' or 'new'
   const [calculationTimeout, setCalculationTimeout] = useState(null);
+  const [propertySearchTerm, setPropertySearchTerm] = useState('');
+  const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
+  const [selectedPropertyId, setSelectedPropertyId] = useState('');
   const {
     register,
     handleSubmit,
@@ -32,6 +36,34 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
   );
 
   const availableTenants = availableTenantsData?.available_tenants || [];
+  
+  // Filter properties based on search term
+  const filteredProperties = useMemo(() => {
+    if (!propertySearchTerm.trim()) return properties;
+    
+    const searchTerm = propertySearchTerm.toLowerCase();
+    return properties.filter(property => {
+      const title = property.title?.toLowerCase() || '';
+      const streetAddress1 = property.street_address_1?.toLowerCase() || '';
+      const streetAddress2 = property.street_address_2?.toLowerCase() || '';
+      const aptNumber = property.apt_number?.toLowerCase() || '';
+      const city = property.city?.toLowerCase() || '';
+      const state = property.state?.toLowerCase() || '';
+      const zipCode = property.zip_code?.toLowerCase() || '';
+      const caseNumber = property.case_number?.toLowerCase() || '';
+      const folio = property.folio?.toLowerCase() || '';
+      
+      return title.includes(searchTerm) ||
+             streetAddress1.includes(searchTerm) ||
+             streetAddress2.includes(searchTerm) ||
+             aptNumber.includes(searchTerm) ||
+             city.includes(searchTerm) ||
+             state.includes(searchTerm) ||
+             zipCode.includes(searchTerm) ||
+             caseNumber.includes(searchTerm) ||
+             folio.includes(searchTerm);
+    });
+  }, [properties, propertySearchTerm]);
   
   // Watch form values for prorated rent calculation
   const watchedValues = watch(['propertyId', 'leaseStartDate', 'rentPaymentDay']);
@@ -198,7 +230,32 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
     }
   }, [isOpen]);
 
-  // Handle property selection to update rent amount
+  // Handle property selection from dropdown
+  const handlePropertySelect = (property) => {
+    setSelectedProperty(property);
+    setSelectedPropertyId(property.id);
+    setPropertySearchTerm(property.title);
+    setShowPropertyDropdown(false);
+    setValue('propertyId', property.id);
+    setValue('rentAmount', property.rent_amount);
+  };
+
+  // Handle search input changes
+  const handlePropertySearchChange = (e) => {
+    const value = e.target.value;
+    setPropertySearchTerm(value);
+    setShowPropertyDropdown(value.length > 0);
+    
+    // If search is cleared, reset selection
+    if (value === '') {
+      setSelectedProperty(null);
+      setSelectedPropertyId('');
+      setValue('propertyId', '');
+      setValue('rentAmount', '');
+    }
+  };
+
+  // Handle property selection to update rent amount (for form compatibility)
   const handlePropertyChange = (e) => {
     const propertyId = parseInt(e.target.value);
     const property = properties.find(p => p.id === propertyId);
@@ -210,6 +267,31 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
       setValue('rentAmount', '');
     }
   };
+
+  // Clear search when modal opens/closes
+  useEffect(() => {
+    if (!isOpen) {
+      setPropertySearchTerm('');
+      setShowPropertyDropdown(false);
+      setSelectedPropertyId('');
+    }
+  }, [isOpen]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.property-search-container')) {
+        setShowPropertyDropdown(false);
+      }
+    };
+
+    if (showPropertyDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showPropertyDropdown]);
 
   const onSubmit = async (data) => {
     try {
@@ -318,10 +400,10 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                   <p className="text-red-500 text-sm mt-1">{errors.tenantId.message}</p>
                 )}
                 {tenantsLoading && (
-                  <p className="text-gray-500 text-sm mt-1">Loading available tenants...</p>
+                  <p className="text-gray-500 dark:text-gray-300 text-sm mt-1">Loading available tenants...</p>
                 )}
                 {!tenantsLoading && availableTenants.length === 0 && (
-                  <p className="text-gray-500 text-sm mt-1">No available tenants found. All registered tenants are already assigned to properties.</p>
+                  <p className="text-gray-500 dark:text-gray-300 text-sm mt-1">No available tenants found. All registered tenants are already assigned to properties.</p>
                 )}
               </div>
             ) : (
@@ -383,21 +465,92 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                <label className="block text-sm font-medium text-gray-700 mb-1">
                  Property *
                </label>
+               <div className="relative property-search-container">
+                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                   <Search className="h-5 w-5 text-gray-400 dark:text-gray-300" />
+                 </div>
+                 <input
+                   type="text"
+                   value={propertySearchTerm}
+                   onChange={handlePropertySearchChange}
+                   onFocus={() => setShowPropertyDropdown(true)}
+                   placeholder="Search by name, address, zip code, case number..."
+                   className="input-field w-full pl-10 pr-10"
+                   autoComplete="off"
+                 />
+                 {propertySearchTerm && (
+                   <button
+                     type="button"
+                     onClick={() => {
+                       setPropertySearchTerm('');
+                       setSelectedProperty(null);
+                       setSelectedPropertyId('');
+                       setShowPropertyDropdown(false);
+                       setValue('propertyId', '');
+                       setValue('rentAmount', '');
+                     }}
+                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                   >
+                     <X className="h-5 w-5 text-gray-400 dark:text-gray-300 hover:text-gray-600" />
+                   </button>
+                 )}
+                 
+                 {/* Dropdown Results */}
+                 {showPropertyDropdown && (
+                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                     {filteredProperties.length > 0 ? (
+                       filteredProperties.map(property => (
+                         <div
+                           key={property.id}
+                           onClick={() => handlePropertySelect(property)}
+                           className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                         >
+                           <div className="font-medium text-gray-900">
+                             {property.title}
+                           </div>
+                           <div className="text-sm text-gray-600">
+                             {property.street_address_1}
+                             {property.apt_number && `, Unit ${property.apt_number}`}
+                           </div>
+                           <div className="text-sm text-gray-500 dark:text-gray-300">
+                             {property.city}, {property.state} {property.zip_code}
+                           </div>
+                           <div className="text-sm font-medium text-green-600">
+                             ${property.rent_amount}/month
+                           </div>
+                         </div>
+                       ))
+                     ) : (
+                       <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-300">
+                         No properties found matching "{propertySearchTerm}"
+                       </div>
+                     )}
+                   </div>
+                 )}
+               </div>
+               
+               {/* Hidden select field for form validation */}
                <select
                  {...register('propertyId', { required: 'Property is required' })}
-                 className="input-field w-full"
-                 onChange={handlePropertyChange}
+                 value={selectedPropertyId}
+                 onChange={() => {}} // Handled by the search input
+                 className="hidden"
                >
                  <option value="">Select a property</option>
                  {properties.map(property => (
                    <option key={property.id} value={property.id}>
-                     {property.title} - ${property.rent_amount}/month
+                     {property.title}
                    </option>
                  ))}
                </select>
+               
                {errors.propertyId && (
                  <p className="text-red-500 text-sm mt-1">{errors.propertyId.message}</p>
                )}
+               
+               <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
+                 Search across property name, address, city, state, zip code, case number, and folio
+               </p>
              </div>
            </div>
 
@@ -456,7 +609,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 {errors.rentPaymentDay && (
                   <p className="text-red-500 text-sm mt-1">{errors.rentPaymentDay.message}</p>
                 )}
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   Select the day of each month when rent payment is due
                 </p>
               </div>
@@ -477,7 +630,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                   className="input-field w-full bg-gray-100"
                   disabled
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">
                   {selectedProperty 
                     ? 'Rent amount is set by the property\'s listing'
                     : selectedTenant && selectedTenant.rent_amount && selectedTenant.rent_amount !== 'N/A'
@@ -500,7 +653,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 <div>
                   <p className="text-sm text-gray-600">First Month Amount</p>
                   <p className="text-xl font-bold text-blue-600">${proratedRent.first_month_amount}</p>
-                  <p className="text-xs text-gray-500">Instead of ${proratedRent.monthly_rent}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Instead of ${proratedRent.monthly_rent}</p>
                 </div>
                 
                 <div>
@@ -508,7 +661,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                   <p className={`text-xl font-bold ${proratedRent.savings > 0 ? 'text-green-600' : 'text-gray-600'}`}>
                     ${proratedRent.savings.toFixed(2)}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 dark:text-gray-300">
                     {proratedRent.savings > 0 ? 'For partial month' : 'Full month billing'}
                   </p>
                 </div>
@@ -516,13 +669,13 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                 <div>
                   <p className="text-sm text-gray-600">Days Prorated</p>
                   <p className="text-lg font-semibold">{proratedRent.days_prorated} days</p>
-                  <p className="text-xs text-gray-500">Out of {proratedRent.days_in_month} days</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Out of {proratedRent.days_in_month} days</p>
                 </div>
                 
                 <div>
                   <p className="text-sm text-gray-600">Daily Rate</p>
                   <p className="text-lg font-semibold">${proratedRent.daily_rate}/day</p>
-                  <p className="text-xs text-gray-500">Next full payment: {new Date(proratedRent.next_full_payment_date).toLocaleDateString()}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-300">Next full payment: {new Date(proratedRent.next_full_payment_date).toLocaleDateString()}</p>
                 </div>
               </div>
               
@@ -553,7 +706,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
                     setCalculatingProration(false);
                     setProrationError('Calculation cancelled by user');
                   }}
-                  className="text-sm text-gray-500 hover:text-gray-700 underline"
+                  className="text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700 underline"
                 >
                   Cancel calculation
                 </button>
@@ -578,7 +731,7 @@ const AddTenantModal = ({ isOpen, onClose, properties, onSuccess }) => {
               <div className="flex items-center">
                 <div className="text-red-600 mr-3">⚠️</div>
                 <div>
-                  <p className="text-red-800 font-medium">Error calculating prorated rent</p>
+                  <p className="text-red-800 dark:text-red-200 font-medium">Error calculating prorated rent</p>
                   <p className="text-red-600 text-sm">{prorationError}</p>
                 </div>
               </div>

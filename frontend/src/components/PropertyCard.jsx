@@ -109,9 +109,9 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'available':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:text-green-200';
       case 'rented':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200';
       case 'maintenance':
         return 'bg-yellow-100 text-yellow-800';
       case 'unavailable':
@@ -200,7 +200,7 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
         ) : null}
         
         {/* Fallback when no image or image fails to load */}
-        <div className={`w-full h-full flex items-center justify-center text-gray-400 ${imageUrl ? 'hidden' : 'flex'}`}>
+        <div className={`w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-300 ${imageUrl ? 'hidden' : 'flex'}`}>
           <div className="text-center">
             <Home className="h-12 w-12 mx-auto mb-2 text-gray-300" />
             <span className="text-sm">No Image Available</span>
@@ -227,7 +227,7 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
             disabled={addToFavoritesMutation.isLoading || removeFromFavoritesMutation.isLoading}
           >
             <Heart className={`h-4 w-4 transition-all duration-300 ${
-              favorite ? 'text-white fill-white' : 'text-gray-400 hover:text-red-500'
+              favorite ? 'text-white fill-white' : 'text-gray-400 dark:text-gray-300 hover:text-red-500'
             }`} />
           </button>
 
@@ -238,7 +238,7 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
                 onClick={handleDropdownToggle}
                 className="p-2 rounded-full bg-white/90 hover:bg-gray-50 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-110"
               >
-                <MoreHorizontal className="h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors duration-300" />
+                <MoreHorizontal className="h-4 w-4 text-gray-400 dark:text-gray-300 hover:text-gray-600 transition-colors duration-300" />
               </button>
 
               {/* Dropdown Menu */}
@@ -287,16 +287,34 @@ const PropertyCard = ({ property, isFavorite = false, onDelete }) => {
           </p>
         </div>
 
+        {/* Case Number and Folio */}
+        {(property.case_number || property.folio) && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-2 text-xs">
+              {property.case_number && (
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded-full">
+                  Case: {property.case_number}
+                </span>
+              )}
+              {property.folio && (
+                <span className="px-2 py-1 bg-green-100 text-green-800 dark:text-green-200 rounded-full">
+                  Folio: {property.folio}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Rental Owner Information */}
         {property.rental_owner && (
           <div className="mb-4">
             <div className="flex items-center text-xs sm:text-sm text-gray-600">
-              <Building2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-gray-400" />
+              <Building2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 text-gray-400 dark:text-gray-300" />
               <span className="font-medium text-gray-700">
                 {property.rental_owner.company_name}
               </span>
               {property.rental_owner.business_type && (
-                <span className="ml-2 text-gray-500">
+                <span className="ml-2 text-gray-500 dark:text-gray-300">
                   ({property.rental_owner.business_type})
                 </span>
               )}

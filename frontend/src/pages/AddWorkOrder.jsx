@@ -206,28 +206,28 @@ const AddWorkOrder = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Add work order</h1>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Add work order</h1>
       </div>
 
       {/* Form */}
-      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6">
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Basic Information</h2>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Basic Information</h2>
             
             {/* Property and Subject */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   PROPERTY (REQUIRED)
                 </label>
                 <div className="relative">
                   <select
                     value={formData.property}
                     onChange={(e) => handleInputChange('property', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     required
                     disabled={propertiesLoading}
                   >
@@ -238,19 +238,19 @@ const AddWorkOrder = () => {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   SUBJECT (REQUIRED)
                 </label>
                 <input
                   type="text"
                   value={formData.subject}
                   onChange={(e) => handleInputChange('subject', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Brief description of the work needed"
                   required
                 />
@@ -275,14 +275,14 @@ const AddWorkOrder = () => {
             {/* Category and Vendor */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   CATEGORY
                 </label>
                 <div className="relative">
                   <select
                     value={formData.category}
                     onChange={(e) => handleInputChange('category', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     disabled={categoriesLoading}
                   >
                     <option value="">{categoriesLoading ? 'Loading categories...' : 'Select category'}</option>
@@ -292,19 +292,19 @@ const AddWorkOrder = () => {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   VENDOR (REQUIRED)
                 </label>
                 <div className="relative">
                   <select
                     value={formData.vendor}
                     onChange={(e) => handleInputChange('vendor', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                     required
                     disabled={vendorsLoading || !selectedRentalOwner || !formData.category}
                   >
@@ -328,7 +328,7 @@ const AddWorkOrder = () => {
                       )
                     )}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -336,11 +336,11 @@ const AddWorkOrder = () => {
 
           {/* Work Details Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Work Details</h2>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Work Details</h2>
             
             {/* Work to be performed */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 WORK TO BE PERFORMED (REQUIRED)
               </label>
               <textarea
@@ -348,7 +348,7 @@ const AddWorkOrder = () => {
                 onChange={(e) => handleInputChange('workToBePerformed', e.target.value)}
                 placeholder="Describe the work that needs to be done..."
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 required
               />
             </div>
@@ -356,14 +356,14 @@ const AddWorkOrder = () => {
             {/* Entry Details and Contact */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   ENTRY DETAILS
                 </label>
                 <div className="relative">
                   <select
                     value={formData.entryDetails}
                     onChange={(e) => handleInputChange('entryDetails', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
                     <option value="">Select entry preference</option>
                     <option value="no-entry-needed">No entry needed</option>
@@ -371,19 +371,19 @@ const AddWorkOrder = () => {
                     <option value="tenant-present">Tenant must be present</option>
                     <option value="coordinate-entry">Coordinate entry</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   ENTRY CONTACT
                 </label>
                 <div className="relative">
                   <select
                     value={formData.entryContact}
                     onChange={(e) => handleInputChange('entryContact', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
                     <option value="">Select entry contact</option>
                     <option value="property-manager">Property Manager</option>
@@ -391,7 +391,7 @@ const AddWorkOrder = () => {
                     <option value="maintenance-staff">Maintenance Staff</option>
                     <option value="landlord">Landlord</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -399,18 +399,18 @@ const AddWorkOrder = () => {
 
           {/* Status and Scheduling Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Status & Scheduling</h2>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Status & Scheduling</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   STATUS
                 </label>
                 <div className="relative">
                   <select
                     value={formData.status}
                     onChange={(e) => handleInputChange('status', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
                     <option value="new">New</option>
                     <option value="in_progress">In Progress</option>
@@ -418,38 +418,38 @@ const AddWorkOrder = () => {
                     <option value="on_hold">On Hold</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   PRIORITY
                 </label>
                 <div className="relative">
                   <select
                     value={formData.priority}
                     onChange={(e) => handleInputChange('priority', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                   >
                     <option value="low">Low</option>
                     <option value="normal">Normal</option>
                     <option value="high">High</option>
                     <option value="urgent">Urgent</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300 pointer-events-none" />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   DUE DATE
                 </label>
                 <input
                   type="date"
                   value={formData.dueDate}
                   onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -457,20 +457,20 @@ const AddWorkOrder = () => {
 
           {/* Cost Tracking Section */}
           <div className="space-y-6">
-            <h2 className="text-lg font-medium text-gray-900">Cost Tracking</h2>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Cost Tracking</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   ESTIMATED COST
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-300 dark:text-gray-400 dark:text-gray-300 dark:text-gray-500 dark:text-gray-300">$</span>
                   <input
                     type="number"
                     value={formData.estimatedCost}
                     onChange={(e) => handleInputChange('estimatedCost', e.target.value)}
-                    className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-8 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="0.00"
                     step="0.01"
                     min="0"
@@ -479,14 +479,14 @@ const AddWorkOrder = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   ESTIMATED HOURS
                 </label>
                 <input
                   type="number"
                   value={formData.workHours}
                   onChange={(e) => handleInputChange('workHours', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="0"
                   step="0.5"
                   min="0"
@@ -497,11 +497,11 @@ const AddWorkOrder = () => {
 
           {/* Files Section */}
           <div className="space-y-4">
-            <h2 className="text-lg font-medium text-gray-900">Attachments</h2>
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Attachments</h2>
             <button
               type="button"
               onClick={handleAddFile}
-              className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 text-sm"
+              className="flex items-center space-x-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:text-blue-200 text-sm"
             >
               <Plus className="h-4 w-4" />
               <span>Add files (photos, documents, etc.)</span>
@@ -527,7 +527,7 @@ const AddWorkOrder = () => {
             <button
               type="button"
               onClick={handleCancel}
-              className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              className="bg-gray-200 text-gray-700 dark:text-gray-300 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
             >
               Cancel
             </button>

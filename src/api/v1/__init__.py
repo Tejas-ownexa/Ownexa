@@ -21,7 +21,11 @@ from modules.ai_services.routes.admin_bot_routes import admin_bot_bp
 from routes.leasing_routes import leasing_bp
 from routes.dashboard_routes import dashboard_bp
 from routes.ai_lease_routes import ai_lease_bp
+<<<<<<< HEAD:src/api/v1/__init__.py
 from routes.work_order_routes import work_order_bp
+=======
+from routes.warehouse_routes import warehouse_bp
+>>>>>>> 9010d28ffdbe7d520a9135b06ed90726c286e44f:routes/__init__.py
 
 def init_routes(app):
     """Initialize all routes"""
@@ -48,8 +52,13 @@ def init_routes(app):
                 'rental_owners': '/api/rental-owners',
                 'dashboard': '/api/dashboard',
                 'reports': '/api/reports',
+<<<<<<< HEAD:src/api/v1/__init__.py
                 'pipeline': '/api/pipeline',
                 'ai_lease': '/api/ai-lease'
+=======
+                'ai_lease': '/api/ai-lease',
+                'warehouses': '/api/warehouses'
+>>>>>>> 9010d28ffdbe7d520a9135b06ed90726c286e44f:routes/__init__.py
             }
         })
     
@@ -131,6 +140,10 @@ def init_routes(app):
     # AI Lease routes
     app.register_blueprint(ai_lease_bp, url_prefix='/api/ai-lease')
     print("AI Lease routes registered")
+    
+    # Warehouse routes
+    app.register_blueprint(warehouse_bp, url_prefix='/api/warehouses')
+    print("Warehouse routes registered")
     
     print("All routes registered successfully")
     

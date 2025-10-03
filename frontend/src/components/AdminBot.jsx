@@ -52,20 +52,8 @@ Just ask me anything about your property management in natural language! 🏘️
 
   // Load conversation history from localStorage
   const loadConversationHistory = () => {
-    try {
-      const savedMessages = localStorage.getItem('adminBotConversation');
-      if (savedMessages) {
-        const parsedMessages = JSON.parse(savedMessages);
-        // Ensure we have at least the welcome message
-        if (parsedMessages.length === 0) {
-          return [defaultWelcomeMessage];
-        }
-        return parsedMessages;
-      }
-    } catch (error) {
-      console.error('Error loading conversation history:', error);
-    }
-    return [defaultWelcomeMessage];
+    // Start with empty chat - no welcome message
+    return [];
   };
 
   // Save conversation history to localStorage
@@ -83,7 +71,7 @@ Just ask me anything about your property management in natural language! 🏘️
   const clearConversationHistory = () => {
     try {
       localStorage.removeItem('adminBotConversation');
-      setMessages([defaultWelcomeMessage]);
+      setMessages([]);
       setConversationContext([]);
       toast.success('Conversation history cleared!');
     } catch (error) {
@@ -205,7 +193,7 @@ Just ask me anything about your property management in natural language! 🏘️
   const formatMessage = (message) => {
     // Handle null or undefined messages
     if (!message || typeof message !== 'string') {
-      return <div className="text-gray-500 italic">No message content available</div>;
+      return <div className="text-gray-500 dark:text-gray-300 italic">No message content available</div>;
     }
     
     // Convert markdown-style formatting to JSX
@@ -248,7 +236,7 @@ Just ask me anything about your property management in natural language! 🏘️
         } else if (line.startsWith('🔸') || line.startsWith('   ')) {
           return (
             <div key={index} className="ml-6 mb-1 text-sm text-gray-600 flex items-start">
-              <span className="text-gray-400 mr-2 mt-1">◦</span>
+              <span className="text-gray-400 dark:text-gray-300 mr-2 mt-1">◦</span>
               <span dangerouslySetInnerHTML={{ __html: line.replace('🔸', '').replace('   ', '') }} />
             </div>
           );
@@ -384,7 +372,7 @@ Just ask me anything about your property management in natural language! 🏘️
       <div className="flex-shrink-0 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
         <div className="flex items-center mb-1">
           <span className="text-sm font-semibold text-gray-700 mr-2">💡 Quick</span>
-          <span className="text-sm text-gray-500">Click to ask</span>
+          <span className="text-sm text-gray-500 dark:text-gray-300">Click to ask</span>
         </div>
         <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
           {quickQuestions.slice(0, 8).map((question, index) => (
@@ -417,7 +405,7 @@ Just ask me anything about your property management in natural language! 🏘️
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-gray-700">AI Assistant</span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 dark:text-gray-300">
                       {new Date(message.timestamp).toLocaleTimeString()}
                     </span>
                   </div>

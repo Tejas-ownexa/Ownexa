@@ -27,6 +27,8 @@ class Property(BaseModel):
     rental_owner_id = db.Column(db.Integer, db.ForeignKey('rental_owners.id', ondelete='CASCADE'), nullable=True)
 >>>>>>> c4000e91ef9e66dfad67d379435355dc7c1a0112:models/property.py
     image_url = db.Column(db.String(500))  # Store image URL/path
+    case_number = db.Column(db.String(100))  # Case number field
+    folio = db.Column(db.String(100))  # Folio field
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
