@@ -40,7 +40,6 @@ CORS(app,
      origins=[
          'http://localhost:3000',  # Local development
          'http://localhost:5000',  # Local production build
-         'https://ownexa-test.vercel.app',  # Production domain
          'https://ownexa.com'  # Production domain
      ],
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
