@@ -215,15 +215,6 @@ const Tenants = () => {
             </div>
             </div>
           
-            <button className="btn-secondary">
-              Receive payment
-            </button>
-            <button className="btn-secondary">
-              Compose email
-            </button>
-            <button className="btn-secondary">
-              Resident Center users
-            </button>
           </div>
         </div>
       </div>
@@ -260,10 +251,6 @@ const Tenants = () => {
               <option value="active">Active</option>
               <option value="future">Future</option>
             </select>
-            <button className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm flex items-center space-x-2">
-              <Filter className="h-4 w-4" />
-              <span>Add filter option</span>
-            </button>
           </div>
         </div>
         <div className="flex space-x-2">
@@ -275,6 +262,7 @@ const Tenants = () => {
             <span>Export</span>
           </button>
           
+<<<<<<< HEAD
           <button 
                          onClick={() => {
                // Download CSV template with available properties
@@ -345,6 +333,9 @@ const Tenants = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
+=======
+          
+>>>>>>> a0f7a5a8cda0fdc4ddcf27aaebe1da413c61f58d
         </div>
       </div>
 

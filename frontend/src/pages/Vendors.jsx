@@ -178,9 +178,6 @@ const Vendors = () => {
               <span>+</span>
               <span>Add Vendor</span>
             </button>
-            <button className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-              Compose email
-            </button>
           </div>
         </div>
       </div>

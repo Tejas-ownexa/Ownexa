@@ -400,17 +400,6 @@ const Rentals = () => {
                 <span className="hidden sm:inline">Add property</span>
                 <span className="sm:hidden">Add</span>
               </Link>
-              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors flex items-center space-x-2 text-sm sm:text-base">
-                <span className="hidden sm:inline">Management fees</span>
-                <span className="sm:hidden">Fees</span>
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors text-sm sm:text-base hidden sm:block">
-                Manage bank accounts
-              </button>
-              <button className="bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 sm:px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-900 transition-colors">
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
             </div>
           </div>
 
@@ -437,20 +426,6 @@ const Rentals = () => {
                 <option value="rented">Rented</option>
                 <option value="maintenance">Maintenance</option>
               </select>
-              <button className="border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
-                <Filter className="h-4 w-4" />
-                <span className="hidden sm:inline">Add filter option</span>
-                <span className="sm:hidden">Filters</span>
-                <ChevronDown className="h-4 w-4" />
-              </button>
-              <div className="flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start">
-                <span className="text-sm text-gray-600 dark:text-gray-300 hidden sm:inline">Show bank accounts</span>
-                <span className="text-sm text-gray-600 dark:text-gray-300 sm:hidden">Bank accounts</span>
-                <div className="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                  <input type="checkbox" name="toggle" id="toggle" className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white dark:bg-gray-800 border-4 appearance-none cursor-pointer"/>
-                  <label htmlFor="toggle" className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                </div>
-              </div>
             </div>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full lg:w-auto">
               <button 
